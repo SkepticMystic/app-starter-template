@@ -3,7 +3,6 @@ import { OTP, OTPs, type TeamInviteOTP } from "$lib/models/OTPs";
 import { Teams } from "$lib/models/Teams";
 import { password_schema } from "$lib/schema/index";
 import { Parsers } from "$lib/schema/parsers";
-import { INTERNAL_SERVER_ERROR } from "$lib/utils/errors";
 import { type Actions, error, redirect } from "@sveltejs/kit";
 import type { User } from "lucia";
 import { z } from "zod";
@@ -12,17 +11,12 @@ export const actions: Actions = {
   default: async ({ request, locals, url }) => {
     const { email, password } = await Parsers.form(
       request,
-      z.object({
-        email: z.string().email(),
-        password: password_schema,
-      }),
+      z.object({ email: z.string().email(), password: password_schema }),
     );
 
     const { team_token } = Parsers.url(
       url,
-      z.object({
-        team_token: z.string().optional(),
-      }),
+      z.object({ team_token: z.string().optional() }),
     );
 
     // SECTION: Team
@@ -56,16 +50,8 @@ export const actions: Actions = {
 
     try {
       const user = await auth.createUser({
-        attributes: {
-          ...attributes,
-          email,
-          admin: false,
-        },
-        key: {
-          password,
-          providerId: "email",
-          providerUserId: email,
-        },
+        attributes: { ...attributes, email, admin: false },
+        key: { password, providerId: "email", providerUserId: email },
       });
 
       const promises: Promise<any>[] = [
@@ -87,7 +73,7 @@ export const actions: Actions = {
         error(400, "Email already in use");
       }
 
-      throw INTERNAL_SERVER_ERROR(e);
+      error(500, "Something went wrong");
     }
 
     redirect(302, "/");

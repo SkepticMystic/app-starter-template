@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getHTTPErrorMsg } from "$lib/utils/errors";
+  import { get_http_error_msg } from "$lib/utils/errors";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { onMount } from "svelte";
   import { toast } from "svelte-daisyui-toast";
@@ -46,7 +46,7 @@
       // Set page after completing fetch
       pageNo = Math.floor(skip / limit) + 1;
     } catch (error) {
-      toast.error(getHTTPErrorMsg(error));
+      toast.error(get_http_error_msg(error));
     }
 
     loader.reset();

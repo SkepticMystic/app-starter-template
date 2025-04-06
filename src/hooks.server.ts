@@ -8,11 +8,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   return await resolve(event);
 };
 
-try {
-  await mongoose.connect(MONGO_URI, {
-    autoIndex: false,
-    dbName: "generic-app",
-  });
-} catch (error) {
-  console.log(error);
-}
+mongoose
+  .connect(MONGO_URI, { autoIndex: false, dbName: "generic-app" })
+  .catch((e) => console.log("mongoose.connect error", e));

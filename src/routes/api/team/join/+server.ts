@@ -9,10 +9,7 @@ import type { RequestHandler } from "./$types";
 export const GET: RequestHandler = async ({ url, locals }) => {
   const { team_id, token } = Parsers.url(
     url,
-    z.object({
-      token: z.string().min(1),
-      team_id: z.string().min(1),
-    }),
+    z.object({ token: z.string().min(1), team_id: z.string().min(1) }),
   );
 
   if (team_id) {
@@ -25,19 +22,19 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     }
   }
 
-  const checkToken = await OTP.validateToken<TeamInviteOTP>({
+  const check_token = await OTP.validateToken<TeamInviteOTP>({
     token,
     kind: "team-invite",
   });
-  if (!checkToken.ok) {
+  if (!check_token.ok) {
     console.log("validateToken failed", token);
     error(400, "Invalid token. Please request a new invite link.");
   }
-  const otp = checkToken.data;
+  const otp = check_token.data;
 
-  const checkUser = await OTP.getTokenUser(otp);
-  if (!checkUser.ok) {
-    if (checkUser.error.message === "user_not_found") {
+  const check_user = await OTP.getTokenUser(otp);
+  if (!check_user.ok) {
+    if (check_user.error.message === "user_not_found") {
       console.log("Valid token, no existing user");
       // Create a new user
 
@@ -45,11 +42,11 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         302,
         App.url("/auth/signup", {
           team_token: token,
-          email_hint: checkUser.error.id.value,
+          email_hint: check_user.error.id.value,
         }),
       );
     } else {
-      console.log("getTokenUser failed", checkUser.error);
+      console.log("getTokenUser failed", check_user.error);
       await otp.deleteOne();
       error(400, "Invalid token. Please request a new invite link.");
     }
@@ -59,20 +56,20 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   // - The token is valid
   // - The user exists
   // - The user is not already a member of this team
-  const { user } = checkUser.data;
+  const { user } = check_user.data;
 
   // TODO: Do something with their old team
   // - If they are the only member, delete it
 
   // Update their team
   await Promise.all([
+    otp.deleteOne(),
     auth.updateUserAttributes(user.userId, {
       team_id: otp.data.team_id,
       role: otp.data.role,
       // If they are an existing user, but haven't verified their email, it is verified now
       email_verified: true,
     }),
-    otp.deleteOne(),
   ]);
 
   redirect(

@@ -3,7 +3,7 @@
   import { ROLES, type Role } from "$lib/auth/roles";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import { getHTTPErrorMsg } from "$lib/utils/errors";
+  import { get_http_error_msg } from "$lib/utils/errors";
   import { any_loading, Loader } from "$lib/utils/loader";
   import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
@@ -28,7 +28,7 @@
       }
     } catch (error) {
       console.log(error);
-      toast.error(getHTTPErrorMsg(error));
+      toast.error(get_http_error_msg(error));
     }
 
     loader.reset();

@@ -3,7 +3,7 @@
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import type { Result } from "$lib/interfaces";
   import { user } from "$lib/stores/user";
-  import { getHTTPErrorMsg } from "$lib/utils/errors";
+  import { get_http_error_msg } from "$lib/utils/errors";
   import { any_loading, Loader } from "$lib/utils/loader";
   import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
@@ -21,7 +21,7 @@
       if (data.ok) await goto("/auth/signin");
     } catch (error) {
       console.log(error);
-      toast.error(getHTTPErrorMsg(error));
+      toast.error(get_http_error_msg(error));
     }
 
     loader.reset();

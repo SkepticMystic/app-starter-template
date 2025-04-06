@@ -3,7 +3,7 @@
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import { getActionErrorMsg } from "$lib/utils/errors";
+  import { get_action_error_msg } from "$lib/utils/errors";
   import { any_loading, Loader } from "$lib/utils/loader";
   import type { ActionResult } from "@sveltejs/kit";
   import axios from "axios";
@@ -35,7 +35,7 @@
       }
     } catch (error) {
       console.log(error);
-      toast.error(getActionErrorMsg(error));
+      toast.error(get_action_error_msg(error));
     }
 
     loader.reset();

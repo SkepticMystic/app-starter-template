@@ -20,19 +20,13 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
   const members = await Users.find({ team_id: user.team_id }).lean();
   if (members.some((m) => m.email === invite.email)) {
     error(400, invite.email + " is already a member of this team");
-  }
-
-  if (!Roles.has_atleast(user, invite.role)) {
+  } else if (!Roles.has_atleast(user, invite.role)) {
     error(403, "You cannot invite someone with a higher role than you");
   }
 
   await OTP.handleLinks["team-invite"]({
     idValue: invite.email,
-    data: {
-      role: invite.role,
-      team_id: user.team_id,
-      createdBy: user.userId,
-    },
+    data: { role: invite.role, team_id: user.team_id, createdBy: user.userId },
   });
 
   return json({ ok: true });

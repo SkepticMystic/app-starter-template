@@ -3,12 +3,12 @@ import mongoose, { Model } from "mongoose";
 
 export type Team = {} & Timestamps;
 
-const modelName = "Teams";
+const model_name = "Teams";
 
 export const Teams: Model<OID<Team>> =
-  mongoose.models[modelName] ||
+  mongoose.models[model_name] ||
   mongoose.model(
-    modelName,
+    model_name,
     new mongoose.Schema({}, { timestamps: true }),
-    modelName,
+    model_name,
   );

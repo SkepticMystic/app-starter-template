@@ -15,7 +15,6 @@ const build = (
 };
 
 export const Url = {
-  strip_origin: (url: URL) => url.pathname + url.search,
-
   build,
+  strip_origin: (url: URL) => url.pathname + url.search,
 };
