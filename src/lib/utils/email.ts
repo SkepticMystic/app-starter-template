@@ -1,16 +1,23 @@
-import {
-  SMTP_PASSWORD,
-  SMTP_USERNAME,
-  SMTP_HOST,
-  EMAIL_SOURCE,
-} from "$env/static/private";
+import env from "$env/static/private";
 import { Message, SMTPClient, type MessageHeaders } from "emailjs";
+import z from "zod";
+
+const config = z
+  .object({
+    EMAIL_FROM: z.email(),
+    SMTP_HOST: z.string(),
+    SMTP_USERNAME: z.string(),
+    SMTP_PASSWORD: z.string(),
+    SMTP_PORT: z.coerce.number().optional(),
+  })
+  .parse(env);
 
 const client = new SMTPClient({
   ssl: true,
-  host: SMTP_HOST,
-  user: SMTP_USERNAME,
-  password: SMTP_PASSWORD,
+  host: config.SMTP_HOST,
+  user: config.SMTP_USERNAME,
+  password: config.SMTP_PASSWORD,
+  port: config.SMTP_PORT ?? 465,
 });
 
 export const Email = {
@@ -20,7 +27,7 @@ export const Email = {
       text,
       subject,
       attachment,
-      from: from ?? EMAIL_SOURCE,
+      from: from ?? config.EMAIL_FROM,
     });
 
     const { isValid, validationError } = msg.checkValidity();

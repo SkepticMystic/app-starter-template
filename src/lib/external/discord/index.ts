@@ -1,9 +1,18 @@
-import { DISCORD_WEBHOOK_URL } from "$env/static/private";
+import env from "$env/static/private";
 import axios from "axios";
+import z from "zod";
+
+const config = z.object({ DISCORD_WEBHOOK_URL: z.url().optional() }).parse(env);
 
 const msg = async (content: string) => {
+  if (!config.DISCORD_WEBHOOK_URL) {
+    console.warn("Discord webhook URL is not configured.");
+    console.log("Discord.msg content", content);
+    return;
+  }
+
   try {
-    const { data } = await axios.post(DISCORD_WEBHOOK_URL, {
+    const { data } = await axios.post(config.DISCORD_WEBHOOK_URL, {
       content,
     });
 
