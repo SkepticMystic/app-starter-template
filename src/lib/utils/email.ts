@@ -1,4 +1,10 @@
-import env from "$env/static/private";
+import {
+  EMAIL_FROM,
+  SMTP_HOST,
+  SMTP_USERNAME,
+  SMTP_PASSWORD,
+  SMTP_PORT,
+} from "$env/static/private";
 import { Message, SMTPClient, type MessageHeaders } from "emailjs";
 import z from "zod";
 
@@ -10,7 +16,13 @@ const config = z
     SMTP_PASSWORD: z.string(),
     SMTP_PORT: z.coerce.number().optional(),
   })
-  .parse(env);
+  .parse({
+    EMAIL_FROM,
+    SMTP_HOST,
+    SMTP_USERNAME,
+    SMTP_PASSWORD,
+    SMTP_PORT,
+  });
 
 const client = new SMTPClient({
   ssl: true,

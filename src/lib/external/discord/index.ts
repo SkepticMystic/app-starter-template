@@ -1,8 +1,10 @@
-import env from "$env/static/private";
+import { DISCORD_WEBHOOK_URL } from "$env/static/private";
 import axios from "axios";
 import z from "zod";
 
-const config = z.object({ DISCORD_WEBHOOK_URL: z.url().optional() }).parse(env);
+const config = z
+  .object({ DISCORD_WEBHOOK_URL: z.url().optional() })
+  .parse({ DISCORD_WEBHOOK_URL });
 
 const msg = async (content: string) => {
   if (!config.DISCORD_WEBHOOK_URL) {

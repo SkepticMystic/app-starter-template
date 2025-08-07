@@ -1,10 +1,10 @@
-import env from "$env/static/private";
+import { MONGO_URI } from "$env/static/private";
 import { auth } from "$lib/auth/lucia";
 import type { Handle } from "@sveltejs/kit";
 import mongoose from "mongoose";
 import z from "zod";
 
-const config = z.object({ MONGO_URI: z.string() }).parse(env);
+const config = z.object({ MONGO_URI: z.string() }).parse({ MONGO_URI });
 
 // DB
 mongoose
