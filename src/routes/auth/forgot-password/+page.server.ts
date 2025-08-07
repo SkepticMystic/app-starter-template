@@ -8,7 +8,7 @@ export const actions: Actions = {
   default: async ({ request, url }) => {
     const { email } = await Parsers.form(
       request,
-      z.object({ email: z.string().email() }),
+      z.object({ email: z.email() }),
     );
 
     const user = await Users.findOne({ email }).lean();

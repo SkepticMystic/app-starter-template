@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
     get_user(locals),
     Parsers.request(
       request,
-      z.object({ role: z.enum(ROLES), email: z.string().email() }),
+      z.object({ role: z.enum(ROLES), email: z.email() }),
     ),
   ]);
 

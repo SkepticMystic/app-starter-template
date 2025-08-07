@@ -8,7 +8,7 @@ export const load: PageLoad = ({ url }) => {
     z
       .object({
         team_token: z.string(),
-        email_hint: z.string().email(),
+        email_hint: z.email(),
       })
       .partial(),
   );

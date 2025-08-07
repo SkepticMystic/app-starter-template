@@ -8,7 +8,7 @@ export const load = (async ({ url }) => {
     z
       .object({
         previous: z.string(),
-        email_hint: z.string().email(),
+        email_hint: z.email(),
       })
       .partial(),
   );

@@ -9,7 +9,7 @@ export const actions: Actions = {
     const { email, password } = await Parsers.form(
       request,
       z.object({
-        email: z.string().email(),
+        email: z.email(),
         password: z.string(),
       }),
     );

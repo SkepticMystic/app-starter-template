@@ -11,7 +11,7 @@ export const actions: Actions = {
   default: async ({ request, locals, url }) => {
     const { email, password } = await Parsers.form(
       request,
-      z.object({ email: z.string().email(), password: password_schema }),
+      z.object({ email: z.email(), password: password_schema }),
     );
 
     const { team_token } = Parsers.url(
