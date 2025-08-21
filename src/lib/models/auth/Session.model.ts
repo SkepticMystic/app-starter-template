@@ -1,4 +1,4 @@
-import type { OID, Timestamps } from "$lib/interfaces";
+import type { Timestamps } from "$lib/interfaces";
 import mongoose from "mongoose";
 
 export type Session = {
@@ -24,30 +24,28 @@ export type Session = {
 
   /** The ID of the active organization */
   activeOrganizationId?: string;
-} & Timestamps;
+};
 
 const model_name = "session";
 
-export const SessionModel: mongoose.Model<OID<Session>> =
-  mongoose.models[model_name] ||
-  mongoose.model(
-    model_name,
-    new mongoose.Schema<Session>(
-      {
-        id: { type: String, required: true },
-        userId: { type: String, required: true },
-        token: { type: String, required: true },
-        expiresAt: { type: Date, required: true },
-        ipAddress: { type: String },
-        userAgent: { type: String },
+export const Sessions = mongoose.model(
+  model_name,
+  new mongoose.Schema<Session & Timestamps>(
+    {
+      id: { type: String, required: true },
+      userId: { type: String, required: true },
+      token: { type: String, required: true },
+      expiresAt: { type: Date, required: true },
+      ipAddress: { type: String },
+      userAgent: { type: String },
 
-        // Admin //
-        impersonatedBy: { type: String },
+      // Admin //
+      impersonatedBy: { type: String },
 
-        // Organization //
-        activeOrganizationId: { type: String },
-      },
-      { timestamps: true },
-    ),
-    model_name,
-  );
+      // Organization //
+      activeOrganizationId: { type: String },
+    },
+    { timestamps: true },
+  ),
+  model_name,
+);

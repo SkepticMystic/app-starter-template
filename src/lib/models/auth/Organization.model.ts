@@ -12,13 +12,13 @@ export type Organization = {
   logo?: string;
   /** Additional metadata for the organization */
   metadata?: string;
-} & Timestamps;
+};
 
 const model_name = "organization";
 
 export const Organizations = mongoose.model(
   model_name,
-  new mongoose.Schema<Organization>(
+  new mongoose.Schema<Organization & Timestamps>(
     {
       id: { type: String, required: true },
       name: { type: String, required: true },

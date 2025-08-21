@@ -1,6 +1,7 @@
-export declare namespace TW {
-  type Size = "xs" | "sm" | "md" | "lg" | "xl";
-  type Colour =
+export namespace DaisyUI {
+  export type Size = "xs" | "sm" | "md" | "lg" | "xl";
+
+  export type Colour =
     | "primary"
     | "secondary"
     | "accent"

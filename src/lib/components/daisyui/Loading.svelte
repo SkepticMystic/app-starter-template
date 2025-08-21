@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { TW } from "$lib/interfaces/tailwind";
+  import type { DaisyUI } from "$lib/interfaces/tailwind";
 
   interface Props {
     loading: boolean | undefined;
-    size?: TW.Size;
+    size?: DaisyUI.Size;
     animation?: "spinner" | "dots" | "ring" | "ball" | "bars" | "infinity";
     children?: import("svelte").Snippet;
   }
@@ -15,7 +15,7 @@
     children,
   }: Props = $props();
 
-  const loadingSizes: Record<TW.Size, `loading-${TW.Size}`> = {
+  const loadingSizes: Record<DaisyUI.Size, `loading-${DaisyUI.Size}`> = {
     xs: "loading-xs",
     sm: "loading-sm",
     md: "loading-md",

@@ -15,7 +15,6 @@ type Options = {
 export const get_session = async (request: Request, options?: Options) => {
   const resolved = {
     admin: false,
-    role: undefined,
     email_verified: true,
     ...(options ?? {}),
   };
@@ -31,11 +30,6 @@ export const get_session = async (request: Request, options?: Options) => {
   } else if (resolved.admin && session.user.role !== "admin") {
     error(403, "Forbidden");
   }
-
-  //  if (role && !Roles.has_atleast(user, role)) {
-  //   console.log("role check failed", user, { role });
-  //   error(403, `Forbidden. You must be atleast ${role} to do this.`);
-  // }
 
   return session;
 };

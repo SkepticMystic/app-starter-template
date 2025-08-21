@@ -12,7 +12,6 @@
 // createdAt	Date	-	Timestamp of when the account was created
 // updatedAt	Date	-	Timestamp of when the account was updated
 
-import type { OID, Timestamps } from "$lib/interfaces";
 import mongoose from "mongoose";
 
 export type Account = {
@@ -38,29 +37,27 @@ export type Account = {
   idToken?: string;
   /** The password of the account. Mainly used for email and password authentication */
   password?: string;
-} & Timestamps;
+};
 
 const model_name = "account";
 
-export const AccountModel: mongoose.Model<OID<Account>> =
-  mongoose.models[model_name] ||
-  mongoose.model(
-    model_name,
-    new mongoose.Schema<Account>(
-      {
-        id: { type: String, required: true },
-        userId: { type: String, required: true },
-        accountId: { type: String, required: true },
-        providerId: { type: String, required: true },
-        accessToken: { type: String },
-        refreshToken: { type: String },
-        accessTokenExpiresAt: { type: Date },
-        refreshTokenExpiresAt: { type: Date },
-        scope: { type: String },
-        idToken: { type: String },
-        password: { type: String },
-      },
-      { timestamps: true },
-    ),
-    model_name,
-  );
+export const Accounts = mongoose.model(
+  model_name,
+  new mongoose.Schema<Account>(
+    {
+      id: { type: String, required: true },
+      userId: { type: String, required: true },
+      accountId: { type: String, required: true },
+      providerId: { type: String, required: true },
+      accessToken: { type: String },
+      refreshToken: { type: String },
+      accessTokenExpiresAt: { type: Date },
+      refreshTokenExpiresAt: { type: Date },
+      scope: { type: String },
+      idToken: { type: String },
+      password: { type: String },
+    },
+    { timestamps: true },
+  ),
+  model_name,
+);

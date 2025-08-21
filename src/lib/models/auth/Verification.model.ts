@@ -1,10 +1,3 @@
-// id	string	PK	Unique identifier for each verification
-// identifier	string	-	The identifier for the verification request
-// value	string	-	The value to be verified
-// expiresAt	Date	-	The time when the verification request expires
-// createdAt	Date	-	Timestamp of when the verification request was created
-// updatedAt	Date	-	Timestamp of when the verification request was updated
-
 import type { OID, Timestamps } from "$lib/interfaces";
 import mongoose from "mongoose";
 
@@ -21,7 +14,7 @@ export type Verification = {
 
 const model_name = "verification";
 
-export const VerificationModel: mongoose.Model<OID<Verification>> =
+export const Verifications: mongoose.Model<OID<Verification>> =
   mongoose.models[model_name] ||
   mongoose.model(
     model_name,

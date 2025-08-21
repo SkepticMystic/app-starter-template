@@ -23,20 +23,13 @@ export type User = {
   banReason?: string;
   /** The date when the user's ban will expire. */
   banExpires?: Date;
-
-  //
-
-  /** Timestamp of when the user account was created */
-  createdAt: Date;
-  /** Timestamp of the last update to the user's information */
-  updatedAt: Date;
-} & Timestamps;
+};
 
 const model_name = "user";
 
 export const Users = mongoose.model(
   model_name,
-  new mongoose.Schema<User>(
+  new mongoose.Schema<User & Timestamps>(
     {
       id: { type: String, required: true, unique: true },
       name: { type: String, required: true },

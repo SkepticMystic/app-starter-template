@@ -18,10 +18,11 @@ ${APP.URL}
   },
 };
 
-export const EMAIL_TEMPLATES = {
-  "password-reset": (data: { url: string; user: SID<User> }) => ({
-    subject: `Reset your ${APP.NAME} password`,
-    text: `
+export const EMAIL = {
+  TEMPLATES: {
+    "password-reset": (data: { url: string; user: SID<User> }) => ({
+      subject: `Reset your ${APP.NAME} password`,
+      text: `
 Hi,
 
 Click here to reset your ${APP.NAME} password: ${data.url}.
@@ -29,15 +30,15 @@ Click here to reset your ${APP.NAME} password: ${data.url}.
 If you did not request this, you can safely ignore this email.
 
 ${COMMON.SIGNATURE.TEXT}`.trim(),
-    // attachment: {
-    //   data: ``,
-    //   alternative: true,
-    // },
-  }),
+      // attachment: {
+      //   data: ``,
+      //   alternative: true,
+      // },
+    }),
 
-  "email-verification": (data: { url: string; user: User }) => ({
-    subject: `Verify your ${APP.NAME} account`,
-    text: `
+    "email-verification": (data: { url: string; user: User }) => ({
+      subject: `Verify your ${APP.NAME} account`,
+      text: `
 Hi,
 
 Click here to verify your ${APP.NAME} account: ${data.url}.
@@ -45,16 +46,17 @@ Click here to verify your ${APP.NAME} account: ${data.url}.
 If you did not request this, you can safely ignore this email.
 
 ${COMMON.SIGNATURE.TEXT}`.trim(),
-    // attachment: {
-    //   data: ``,
-    //   alternative: true,
-    // },
-  }),
-} satisfies Record<
-  string,
-  (...args: any) => {
-    subject: string;
-    text: string;
-    // attachment: { data: string; alternative: true };
-  }
->;
+      // attachment: {
+      //   data: ``,
+      //   alternative: true,
+      // },
+    }),
+  } satisfies Record<
+    string,
+    (...args: any) => {
+      subject: string;
+      text: string;
+      // attachment: { data: string; alternative: true };
+    }
+  >,
+};
