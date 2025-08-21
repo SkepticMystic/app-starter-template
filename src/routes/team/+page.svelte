@@ -8,13 +8,13 @@
 
 <h1 class="mb-7 text-2xl">Team</h1>
 
-{#if data.pendingInvites.length}
-  <h2 class="mb-3 mt-7 text-xl">Pending Invites</h2>
-  <PendingInvites pendingInvites={data.pendingInvites} />
+{#if data.invitations.length}
+  <h2 class="mt-7 mb-3 text-xl">Pending Invites</h2>
+  <PendingInvites invitations={data.invitations} />
 {/if}
 
-<h2 class="mb-3 mt-7 text-xl">Invite a new member</h2>
+<h2 class="mt-7 mb-3 text-xl">Invite a new member</h2>
 <Invite />
 
-<h2 class="mb-3 mt-7 text-xl">Team Members</h2>
-<Members members={data.members} />
+<h2 class="mt-7 mb-3 text-xl">Team Members</h2>
+<Members members={data.members.members} />

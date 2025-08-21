@@ -1,33 +1,35 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
+  import { AuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import type { Result, SID } from "$lib/interfaces";
-  import type { TeamInviteOTP } from "$lib/models/OTPs";
+  import type { Invitation } from "$lib/models/auth/Invitation.model";
+  import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
 
   interface Props {
-    pendingInvites: SID<
-      Pick<TeamInviteOTP, "createdAt" | "data" | "expiresInMs" | "identifier">
-    >[];
+    invitations: Invitation[];
   }
 
-  let { pendingInvites }: Props = $props();
+  let { invitations }: Props = $props();
 
-  const loader = Loader<`delete-invite-${string}`>();
+  const loader = Loader<`delete_invite:${string}`>();
 
-  const deletePendingInvite = async (_id: string) => {
+  const delete_invite = async (invite_id: string) => {
     if (!confirm("Are you sure you want to delete this invite?")) return;
 
-    loader.load(`delete-invite-${_id}`);
+    loader.load(`delete_invite:${invite_id}`);
 
-    const { data } = await axios.delete<Result>(`/api/team/invite/${_id}`);
+    const res = await AuthClient.organization.cancelInvitation({
+      invitationId: invite_id,
+    });
 
-    if (data.ok) {
-      await invalidateAll();
-
+    if (res.data) {
       toast.success("Invite deleted");
+      await invalidateAll();
+    } else {
+      console.warn("Failed to delete invite:", res.error);
+      toast.error("Failed to delete invite: " + res.error.message);
     }
 
     loader.reset();
@@ -35,24 +37,23 @@
 </script>
 
 <div class="flex gap-3">
-  {#each pendingInvites as { _id, createdAt, data, identifier, expiresInMs }}
+  {#each invitations as { id, email, expiresAt, role } (id)}
     <div class="rounded-box bg-base-100 flex flex-col gap-2 border p-3">
       <span>
-        <span>{identifier.split("email:")[1]}</span> -
-        <span class="capitalize">{data.role}</span>
+        <span>{email}</span> -
+        <span class="capitalize">{role}</span>
       </span>
+
       <span class="">
-        Expires: {expiresInMs
-          ? new Date(createdAt.getTime() + expiresInMs).toLocaleString()
-          : "Never"}
+        Expires: {Dates.show_date(expiresAt)}
       </span>
 
       <button
         class="btn btn-error"
         disabled={any_loading($loader)}
-        onclick={() => deletePendingInvite(_id)}
+        onclick={() => delete_invite(id)}
       >
-        <Loading loading={$loader[`delete-invite-${_id}`]} />
+        <Loading loading={$loader[`delete_invite:${id}`]} />
         Delete
       </button>
     </div>

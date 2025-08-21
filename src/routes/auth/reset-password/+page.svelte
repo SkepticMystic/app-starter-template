@@ -1,79 +1,73 @@
 <script lang="ts">
-  import { set_href } from "$lib/auth/client";
+  import { goto } from "$app/navigation";
+  import { AuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import { App } from "$lib/utils/app";
-  import { get_action_error_msg } from "$lib/utils/errors";
+  import { ROUTES } from "$lib/const/routes.const.js";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import type { ActionResult } from "@sveltejs/kit";
-  import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
   import { preventDefault } from "svelte/legacy";
+
+  let { data } = $props();
 
   const loader = Loader<"reset-pwd">();
 
   let form = $state({
-    new: "",
-    confirm: "",
+    new_password: "",
   });
 
   const reset_password = async () => {
-    toast.set([]);
-
-    if (form.new !== form.confirm) {
-      return toast.error("Passwords do not match");
+    if (data.search.error) {
+      return;
     }
 
+    toast.set([]);
     loader.load("reset-pwd");
 
-    try {
-      const { data } = await axios.postForm<ActionResult>("", form);
+    const res = await AuthClient.resetPassword({
+      token: data.search.token,
+      newPassword: form.new_password,
+    });
+    if (res.data) {
+      toast.success("Password reset successfully.", {
+        clear_on_navigate: false,
+      });
 
-      if (data.type === "success") {
-        toast.success("Password changed successfully");
-
-        set_href(App.url("/auth/signin", { previous: "reset-password" }));
-      } else {
-        toast.error("Something went wrong");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(get_action_error_msg(error));
+      await goto(ROUTES.AUTH_SIGNIN);
+    } else {
+      toast.error("Failed to reset password: " + res.error.message);
     }
 
     loader.reset();
   };
 </script>
 
-<form onsubmit={preventDefault(reset_password)} class="flex flex-col gap-3">
-  <Fieldset legend="Reset password">
-    <Label lbl="New Password">
-      <input
-        class="input"
-        type="password"
-        placeholder="New Password"
-        autocomplete="new-password"
-        bind:value={form.new}
-      />
-    </Label>
-    <Label lbl="Confirm Password">
-      <input
-        class="input"
-        type="password"
-        placeholder="Confirm Password"
-        autocomplete="new-password"
-        bind:value={form.confirm}
-      />
-    </Label>
-  </Fieldset>
+{#if data.search.token}
+  <form onsubmit={preventDefault(reset_password)} class="flex flex-col gap-3">
+    <Fieldset legend="Reset password">
+      <Label lbl="New Password">
+        <input
+          class="input"
+          type="password"
+          placeholder="New Password"
+          autocomplete="new-password"
+          bind:value={form.new_password}
+        />
+      </Label>
+    </Fieldset>
 
-  <button
-    class="btn btn-primary"
-    type="submit"
-    disabled={!form.new || !form.confirm || any_loading($loader)}
-  >
-    <Loading loading={$loader["reset-pwd"]} />
-    Reset Password
-  </button>
-</form>
+    <button
+      class="btn btn-primary"
+      type="submit"
+      disabled={!form.new_password || any_loading($loader)}
+    >
+      <Loading loading={$loader["reset-pwd"]} />
+      Reset Password
+    </button>
+  </form>
+{:else}
+  <div class="alert alert-error">
+    <span>Invalid or missing reset token.</span>
+  </div>
+{/if}

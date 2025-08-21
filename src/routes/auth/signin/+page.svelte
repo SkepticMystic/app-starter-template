@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { set_href } from "$lib/auth/client";
+  import { goto } from "$app/navigation";
+  import { AuthClient } from "$lib/auth-client.js";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import { get_action_error_msg } from "$lib/utils/errors";
+  import { ROUTES } from "$lib/const/routes.const.js";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import type { ActionResult } from "@sveltejs/kit";
-  import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
   import { preventDefault } from "svelte/legacy";
 
@@ -14,25 +13,28 @@
 
   const loader = Loader<"signin">();
 
-  let password = $state("");
-  let email: string | undefined = $state(data.search.email_hint ?? undefined);
+  let form = $state({
+    password: "",
+    email: data.search.email_hint ?? "",
+  });
 
   const signin = async () => {
     loader.load("signin");
 
     try {
-      const { data } = await axios.postForm<ActionResult>("", {
-        email,
-        password,
+      const res = await AuthClient.signIn.email({
+        ...form,
       });
 
-      email = password = "";
-      toast.success("Sign in successful");
-
-      if (data.type === "redirect") set_href(data.location);
+      if (res.data) {
+        await goto(data.search.redirect_uri ?? "/");
+      } else {
+        toast.warning(res.error.message ?? "Signin failed. Please try again.");
+        console.warn(res.error);
+      }
     } catch (error) {
       console.log(error);
-      toast.error(get_action_error_msg(error));
+      toast.error("Signin failed.");
     }
 
     loader.reset();
@@ -58,7 +60,7 @@
           type="email"
           placeholder="Email"
           autocomplete="email"
-          bind:value={email}
+          bind:value={form.email}
         />
       </Label>
       <Label lbl="Password">
@@ -67,7 +69,7 @@
           type="password"
           placeholder="Password"
           autocomplete="current-password"
-          bind:value={password}
+          bind:value={form.password}
         />
       </Label>
     </div>
@@ -77,7 +79,7 @@
     <button
       class="btn btn-primary"
       type="submit"
-      disabled={!email || !password || any_loading($loader)}
+      disabled={!form.email || !form.password || any_loading($loader)}
     >
       <Loading loading={$loader["signin"]} />
       Sign in
@@ -86,8 +88,9 @@
 </form>
 
 <p class="my-3">
-  <a class="link" href="/auth/forgot-password">Forgot Password?</a>
+  <a class="link" href={ROUTES.AUTH_FORGOT_PASSWORD}>Forgot Password?</a>
 </p>
+
 <p class="my-3">
-  <a class="link" href="/auth/signup">Don't have an account? Sign up</a>
+  <a class="link" href={ROUTES.AUTH_SIGNUP}>Don't have an account? Sign up</a>
 </p>

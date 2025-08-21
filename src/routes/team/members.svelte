@@ -1,10 +1,9 @@
 <script lang="ts">
-  import type { SID } from "$lib/interfaces";
-  import type { User } from "lucia";
+  import type { Member } from "$lib/models/auth/Member.model";
   import MemberCard from "./memberCard.svelte";
 
   interface Props {
-    members: SID<Pick<User, "email" | "role">>[];
+    members: Member[];
   }
 
   let { members }: Props = $props();

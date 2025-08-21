@@ -4,12 +4,5 @@ export interface HTTPError<
     status: number;
   },
 > {
-  response: {
-    data: T;
-  };
+  response: { data: T };
 }
-
-export type ActionError = HTTPError<{
-  type: "error";
-  error: { message: string };
-}>;

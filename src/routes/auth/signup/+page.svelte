@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { set_href } from "$lib/auth/client";
+  import { goto } from "$app/navigation";
+  import { AuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import { get_action_error_msg } from "$lib/utils/errors";
+  import { ROUTES } from "$lib/const/routes.const";
+  import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import type { ActionResult } from "@sveltejs/kit";
-  import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
   import { preventDefault } from "svelte/legacy";
   import type { PageProps } from "./$types";
+  import { TOAST } from "$lib/const/toast.const";
 
   let { data }: PageProps = $props();
 
@@ -17,7 +18,7 @@
 
   let form = $state({
     password: "",
-    email: data.search.email_hint,
+    email: data.search.email_hint ?? "",
   });
 
   const signup = async () => {
@@ -25,17 +26,21 @@
     loader.load("signup");
 
     try {
-      const { data } = await axios.postForm<ActionResult>("", form);
+      const res = await AuthClient.signUp.email({
+        ...form,
+        name: "",
+        callbackURL: App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
+      });
 
-      if (data.type === "redirect") {
-        toast.success("Sign up successful");
-        set_href(data.location);
+      if (res.data) {
+        await goto(ROUTES.AUTH_VERIFY_EMAIL);
       } else {
-        toast.error("Something went wrong");
+        toast.warning(res.error.message ?? "Signup failed. Please try again.");
+        console.warn(res.error);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(get_action_error_msg(error));
+      toast.error("Signup failed. Please try again.");
+      console.error("Signup error:", error);
     }
 
     loader.reset();
@@ -85,5 +90,5 @@
 </form>
 
 <p class="my-3">
-  <a class="link" href="/auth/signin">Sign in instead</a>
+  <a class="link" href={ROUTES.AUTH_SIGNIN}>Sign in instead</a>
 </p>

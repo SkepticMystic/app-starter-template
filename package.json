@@ -33,11 +33,10 @@
     "vite": "^7.1.0"
   },
   "dependencies": {
-    "@lucia-auth/adapter-mongoose": "^3.0.1",
     "@tailwindcss/forms": "^0.5.10",
     "axios": "^1.11.0",
+    "better-auth": "^1.3.7",
     "emailjs": "^4.0.3",
-    "lucia": "^2.7.7",
     "mongoose": "^8.17.0",
     "svelte-daisyui-toast": "^2.0.3",
     "theme-change": "^2.5.0",

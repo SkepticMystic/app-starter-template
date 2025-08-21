@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { signout } from "$lib/auth/client";
-  import { user } from "$lib/stores/user";
+  import { AuthClient } from "$lib/auth-client";
+  import { ROUTES } from "$lib/const/routes.const";
+  import { user } from "$lib/stores/session";
   import { onMount } from "svelte";
   import { themeChange } from "theme-change";
   import IconBars3 from "../icons/IconBarThree.svelte";
+  import { goto } from "$app/navigation";
 
   onMount(() => themeChange(false));
 
@@ -51,13 +53,13 @@
     {
       side: "right",
       label: "Sign in",
-      href: "/auth/signin",
+      href: ROUTES.AUTH_SIGNIN,
       authed: false,
     },
     {
       side: "right",
       label: "Sign up",
-      href: "/auth/signup",
+      href: ROUTES.AUTH_SIGNUP,
       authed: false,
     },
   ];
@@ -69,9 +71,15 @@
   ) => {
     if (side && route.side !== side) return false;
     if (route.authed !== !!user) return false;
-    if (route.admin && !user?.admin) return false;
+    if (route.admin && user?.role !== "admin") return false;
 
     return true;
+  };
+
+  const signout = () => {
+    AuthClient.signOut({
+      fetchOptions: { onSuccess: () => goto(ROUTES.AUTH_SIGNIN) },
+    });
   };
 </script>
 

@@ -1,18 +1,14 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { ROLES } from "$lib/auth/roles";
+  import { AuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
-  import type { Result, SID } from "$lib/interfaces";
-  import { user } from "$lib/stores/user";
-  import { get_http_error_msg } from "$lib/utils/errors";
+  import type { Member } from "$lib/models/auth/Member.model";
+  import { user } from "$lib/stores/session";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import axios from "axios";
-  import type { User } from "lucia";
   import { toast } from "svelte-daisyui-toast";
 
   interface Props {
-    member: SID<Pick<User, "email" | "role">>;
+    member: Member;
   }
 
   let { member }: Props = $props();
@@ -21,123 +17,122 @@
     "remove_member" | "change_role" | "transfer_ownership"
   >();
 
-  const member_is_user = $user?.userId === member._id;
+  const member_is_user = $user?.id === member.userId;
 
-  let newRole = $state(member.role.slice());
+  let new_role = $state(member.role.slice());
 
   const remove_member = async () => {
-    if (
-      !confirm(`Are you sure you want to remove ${member.email} from the team?`)
-    ) {
+    if (!confirm(`Are you sure you want to remove this member from the org?`)) {
       return;
     }
 
     loader.load("remove_member");
 
-    try {
-      const { data } = await axios.delete<Result>(
-        `/api/team/member/${member._id}`,
-      );
+    const res = await AuthClient.organization.removeMember({
+      memberIdOrEmail: member.id,
+    });
 
-      if (data.ok) {
-        await invalidateAll();
-
-        toast.success("Member removed from team");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(get_http_error_msg(error));
+    if (res.data) {
+      toast.success("Member removed");
+      await invalidateAll();
+    } else {
+      console.warn("Failed to remove member:", res.error);
+      toast.error("Failed to remove member: " + res.error.message);
     }
 
     loader.reset();
   };
 
-  const change_role = async () => {
-    if (!confirm(`Are you sure you want to change ${member.email}'s role?`)) {
-      newRole = member.role;
-      return;
-    }
+  // const change_role = async () => {
+  //   if (!confirm(`Are you sure you want to change ${member.email}'s role?`)) {
+  //     new_role = member.role;
+  //     return;
+  //   }
 
-    loader.load("change_role");
+  //   loader.load("change_role");
 
-    try {
-      const { data } = await axios.put<Result>(
-        `/api/team/member/${member._id}/role`,
-        { newRole },
-      );
+  //   try {
+  //     const { data } = await axios.put<Result>(
+  //       `/api/team/member/${member._id}/role`,
+  //       { newRole: new_role },
+  //     );
 
-      if (data.ok) {
-        await invalidateAll();
+  //     if (data.ok) {
+  //       await invalidateAll();
 
-        toast.success("Member role changed");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(get_http_error_msg(error));
-    }
+  //       toast.success("Member role changed");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error(get_http_error_msg(error));
+  //   }
 
-    loader.reset();
-  };
+  //   loader.reset();
+  // };
 
-  const transfer_ownership = async () => {
-    if (!confirm(`Are you sure you want to make ${member.email} the owner?`)) {
-      newRole = member.role;
-      return;
-    }
+  // const transfer_ownership = async () => {
+  //   if (!confirm(`Are you sure you want to make ${member.email} the owner?`)) {
+  //     new_role = member.role;
+  //     return;
+  //   }
 
-    loader.load("transfer_ownership");
+  //   loader.load("transfer_ownership");
 
-    try {
-      const { data } = await axios.put<Result>(
-        `/api/team/member/${member._id}/transfer_ownership`,
-      );
+  //   try {
+  //     const { data } = await axios.put<Result>(
+  //       `/api/team/member/${member._id}/transfer_ownership`,
+  //     );
 
-      if (data.ok) {
-        // Must hard reload for auth changes to take effect
-        location.reload();
+  //     if (data.ok) {
+  //       // Must hard reload for auth changes to take effect
+  //       location.reload();
 
-        toast.success("Ownership transferred");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(get_http_error_msg(error));
-    }
+  //       toast.success("Ownership transferred");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error(get_http_error_msg(error));
+  //   }
 
-    loader.reset();
-  };
+  //   loader.reset();
+  // };
 </script>
 
 <div
   class="rounded-box bg-base-100 flex min-w-[200px] flex-col gap-3 border p-3"
 >
-  <span class="text-sm" class:font-semibold={member_is_user}
-    >{member.email}</span
-  >
+  <span class="text-sm" class:font-semibold={member_is_user}>
+    {member.id}
+  </span>
+
   <span class="text-sm capitalize">
     {member.role === "owner" ? "👑" : ""}
     {member.role}
   </span>
 
+  <!--
   <div class="flex items-end gap-2">
-    <Label lbl="Change Role">
-      <select class="select" disabled={member_is_user} bind:value={newRole}>
+     <Label lbl="Change Role">
+      <select class="select" disabled={member_is_user} bind:value={new_role}>
         {#each ROLES.filter((r) => r != "owner") as role}
           <option value={role}>{role}</option>
         {/each}
       </select>
     </Label>
-
+     
     <button
       class="btn btn-secondary"
-      disabled={newRole === member.role ||
+      disabled={new_role === member.role ||
         member_is_user ||
         any_loading($loader)}
       onclick={change_role}
     >
       <Loading loading={$loader["change_role"]}>Change</Loading>
-    </button>
+    </button> 
   </div>
+  -->
 
+  <!-- 
   <button
     class="btn btn-warning"
     disabled={$user?.role !== "owner" || member_is_user || any_loading($loader)}
@@ -146,7 +141,7 @@
     <Loading loading={$loader["transfer_ownership"]}>
       Transfer Ownership
     </Loading>
-  </button>
+  </button> -->
 
   <button
     class="btn btn-error"

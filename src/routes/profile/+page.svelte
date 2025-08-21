@@ -1,27 +1,33 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { AuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import type { Result } from "$lib/interfaces";
-  import { user } from "$lib/stores/user";
-  import { get_http_error_msg } from "$lib/utils/errors";
+  import { ROUTES } from "$lib/const/routes.const";
+  import { user } from "$lib/stores/session";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
   import ChangePassword from "./changePassword.svelte";
 
-  const loader = Loader<"delete-user">();
+  const loader = Loader<"delete_user">();
 
-  const deleteUser = async () => {
+  const delete_user = async () => {
     if (!confirm("Are you sure you want to delete your account?")) return;
 
-    loader.load("delete-user");
+    loader.load("delete_user");
 
-    try {
-      const { data } = await axios.delete<Result>("/api/user");
-      if (data.ok) await goto("/auth/signin");
-    } catch (error) {
-      console.log(error);
-      toast.error(get_http_error_msg(error));
+    const res = await AuthClient.deleteUser();
+
+    if (res.data) {
+      toast.success("Account deleted successfully.", {
+        clear_on_navigate: false,
+      });
+
+      await goto(ROUTES.AUTH_SIGNIN);
+    } else {
+      toast.error(
+        res.error.message ?? "Failed to delete account. Please try again.",
+      );
+      console.warn(res.error);
     }
 
     loader.reset();
@@ -32,7 +38,7 @@
 <div class="my-3"></div>
 
 {#if $user}
-  <p class="text-lg">Welcome {$user.email.split("@")[0]}</p>
+  <p class="text-lg">Welcome {$user.name}</p>
 
   <div class="my-5">
     <ChangePassword />
@@ -42,9 +48,9 @@
     <button
       class="btn btn-error"
       disabled={any_loading($loader)}
-      onclick={deleteUser}
+      onclick={delete_user}
     >
-      <Loading loading={$loader["delete-user"]} />
+      <Loading loading={$loader["delete_user"]} />
       Delete Account
     </button>
   </div>

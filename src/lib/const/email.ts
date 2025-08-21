@@ -1,6 +1,5 @@
 import type { SID } from "$lib/interfaces";
-import { App } from "$lib/utils/app";
-import type { User } from "lucia";
+import type { User } from "$lib/models/auth/User.model";
 import { APP } from "./app";
 
 const COMMON = {
@@ -20,15 +19,12 @@ ${APP.URL}
 };
 
 export const EMAIL_TEMPLATES = {
-  "password-reset": (data: {
-    token: string;
-    user: SID<Lucia.DatabaseUserAttributes>;
-  }) => ({
+  "password-reset": (data: { url: string; user: SID<User> }) => ({
     subject: `Reset your ${APP.NAME} password`,
     text: `
 Hi,
 
-Click here to reset your ${APP.NAME} password: ${App.full_url("/auth/reset-password", { token: data.token })}.
+Click here to reset your ${APP.NAME} password: ${data.url}.
 
 If you did not request this, you can safely ignore this email.
 
@@ -39,32 +35,14 @@ ${COMMON.SIGNATURE.TEXT}`.trim(),
     // },
   }),
 
-  "email-verification": (data: { token: string; user: User }) => ({
+  "email-verification": (data: { url: string; user: User }) => ({
     subject: `Verify your ${APP.NAME} account`,
     text: `
 Hi,
 
-Click here to verify your ${APP.NAME} account: ${App.full_url("/api/verify-email", { token: data.token })}.
+Click here to verify your ${APP.NAME} account: ${data.url}.
 
 If you did not request this, you can safely ignore this email.
-
-${COMMON.SIGNATURE.TEXT}`.trim(),
-    // attachment: {
-    //   data: ``,
-    //   alternative: true,
-    // },
-  }),
-
-  "new-signup": (data: { user: Pick<User, "email" | "userId"> }) => ({
-    subject: `New ${APP.NAME} signup: ${data.user.email}`,
-    text: `
-Hiya,
-
-A new user has signed up to ${APP.NAME}: 
-
-${data.user.email}
-
-Click here to view their account: ${App.full_url("/admin/users/view", { user_id: data.user.userId })}
 
 ${COMMON.SIGNATURE.TEXT}`.trim(),
     // attachment: {

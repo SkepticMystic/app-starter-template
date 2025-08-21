@@ -1,17 +1,11 @@
 import { Parsers } from "$lib/schema/parsers";
-import { z } from "zod";
+import z from "zod";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ url }) => {
   const search = Parsers.url(
     url,
-    z
-      .object({
-        previous: z.string(),
-        email_hint: z.email(),
-        redirect_uri: z.string(),
-      })
-      .partial(),
+    z.object({ token: z.string().optional(), error: z.string().optional() }),
   );
 
   return {

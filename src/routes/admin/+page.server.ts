@@ -1,7 +1,8 @@
-import { get_user } from "$lib/auth/server";
+import { auth } from "$lib/auth";
 import type { PageServerLoad } from "./$types";
 
-export const load = (async ({ locals }) => {
-  await get_user(locals, { admin: true });
+export const load = (async ({ request }) => {
+  const session = await auth.api.getSession(request);
+
   return {};
 }) satisfies PageServerLoad;

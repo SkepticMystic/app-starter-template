@@ -1,34 +1,31 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { ROLES, type Role } from "$lib/auth/roles";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import { AuthClient } from "$lib/auth-client";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import { get_http_error_msg } from "$lib/utils/errors";
+  import Loading from "$lib/components/daisyui/Loading.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import axios from "axios";
   import { toast } from "svelte-daisyui-toast";
 
   const loader = Loader<"invite">();
 
-  let email = $state("");
-  let role: Role = $state("member");
+  let form: { email: string; role: "member" } = $state({
+    email: "",
+    role: "member",
+  });
 
   const inviteToTeam = async () => {
     toast.set([]);
     loader.load("invite");
 
-    try {
-      const { data } = await axios.post("/api/team/invite", { email, role });
+    const res = await AuthClient.organization.inviteMember(form);
 
-      if (data.ok) {
-        toast.success("Invite sent!");
-        (email = ""), (role = "member");
+    if (res.data) {
+      toast.success("Invite sent!");
 
-        await invalidateAll();
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(get_http_error_msg(error));
+      await invalidateAll();
+    } else {
+      console.warn("Failed to invite member:", res.error);
+      toast.warning("Failed to invite member: " + res.error.message);
     }
 
     loader.reset();
@@ -42,22 +39,22 @@
         type="email"
         class="input"
         autocomplete="email"
-        bind:value={email}
+        bind:value={form.email}
       />
     </Label>
-
+    <!-- 
     <Label lbl="Role">
       <select class="select" bind:value={role}>
         {#each ROLES as role}
           <option value={role}>{role}</option>
         {/each}
       </select>
-    </Label>
+    </Label> -->
 
     <div class="flex flex-wrap items-center gap-3">
       <button
         class="btn btn-secondary"
-        disabled={!email || !role || any_loading($loader)}
+        disabled={!form.email || any_loading($loader)}
         onclick={inviteToTeam}
       >
         <Loading loading={$loader["invite"]} />

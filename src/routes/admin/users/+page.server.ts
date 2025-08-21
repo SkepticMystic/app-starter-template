@@ -1,14 +1,11 @@
-import { Users } from "$lib/auth/lucia";
-import { get_user } from "$lib/auth/server";
+import { get_session } from "$lib/auth/server";
+import { Users } from "$lib/models/auth/User.model";
 import type { PageServerLoad } from "./$types";
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ request }) => {
   const [_admin, users] = await Promise.all([
-    get_user(locals, { admin: true }),
-    Users.find(
-      {},
-      { admin: 1, email: 1, email_verified: 1, role: 1, team_id: 1 },
-    ).lean(),
+    get_session(request, { admin: true }),
+    Users.find().lean(),
   ]);
 
   return { users };

@@ -1,9 +1,7 @@
 <script lang="ts">
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Navbar from "$lib/components/daisyui/Navbar.svelte";
-  import { user } from "$lib/stores/user";
   import axios from "axios";
-  import type { User } from "lucia";
   import { onMount } from "svelte";
   import { toast, Toaster } from "svelte-daisyui-toast";
   import "../app.css";
@@ -18,9 +16,7 @@
 
   let loading = $state(true);
   onMount(async () => {
-    const { data } = await axios.get<{ user: User | undefined }>("/api/init");
-
-    user.set(data.user);
+    const res = await axios.get<{}>("/api/init");
 
     loading = false;
   });
