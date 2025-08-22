@@ -29,16 +29,19 @@
         toast.warning(
           signin_res.error.message ?? "signin failed. Please try again.",
         );
+
+        loader.reset();
       } else {
         console.log("signin_res.data", signin_res.data);
         // Auto redirects, no need here
+        // Only reset loader if error
       }
     } catch (error) {
       toast.error("signin failed. Please try again.");
       console.error("signin error:", error);
-    }
 
-    loader.reset();
+      loader.reset();
+    }
   };
 </script>
 

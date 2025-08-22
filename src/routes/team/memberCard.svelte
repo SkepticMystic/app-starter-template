@@ -42,60 +42,6 @@
 
     loader.reset();
   };
-
-  // const change_role = async () => {
-  //   if (!confirm(`Are you sure you want to change ${member.email}'s role?`)) {
-  //     new_role = member.role;
-  //     return;
-  //   }
-
-  //   loader.load("change_role");
-
-  //   try {
-  //     const { data } = await axios.put<Result>(
-  //       `/api/team/member/${member._id}/role`,
-  //       { newRole: new_role },
-  //     );
-
-  //     if (data.ok) {
-  //       await invalidateAll();
-
-  //       toast.success("Member role changed");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(get_http_error_msg(error));
-  //   }
-
-  //   loader.reset();
-  // };
-
-  // const transfer_ownership = async () => {
-  //   if (!confirm(`Are you sure you want to make ${member.email} the owner?`)) {
-  //     new_role = member.role;
-  //     return;
-  //   }
-
-  //   loader.load("transfer_ownership");
-
-  //   try {
-  //     const { data } = await axios.put<Result>(
-  //       `/api/team/member/${member._id}/transfer_ownership`,
-  //     );
-
-  //     if (data.ok) {
-  //       // Must hard reload for auth changes to take effect
-  //       location.reload();
-
-  //       toast.success("Ownership transferred");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(get_http_error_msg(error));
-  //   }
-
-  //   loader.reset();
-  // };
 </script>
 
 <div

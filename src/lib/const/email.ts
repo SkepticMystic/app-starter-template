@@ -1,62 +1,103 @@
-import type { SID } from "$lib/interfaces";
-import type { User } from "$lib/models/auth/User.model";
+import { App } from "$lib/utils/app";
+import { Markdown } from "$lib/utils/markdown";
+import type { User } from "better-auth";
+import type { Invitation, Organization } from "better-auth/plugins";
+import type Mail from "nodemailer/lib/mailer";
 import { APP } from "./app";
+import { ROUTES } from "./routes.const";
 
 const COMMON = {
   SIGNATURE: {
     TEXT: `
-Kind regards,
 ${APP.NAME}
 ${APP.URL}
 `.trim(),
 
     HTML: `
 <p>
-    Regards, <br />
-    ${APP.NAME}
+  Regards,<br />
+  ${APP.NAME}
 </p>`.trim(),
   },
 };
 
 export const EMAIL = {
   TEMPLATES: {
-    "password-reset": (data: { url: string; user: SID<User> }) => ({
-      subject: `Reset your ${APP.NAME} password`,
-      text: `
-Hi,
+    "password-reset": (input: { url: string; user: User }) => {
+      const html = `
+<p>Hi ${input.user.name ?? ""}</p>
 
-Click here to reset your ${APP.NAME} password: ${data.url}.
+<p>
+  Click <a href="${input.url}">here</a> to reset your ${APP.NAME} password.
+</p>
 
-If you did not request this, you can safely ignore this email.
+<p>
+  If you did not request this, you can safely ignore this email.
+</p>
 
-${COMMON.SIGNATURE.TEXT}`.trim(),
-      // attachment: {
-      //   data: ``,
-      //   alternative: true,
-      // },
-    }),
+${COMMON.SIGNATURE.HTML}`.trim();
 
-    "email-verification": (data: { url: string; user: User }) => ({
-      subject: `Verify your ${APP.NAME} account`,
-      text: `
-Hi,
+      return {
+        html,
+        to: input.user.email,
+        text: Markdown.from_html(html),
+        subject: `Reset your ${APP.NAME} password`,
+      };
+    },
 
-Click here to verify your ${APP.NAME} account: ${data.url}.
+    "email-verification": (input: { url: string; user: User }) => {
+      const html = `
+<p>Hi ${input.user.name ?? ""},</p>
 
-If you did not request this, you can safely ignore this email.
+<p>
+  Click <a href="${input.url}">here</a> to verify your ${APP.NAME} account.
+</p>
 
-${COMMON.SIGNATURE.TEXT}`.trim(),
-      // attachment: {
-      //   data: ``,
-      //   alternative: true,
-      // },
-    }),
-  } satisfies Record<
-    string,
-    (...args: any) => {
-      subject: string;
-      text: string;
-      // attachment: { data: string; alternative: true };
-    }
-  >,
+<p>
+  If you did not request this, you can safely ignore this email.
+</p>
+
+${COMMON.SIGNATURE.HTML}`.trim();
+
+      return {
+        html,
+        to: input.user.email,
+        text: Markdown.from_html(html),
+        subject: `Verify your ${APP.NAME} account`,
+      };
+    },
+
+    "org-invite": (input: {
+      invitation: Invitation;
+      organization: Organization;
+      inviter: { user: User };
+    }) => {
+      const href = App.full_url(ROUTES.AUTH_ORGANIZATION_ACCEPT_INVITE, {
+        invite_id: input.invitation.id,
+      });
+
+      const html = `
+<p>Hi,</p>
+
+<p>
+  You have been invited by <strong>${input.inviter.user.email}</strong> to join the organization <strong>${input.organization.name}</strong>.
+</p>
+<p>
+  Click <a href="${href}">here</a> to accept the invitation.
+</p>
+
+<p>
+  If you did not request this, you can safely ignore this email.
+</p>
+
+${COMMON.SIGNATURE.HTML}`.trim();
+
+      return {
+        html,
+        to: input.invitation.email,
+        text: Markdown.from_html(html),
+        subject: `You have been invited to join ${input.organization.name}`,
+      };
+    },
+  } satisfies Record<string, (...args: any) => Mail.Options>,
 };

@@ -1,5 +1,5 @@
 import { DISCORD_WEBHOOK_URL } from "$env/static/private";
-import axios from "axios";
+import ky from "ky";
 import z from "zod";
 
 const config = z
@@ -14,9 +14,11 @@ const msg = async (content: string) => {
   }
 
   try {
-    const { data } = await axios.post(config.DISCORD_WEBHOOK_URL, {
-      content,
-    });
+    const data = await ky
+      .post(config.DISCORD_WEBHOOK_URL, {
+        json: { content },
+      })
+      .json();
 
     console.log("Discord.msg data", data);
   } catch (error) {

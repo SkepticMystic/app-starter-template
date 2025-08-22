@@ -1,12 +1,14 @@
 import {
   EMAIL_FROM,
   SMTP_HOST,
-  SMTP_USERNAME,
   SMTP_PASSWORD,
   SMTP_PORT,
+  SMTP_USERNAME,
 } from "$env/static/private";
-import { Message, SMTPClient, type MessageHeaders } from "emailjs";
+import nodemailer from "nodemailer";
+import type Mail from "nodemailer/lib/mailer";
 import z from "zod";
+import { err, suc } from ".";
 
 const config = z
   .object({
@@ -24,27 +26,28 @@ const config = z
     SMTP_PORT,
   });
 
-const client = new SMTPClient({
-  ssl: true,
+const transporter = nodemailer.createTransport({
   host: config.SMTP_HOST,
-  user: config.SMTP_USERNAME,
-  password: config.SMTP_PASSWORD,
-  port: config.SMTP_PORT ?? 465,
+  port: config.SMTP_PORT ?? 587,
+  secure: config.SMTP_PORT === 465, // true for 465, false for other ports
+  auth: {
+    user: config.SMTP_USERNAME,
+    pass: config.SMTP_PASSWORD,
+  },
 });
 
 export const Email = {
-  send: ({ subject, text, to, attachment, from }: Partial<MessageHeaders>) => {
-    const msg = new Message({
-      to,
-      text,
-      subject,
-      attachment,
-      from: from ?? config.EMAIL_FROM,
-    });
+  send: async (mail: Mail.Options) => {
+    mail.from ??= config.EMAIL_FROM;
 
-    const { isValid, validationError } = msg.checkValidity();
-    console.assert(isValid, validationError);
+    try {
+      const res = await transporter.sendMail(mail);
 
-    return client.sendAsync(msg);
+      return suc(res);
+    } catch (error) {
+      console.log("Email.send error", error);
+
+      return err("Failed to send email");
+    }
   },
 };

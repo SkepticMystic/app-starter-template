@@ -4,8 +4,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin, haveIBeenPwned, organization } from "better-auth/plugins";
 import mongoose from "mongoose";
 import { APP } from "./const/app";
-import { ROUTES } from "./const/routes.const";
-import { App } from "./utils/app";
+import { EMAIL } from "./const/email";
 import { Email } from "./utils/email";
 
 export const auth = betterAuth({
@@ -40,12 +39,8 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
 
-    sendResetPassword: async ({ user, url, token: _token }, _request) => {
-      await Email.send({
-        to: user.email,
-        subject: "Reset your password",
-        text: `Click the link to reset your password: ${url}`,
-      });
+    sendResetPassword: async ({ user, url, token: _token }) => {
+      await Email.send(EMAIL.TEMPLATES["password-reset"]({ url, user }));
     },
   },
 
@@ -53,12 +48,8 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
 
-    sendVerificationEmail: async ({ user, url, token: _token }, _request) => {
-      await Email.send({
-        to: user.email,
-        subject: "Verify your email address",
-        text: `Click the link to verify your email: ${url}`,
-      });
+    sendVerificationEmail: async ({ user, url, token: _token }) => {
+      await Email.send(EMAIL.TEMPLATES["email-verification"]({ url, user }));
     },
   },
 
@@ -91,16 +82,8 @@ export const auth = betterAuth({
 
       requireEmailVerificationOnInvitation: true,
 
-      sendInvitationEmail: async (data, _request) => {
-        const url = App.full_url(ROUTES.AUTH_ORGANIZATION_ACCEPT_INVITE, {
-          invite_id: data.invitation.id,
-        });
-
-        await Email.send({
-          to: data.invitation.email,
-          subject: "You have been invited to join an organization",
-          text: `Click the link to accept the invitation: ${url}`,
-        });
+      sendInvitationEmail: async (data) => {
+        await Email.send(EMAIL.TEMPLATES["org-invite"](data));
       },
     }),
   ],
