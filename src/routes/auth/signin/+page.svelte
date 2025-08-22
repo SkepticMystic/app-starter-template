@@ -43,7 +43,7 @@
   };
 </script>
 
-<div class="flex-flex-col gap-5">
+<div class="mx-auto flex max-w-xs flex-col gap-5">
   {#if data.search.previous === "team-invite"}
     <p class="text-success">
       Team invite accepted, please sign in to continue.
@@ -54,45 +54,7 @@
     </p>
   {/if}
 
-  <form class="flex flex-col gap-3" onsubmit={preventDefault(signin)}>
-    <Fieldset legend="Signin">
-      <div class="flex flex-col gap-3">
-        <Label lbl="Email">
-          <input
-            class="input"
-            type="email"
-            placeholder="Email"
-            autocomplete="email"
-            bind:value={form.email}
-          />
-        </Label>
-        <Label lbl="Password">
-          <input
-            class="input"
-            type="password"
-            placeholder="Password"
-            autocomplete="current-password"
-            bind:value={form.password}
-          />
-        </Label>
-      </div>
-    </Fieldset>
-
-    <div class="flex flex-wrap items-center gap-3">
-      <button
-        class="btn btn-primary"
-        type="submit"
-        disabled={!form.email || !form.password || any_loading($loader)}
-      >
-        <Loading loading={$loader["signin:email"]} />
-        Sign in
-      </button>
-    </div>
-  </form>
-
-  <div class="divider">OR</div>
-
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-2">
     {#each AUTH.PROVIDERS.IDS as provider_id}
       {@const { is_sso } = AUTH.PROVIDERS.MAP[provider_id]}
 
@@ -102,11 +64,51 @@
     {/each}
   </div>
 
-  <p>
-    <a class="link" href={ROUTES.AUTH_FORGOT_PASSWORD}>Forgot Password?</a>
-  </p>
+  <div class="divider">OR</div>
 
-  <p>
-    <a class="link" href={ROUTES.AUTH_SIGNUP}>Don't have an account? Sign up</a>
-  </p>
+  <form onsubmit={preventDefault(signin)}>
+    <Fieldset legend="Signin with email">
+      <div class="space-y-3">
+        <Label lbl="Email">
+          <input
+            type="email"
+            class="input w-full"
+            placeholder="Email"
+            autocomplete="email"
+            disabled={!!data.search.email_hint}
+            bind:value={form.email}
+          />
+        </Label>
+
+        <Label lbl="Password">
+          <input
+            type="password"
+            class="input w-full"
+            placeholder="Password"
+            autocomplete="current-password"
+            bind:value={form.password}
+          />
+        </Label>
+
+        <button
+          class="btn btn-primary"
+          type="submit"
+          disabled={!form.email || !form.password || any_loading($loader)}
+        >
+          <Loading loading={$loader["signin:email"]} />
+          Signin
+        </button>
+      </div>
+    </Fieldset>
+  </form>
+
+  <ul>
+    <li>
+      <a class="link" href={ROUTES.AUTH_SIGNUP}>Signup instead</a>
+    </li>
+
+    <li>
+      <a class="link" href={ROUTES.AUTH_FORGOT_PASSWORD}> Forgot password? </a>
+    </li>
+  </ul>
 </div>

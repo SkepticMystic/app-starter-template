@@ -1,14 +1,16 @@
 <script lang="ts">
   interface Props {
     lbl: string;
-    cls?: string;
+    class?: string;
     children?: import("svelte").Snippet;
   }
 
-  let { lbl, cls = "", children }: Props = $props();
+  let { lbl, class: klass = "", children }: Props = $props();
 </script>
 
-<label class="floating-label {cls}">
+<!-- SOURCE: https://daisyui.com/components/label/#floating-label -->
+<label class="floating-label {klass}">
   <span>{lbl}</span>
+
   {@render children?.()}
 </label>

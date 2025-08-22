@@ -53,50 +53,12 @@
   };
 </script>
 
-<div class="flex flex-col gap-5">
+<div class="mx-auto flex max-w-xs flex-col gap-5">
   {#if data.search.team_token}
     <p>You've been invited to join a team. Please signup to continue.</p>
   {/if}
 
-  <form onsubmit={preventDefault(signup_email)} class="flex flex-col gap-3">
-    <Fieldset legend="Signup">
-      <div class="flex flex-col gap-2">
-        <Label lbl="Email">
-          <input
-            class="input"
-            type="email"
-            placeholder="Email"
-            autocomplete="email"
-            disabled={!!data.search.email_hint}
-            bind:value={form.email}
-          />
-        </Label>
-
-        <Label lbl="Password">
-          <input
-            class="input"
-            type="password"
-            autocomplete="new-password"
-            placeholder="Password"
-            bind:value={form.password}
-          />
-        </Label>
-      </div>
-    </Fieldset>
-
-    <button
-      class="btn btn-primary w-fit"
-      type="submit"
-      disabled={!form.email || !form.password || any_loading($loader)}
-    >
-      <Loading loading={$loader["signup:email"]} />
-      Signup
-    </button>
-  </form>
-
-  <div class="divider">OR</div>
-
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-2">
     {#each AUTH.PROVIDERS.IDS as provider_id}
       {@const { is_sso } = AUTH.PROVIDERS.MAP[provider_id]}
 
@@ -106,7 +68,47 @@
     {/each}
   </div>
 
-  <p>
-    <a class="link" href={ROUTES.AUTH_SIGNIN}>Sign in instead</a>
-  </p>
+  <div class="divider">OR</div>
+
+  <form onsubmit={preventDefault(signup_email)}>
+    <Fieldset legend="Signup">
+      <div class="space-y-3">
+        <Label lbl="Email">
+          <input
+            type="email"
+            class="input w-full"
+            placeholder="Email"
+            autocomplete="email"
+            disabled={!!data.search.email_hint}
+            bind:value={form.email}
+          />
+        </Label>
+
+        <Label lbl="Password">
+          <input
+            type="password"
+            class="input w-full"
+            placeholder="Password"
+            autocomplete="new-password"
+            bind:value={form.password}
+          />
+        </Label>
+
+        <button
+          class="btn btn-primary"
+          type="submit"
+          disabled={!form.email || !form.password || any_loading($loader)}
+        >
+          <Loading loading={$loader["signup:email"]} />
+          Signup
+        </button>
+      </div>
+    </Fieldset>
+  </form>
+
+  <ul>
+    <li>
+      <a class="link" href={ROUTES.AUTH_SIGNIN}>Sign in instead</a>
+    </li>
+  </ul>
 </div>

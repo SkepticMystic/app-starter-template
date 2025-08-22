@@ -42,11 +42,7 @@
   };
 </script>
 
-<button
-  onclick={signin}
-  class="btn btn-secondary"
-  disabled={any_loading($loader)}
->
+<button onclick={signin} class="btn btn-info" disabled={any_loading($loader)}>
   <Loading loading={$loader[`signin:${provider_id}`]}>
     <!-- svelte-ignore svelte_component_deprecated -->
     <svelte:component this={provider.icon} />
