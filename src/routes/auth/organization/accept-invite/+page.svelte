@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -14,8 +14,8 @@
     toast.set([]);
     loader.load("accept_invite");
 
-    const res = await AuthClient.organization.acceptInvitation({
-      invitationId: data.inivitation.id,
+    const res = await BetterAuthClient.organization.acceptInvitation({
+      invitationId: data.invitation.id,
     });
     if (res.data) {
       toast.success("Invitation accepted.", {

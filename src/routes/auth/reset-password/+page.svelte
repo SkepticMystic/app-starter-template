@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
@@ -25,7 +25,7 @@
     toast.set([]);
     loader.load("reset-pwd");
 
-    const res = await AuthClient.resetPassword({
+    const res = await BetterAuthClient.resetPassword({
       token: data.search.token,
       newPassword: form.new_password,
     });

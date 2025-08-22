@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
@@ -16,7 +16,7 @@
 
   let { data }: PageProps = $props();
 
-  const loader = Loader<`signup:email` | `signin:${IAuth.ProviderId}`>();
+  const loader = Loader<`signup:credential` | `signin:${IAuth.ProviderId}`>();
 
   let form = $state({
     password: "",
@@ -25,10 +25,10 @@
 
   const signup_email = async () => {
     toast.set([]);
-    loader.load("signup:email");
+    loader.load("signup:credential");
 
     try {
-      const signup_res = await AuthClient.signUp.email({
+      const signup_res = await BetterAuthClient.signUp.email({
         ...form,
         name: "",
         callbackURL: App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
@@ -99,7 +99,7 @@
           type="submit"
           disabled={!form.email || !form.password || any_loading($loader)}
         >
-          <Loading loading={$loader["signup:email"]} />
+          <Loading loading={$loader["signup:credential"]} />
           Signup
         </button>
       </div>

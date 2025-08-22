@@ -2,6 +2,7 @@ import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "$env/static/private";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin, haveIBeenPwned, organization } from "better-auth/plugins";
+import { passkey } from "better-auth/plugins/passkey";
 import mongoose from "mongoose";
 import { APP } from "./const/app";
 import { EMAIL } from "./const/email";
@@ -67,6 +68,11 @@ export const auth = betterAuth({
 
   plugins: [
     admin(),
+
+    passkey({
+      rpName: APP.NAME,
+      rpID: new URL(APP.URL).hostname,
+    }),
 
     haveIBeenPwned({
       customPasswordCompromisedMessage:

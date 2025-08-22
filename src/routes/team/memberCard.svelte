@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import type { Member } from "$lib/models/auth/Member.model";
   import { user } from "$lib/stores/session";
@@ -28,7 +28,7 @@
 
     loader.load("remove_member");
 
-    const res = await AuthClient.organization.removeMember({
+    const res = await BetterAuthClient.organization.removeMember({
       memberIdOrEmail: member.id,
     });
 

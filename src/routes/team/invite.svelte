@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -17,7 +17,7 @@
     toast.set([]);
     loader.load("invite");
 
-    const res = await AuthClient.organization.inviteMember(form);
+    const res = await BetterAuthClient.organization.inviteMember(form);
 
     if (res.data) {
       toast.success("Invite sent!");

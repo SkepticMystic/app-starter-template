@@ -26,7 +26,7 @@
   <Navbar />
 </header>
 
-<main class="mx-14 my-6">
+<main class="mx-auto my-6 max-w-6xl px-3">
   <Loading {loading}>
     {@render children?.()}
   </Loading>

@@ -1,7 +1,7 @@
-import { AuthClient } from "$lib/auth-client";
+import { BetterAuthClient } from "$lib/auth-client";
 import { derived } from "svelte/store";
 
-export const session = AuthClient.useSession();
+export const session = BetterAuthClient.useSession();
 
 export const user = derived(
   session,

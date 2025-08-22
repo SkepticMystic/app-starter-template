@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import type { Invitation } from "$lib/models/auth/Invitation.model";
   import { Dates } from "$lib/utils/dates";
@@ -20,7 +20,7 @@
 
     loader.load(`delete_invite:${invite_id}`);
 
-    const res = await AuthClient.organization.cancelInvitation({
+    const res = await BetterAuthClient.organization.cancelInvitation({
       invitationId: invite_id,
     });
 

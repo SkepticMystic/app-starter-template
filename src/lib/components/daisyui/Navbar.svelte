@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import { ROUTES } from "$lib/const/routes.const";
   import { user } from "$lib/stores/session";
   import { onMount } from "svelte";
@@ -77,7 +77,7 @@
   };
 
   const signout = () => {
-    AuthClient.signOut({
+    BetterAuthClient.signOut({
       fetchOptions: { onSuccess: () => goto(ROUTES.AUTH_SIGNIN) },
     });
   };

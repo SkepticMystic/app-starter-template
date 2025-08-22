@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
@@ -18,7 +18,7 @@
     toast.set([]);
     loader.load("change-pwd");
 
-    const res = await AuthClient.changePassword({
+    const res = await BetterAuthClient.changePassword({
       revokeOtherSessions: true,
       newPassword: form.new_password,
       currentPassword: form.current_password,

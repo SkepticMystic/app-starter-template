@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AuthClient } from "$lib/auth-client";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
@@ -15,7 +15,7 @@
   const forgotPassword = async () => {
     loader.load("forgot-password");
 
-    const res = await AuthClient.requestPasswordReset({
+    const res = await BetterAuthClient.requestPasswordReset({
       ...form,
       redirectTo: ROUTES.AUTH_RESET_PASSWORD,
     });

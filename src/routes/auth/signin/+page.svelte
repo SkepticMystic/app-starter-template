@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { AuthClient } from "$lib/auth-client.js";
+  import { BetterAuthClient } from "$lib/auth-client.js";
+  import PasskeySigninButton from "$lib/components/auth/passkeys/PasskeySigninButton.svelte";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
@@ -21,10 +22,10 @@
   });
 
   const signin = async () => {
-    loader.load("signin:email");
+    loader.load("signin:credential");
 
     try {
-      const res = await AuthClient.signIn.email({
+      const res = await BetterAuthClient.signIn.email({
         ...form,
       });
 
@@ -62,6 +63,8 @@
         <SocialSigninButton {provider_id} {loader} />
       {/if}
     {/each}
+
+    <PasskeySigninButton email={form.email} {loader} />
   </div>
 
   <div class="divider">OR</div>
@@ -74,7 +77,7 @@
             type="email"
             class="input w-full"
             placeholder="Email"
-            autocomplete="email"
+            autocomplete="email webauthn"
             disabled={!!data.search.email_hint}
             bind:value={form.email}
           />
@@ -85,7 +88,7 @@
             type="password"
             class="input w-full"
             placeholder="Password"
-            autocomplete="current-password"
+            autocomplete="current-password webauthn"
             bind:value={form.password}
           />
         </Label>
@@ -95,7 +98,7 @@
           type="submit"
           disabled={!form.email || !form.password || any_loading($loader)}
         >
-          <Loading loading={$loader["signin:email"]} />
+          <Loading loading={$loader["signin:credential"]} />
           Signin
         </button>
       </div>

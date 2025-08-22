@@ -16,7 +16,7 @@
 </script>
 
 <fieldset class="fieldset {klass}">
-  <legend class="fieldset-legend">{legend}</legend>
+  <legend class="fieldset-legend mb-0 text-base">{legend}</legend>
 
   {@render children?.()}
 
