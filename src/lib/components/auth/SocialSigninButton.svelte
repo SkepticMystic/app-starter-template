@@ -1,0 +1,55 @@
+<script lang="ts">
+  import { AuthClient } from "$lib/auth-client";
+  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import { AUTH, type IAuth } from "$lib/const/auth.const";
+  import { any_loading, Loader } from "$lib/utils/loader";
+  import { toast } from "svelte-daisyui-toast";
+
+  let {
+    loader,
+    provider_id,
+  }: {
+    provider_id: IAuth.ProviderId;
+    loader: Loader<`signin:${IAuth.ProviderId}`>;
+  } = $props();
+
+  const provider = AUTH.PROVIDERS.MAP[provider_id];
+
+  const signin = async () => {
+    toast.set([]);
+    loader.load(`signin:${provider_id}`);
+
+    try {
+      const signin_res = await AuthClient.signIn.social({
+        provider: provider_id,
+      });
+
+      if (signin_res.error) {
+        console.warn("signin_res.error", signin_res.error);
+        toast.warning(
+          signin_res.error.message ?? "signin failed. Please try again.",
+        );
+      } else {
+        console.log("signin_res.data", signin_res.data);
+        // Auto redirects, no need here
+      }
+    } catch (error) {
+      toast.error("signin failed. Please try again.");
+      console.error("signin error:", error);
+    }
+
+    loader.reset();
+  };
+</script>
+
+<button
+  onclick={signin}
+  class="btn btn-secondary"
+  disabled={any_loading($loader)}
+>
+  <Loading loading={$loader[`signin:${provider_id}`]}>
+    <!-- svelte-ignore svelte_component_deprecated -->
+    <svelte:component this={provider.icon} />
+  </Loading>
+  Continue with {provider.name}
+</button>

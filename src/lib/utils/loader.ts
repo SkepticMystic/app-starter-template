@@ -15,5 +15,7 @@ export const Loader = <S extends string | number>() => {
   };
 };
 
+export type Loader<S extends string | number> = ReturnType<typeof Loader<S>>;
+
 export const any_loading = ($loader: Partial<Record<string, boolean>>) =>
   Object.keys($loader).length > 0;

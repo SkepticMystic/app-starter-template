@@ -16,7 +16,7 @@
 
   let loading = $state(true);
   onMount(async () => {
-    const res = await axios.get<{}>("/api/init");
+    // const res = await axios.get<{}>("/api/init");
 
     loading = false;
   });
