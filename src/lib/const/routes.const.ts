@@ -1,6 +1,8 @@
 export const ROUTES = {
   HOME: "/",
 
+  ADMIN: "/admin",
+
   AUTH_SIGNUP: "/auth/signup",
   AUTH_SIGNIN: "/auth/signin",
   AUTH_VERIFY_EMAIL: "/auth/verify-email",

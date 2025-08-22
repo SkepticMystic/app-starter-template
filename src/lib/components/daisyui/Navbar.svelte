@@ -1,11 +1,11 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { AuthClient } from "$lib/auth-client";
   import { ROUTES } from "$lib/const/routes.const";
   import { user } from "$lib/stores/session";
   import { onMount } from "svelte";
   import { themeChange } from "theme-change";
-  import IconBars3 from "../icons/IconBarThree.svelte";
-  import { goto } from "$app/navigation";
+  import IconBars3 from "~icons/heroicons/bars-3";
 
   onMount(() => themeChange(false));
 
@@ -40,13 +40,13 @@
     {
       side: "right",
       label: "Profile",
-      href: "/profile",
+      href: ROUTES.PROFILE,
       authed: true,
     },
     {
       side: "right",
       label: "Admin",
-      href: "/admin",
+      href: ROUTES.ADMIN,
       authed: true,
       admin: true,
     },
