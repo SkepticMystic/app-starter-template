@@ -12,4 +12,5 @@ export const ROUTES = {
   AUTH_ORGANIZATION_ACCEPT_INVITE: "/auth/organization/accept-invite",
 
   PROFILE: "/profile",
+  ORGANIZATION: "/organization",
 };

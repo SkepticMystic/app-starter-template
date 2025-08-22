@@ -34,7 +34,7 @@
     {
       side: "right",
       label: "Team",
-      href: "/team",
+      href: ROUTES.ORGANIZATION,
       authed: true,
     },
     {

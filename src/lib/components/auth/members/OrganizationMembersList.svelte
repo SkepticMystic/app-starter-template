@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Member } from "$lib/models/auth/Member.model";
-  import MemberCard from "./memberCard.svelte";
+  import MemberCard from "./MemberCard.svelte";
 
   interface Props {
     members: Member[];

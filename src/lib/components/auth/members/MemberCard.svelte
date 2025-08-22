@@ -1,11 +1,10 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client";
+  import { MembersClient } from "$lib/clients/members.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import type { Member } from "$lib/models/auth/Member.model";
   import { user } from "$lib/stores/session";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
 
   interface Props {
     member: Member;
@@ -19,25 +18,12 @@
 
   const member_is_user = $user?.id === member.userId;
 
-  let new_role = $state(member.role.slice());
-
   const remove_member = async () => {
-    if (!confirm(`Are you sure you want to remove this member from the org?`)) {
-      return;
-    }
-
     loader.load("remove_member");
 
-    const res = await BetterAuthClient.organization.removeMember({
-      memberIdOrEmail: member.id,
-    });
-
-    if (res.data) {
-      toast.success("Member removed");
+    const res = await MembersClient.remove_member(member.id);
+    if (res.ok) {
       await invalidateAll();
-    } else {
-      console.warn("Failed to remove member:", res.error);
-      toast.error("Failed to remove member: " + res.error.message);
     }
 
     loader.reset();
@@ -94,6 +80,7 @@
     disabled={member_is_user || any_loading($loader)}
     onclick={remove_member}
   >
-    <Loading loading={$loader["remove_member"]}>Remove</Loading>
+    <Loading loading={$loader["remove_member"]}></Loading>
+    Remove Member
   </button>
 </div>

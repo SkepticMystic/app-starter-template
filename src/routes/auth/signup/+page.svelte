@@ -54,10 +54,6 @@
 </script>
 
 <div class="mx-auto flex max-w-xs flex-col gap-5">
-  {#if data.search.team_token}
-    <p>You've been invited to join a team. Please signup to continue.</p>
-  {/if}
-
   <div class="flex flex-col gap-2">
     {#each AUTH.PROVIDERS.IDS as provider_id}
       {@const { is_sso } = AUTH.PROVIDERS.MAP[provider_id]}

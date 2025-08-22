@@ -1,11 +1,10 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client";
+  import { OrganizationsClient } from "$lib/clients/organizations.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import type { Invitation } from "$lib/models/auth/Invitation.model";
   import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
 
   interface Props {
     invitations: Invitation[];
@@ -13,23 +12,14 @@
 
   let { invitations }: Props = $props();
 
-  const loader = Loader<`delete_invite:${string}`>();
+  const loader = Loader<`cancel_invitation:${string}`>();
 
-  const delete_invite = async (invite_id: string) => {
-    if (!confirm("Are you sure you want to delete this invite?")) return;
+  const cancel_invitation = async (invite_id: string) => {
+    loader.load(`cancel_invitation:${invite_id}`);
 
-    loader.load(`delete_invite:${invite_id}`);
-
-    const res = await BetterAuthClient.organization.cancelInvitation({
-      invitationId: invite_id,
-    });
-
-    if (res.data) {
-      toast.success("Invite deleted");
+    const res = await OrganizationsClient.cancel_invitation(invite_id);
+    if (res.ok) {
       await invalidateAll();
-    } else {
-      console.warn("Failed to delete invite:", res.error);
-      toast.error("Failed to delete invite: " + res.error.message);
     }
 
     loader.reset();
@@ -51,9 +41,9 @@
       <button
         class="btn btn-error"
         disabled={any_loading($loader)}
-        onclick={() => delete_invite(id)}
+        onclick={() => cancel_invitation(id)}
       >
-        <Loading loading={$loader[`delete_invite:${id}`]} />
+        <Loading loading={$loader[`cancel_invitation:${id}`]} />
         Delete
       </button>
     </div>

@@ -1,31 +1,23 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client";
+  import { OrganizationsClient } from "$lib/clients/organizations.client";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
 
-  const loader = Loader<"invite">();
+  const loader = Loader<"invite_member">();
 
   let form: { email: string; role: "member" } = $state({
     email: "",
     role: "member",
   });
 
-  const inviteToTeam = async () => {
-    toast.set([]);
-    loader.load("invite");
+  const invite_member = async () => {
+    loader.load("invite_member");
 
-    const res = await BetterAuthClient.organization.inviteMember(form);
-
-    if (res.data) {
-      toast.success("Invite sent!");
-
+    const res = await OrganizationsClient.invite_member(form);
+    if (res.ok) {
       await invalidateAll();
-    } else {
-      console.warn("Failed to invite member:", res.error);
-      toast.warning("Failed to invite member: " + res.error.message);
     }
 
     loader.reset();
@@ -53,12 +45,12 @@
 
     <div class="flex flex-wrap items-center gap-3">
       <button
+        onclick={invite_member}
         class="btn btn-secondary"
         disabled={!form.email || any_loading($loader)}
-        onclick={inviteToTeam}
       >
-        <Loading loading={$loader["invite"]} />
-        Invite to Team
+        <Loading loading={$loader["invite_member"]} />
+        Invite Member
       </button>
     </div>
   </div>

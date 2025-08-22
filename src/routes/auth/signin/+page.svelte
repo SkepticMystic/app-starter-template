@@ -45,10 +45,8 @@
 </script>
 
 <div class="mx-auto flex max-w-xs flex-col gap-5">
-  {#if data.search.previous === "team-invite"}
-    <p class="text-success">
-      Team invite accepted, please sign in to continue.
-    </p>
+  {#if data.search.previous === "organization-invite"}
+    <p class="text-success">Invite accepted, please sign in to continue.</p>
   {:else if data.search.previous === "reset-password"}
     <p class="text-success">
       Password reset successful, please sign in to continue.
