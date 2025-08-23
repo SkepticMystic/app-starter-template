@@ -1,9 +1,10 @@
 <script lang="ts">
   import OrganizationMembersList from "$lib/components/auth/members/OrganizationMembersTable.svelte";
-  import InviteOrganizationMemberForm from "../../lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
-  import OrganizationInvitationsList from "../../lib/components/auth/organizations/OrganizationInvitationsList.svelte";
+  import InviteOrganizationMemberForm from "$lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
+  import OrganizationInvitationsList from "$lib/components/auth/organizations/OrganizationInvitationsList.svelte";
 
   let { data } = $props();
+  let { invitations, members } = $state(data);
 </script>
 
 <div class="space-y-5">
@@ -16,19 +17,19 @@
 
     <InviteOrganizationMemberForm
       on_invite={(invitiation) => {
-        data.invitations = [invitiation, ...data.invitations];
+        invitations = [invitiation, ...invitations];
       }}
     />
-    <OrganizationMembersList bind:members={data.members} />
+    <OrganizationMembersList bind:members />
   </div>
 
-  {#if data.invitations.length}
+  {#if invitations.length}
     <div>
       <div class="divider">
         <h2 class="text-xl">Invites</h2>
       </div>
 
-      <OrganizationInvitationsList bind:invitations={data.invitations} />
+      <OrganizationInvitationsList bind:invitations />
     </div>
   {/if}
 </div>

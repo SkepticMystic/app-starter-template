@@ -31,7 +31,7 @@
     loader.reset();
   };
 
-  let rows = $state(invitations);
+  let rows = $derived(invitations);
 </script>
 
 <Table data={rows}>

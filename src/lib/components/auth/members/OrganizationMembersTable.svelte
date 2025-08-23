@@ -28,7 +28,7 @@
     loader.reset();
   };
 
-  let rows = $state(members);
+  let rows = $derived(members);
 </script>
 
 <Table data={rows}>
