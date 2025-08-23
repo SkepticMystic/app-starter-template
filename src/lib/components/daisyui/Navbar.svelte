@@ -6,6 +6,7 @@
   import { onMount } from "svelte";
   import { themeChange } from "theme-change";
   import IconBars3 from "~icons/heroicons/bars-3";
+  import ThemeSelector from "./ThemeSelector.svelte";
 
   onMount(() => themeChange(false));
 
@@ -135,14 +136,7 @@
 
   <div class="navbar-end hidden lg:flex">
     <ul class="flex items-center gap-5">
-      <select
-        class="select select-bordered select-sm text-xs"
-        data-choose-theme
-      >
-        {#each ["acid", "autumn", "black", "bumblebee", "business", "cmyk", "coffee", "corporate", "cupcake", "cyberpunk", "dracula", "emerald", "fantasy", "forest", "garden", "halloween", "lemonade", "light", "lofi", "luxury", "night", "pastel", "retro", "valentine", "winter"] as theme}
-          <option value={theme}>{theme}</option>
-        {/each}
-      </select>
+      <ThemeSelector />
 
       {#each routes as r}
         {#if show_route($user, r, "right")}

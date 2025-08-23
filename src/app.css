@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+}
 @source "../node_modules/svelte-daisyui-toast/dist/**/*.{js,svelte}";
 
 /*
