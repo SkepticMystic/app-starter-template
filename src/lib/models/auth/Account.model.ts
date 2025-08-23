@@ -31,7 +31,7 @@ export const Accounts = mongoose.model(
   model_name,
   new mongoose.Schema<Account>(
     {
-      id: { type: String, required: true },
+      id: { type: String },
       userId: { type: String, required: true },
       accountId: { type: String, required: true },
       providerId: { type: String, required: true },

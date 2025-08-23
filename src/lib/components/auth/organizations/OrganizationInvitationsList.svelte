@@ -1,16 +1,20 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
   import { OrganizationsClient } from "$lib/clients/organizations.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Table from "$lib/components/Table.svelte";
+  import Time from "$lib/components/Time.svelte";
   import type { Invitation } from "$lib/models/auth/Invitation.model";
   import { Dates } from "$lib/utils/dates";
-  import { any_loading, Loader } from "$lib/utils/loader";
+  import { Format } from "$lib/utils/format.util";
+  import { Loader } from "$lib/utils/loader";
+  import { Strings } from "$lib/utils/strings.util";
+  import IconXMark from "~icons/heroicons/x-mark";
 
   interface Props {
     invitations: Invitation[];
   }
 
-  let { invitations }: Props = $props();
+  let { invitations = $bindable() }: Props = $props();
 
   const loader = Loader<`cancel_invitation:${string}`>();
 
@@ -19,33 +23,62 @@
 
     const res = await OrganizationsClient.cancel_invitation(invite_id);
     if (res.ok) {
-      await invalidateAll();
+      invitations = invitations.map((inv) =>
+        inv.id === invite_id ? { ...inv, ...res.data } : inv,
+      );
     }
 
     loader.reset();
   };
+
+  let rows = $state(invitations);
 </script>
 
-<div class="flex gap-3">
-  {#each invitations as { id, email, expiresAt, role } (id)}
-    <div class="rounded-box bg-base-100 flex flex-col gap-2 border p-3">
-      <span>
-        <span>{email}</span> -
-        <span class="capitalize">{role}</span>
-      </span>
+<Table data={rows}>
+  {#snippet header()}
+    <th> Email </th>
+    <th> Role </th>
+    <th> Expiry date </th>
+    <th> Status </th>
+    <th> Actions </th>
+  {/snippet}
 
-      <span class="">
-        Expires: {Dates.show_date(expiresAt)}
-      </span>
+  {#snippet row(invitation)}
+    <tr>
+      <td>
+        {invitation.email}
+      </td>
 
-      <button
-        class="btn btn-error"
-        disabled={any_loading($loader)}
-        onclick={() => cancel_invitation(id)}
-      >
-        <Loading loading={$loader[`cancel_invitation:${id}`]} />
-        Delete
-      </button>
-    </div>
-  {/each}
-</div>
+      <td>
+        {invitation.role}
+      </td>
+
+      <td>
+        <Time date={invitation.expiresAt} show={Dates.show_datetime} />
+      </td>
+
+      <td> {invitation.status} </td>
+
+      <td>
+        <button
+          class="btn btn-square"
+          title="Cancel invitation"
+          onclick={() => cancel_invitation(invitation.id)}
+          disabled={invitation.status !== "pending" ||
+            $loader[`cancel_invitation:${invitation.id}`]}
+        >
+          <Loading loading={$loader[`cancel_invitation:${invitation.id}`]}>
+            <IconXMark />
+          </Loading>
+        </button>
+      </td>
+    </tr>
+  {/snippet}
+
+  {#snippet footer()}
+    <td colspan="5">
+      {Format.number(rows.length)}
+      {Strings.pluralize("invitation", rows.length)}
+    </td>
+  {/snippet}
+</Table>

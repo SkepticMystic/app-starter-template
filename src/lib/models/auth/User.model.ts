@@ -31,9 +31,9 @@ export const Users = mongoose.model(
   model_name,
   new mongoose.Schema<User & Timestamps>(
     {
-      id: { type: String, required: true, unique: true },
+      id: { type: String },
       name: { type: String, required: true },
-      email: { type: String, required: true, unique: true },
+      email: { type: String, required: true },
       emailVerified: { type: Boolean, default: false },
       image: { type: String, default: null },
 

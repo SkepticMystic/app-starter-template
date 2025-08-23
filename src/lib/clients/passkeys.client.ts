@@ -1,5 +1,5 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import { err, suc } from "$lib/utils";
+import { err, suc } from "$lib/utils/result.util";
 import { Client } from "./index.client";
 
 export const PasskeysClient = {

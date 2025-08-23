@@ -29,10 +29,10 @@
 <div class="flex flex-col gap-2">
   {#each passkeys as passkey}
     <div class="rounded-box border p-3 shadow-md">
-      <div class="flex justify-between">
+      <div class="flex items-center justify-between">
         <div class="flex flex-col">
           <span class="font-bold">{passkey.name}</span>
-          <span class="text-neutral-content text-sm">
+          <span class="text-sm">
             Added on {Dates.show_date(passkey.createdAt)}
           </span>
         </div>

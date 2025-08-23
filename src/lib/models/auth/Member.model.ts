@@ -18,7 +18,7 @@ export const Members = mongoose.model(
   model_name,
   new mongoose.Schema<Member & Timestamps>(
     {
-      id: { type: String, required: true },
+      id: { type: String },
       userId: { type: String, required: true },
       organizationId: { type: String, required: true },
       role: { type: String, required: true },

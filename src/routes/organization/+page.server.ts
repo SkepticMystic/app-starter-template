@@ -8,7 +8,7 @@ export const load = (async ({ request }) => {
   ]);
 
   return {
-    members,
     invitations,
+    members: members.members,
   };
 }) satisfies PageServerLoad;

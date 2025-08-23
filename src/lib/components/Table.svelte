@@ -1,40 +1,38 @@
-<script lang="ts" generics="T extends SID<Record<string, unknown>>">
-  import type { SID } from "$lib/interfaces";
+<script lang="ts" generics="T extends Record<string, unknown>">
   import type { Snippet } from "svelte";
+  import type { ClassValue } from "svelte/elements";
 
   let {
     row,
     data,
     header,
     footer,
-    class: klass = "table-pin-rows table-sm",
+    class: klass = "table-pin-rows",
   }: {
     data: T[];
-    class?: string;
+    class?: ClassValue;
     row: Snippet<[T, number]>;
     header: Snippet<[]>;
     footer?: Snippet;
   } = $props();
 </script>
 
-<div class="ring-neutral/5 shadow-md ring-1 md:rounded-sm">
-  <table class="table {klass}">
-    <thead>
-      <tr class="bg-base-200 shadow-sm">{@render header()}</tr>
-    </thead>
+<table class="table {klass}">
+  <thead>
+    <tr class="bg-base-200 shadow-sm">{@render header()}</tr>
+  </thead>
 
-    <tbody class="bg-base-100">
-      {#each data as item, i (item._id)}
-        {@render row(item, i)}
-      {/each}
-    </tbody>
+  <tbody class="bg-base-100">
+    {#each data as item, i (item._id ?? item.id)}
+      {@render row(item, i)}
+    {/each}
+  </tbody>
 
-    {#if footer}
-      <tfoot>
-        <tr class="bg-base-200 border-t-base-200">
-          {@render footer()}
-        </tr>
-      </tfoot>
-    {/if}
-  </table>
-</div>
+  {#if footer}
+    <tfoot>
+      <tr class="bg-base-200 border-t-base-200">
+        {@render footer()}
+      </tr>
+    </tfoot>
+  {/if}
+</table>

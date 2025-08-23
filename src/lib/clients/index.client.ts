@@ -1,5 +1,5 @@
 import type { Result } from "$lib/interfaces";
-import { err } from "$lib/utils";
+import { err } from "$lib/utils/result.util";
 import { HTTPError } from "ky";
 import { toast } from "svelte-daisyui-toast";
 

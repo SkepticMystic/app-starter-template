@@ -24,7 +24,7 @@ export const Invitations = mongoose.model(
   model_name,
   new mongoose.Schema<Invitation & Timestamps>(
     {
-      id: { type: String, required: true },
+      id: { type: String },
       email: { type: String, required: true },
       inviterId: { type: String, required: true },
       organizationId: { type: String, required: true },

@@ -1,12 +1,4 @@
-import type { Err, SID, Suc } from "$lib/interfaces";
-import type { ObjectId } from "mongodb";
-
-export const _id_to_string = <T extends { _id: string | ObjectId | unknown }>(
-  doc: T,
-) => {
-  if (doc?._id) doc._id = doc._id.toString();
-  return doc as SID<T>;
-};
+import type { Err, Suc } from "$lib/interfaces";
 
 export const err = <E = undefined>(e?: E): Err<E> => {
   const res = { ok: false } as Err<E>;

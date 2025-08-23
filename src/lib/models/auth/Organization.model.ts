@@ -20,7 +20,7 @@ export const Organizations = mongoose.model(
   model_name,
   new mongoose.Schema<Organization & Timestamps>(
     {
-      id: { type: String, required: true },
+      id: { type: String },
       name: { type: String, required: true },
       slug: { type: String, required: true },
       logo: { type: String },

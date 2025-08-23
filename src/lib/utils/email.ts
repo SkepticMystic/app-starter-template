@@ -8,7 +8,7 @@ import {
 import nodemailer from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import z from "zod";
-import { err, suc } from ".";
+import { err, suc } from "./result.util";
 
 const config = z
   .object({

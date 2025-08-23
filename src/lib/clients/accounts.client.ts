@@ -1,6 +1,6 @@
 import { BetterAuthClient } from "$lib/auth-client";
 import type { IAuth } from "$lib/const/auth.const";
-import { err, suc } from "$lib/utils";
+import { err, suc } from "$lib/utils/result.util";
 import { Client } from "./index.client";
 
 export const AccountsClient = {

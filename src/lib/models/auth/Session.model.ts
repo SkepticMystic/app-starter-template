@@ -22,8 +22,9 @@ export type Session = {
 
   // Organization //
 
+  // NOTE: Optional by default in BetterAuth, but we guarantee it's set in our hooks
   /** The ID of the active organization */
-  activeOrganizationId?: string;
+  activeOrganizationId: string;
 };
 
 const model_name = "session";
@@ -32,7 +33,7 @@ export const Sessions = mongoose.model(
   model_name,
   new mongoose.Schema<Session & Timestamps>(
     {
-      id: { type: String, required: true },
+      id: { type: String },
       userId: { type: String, required: true },
       token: { type: String, required: true },
       expiresAt: { type: Date, required: true },
@@ -43,7 +44,7 @@ export const Sessions = mongoose.model(
       impersonatedBy: { type: String },
 
       // Organization //
-      activeOrganizationId: { type: String },
+      activeOrganizationId: { type: String, required: true },
     },
     { timestamps: true },
   ),

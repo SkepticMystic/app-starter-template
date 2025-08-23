@@ -35,18 +35,18 @@
     {@const provider = AUTH.PROVIDERS.MAP[provider_id]}
 
     {@const provider_accounts = accounts.filter(
-      (acc) => acc.provider === provider_id,
+      (account) => account.provider === provider_id,
     )}
 
     {#each provider_accounts as account}
       <div class="rounded-box border p-3 shadow-md">
-        <div class="flex justify-between">
+        <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <svelte:component this={provider.icon} class="h-8 w-8" />
 
             <div class="flex flex-col">
               <span class="font-bold">{provider.name}</span>
-              <span class="text-neutral-content text-sm">
+              <span class="text-sm">
                 Added on {Dates.show_date(account.createdAt)}
               </span>
             </div>

@@ -18,6 +18,7 @@
 
   let form = $state({
     password: "",
+    rememberMe: false,
     email: data.search.email_hint ?? "",
   });
 
@@ -91,14 +92,25 @@
           />
         </Label>
 
-        <button
-          class="btn btn-primary"
-          type="submit"
-          disabled={!form.email || !form.password || any_loading($loader)}
-        >
-          <Loading loading={$loader["signin:credential"]} />
-          Signin
-        </button>
+        <div class="flex items-center justify-between">
+          <label class="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              class="checkbox"
+              bind:checked={form.rememberMe}
+            />
+            <span>Remember me</span>
+          </label>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            disabled={!form.email || !form.password || any_loading($loader)}
+          >
+            <Loading loading={$loader["signin:credential"]} />
+            Signin
+          </button>
+        </div>
       </div>
     </Fieldset>
   </form>
