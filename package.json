@@ -41,6 +41,7 @@
     "ky": "^1.9.0",
     "mongoose": "^8.17.0",
     "nodemailer": "^7.0.5",
+    "redis": "^5.8.2",
     "svelte-daisyui-toast": "^2.0.3",
     "theme-change": "^2.5.0",
     "turndown": "^7.2.1",

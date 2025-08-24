@@ -15,6 +15,7 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import mongoose from "mongoose";
+import { redis } from "../hooks.server";
 import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
 import { EMAIL } from "./const/email";
@@ -24,7 +25,7 @@ import { Email } from "./utils/email";
 const get_or_create_org_id = async (
   session: Session,
   ctx: GenericEndpointContext,
-) => {
+): Promise<string | null> => {
   const member = await Members.findOne(
     { userId: session.userId },
     { organizationId: 1 },
@@ -47,7 +48,7 @@ const get_or_create_org_id = async (
 
   if (!org.id) {
     console.error("Failed to create organization");
-    return { data: session };
+    return null;
   }
 
   await ctx.context.adapter.create<MemberInput>({
@@ -74,10 +75,16 @@ export const auth = betterAuth({
   ),
 
   session: {
+    storeSessionInDatabase: false,
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // Cache duration in seconds
     },
+  },
+
+  rateLimit: {
+    enabled: true,
+    storage: redis ? "secondary-storage" : "memory",
   },
 
   databaseHooks: {
@@ -174,8 +181,23 @@ export const auth = betterAuth({
     }),
   ],
 
-  // TODO: https://www.better-auth.com/docs/concepts/database#secondary-storage
-  // secondaryStorage
+  // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
+  secondaryStorage: redis
+    ? {
+        get: async (key) => redis!.get(key),
+
+        set: async (key, value, ttl) => {
+          if (ttl) await redis!.set(key, value, { EX: ttl });
+          // or for ioredis:
+          // if (ttl) await redis!.set(key, value, 'EX', ttl)
+          else await redis!.set(key, value);
+        },
+
+        delete: async (key) => {
+          await redis!.del(key);
+        },
+      }
+    : undefined,
 });
 
 //  === Remember ===
