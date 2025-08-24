@@ -10,30 +10,45 @@ import {
   admin,
   haveIBeenPwned,
   organization,
+  type Member,
   type MemberInput,
   type OrganizationInput,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import mongoose from "mongoose";
-import { redis } from "../hooks.server";
 import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
 import { EMAIL } from "./const/email";
-import { Members } from "./models/auth/Member.model";
+import { redis } from "./db/redis.db";
 import { Email } from "./utils/email";
+import { Log } from "./utils/logger.util";
 
 const get_or_create_org_id = async (
   session: Session,
   ctx: GenericEndpointContext,
 ): Promise<string | null> => {
-  const member = await Members.findOne(
-    { userId: session.userId },
-    { organizationId: 1 },
-  ).lean();
+  const log = Log.child({
+    userId: session.userId,
+    ctx: "[auth.session.create.before]",
+  });
+
+  const member = await ctx.context.adapter.findOne<
+    Pick<Member, "organizationId">
+  >({
+    model: "member",
+    select: ["organizationId"],
+    where: [{ field: "userId", operator: "eq", value: session.userId }],
+  });
 
   if (member) {
+    log.debug(
+      { organizationId: member.organizationId },
+      "Found existing organization",
+    );
     return member.organizationId;
   }
+
+  log.info("Creating new organization");
 
   // SOURCE: https://github.com/better-auth/better-auth/blob/744e9e34c1eb8b75c373f00a71c85e5a599abae6/packages/better-auth/src/plugins/organization/adapter.ts#L186
   const org = await ctx.context.adapter.create<OrganizationInput>({
@@ -47,7 +62,8 @@ const get_or_create_org_id = async (
   });
 
   if (!org.id) {
-    console.error("Failed to create organization");
+    log.error("Failed to create organization");
+
     return null;
   }
 
@@ -83,8 +99,11 @@ export const auth = betterAuth({
   },
 
   rateLimit: {
-    enabled: true,
-    storage: redis ? "secondary-storage" : "memory",
+    // NOTE: defaults to true in production, false in development
+    // enabled: true,
+    // NOTE: defaults to secondary if one is configured
+    // So no need for us to check for redis
+    // storage: redis ? "secondary-storage" : "memory",
   },
 
   databaseHooks: {
@@ -92,6 +111,7 @@ export const auth = betterAuth({
       create: {
         before: async (session, ctx) => {
           if (!ctx) {
+            Log.error("[auth.session.create.before] No context");
             return { data: session };
           }
 
@@ -163,7 +183,7 @@ export const auth = betterAuth({
 
     haveIBeenPwned({
       customPasswordCompromisedMessage:
-        "Your password has been compromised in a data breach. Please choose a different password.",
+        "That password has been compromised in a data breach. Please choose a different one.",
     }),
 
     organization({
@@ -184,21 +204,29 @@ export const auth = betterAuth({
   // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
   secondaryStorage: redis
     ? {
-        get: async (key) => redis!.get(key),
+        get: async (key) => {
+          Log.debug({ key }, "[redis.get]");
+
+          return redis!.get(key);
+        },
 
         set: async (key, value, ttl) => {
-          if (ttl) await redis!.set(key, value, { EX: ttl });
+          Log.debug({ key, ttl }, "[redis.set]");
+
+          // if (ttl) await redis!.set(key, value, { EX: ttl });
           // or for ioredis:
-          // if (ttl) await redis!.set(key, value, 'EX', ttl)
+          if (ttl) await redis!.set(key, value, "EX", ttl);
           else await redis!.set(key, value);
         },
 
         delete: async (key) => {
+          Log.debug({ key }, "[redis.del]");
+
           await redis!.del(key);
         },
       }
     : undefined,
 });
 
-//  === Remember ===
+//  TODO:
 //  - Database indexes: https://www.better-auth.com/docs/guides/optimizing-for-performance#recommended-fields-to-index
