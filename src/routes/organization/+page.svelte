@@ -2,6 +2,7 @@
   import OrganizationMembersList from "$lib/components/auth/members/OrganizationMembersTable.svelte";
   import InviteOrganizationMemberForm from "$lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
   import OrganizationInvitationsList from "$lib/components/auth/organizations/OrganizationInvitationsList.svelte";
+  import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
 
   let { data } = $props();
   let { invitations, members } = $state(data);
@@ -9,6 +10,8 @@
 
 <div class="space-y-5">
   <h1 class="text-2xl">Organization</h1>
+
+  <OrganizationSelector />
 
   <div class="space-y-5">
     <div class="divider">

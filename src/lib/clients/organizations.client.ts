@@ -3,6 +3,26 @@ import { err, suc } from "$lib/utils/result.util";
 import { Client } from "./index.client";
 
 export const OrganizationsClient = {
+  set_active: (organization_id: string) =>
+    Client.request(
+      async () => {
+        const res = await BetterAuthClient.organization.setActive({
+          organizationId: organization_id,
+        });
+
+        if (res.data) {
+          return suc(res.data);
+        } else {
+          console.warn("Failed to set active organization:", res.error);
+          return err(
+            res.error?.message ??
+              "Failed to set active organization. Please try again.",
+          );
+        }
+      },
+      { toast: { suc: "Active organization updated." } },
+    ),
+
   invite_member: (input: {
     email: string;
     role: "member" | "admin" | "owner";
