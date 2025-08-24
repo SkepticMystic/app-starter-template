@@ -5,7 +5,9 @@
   let { data } = $props();
 
   if (data.search.toast === TOAST.IDS.EMAIL_VERIFIED) {
-    toast.success("Email verified successfully!");
+    toast.add(TOAST.MAP["EMAIL_VERIFIED"]);
+  } else if (data.search.toast === TOAST.IDS.INVITE_ACCEPTED) {
+    toast.add(TOAST.MAP["INVITE_ACCEPTED"]);
   }
 </script>
 

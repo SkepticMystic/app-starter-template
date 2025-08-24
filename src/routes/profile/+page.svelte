@@ -28,6 +28,13 @@
 <div class="space-y-5">
   <h1 class="text-2xl">Profile</h1>
 
+  <p>
+    Logged in as <strong>{data.user.email}</strong>
+    {#if data.user.name}
+      (Name: <strong>{data.user.name}</strong>)
+    {/if}
+  </p>
+
   {#if data.accounts.find((acc) => acc.provider === "credential")}
     <div>
       <ChangePassword />

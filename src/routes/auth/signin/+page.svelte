@@ -31,7 +31,7 @@
       });
 
       if (res.data) {
-        await goto(data.search.redirect_uri ?? "/");
+        await goto(data.search.redirect_uri ?? ROUTES.HOME);
       } else {
         toast.warning(res.error.message ?? "Signin failed. Please try again.");
         console.warn(res.error);
@@ -59,11 +59,19 @@
       {@const { is_sso } = AUTH.PROVIDERS.MAP[provider_id]}
 
       {#if is_sso}
-        <SocialSigninButton {provider_id} {loader} />
+        <SocialSigninButton
+          {loader}
+          {provider_id}
+          redirect_uri={data.search.redirect_uri}
+        />
       {/if}
     {/each}
 
-    <PasskeySigninButton email={form.email} {loader} />
+    <PasskeySigninButton
+      {loader}
+      email={form.email}
+      redirect_uri={data.search.redirect_uri}
+    />
   </div>
 
   <div class="divider">OR</div>

@@ -3,8 +3,10 @@ import {
   betterAuth,
   type GenericEndpointContext,
   type Session,
+  type User,
 } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { APIError } from "better-auth/api";
 import { generateRandomString } from "better-auth/crypto";
 import {
   admin,
@@ -12,6 +14,7 @@ import {
   organization,
   type Member,
   type MemberInput,
+  type Organization,
   type OrganizationInput,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
@@ -20,6 +23,9 @@ import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
 import { EMAIL } from "./const/email";
 import { redis } from "./db/redis.db";
+import { Invitations } from "./models/auth/Invitation.model";
+import { Members } from "./models/auth/Member.model";
+import { Organizations } from "./models/auth/Organization.model";
 import { Email } from "./utils/email";
 import { Log } from "./utils/logger.util";
 
@@ -27,9 +33,10 @@ const get_or_create_org_id = async (
   session: Session,
   ctx: GenericEndpointContext,
 ): Promise<string | null> => {
+  // NOTE: Order is preserved when logging, so show ctx first
   const log = Log.child({
-    userId: session.userId,
     ctx: "[auth.session.create.before]",
+    userId: session.userId,
   });
 
   const member = await ctx.context.adapter.findOne<
@@ -50,12 +57,30 @@ const get_or_create_org_id = async (
 
   log.info("Creating new organization");
 
+  const user = await ctx.context.adapter.findOne<Pick<User, "name" | "email">>({
+    model: "user",
+    select: ["name", "email"],
+    where: [{ field: "id", operator: "eq", value: session.userId }],
+  });
+
+  if (!user) {
+    log.error("User not found");
+    return null;
+  }
+
+  log.debug({ user }, "User info");
+
   // SOURCE: https://github.com/better-auth/better-auth/blob/744e9e34c1eb8b75c373f00a71c85e5a599abae6/packages/better-auth/src/plugins/organization/adapter.ts#L186
-  const org = await ctx.context.adapter.create<OrganizationInput>({
+  const org = await ctx.context.adapter.create<
+    OrganizationInput,
+    Pick<Organization, "id">
+  >({
     model: "organization",
+    select: ["id"],
     data: {
-      name: "My Organization",
-      slug: generateRandomString(8).toLowerCase(),
+      // NOTE: || because name is always defined, but may be empty
+      name: `${user.name || user.email}'s Org`,
+      slug: generateRandomString(8, "a-z", "0-9").toLowerCase(),
 
       createdAt: new Date(),
     },
@@ -63,7 +88,6 @@ const get_or_create_org_id = async (
 
   if (!org.id) {
     log.error("Failed to create organization");
-
     return null;
   }
 
@@ -131,6 +155,91 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       enabled: true,
+
+      // Cases:
+      // - Just a member of some other org: delete member
+      // - Owner of an org with other members: transfer ownership
+      // - Owner of an org with no other members: delete member and org
+
+      beforeDelete: async (user) => {
+        const any_owner_member = await Members.findOne({
+          role: "owner",
+          userId: user.id,
+        }).lean();
+
+        if (!any_owner_member) {
+          Log.info(
+            { userId: user.id },
+            "User is not an owner of any organization",
+          );
+
+          return; // Not an owner of any org, let them delete
+        }
+
+        const other_org_members = await Members.find({
+          userId: { $ne: user.id },
+          organizationId: any_owner_member.organizationId,
+        }).lean();
+
+        if (
+          // Is owner of an org with other members,
+          other_org_members.length > 0 &&
+          // but none are owners
+          other_org_members.every((m) => m.role !== "owner")
+        ) {
+          throw new APIError("BAD_REQUEST", {
+            message:
+              "You must transfer ownership of your organization to another member before deleting your account.",
+          });
+        }
+
+        Log.debug(
+          { userId: user.id },
+          "User is an owner of an organization with other owners or no other members",
+        );
+      },
+
+      afterDelete: async (user) => {
+        const user_members = await Members.find(
+          { userId: user.id },
+          { organizationId: 1 },
+        ).lean();
+
+        const org_ids = user_members.map((m) => m.organizationId);
+
+        await Promise.allSettled([
+          Email.send(EMAIL.TEMPLATES["user-deleted"]({ user })),
+
+          Members.deleteMany({ userId: user.id }).lean(),
+
+          Invitations.deleteMany({
+            status: "pending",
+            inviterId: user.id,
+          }).lean(),
+
+          // Delete orgs with no other members
+          ...org_ids.map(async (org_id) => {
+            const other_org_member = await Members.findOne({
+              userId: { $ne: user.id },
+              organizationId: org_id,
+            }).lean();
+
+            if (!other_org_member) {
+              Log.info(
+                { org_id, userId: user.id },
+                "Deleting organization with no other members",
+              );
+
+              return Organizations.deleteOne({ _id: org_id }).lean();
+            }
+
+            Log.debug(
+              { org_id, userId: user.id },
+              "Not deleting organization with other members",
+            );
+          }),
+        ]);
+      },
     },
   },
 

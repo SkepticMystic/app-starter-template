@@ -31,7 +31,9 @@
       const signup_res = await BetterAuthClient.signUp.email({
         ...form,
         name: "",
-        callbackURL: App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
+        callbackURL:
+          data.search.redirect_uri ??
+          App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
       });
 
       console.log("signup_res", signup_res);
@@ -59,7 +61,11 @@
       {@const { is_sso } = AUTH.PROVIDERS.MAP[provider_id]}
 
       {#if is_sso}
-        <SocialSigninButton {provider_id} {loader} />
+        <SocialSigninButton
+          {loader}
+          {provider_id}
+          redirect_uri={data.search.redirect_uri}
+        />
       {/if}
     {/each}
   </div>

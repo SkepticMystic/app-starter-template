@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 export type Organization = {
   /** Unique identifier for each organization */
-  id: string;
+  // id: string;
   /** The name of the organization */
   name: string;
   /** The slug of the organization */
@@ -20,7 +20,7 @@ export const Organizations = mongoose.model(
   model_name,
   new mongoose.Schema<Organization & Timestamps>(
     {
-      id: { type: String },
+      // id: { type: String },
       name: { type: String, required: true },
       slug: { type: String, required: true },
       logo: { type: String },

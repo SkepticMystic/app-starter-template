@@ -2,26 +2,27 @@ import { BetterAuthClient } from "$lib/auth-client";
 import { err, suc } from "$lib/utils/result.util";
 import { Client } from "./index.client";
 
-export const OrganizationsClient = {
-  set_active: (organization_id: string) =>
-    Client.request(
-      async () => {
-        const res = await BetterAuthClient.organization.setActive({
-          organizationId: organization_id,
-        });
+const set_active_inner = async (organizationId: string) => {
+  const res = await BetterAuthClient.organization.setActive({
+    organizationId,
+  });
 
-        if (res.data) {
-          return suc(res.data);
-        } else {
-          console.warn("Failed to set active organization:", res.error);
-          return err(
-            res.error?.message ??
-              "Failed to set active organization. Please try again.",
-          );
-        }
-      },
-      { toast: { suc: "Active organization updated." } },
-    ),
+  if (res.data) {
+    return suc(res.data);
+  } else {
+    console.warn("Failed to set active organization:", res.error);
+    return err(
+      res.error?.message ??
+        "Failed to set active organization. Please try again.",
+    );
+  }
+};
+
+export const OrganizationsClient = {
+  set_active: (organizationId: string) =>
+    Client.request(() => set_active_inner(organizationId), {
+      toast: { suc: "Active organization updated." },
+    }),
 
   invite_member: (input: {
     email: string;
@@ -43,14 +44,22 @@ export const OrganizationsClient = {
       { toast: { suc: "Member invited successfully." } },
     ),
 
-  accept_invitation: (invitation_id: string) =>
+  accept_invitation: (invitationId: string) =>
     Client.request(
       async () => {
         const res = await BetterAuthClient.organization.acceptInvitation({
-          invitationId: invitation_id,
+          invitationId,
         });
 
         if (res.data) {
+          const set_active_res = await set_active_inner(
+            res.data.invitation.organizationId,
+          );
+
+          if (!set_active_res.ok) {
+            return set_active_res;
+          }
+
           return suc(res.data);
         } else {
           console.warn(res.error);

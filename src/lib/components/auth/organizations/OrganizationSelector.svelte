@@ -3,6 +3,7 @@
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { organizations } from "$lib/stores/organizations.store";
+  import { session } from "$lib/stores/session";
   import { Loader } from "$lib/utils/loader";
 
   let loader = Loader<"set_active">();
@@ -10,7 +11,10 @@
   const set_active = async (organizationId: string) => {
     loader.load("set_active");
 
-    await OrganizationsClient.set_active(organizationId);
+    const res = await OrganizationsClient.set_active(organizationId);
+    if (res.ok) {
+      location.reload();
+    }
 
     loader.reset();
   };
@@ -25,11 +29,12 @@
     <select
       class="select"
       disabled={$loader["set_active"]}
+      value={$session.data?.session.activeOrganizationId}
       on:change={(e) => set_active(e.currentTarget.value)}
     >
       {#each $organizations.data as org}
         <option value={org.id}>
-          {org.name}
+          {org.name} ({org.slug})
         </option>
       {/each}
     </select>

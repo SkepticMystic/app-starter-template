@@ -1,14 +1,16 @@
+import type { IAuth } from "$lib/const/auth.const";
 import mongoose from "mongoose";
 
 export type Account = {
   /** Unique identifier for each account */
-  id: string;
+  // id: string;
   /** The ID of the user associated with this account */
-  userId: string;
+  userId: mongoose.Types.ObjectId;
+  // NOTE: NOT an ObjectId, this is external from the SSO provider
   /** The ID of the account as provided by the SSO or equal to userId for credential accounts */
   accountId: string;
   /** The ID of the provider */
-  providerId: string;
+  providerId: IAuth.ProviderId;
   /** The access token of the account. Returned by the provider */
   accessToken?: string;
   /** The refresh token of the account. Returned by the provider */
@@ -31,8 +33,8 @@ export const Accounts = mongoose.model(
   model_name,
   new mongoose.Schema<Account>(
     {
-      id: { type: String },
-      userId: { type: String, required: true },
+      // id: { type: String },
+      userId: { type: mongoose.Schema.Types.ObjectId, required: true },
       accountId: { type: String, required: true },
       providerId: { type: String, required: true },
       accessToken: { type: String },

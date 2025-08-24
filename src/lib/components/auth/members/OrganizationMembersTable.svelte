@@ -4,8 +4,12 @@
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
+  import {
+    ORGANIZATION,
+    type IOrganization,
+  } from "$lib/const/organization.const";
   import { Format } from "$lib/utils/format.util";
-  import { Loader } from "$lib/utils/loader";
+  import { any_loading, Loader } from "$lib/utils/loader";
   import { Strings } from "$lib/utils/strings.util";
   import IconUserMinus from "~icons/heroicons/user-minus";
 
@@ -15,7 +19,27 @@
     members: Awaited<ReturnType<typeof auth.api.listMembers>>["members"];
   } = $props();
 
-  const loader = Loader<`remove_member:${string}`>();
+  const loader = Loader<
+    `update_member_role:${string}` | `remove_member:${string}`
+  >();
+
+  const update_member_role = async (
+    member_id: string,
+    role_id: IOrganization.RoleId,
+  ) => {
+    loader.load(`update_member_role:${member_id}`);
+
+    const res = await MembersClient.update_member_role(member_id, role_id);
+    if (res.ok) {
+      members = members.map((member) =>
+        member.id === member_id ? { ...member, role: role_id } : member,
+      );
+    }
+
+    loader.reset();
+
+    return res;
+  };
 
   const remove_member = async (member_id: string) => {
     loader.load(`remove_member:${member_id}`);
@@ -42,11 +66,35 @@
   {#snippet row(member)}
     <tr>
       <td>
-        {member.user.name || member.user.email}
+        <div class="flex flex-col">
+          {#if member.user.name}
+            <span>{member.user.name}</span>
+          {/if}
+          <span>{member.user.email}</span>
+        </div>
       </td>
 
       <td>
-        {member.role}
+        <select
+          class="select"
+          value={member.role}
+          disabled={$loader[`update_member_role:${member.id}`]}
+          onchange={async (e) => {
+            const res = await update_member_role(
+              member.id,
+              e.currentTarget.value as IOrganization.RoleId,
+            );
+            if (!res.ok) {
+              e.currentTarget.value = member.role;
+            }
+          }}
+        >
+          {#each ORGANIZATION.ROLES.IDS as role_id}
+            <option value={role_id}>
+              {ORGANIZATION.ROLES.MAP[role_id].name}
+            </option>
+          {/each}
+        </select>
       </td>
 
       <td>

@@ -10,8 +10,10 @@
   let {
     email,
     loader,
+    redirect_uri = ROUTES.HOME,
   }: {
     email: string;
+    redirect_uri?: string;
     loader: Loader<`signin:${IAuth.ProviderId}`>;
   } = $props();
 
@@ -44,7 +46,8 @@
         );
       } else {
         console.log("signin_res.data", signin_res.data);
-        await goto(ROUTES.HOME);
+
+        await goto(redirect_uri);
       }
     } catch (error) {
       toast.error("Signin failed. Please try again.");

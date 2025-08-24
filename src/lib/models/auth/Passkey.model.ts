@@ -3,13 +3,13 @@ import mongoose from "mongoose";
 
 export type Passkey = {
   /** Unique identifier for each passkey */
-  id: string;
+  // id: string;
   /** The name of the passkey */
   name?: string;
   /** The public key of the passkey */
   publicKey: string;
   /** The ID of the user */
-  userId: string;
+  userId: mongoose.Types.ObjectId;
   /** The unique identifier of the registered credential */
   credentialID: string;
   /** The counter of the passkey */
@@ -30,10 +30,10 @@ export const Passkeys = mongoose.model(
   model_name,
   new mongoose.Schema<Passkey & Timestamps>(
     {
-      id: { type: String, required: true },
+      // id: { type: String },
       name: { type: String, required: false },
       publicKey: { type: String, required: true },
-      userId: { type: String, required: true },
+      userId: { type: mongoose.Schema.Types.ObjectId, required: true },
       credentialID: { type: String, required: true },
       counter: { type: Number, required: true },
       deviceType: { type: String, required: true },

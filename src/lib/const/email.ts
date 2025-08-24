@@ -99,5 +99,27 @@ ${COMMON.SIGNATURE.HTML}`.trim();
         subject: `You have been invited to join ${input.organization.name}`,
       };
     },
+
+    "user-deleted": (input: { user: User }) => {
+      const html = `
+<p>Hi ${input.user.name ?? ""},</p>
+
+<p>
+  This is to confirm that your account associated with this email address has been successfully deleted from ${APP.NAME}.
+</p>
+
+<p>
+  If you did not request this, please contact our support team immediately.
+</p>
+
+${COMMON.SIGNATURE.HTML}`.trim();
+
+      return {
+        html,
+        to: input.user.email,
+        text: Markdown.from_html(html),
+        subject: `Your ${APP.NAME} account has been deleted`,
+      };
+    },
   } satisfies Record<string, (...args: any) => Mail.Options>,
 };

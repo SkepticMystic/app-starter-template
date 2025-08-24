@@ -1,9 +1,10 @@
+import type { IAccessControl } from "$lib/const/access_control.const";
 import type { Timestamps } from "$lib/interfaces";
 import mongoose from "mongoose";
 
 export type User = {
   /** Unique identifier for each user */
-  id: string;
+  // id: string;
   /** User's chosen display name */
   name: string;
   /** User's email address for communication and login */
@@ -16,7 +17,7 @@ export type User = {
   // Admin
 
   /** The user's role. Defaults to `user`. Admins will have the `admin` role. */
-  role?: string;
+  role?: IAccessControl.RoleId;
   /** Indicates whether the user is banned. */
   banned?: boolean;
   /** The reason for the user's ban. */
@@ -31,7 +32,7 @@ export const Users = mongoose.model(
   model_name,
   new mongoose.Schema<User & Timestamps>(
     {
-      id: { type: String },
+      // id: { type: String },
       name: { type: String, required: true },
       email: { type: String, required: true },
       emailVerified: { type: Boolean, default: false },

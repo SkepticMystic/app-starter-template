@@ -2,15 +2,18 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
+  import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-daisyui-toast";
 
   let {
     loader,
     provider_id,
+    redirect_uri = ROUTES.HOME,
   }: {
     provider_id: IAuth.ProviderId;
     loader: Loader<`signin:${IAuth.ProviderId}`>;
+    redirect_uri?: string;
   } = $props();
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];
@@ -22,6 +25,7 @@
     try {
       const signin_res = await BetterAuthClient.signIn.social({
         provider: provider_id,
+        callbackURL: redirect_uri,
       });
 
       if (signin_res.error) {
