@@ -1,4 +1,3 @@
 ## TODOs
 
-- [ ] Logger
 - [ ] runed.dev

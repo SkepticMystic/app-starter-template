@@ -28,6 +28,8 @@ import { Members } from "./models/auth/Member.model";
 import { Organizations } from "./models/auth/Organization.model";
 import { Email } from "./utils/email";
 import { Log } from "./utils/logger.util";
+import { sveltekitCookies } from "better-auth/svelte-kit";
+import { getRequestEvent } from "$app/server";
 
 const get_or_create_org_id = async (
   session: Session,
@@ -280,6 +282,8 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    sveltekitCookies(getRequestEvent),
+
     admin({
       ac: AccessControl.ac,
       roles: AccessControl.roles,
