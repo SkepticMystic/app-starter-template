@@ -7,7 +7,9 @@ const config = z
   .parse({ REDIS_URL });
 
 // NOTE: Starts connecting immediately
-const redis = config.REDIS_URL ? new Redis(config.REDIS_URL) : null;
+const redis = config.REDIS_URL
+  ? new Redis(config.REDIS_URL, { connectTimeout: 10_000 })
+  : null;
 
 redis?.on("error", (err) => console.log("Redis Client Error", err));
 
