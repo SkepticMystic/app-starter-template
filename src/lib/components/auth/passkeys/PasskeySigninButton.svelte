@@ -53,7 +53,14 @@
       (available) => {
         if (available) {
           console.log("Conditional UI is available for passkeys");
-          void BetterAuthClient.signIn.passkey({ autoFill: true });
+          BetterAuthClient.signIn.passkey(
+            { autoFill: true },
+            {
+              onSuccess: () => {
+                location.href = redirect_uri;
+              },
+            },
+          );
         }
       },
     );
