@@ -3,16 +3,15 @@ import { err, suc } from "$lib/utils/result.util";
 import { Client } from "./index.client";
 
 export const PasskeysClient = {
-  // TODO: Test on https app
   create: (name?: string) =>
     Client.request(
       async () => {
         const res = await BetterAuthClient.passkey.addPasskey({ name });
 
         if (!res) {
+          // NOTE: This seems to be the _success_ case for some reason????
           console.warn("No response from addPasskey");
-          // NOTE: This seems to be the _success_ case for some reason??
-          return err("Adding passkey failed. Please try again.");
+          return suc(null);
         } else if (res.error) {
           console.warn("res.error", res.error);
           return err(

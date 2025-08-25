@@ -104,7 +104,7 @@
       <td>
         <button
           title="Remove member"
-          class="btn btn-square"
+          class="btn btn-square btn-warning"
           onclick={() => remove_member(member.id)}
           disabled={$loader[`remove_member:${member.id}`]}
         >

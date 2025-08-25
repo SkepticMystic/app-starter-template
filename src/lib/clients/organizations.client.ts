@@ -24,6 +24,34 @@ export const OrganizationsClient = {
       toast: { suc: "Active organization updated." },
     }),
 
+  delete: (organizationId: string) =>
+    Client.request(
+      async () => {
+        if (
+          !confirm(
+            "Are you sure you want to delete this organization? This action cannot be undone.",
+          )
+        ) {
+          return err();
+        }
+
+        const res = await BetterAuthClient.organization.delete({
+          organizationId,
+        });
+
+        if (res.data) {
+          return suc(res.data);
+        } else {
+          console.warn("Failed to delete organization:", res.error);
+          return err(
+            res.error?.message ??
+              "Failed to delete organization. Please try again.",
+          );
+        }
+      },
+      { toast: { suc: "Organization deleted successfully." } },
+    ),
+
   invite_member: (input: {
     email: string;
     role: "member" | "admin" | "owner";

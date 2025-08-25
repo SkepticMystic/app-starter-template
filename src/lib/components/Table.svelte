@@ -17,22 +17,26 @@
   } = $props();
 </script>
 
-<table class="table {klass}">
-  <thead>
-    <tr class="bg-base-200 shadow-sm">{@render header()}</tr>
-  </thead>
+<div
+  class="rounded-box border-base-content/10 bg-base-100 overflow-x-auto border"
+>
+  <table class="table {klass}">
+    <thead>
+      <tr class="bg-base-200 shadow-sm">{@render header()}</tr>
+    </thead>
 
-  <tbody class="bg-base-100">
-    {#each data as item, i (item._id ?? item.id)}
-      {@render row(item, i)}
-    {/each}
-  </tbody>
+    <tbody class="">
+      {#each data as item, i (item._id ?? item.id)}
+        {@render row(item, i)}
+      {/each}
+    </tbody>
 
-  {#if footer}
-    <tfoot>
-      <tr class="bg-base-200 border-t-base-200">
-        {@render footer()}
-      </tr>
-    </tfoot>
-  {/if}
-</table>
+    {#if footer}
+      <tfoot>
+        <tr class="bg-base-200">
+          {@render footer()}
+        </tr>
+      </tfoot>
+    {/if}
+  </table>
+</div>

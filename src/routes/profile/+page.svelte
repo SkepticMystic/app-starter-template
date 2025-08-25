@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { goto, invalidateAll } from "$app/navigation";
   import { UserClient } from "$lib/clients/user.client";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
@@ -26,15 +26,16 @@
   };
 </script>
 
-<div class="space-y-5">
-  <h1 class="text-2xl">Profile</h1>
-
-  <p>
-    Logged in as <strong>{data.user.email}</strong>
-    {#if data.user.name}
-      (Name: <strong>{data.user.name}</strong>)
-    {/if}
-  </p>
+<div class="space-y-9">
+  <div>
+    <h1 class="text-2xl">Profile</h1>
+    <p>
+      Logged in as <strong>{data.user.email}</strong>
+      {#if data.user.name}
+        (Name: <strong>{data.user.name}</strong>)
+      {/if}
+    </p>
+  </div>
 
   {#if accounts.find((acc) => acc.provider === "credential")}
     <div>
@@ -42,15 +43,15 @@
     </div>
   {/if}
 
-  <div class="divider"><h2 class="text-xl">Passkeys</h2></div>
-
-  <div>
-    <AddPasskeyButton />
-
-    <UserPasskeysList bind:passkeys />
+  <div class="divider">
+    <h2 class="text-xl">Passkeys</h2>
+    <AddPasskeyButton on_added={() => invalidateAll()} />
   </div>
+  <UserPasskeysList bind:passkeys />
 
-  <div class="divider"><h2 class="text-xl">Accounts</h2></div>
+  <div class="divider">
+    <h2 class="text-xl">Accounts</h2>
+  </div>
   <UserAccountsList bind:accounts />
 
   <div class="divider"></div>

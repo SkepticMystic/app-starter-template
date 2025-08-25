@@ -12,3 +12,5 @@ export type SID<T> = T & { _id: string };
 export type OID<T> = T & { _id: ObjectId };
 
 export type Timestamps = { createdAt: Date; updatedAt: Date };
+
+export type MaybePromise<T> = T | Promise<T>;

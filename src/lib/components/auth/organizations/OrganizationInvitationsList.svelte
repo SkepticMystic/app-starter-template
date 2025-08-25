@@ -3,11 +3,11 @@
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
-  import type { Invitation } from "$lib/models/auth/Invitation.model";
   import { Dates } from "$lib/utils/dates";
   import { Format } from "$lib/utils/format.util";
   import { Loader } from "$lib/utils/loader";
   import { Strings } from "$lib/utils/strings.util";
+  import type { Invitation } from "better-auth/plugins";
   import IconXMark from "~icons/heroicons/x-mark";
 
   interface Props {
@@ -61,8 +61,8 @@
 
       <td>
         <button
-          class="btn btn-square"
           title="Cancel invitation"
+          class="btn btn-square btn-warning"
           onclick={() => cancel_invitation(invitation.id)}
           disabled={invitation.status !== "pending" ||
             $loader[`cancel_invitation:${invitation.id}`]}

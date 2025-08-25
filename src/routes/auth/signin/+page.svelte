@@ -67,11 +67,7 @@
       {/if}
     {/each}
 
-    <PasskeySigninButton
-      {loader}
-      email={form.email}
-      redirect_uri={data.search.redirect_uri}
-    />
+    <PasskeySigninButton {loader} redirect_uri={data.search.redirect_uri} />
   </div>
 
   <div class="divider">OR</div>

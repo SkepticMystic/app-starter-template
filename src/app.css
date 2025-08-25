@@ -22,3 +22,7 @@
     border-color: var(--color-gray-200, currentColor);
   }
 }
+
+tbody > tr {
+  @apply hover:bg-base-200/80;
+}

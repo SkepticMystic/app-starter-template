@@ -4,14 +4,13 @@
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
+  import { onMount } from "svelte";
   import { toast } from "svelte-daisyui-toast";
 
   let {
-    email,
     loader,
     redirect_uri = ROUTES.HOME,
   }: {
-    email: string;
     redirect_uri?: string;
     loader: Loader<`signin:${IAuth.ProviderId}`>;
   } = $props();
@@ -20,22 +19,13 @@
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
   const signin = async () => {
-    if (!email) {
-      toast.error("Email is required for passkey signin.");
-      return;
-    }
-
     toast.set([]);
     loader.load(`signin:${provider_id}`);
 
-    console.log("Starting passkey signin for email:", email);
+    console.log("Starting passkey signin");
 
     try {
-      const signin_res = await BetterAuthClient.signIn.passkey({
-        email,
-        autoFill: true,
-      });
-
+      const signin_res = await BetterAuthClient.signIn.passkey({});
       console.log("signin_res", signin_res);
 
       if (signin_res.error) {
@@ -57,12 +47,42 @@
 
     loader.reset();
   };
+
+  onMount(() => {
+    PublicKeyCredential?.isConditionalMediationAvailable?.().then(
+      (available) => {
+        if (available) {
+          console.log("Conditional UI is available for passkeys");
+          void BetterAuthClient.signIn.passkey({ autoFill: true });
+        }
+      },
+    );
+  });
 </script>
 
-<button onclick={signin} class="btn btn-info" disabled={any_loading($loader)}>
-  <Loading loading={$loader[`signin:${provider_id}`]}>
-    <!-- svelte-ignore svelte_component_deprecated -->
-    <svelte:component this={provider.icon} />
-  </Loading>
-  Continue with {provider.name}
-</button>
+<div>
+  <input
+    class="hidden"
+    type="text"
+    name="name"
+    autocomplete="username webauthn"
+  />
+  <input
+    class="hidden"
+    type="password"
+    name="password"
+    autocomplete="current-password webauthn"
+  />
+
+  <button
+    onclick={signin}
+    class="btn btn-info w-full"
+    disabled={any_loading($loader)}
+  >
+    <Loading loading={$loader[`signin:${provider_id}`]}>
+      <!-- svelte-ignore svelte_component_deprecated -->
+      <svelte:component this={provider.icon} />
+    </Loading>
+    Continue with {provider.name}
+  </button>
+</div>
