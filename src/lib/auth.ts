@@ -1,3 +1,4 @@
+import { getRequestEvent } from "$app/server";
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "$env/static/private";
 import {
   betterAuth,
@@ -18,6 +19,7 @@ import {
   type OrganizationInput,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
+import { sveltekitCookies } from "better-auth/svelte-kit";
 import mongoose from "mongoose";
 import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
@@ -28,8 +30,6 @@ import { Members } from "./models/auth/Member.model";
 import { Organizations } from "./models/auth/Organization.model";
 import { Email } from "./utils/email";
 import { Log } from "./utils/logger.util";
-import { sveltekitCookies } from "better-auth/svelte-kit";
-import { getRequestEvent } from "$app/server";
 
 const get_or_create_org_id = async (
   session: Session,
@@ -318,14 +318,10 @@ export const auth = betterAuth({
   secondaryStorage: redis
     ? {
         get: async (key) => {
-          Log.debug({ key }, "[redis.get]");
-
           return redis!.get(key);
         },
 
         set: async (key, value, ttl) => {
-          Log.debug({ key, ttl }, "[redis.set]");
-
           // if (ttl) await redis!.set(key, value, { EX: ttl });
           // or for ioredis:
           if (ttl) await redis!.set(key, value, "EX", ttl);
@@ -333,8 +329,6 @@ export const auth = betterAuth({
         },
 
         delete: async (key) => {
-          Log.debug({ key }, "[redis.del]");
-
           await redis!.del(key);
         },
       }
