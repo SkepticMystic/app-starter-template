@@ -45,7 +45,8 @@
 
   <div class="divider">
     <h2 class="text-xl">Passkeys</h2>
-    <AddPasskeyButton on_added={() => invalidateAll()} />
+    <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
+    <AddPasskeyButton on_added={() => location.reload()} />
   </div>
   <UserPasskeysList bind:passkeys />
 
