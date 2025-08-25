@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { BetterAuthClient } from "$lib/auth-client";
+  import { APP } from "$lib/const/app";
   import { ROUTES } from "$lib/const/routes.const";
   import { user } from "$lib/stores/session";
   import { onMount } from "svelte";
@@ -86,7 +87,7 @@
 
 <nav class="navbar bg-base-100 px-5">
   <div class="navbar-start">
-    <a href="/" class="btn btn-ghost text-xl normal-case">Generic App</a>
+    <a href="/" class="btn btn-ghost text-xl normal-case">{APP.NAME}</a>
   </div>
 
   <div class="navbar-center hidden lg:flex">
