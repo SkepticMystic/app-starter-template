@@ -1,5 +1,9 @@
 import { getRequestEvent } from "$app/server";
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "$env/static/private";
+import {
+  BETTER_AUTH_URL,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+} from "$env/static/private";
 import {
   betterAuth,
   type GenericEndpointContext,
@@ -291,7 +295,8 @@ export const auth = betterAuth({
 
     passkey({
       rpName: APP.NAME,
-      rpID: new URL(APP.URL).hostname,
+      origin: BETTER_AUTH_URL,
+      rpID: new URL(BETTER_AUTH_URL).hostname,
     }),
 
     haveIBeenPwned({
