@@ -10,6 +10,7 @@
   import ChangePassword from "./changePassword.svelte";
 
   let { data } = $props();
+  let { passkeys, accounts } = $state(data);
 
   const loader = Loader<"delete_user">();
 
@@ -35,7 +36,7 @@
     {/if}
   </p>
 
-  {#if data.accounts.find((acc) => acc.provider === "credential")}
+  {#if accounts.find((acc) => acc.provider === "credential")}
     <div>
       <ChangePassword />
     </div>
@@ -46,11 +47,11 @@
   <div>
     <AddPasskeyButton />
 
-    <UserPasskeysList passkeys={data.passkeys} />
+    <UserPasskeysList bind:passkeys />
   </div>
 
   <div class="divider"><h2 class="text-xl">Accounts</h2></div>
-  <UserAccountsList accounts={data.accounts} />
+  <UserAccountsList bind:accounts />
 
   <div class="divider"></div>
 

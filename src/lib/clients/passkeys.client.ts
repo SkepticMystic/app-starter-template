@@ -10,6 +10,8 @@ export const PasskeysClient = {
         const res = await BetterAuthClient.passkey.addPasskey({ name });
 
         if (!res) {
+          console.warn("No response from addPasskey");
+          // NOTE: This seems to be the _success_ case for some reason??
           return err("Adding passkey failed. Please try again.");
         } else if (res.error) {
           console.warn("res.error", res.error);

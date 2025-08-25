@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
+  import Loading from "$lib/components/daisyui/Loading.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
   import IconXMark from "~icons/heroicons/x-mark";
 
   let {
-    accounts,
+    accounts = $bindable(),
   }: {
     accounts: Awaited<ReturnType<typeof auth.api.listUserAccounts>>;
   } = $props();
@@ -23,7 +23,7 @@
 
     const res = await AccountsClient.unlink(provider_id, account_id);
     if (res.ok) {
-      await invalidateAll();
+      accounts = accounts.filter((account) => account.provider !== provider_id);
     }
 
     loader.reset();
@@ -58,7 +58,9 @@
             disabled={any_loading($loader)}
             onclick={() => unlink_account(provider_id)}
           >
-            <IconXMark />
+            <Loading loading={$loader[`unlink_account:${provider_id}`]}>
+              <IconXMark />
+            </Loading>
           </button>
         </div>
       </div>

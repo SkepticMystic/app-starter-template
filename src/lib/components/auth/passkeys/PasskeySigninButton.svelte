@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
@@ -47,7 +46,9 @@
       } else {
         console.log("signin_res.data", signin_res.data);
 
-        await goto(redirect_uri);
+        // NOTE: It seems like signIn.passkey doesn't refresh the session store
+        // Whereas signIn.email does, so we can just goto, instead of hard refresh
+        location.href = redirect_uri;
       }
     } catch (error) {
       toast.error("Signin failed. Please try again.");

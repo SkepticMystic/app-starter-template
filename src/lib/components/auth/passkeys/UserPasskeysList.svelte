@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
   import type { auth } from "$lib/auth";
   import { PasskeysClient } from "$lib/clients/passkeys.client";
+  import Loading from "$lib/components/daisyui/Loading.svelte";
   import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
   import IconXMark from "~icons/heroicons/x-mark";
 
   let {
-    passkeys,
+    passkeys = $bindable(),
   }: {
     passkeys: Awaited<ReturnType<typeof auth.api.listPasskeys>>;
   } = $props();
@@ -19,7 +19,7 @@
 
     const res = await PasskeysClient.delete(passkey_id);
     if (res.ok) {
-      await invalidateAll();
+      passkeys = passkeys.filter((p) => p.id !== passkey_id);
     }
 
     loader.reset();
@@ -43,7 +43,9 @@
           disabled={any_loading($loader)}
           onclick={() => delete_passkey(passkey.id)}
         >
-          <IconXMark />
+          <Loading loading={$loader[`delete_passkey:${passkey.id}`]}>
+            <IconXMark />
+          </Loading>
         </button>
       </div>
     </div>
