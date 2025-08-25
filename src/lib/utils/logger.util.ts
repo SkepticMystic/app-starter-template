@@ -1,3 +1,4 @@
+import { dev } from "$app/environment";
 import { LOG_LEVEL, NO_COLOR } from "$env/static/private";
 import pino from "pino";
 import z from "zod";
@@ -34,12 +35,14 @@ export const Log = pino({
     },
   },
 
-  transport: {
-    target: "pino-pretty",
-    options: {
-      colorize: !config.NO_COLOR,
-      // translateTime: "SYS:standard",
-      ignore: "pid,hostname",
-    },
-  },
+  transport: dev
+    ? {
+        target: "pino-pretty",
+        options: {
+          colorize: !config.NO_COLOR,
+          // translateTime: "SYS:standard",
+          ignore: "pid,hostname",
+        },
+      }
+    : undefined,
 });
