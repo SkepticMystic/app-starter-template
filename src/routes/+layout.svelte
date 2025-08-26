@@ -1,6 +1,10 @@
 <script lang="ts">
   import { afterNavigate } from "$app/navigation";
   import { page } from "$app/state";
+  import {
+    PUBLIC_UMAMI_BASE_URL,
+    PUBLIC_UMAMI_WEBSITE_ID,
+  } from "$env/static/public";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Navbar from "$lib/components/daisyui/Navbar.svelte";
   import { TOAST, type IToast } from "$lib/const/toast.const";
@@ -43,6 +47,16 @@
     }
   });
 </script>
+
+<svelte:head>
+  {#if PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID}
+    <script
+      defer
+      src="{PUBLIC_UMAMI_BASE_URL}/script.js"
+      data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
+    ></script>
+  {/if}
+</svelte:head>
 
 <header>
   <Navbar />
