@@ -26,7 +26,7 @@
     </thead>
 
     <tbody class="">
-      {#each data as item, i (item._id ?? item.id)}
+      {#each data as item, i (item.id)}
         {@render row(item, i)}
       {/each}
     </tbody>

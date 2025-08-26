@@ -13,8 +13,7 @@ import {
   type Session,
   type User,
 } from "better-auth";
-import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { APIError } from "better-auth/api";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { generateRandomString } from "better-auth/crypto";
 import {
   admin,
@@ -29,19 +28,15 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { sveltekitCookies } from "better-auth/svelte-kit";
-import mongoose from "mongoose";
 import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
 import { AUTH, type IAuth } from "./const/auth.const";
 import { EMAIL } from "./const/email";
 import { redis } from "./db/redis.db";
-import type { Result } from "./interfaces";
-import { Invitations } from "./models/auth/Invitation.model";
-import { Members } from "./models/auth/Member.model";
-import { Organizations } from "./models/auth/Organization.model";
+import { db } from "./server/db";
 import { Email } from "./utils/email";
 import { Log } from "./utils/logger.util";
-import { err, suc } from "./utils/result.util";
+import { AuthModels } from "./server/db/auth.models";
 
 // SECTION: betterAuth init
 export const auth = betterAuth({
@@ -67,12 +62,10 @@ export const auth = betterAuth({
     enabled: false,
   },
 
-  database: mongodbAdapter(
-    // NOTE: Actually passing .db doesn't work, seems to be a type bug
-    mongoose.connection as unknown as NonNullable<
-      typeof mongoose.connection.db
-    >,
-  ),
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: { ...AuthModels },
+  }),
 
   session: {
     storeSessionInDatabase: false,
@@ -119,22 +112,22 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
 
-      beforeDelete: async (user) => {
-        const orgs_blocking_delete =
-          await check_orgs_blocking_user_delete(user);
+      // beforeDelete: async (user) => {
+      //   const orgs_blocking_delete =
+      //     await check_orgs_blocking_user_delete(user);
 
-        if (!orgs_blocking_delete.ok) {
-          throw new APIError(orgs_blocking_delete.error.status, {
-            message: orgs_blocking_delete.error.message,
-          });
-        }
+      //   if (!orgs_blocking_delete.ok) {
+      //     throw new APIError(orgs_blocking_delete.error.status, {
+      //       message: orgs_blocking_delete.error.message,
+      //     });
+      //   }
 
-        // NOTE: Don't return anything, just proceed with deletion
-      },
+      //   // NOTE: Don't return anything, just proceed with deletion
+      // },
 
-      afterDelete: async (user) => {
-        await cleanup_orgs_after_user_delete(user);
-      },
+      // afterDelete: async (user) => {
+      //   await cleanup_orgs_after_user_delete(user);
+      // },
     },
   },
 
@@ -365,94 +358,117 @@ const get_or_create_org_id = async (
   return org.id;
 };
 
+// ====
+// NOTE: I used to check if the user was going to leave an ownerless org
+// But the owner _should_ be allowed to delete their account and org if they want to
+// ====
+
 // Cases:
 // - Just a member of some other org: delete member
 // - Owner of an org with other members: transfer ownership
 // - Owner of an org with no other members: delete member and org
 
-const check_orgs_blocking_user_delete = async (
-  user: User,
-): Promise<
-  Result<undefined, { message: string; status: APIError["status"] }>
-> => {
-  const any_owner_member = await Members.findOne({
-    role: "owner",
-    userId: user.id,
-  }).lean();
+// const check_orgs_blocking_user_delete = async (
+//   user: User,
+// ): Promise<
+//   Result<
+//     undefined,
+//     {
+//       message: string;
+//       status: APIError["status"];
+//     }
+//   >
+// > => {
+//   const any_owner_member = await db.query.members.findFirst({
+//     columns: { id: true, organizationId: true },
+//     where: (m, { and, eq }) => and(eq(m.userId, user.id), eq(m.role, "owner")),
+//   });
 
-  if (!any_owner_member) {
-    Log.info({ userId: user.id }, "User is not an owner of any organization");
+//   if (!any_owner_member) {
+//     Log.info({ userId: user.id }, "User is not an owner of any organization");
 
-    // Not an owner of any org, let them delete
-    return suc();
-  }
+//     // Not an owner of any org, let them delete
+//     return suc();
+//   }
 
-  const other_org_members = await Members.find({
-    userId: { $ne: user.id },
-    organizationId: any_owner_member.organizationId,
-  }).lean();
+//   const other_org_members = await db.query.members.findMany({
+//     columns: { role: true },
+//     where: (m, { and, sql }) =>
+//       and(
+//         sql`${m.userId} != ${user.id}`,
+//         sql`${m.organizationId} = ${any_owner_member.organizationId}`,
+//       ),
+//   });
 
-  if (
-    // Is owner of an org with other members,
-    other_org_members.length > 0 &&
-    // but none are owners
-    other_org_members.every((m) => m.role !== "owner")
-  ) {
-    return err({
-      status: "BAD_REQUEST",
-      message:
-        "You must transfer ownership of your organization to another member before deleting your account.",
-    });
-  }
+//   if (
+//     // Is owner of an org with other members,
+//     other_org_members.length > 0 &&
+//     // but none are owners
+//     other_org_members.every((m) => m.role !== "owner")
+//   ) {
+//     return err({
+//       status: "BAD_REQUEST",
+//       message:
+//         "You must transfer ownership of your organization to another member before deleting your account.",
+//     });
+//   }
 
-  Log.debug(
-    { userId: user.id },
-    "User is an owner of an organization with other owners or no other members",
-  );
+//   Log.debug(
+//     { userId: user.id },
+//     "User is an owner of an organization with other owners or no other members",
+//   );
 
-  return suc();
-};
+//   return suc();
+// };
 
-const cleanup_orgs_after_user_delete = async (user: User) => {
-  const user_members = await Members.find(
-    { userId: user.id },
-    { organizationId: 1 },
-  ).lean();
+// const cleanup_orgs_after_user_delete = async (user: User) => {
+//   const user_members = await db.query.members.findMany({
+//     columns: { organizationId: true },
+//     where: (m, { eq }) => eq(m.userId, user.id),
+//   });
 
-  const org_ids = user_members.map((m) => m.organizationId);
+//   const org_ids = user_members.map((m) => m.organizationId);
 
-  await Promise.allSettled([
-    Email.send(EMAIL.TEMPLATES["user-deleted"]({ user })),
+//   await Promise.allSettled([
+//     Email.send(EMAIL.TEMPLATES["user-deleted"]({ user })),
 
-    Members.deleteMany({ userId: user.id }).lean(),
+//     // Now handled by cascades in the DB
+//     // Members.deleteMany({ userId: user.id }).lean(),
 
-    Invitations.deleteMany({
-      status: "pending",
-      inviterId: user.id,
-    }).lean(),
+//     // Cascade should handle this
+//     // Invitations.deleteMany({ status: "pending", inviterId: user.id }).lean(),
 
-    // Delete orgs with no other members
-    ...org_ids.map(async (org_id) => {
-      const other_org_member = await Members.findOne({
-        userId: { $ne: user.id },
-        organizationId: org_id,
-      }).lean();
+//     // Delete orgs with no other members
+//     ...org_ids.map(async (org_id) => {
+//       // const other_org_member = await Members.findOne({
+//       //   userId: { $ne: user.id },
+//       //   organizationId: org_id,
+//       // }).lean();
+//       const other_org_member = await db.query.members.findFirst({
+//         where: (m, { and, sql }) =>
+//           and(
+//             sql`${m.userId} != ${user.id}`,
+//             sql`${m.organizationId} = ${org_id}`,
+//           ),
+//       });
 
-      if (!other_org_member) {
-        Log.info(
-          { org_id, userId: user.id },
-          "Deleting organization with no other members",
-        );
+//       if (!other_org_member) {
+//         Log.info(
+//           { org_id, userId: user.id },
+//           "Deleting organization with no other members",
+//         );
 
-        return Organizations.deleteOne({ _id: org_id }).lean();
-      }
+//         return db
+//           .delete(AuthModels.organizations)
+//           .where(eq(AuthModels.organizations.id, org_id));
+//       }
 
-      Log.debug(
-        { org_id, userId: user.id },
-        "Not deleting organization with other members",
-      );
-    }),
-  ]);
-};
+//       Log.debug(
+//         { org_id, userId: user.id },
+//         "Not deleting organization with other members",
+//       );
+//     }),
+//   ]);
+// };
 
 // !SECTION
