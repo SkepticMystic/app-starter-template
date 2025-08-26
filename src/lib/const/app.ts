@@ -1,10 +1,9 @@
 import { dev } from "$app/environment";
-import { PUBLIC_VERCEL, VITE_VERCEL } from "$env/static/public";
 
 console.log({
-  "SVELTE:PUBLIC_VERCEL": PUBLIC_VERCEL,
-  "SVELTE:VITE_VERCEL": VITE_VERCEL,
   "VITE:VITE_VERCEL": import.meta.env.VITE_VERCEL,
+  "VITE:VITE_VERCEL_PROJECT_PRODUCTION_URL": import.meta.env
+    .VITE_VERCEL_PROJECT_PRODUCTION_URL,
 });
 
 export const APP = {

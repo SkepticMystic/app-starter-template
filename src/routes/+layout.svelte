@@ -70,6 +70,7 @@
   <Navbar />
 </header>
 
+<!-- TODO: Add responsive margins on mobile -->
 <main class="mx-auto my-6 max-w-6xl px-3">
   <Loading {loading}>
     {@render children?.()}
