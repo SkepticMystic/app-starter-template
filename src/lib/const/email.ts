@@ -21,7 +21,7 @@ const COMMON = {
 
 export const EMAIL = {
   TEMPLATES: {
-    "password-reset": (input: { url: string; user: User }) => {
+    "password-reset": (input: { url: string; user: User }): Mail.Options => {
       const html = `
 <p>Hi ${input.user.name ?? ""}</p>
 
@@ -43,7 +43,10 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       };
     },
 
-    "email-verification": (input: { url: string; user: User }) => {
+    "email-verification": (input: {
+      url: string;
+      user: User;
+    }): Mail.Options => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
 
@@ -69,7 +72,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       invitation: Invitation;
       organization: Organization;
       inviter: { user: User };
-    }) => {
+    }): Mail.Options => {
       const href = App.full_url(ROUTES.AUTH_ORGANIZATION_ACCEPT_INVITE, {
         invite_id: input.invitation.id,
       });
@@ -98,7 +101,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       };
     },
 
-    "user-deleted": (input: { user: User }) => {
+    "user-deleted": (input: { user: User }): Mail.Options => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
 
@@ -119,5 +122,5 @@ ${COMMON.SIGNATURE.HTML}`.trim();
         subject: `Your ${APP.NAME} account has been deleted`,
       };
     },
-  } satisfies Record<string, (...args: any) => Mail.Options>,
+  },
 };

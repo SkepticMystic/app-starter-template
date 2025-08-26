@@ -27,7 +27,7 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  {#each passkeys as passkey}
+  {#each passkeys as passkey (passkey.id)}
     <div class="rounded-box border p-3 shadow-md">
       <div class="flex items-center justify-between">
         <div class="flex flex-col">

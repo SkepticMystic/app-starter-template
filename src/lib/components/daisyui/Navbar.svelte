@@ -92,7 +92,7 @@
 
   <div class="navbar-center hidden lg:flex">
     <ul class="flex items-center gap-5">
-      {#each routes as r}
+      {#each routes as r (r.href)}
         {#if show_route($user, r, "center")}
           {@const { href, label } = r}
           <li>
@@ -117,7 +117,7 @@
         class="menu-compact dropdown-content menu mt-3 w-40 rounded-box bg-base-100 p-2 shadow-sm"
       >
         <!-- Shows all routes, not just those for a given `side` -->
-        {#each routes as r}
+        {#each routes as r (r.href)}
           {#if show_route($user, r)}
             {@const { href, label } = r}
             <li>
@@ -139,7 +139,7 @@
     <ul class="flex items-center gap-5">
       <ThemeSelector />
 
-      {#each routes as r}
+      {#each routes as r (r.href)}
         {#if show_route($user, r, "right")}
           {@const { href, label } = r}
           <li>

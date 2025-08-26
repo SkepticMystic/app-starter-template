@@ -1,5 +1,5 @@
 // Source: https://www.youtube.com/watch?v=lTDKhj83tec
-export const draggable = (node: HTMLElement, data: any) => {
+export const draggable = (node: HTMLElement, data: unknown) => {
   let state = data;
 
   node.draggable = true;
@@ -14,7 +14,7 @@ export const draggable = (node: HTMLElement, data: any) => {
   node.addEventListener("dragstart", handleDragStart);
 
   return {
-    update(newData: any) {
+    update(newData: unknown) {
       state = newData;
     },
     destroy() {
@@ -28,7 +28,7 @@ export const dropzone = (
   options: {
     dropEffect?: "copy" | "move" | "link";
     dragoverClass?: string;
-    onDrop: (data: any, e: DragEvent) => void;
+    onDrop: (data: unknown, e: DragEvent) => void;
   },
 ) => {
   let state = {
@@ -69,7 +69,7 @@ export const dropzone = (
   node.addEventListener("drop", handleDrop);
 
   return {
-    update(newOptions: any) {
+    update(newOptions: typeof options) {
       state = {
         dropEffect: "move",
         dragoverClass: "droppable",

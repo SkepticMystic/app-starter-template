@@ -22,11 +22,11 @@ declare global {
       /** Save data about the current session. */
       identify(
         indentity_id: string,
-        data: Record<string, any>,
+        data: Record<string, unknown>,
       ): Promise<unknown>;
 
       /** To save data without a unique ID, pass in only a JSON object. */
-      identify(data: Record<string, any>): Promise<unknown>;
+      identify(data: Record<string, unknown>): Promise<unknown>;
     }
   }
 }

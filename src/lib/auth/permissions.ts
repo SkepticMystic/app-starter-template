@@ -26,5 +26,5 @@ export const AccessControl = {
       ...adminAc.statements,
       // project: ["create", "share", "update", "delete"],
     }),
-  } satisfies Record<IAccessControl.RoleId, any>,
+  } satisfies Record<IAccessControl.RoleId, ReturnType<typeof ac.newRole>>,
 };

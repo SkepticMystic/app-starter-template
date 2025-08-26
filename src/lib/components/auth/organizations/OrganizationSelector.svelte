@@ -32,7 +32,7 @@
       value={$session.data?.session.activeOrganizationId}
       on:change={(e) => set_active(e.currentTarget.value)}
     >
-      {#each $organizations.data as org}
+      {#each $organizations.data as org (org.id)}
         <option value={org.id}>
           {org.name} ({org.slug})
         </option>

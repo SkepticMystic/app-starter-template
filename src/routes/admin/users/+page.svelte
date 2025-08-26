@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Table from "$lib/components/daisyui/QuickTable.svelte";
+  import QuickTable from "$lib/components/daisyui/QuickTable.svelte";
 
   let { data } = $props();
 </script>
 
-<Table rows={data.users} />
+<QuickTable rows={data.users} />

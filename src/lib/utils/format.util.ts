@@ -77,7 +77,7 @@ export const Format = {
     }
   },
 
-  boolean: (bool: any, opts?: { type?: "Y/N" | "emoji" }) => {
+  boolean: (bool: boolean, opts?: { type?: "Y/N" | "emoji" }) => {
     switch (opts?.type) {
       case "Y/N": {
         return bool ? "Yes" : "No";

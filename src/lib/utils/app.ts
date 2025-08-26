@@ -9,6 +9,10 @@ const full_url = (path: string, search: Record<string, unknown>) =>
 export const App = {
   full_url,
 
-  url: (path: string, search: PartiallyTypedObject<{ toast?: IToast.Id }>) =>
-    Url.strip_origin(full_url(path, search)),
+  url: (
+    path: string,
+    search: PartiallyTypedObject<{ toast?: IToast.Id }> & {
+      [key: string]: unknown;
+    },
+  ) => Url.strip_origin(full_url(path, search)),
 };

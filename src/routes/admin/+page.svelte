@@ -18,7 +18,7 @@
   <h2>Admin</h2>
 
   <ul class="my-3 list-inside list-disc">
-    {#each routes as route}
+    {#each routes as route (route.href)}
       <li>
         <a class="link link-primary" href={route.href}>
           {route.label}
@@ -26,7 +26,7 @@
 
         {#if route.routes?.length}
           <ul class="list-inside list-disc pl-5">
-            {#each route.routes as subroute}
+            {#each route.routes as subroute (subroute.href)}
               <li>
                 <a class="link link-primary" href={subroute.href}>
                   {subroute.label}

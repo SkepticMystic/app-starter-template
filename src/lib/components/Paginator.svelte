@@ -1,4 +1,9 @@
 <script lang="ts">
+  import IconChevronDoubleLeft from "~icons/heroicons/chevron-double-left";
+  import IconChevronDoubleRight from "~icons/heroicons/chevron-double-right";
+  import IconChevronLeft from "~icons/heroicons/chevron-left";
+  import IconChevronRight from "~icons/heroicons/chevron-right";
+
   interface Props {
     filters: { skip: number; limit: number };
 
@@ -11,6 +16,7 @@
   }
 
   let {
+    onchange,
     total = null,
     has_more = true,
     disabled = false,
@@ -23,6 +29,8 @@
     }
 
     filters.skip = target;
+
+    onchange?.(filters);
   };
 
   let page = $derived(Math.floor(filters.skip / filters.limit));
@@ -38,7 +46,7 @@
     class="btn join-item btn-square border-0 btn-ghost btn-sm"
     onclick={() => set_skip(0)}
   >
-    ≪
+    <IconChevronDoubleLeft />
   </button>
 
   <button
@@ -47,7 +55,7 @@
     class="btn join-item btn-square border-0 btn-ghost btn-sm"
     onclick={() => set_skip(filters.skip - filters.limit)}
   >
-    {"<"}
+    <IconChevronLeft />
   </button>
 
   <button
@@ -65,7 +73,7 @@
     disabled={disabled || page === last_page || !has_more}
     onclick={() => set_skip(filters.skip + filters.limit)}
   >
-    {">"}
+    <IconChevronRight />
   </button>
 
   {#if last_page !== null}
@@ -75,7 +83,7 @@
       class="btn join-item btn-square border-0 btn-ghost btn-sm"
       onclick={() => set_skip(last_page * filters.limit)}
     >
-      ≫
+      <IconChevronDoubleRight />
     </button>
   {/if}
 
@@ -85,7 +93,7 @@
     bind:value={filters.limit}
     onchange={() => set_skip(0)}
   >
-    {#each [10, 20, 50, 100, 500, 1000, 5000] as value}
+    {#each [10, 20, 50, 100, 500, 1000, 5000] as value (value)}
       <option {value}>{value}</option>
     {/each}
   </select>

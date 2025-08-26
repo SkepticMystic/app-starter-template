@@ -5,7 +5,7 @@ const raw = <
   Shape extends z.core.$ZodShape,
   Config extends z.core.$ZodObjectConfig = z.core.$strip,
 >(
-  input: any,
+  input: unknown,
   schema: z.ZodObject<Shape, Config>,
 ) => {
   const parsed = schema.safeParse(input);

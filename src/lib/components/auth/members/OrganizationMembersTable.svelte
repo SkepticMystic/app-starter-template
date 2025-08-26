@@ -9,7 +9,7 @@
     type IOrganization,
   } from "$lib/const/organization.const";
   import { Format } from "$lib/utils/format.util";
-  import { any_loading, Loader } from "$lib/utils/loader";
+  import { Loader } from "$lib/utils/loader";
   import { Strings } from "$lib/utils/strings.util";
   import IconUserMinus from "~icons/heroicons/user-minus";
 
@@ -89,7 +89,7 @@
             }
           }}
         >
-          {#each ORGANIZATION.ROLES.IDS as role_id}
+          {#each ORGANIZATION.ROLES.IDS as role_id (role_id)}
             <option value={role_id}>
               {ORGANIZATION.ROLES.MAP[role_id].name}
             </option>

@@ -44,7 +44,7 @@
 
     <Label lbl="Role">
       <select class="select" bind:value={form.role}>
-        {#each ORGANIZATION.ROLES.IDS as role_id}
+        {#each ORGANIZATION.ROLES.IDS as role_id (role_id)}
           {@const role = ORGANIZATION.ROLES.MAP[role_id]}
 
           <option value={role_id}>

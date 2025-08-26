@@ -31,14 +31,14 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  {#each AUTH.PROVIDERS.IDS as provider_id}
+  {#each AUTH.PROVIDERS.IDS as provider_id (provider_id)}
     {@const provider = AUTH.PROVIDERS.MAP[provider_id]}
 
     {@const provider_accounts = accounts.filter(
       (account) => account.provider === provider_id,
     )}
 
-    {#each provider_accounts as account}
+    {#each provider_accounts as account (account.id)}
       <div class="rounded-box border p-3 shadow-md">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">

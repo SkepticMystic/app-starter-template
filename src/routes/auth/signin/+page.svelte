@@ -22,7 +22,7 @@
   {/if}
 
   <div class="flex flex-col gap-2">
-    {#each AUTH.PROVIDERS.IDS as provider_id}
+    {#each AUTH.PROVIDERS.IDS as provider_id (provider_id)}
       {@const { is_social, is_oidc } = AUTH.PROVIDERS.MAP[provider_id]}
       {#if is_oidc}
         {#if is_social}

@@ -228,7 +228,7 @@ export const auth = betterAuth({
                   POCKETID_BASE_URL + "/.well-known/openid-configuration",
                 // ... other config options
 
-                mapProfileToUser: (profile: any) => {
+                mapProfileToUser: (profile: unknown) => {
                   Log.info(profile, providerId + " profile");
 
                   // NOTE: Typing profile directly in the callback arg gives a TS error, since better-auth expects Record<string, any>
