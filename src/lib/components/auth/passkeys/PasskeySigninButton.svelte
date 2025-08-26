@@ -1,26 +1,23 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { onMount } from "svelte";
   import { toast } from "svelte-daisyui-toast";
+  import IconFingerprint from "~icons/heroicons/finger-print";
 
   let {
     loader,
     redirect_uri = ROUTES.HOME,
   }: {
     redirect_uri?: string;
-    loader: Loader<`signin:${IAuth.ProviderId}`>;
+    loader: Loader<"signin:passkey">;
   } = $props();
-
-  const provider_id: IAuth.ProviderId = "passkey";
-  const provider = AUTH.PROVIDERS.MAP[provider_id];
 
   const signin = async () => {
     toast.set([]);
-    loader.load(`signin:${provider_id}`);
+    loader.load("signin:passkey");
 
     console.log("Starting passkey signin");
 
@@ -86,10 +83,9 @@
     class="btn btn-info w-full"
     disabled={any_loading($loader)}
   >
-    <Loading loading={$loader[`signin:${provider_id}`]}>
-      <!-- svelte-ignore svelte_component_deprecated -->
-      <svelte:component this={provider.icon} />
+    <Loading loading={$loader["signin:passkey"]}>
+      <IconFingerprint />
     </Loading>
-    Continue with {provider.name}
+    Continue with Passkey
   </button>
 </div>

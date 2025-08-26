@@ -36,18 +36,20 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const send = async (mail: Mail.Options) => {
+  mail.from ??= config.EMAIL_FROM;
+
+  try {
+    const res = await transporter.sendMail(mail);
+
+    return suc(res);
+  } catch (error) {
+    console.log("Email.send error", error);
+
+    return err("Failed to send email");
+  }
+};
+
 export const Email = {
-  send: async (mail: Mail.Options) => {
-    mail.from ??= config.EMAIL_FROM;
-
-    try {
-      const res = await transporter.sendMail(mail);
-
-      return suc(res);
-    } catch (error) {
-      console.log("Email.send error", error);
-
-      return err("Failed to send email");
-    }
-  },
+  send,
 };

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
@@ -34,7 +33,8 @@
         clear_on_navigate: false,
       });
 
-      await goto(ROUTES.AUTH_SIGNIN);
+      // Hard reload. auth config will revoke all sessions
+      location.href = ROUTES.AUTH_SIGNIN;
     } else {
       toast.error("Failed to reset password: " + res.error.message);
     }

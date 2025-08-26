@@ -55,7 +55,15 @@
     loading = false;
   });
 
-  $effect(() => console.log("$session", $session));
+  $effect(() => {
+    if ($session.isRefetching) {
+      console.log("$session refetching...");
+    } else if ($session.isPending) {
+      console.log("$session pending...");
+    } else {
+      console.log("$session loaded", $session.data);
+    }
+  });
 </script>
 
 <header>

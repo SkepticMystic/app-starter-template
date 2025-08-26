@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto, invalidateAll } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import { UserClient } from "$lib/clients/user.client";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";

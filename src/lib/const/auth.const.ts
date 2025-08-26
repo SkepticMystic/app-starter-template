@@ -1,22 +1,51 @@
 import type { Component } from "svelte";
 import IconGoogle from "~icons/devicon-plain/google";
 import IconEnvelope from "~icons/heroicons/envelope";
-import IconFingerprint from "~icons/heroicons/finger-print";
+import IconKey from "~icons/heroicons/key";
 
 const PROVIDER_IDS = [
   "credential",
-  // TODO: Check if passkey is actually a provider, or just it's own thing
-  "passkey",
+  // NOTE: Passkeys aren't providers rn, as they are tied to an existing account
+  // "passkey",
   "google",
+  "pocket-id",
 ] as const;
 
 const PROVIDER_MAP: Record<
   IAuth.ProviderId,
-  { name: string; is_sso: boolean; icon: Component }
+  {
+    name: string;
+    icon: Component;
+    is_oidc: boolean;
+    is_social: boolean;
+    force_email_verified: boolean;
+  }
 > = {
-  credential: { name: "Email", is_sso: false, icon: IconEnvelope },
-  passkey: { name: "Passkey", is_sso: false, icon: IconFingerprint },
-  google: { name: "Google", is_sso: true, icon: IconGoogle },
+  credential: {
+    name: "Email",
+    icon: IconEnvelope,
+
+    is_oidc: false,
+    is_social: false,
+    force_email_verified: false,
+  },
+  google: {
+    name: "Google",
+    icon: IconGoogle,
+
+    is_oidc: true,
+    is_social: true,
+    force_email_verified: false,
+  },
+  "pocket-id": {
+    name: "Pocket ID",
+    icon: IconKey,
+
+    is_oidc: true,
+    is_social: false,
+    // NOTE: Pocket ID hasn't implemented email verification yet
+    force_email_verified: true,
+  },
 };
 
 export const AUTH = {
@@ -28,4 +57,33 @@ export const AUTH = {
 
 export declare namespace IAuth {
   export type ProviderId = (typeof PROVIDER_IDS)[number];
+
+  export type GenericOAuthProfile = {
+    /** ["8e988433-165d-4b69-ac0d-15e2a5f0a3e1"] */
+    aud: string[];
+    /**  "rossk29@gmail.com" */
+    email: string;
+    /**  false */
+    email_verified: boolean;
+    /**  "2025-08-26T08:31:11.896042775Z" */
+    exp: string;
+    /**  "Keenan" */
+    family_name: string;
+    /**  "Ross" */
+    given_name: string;
+    /**  "2025-08-26T07:31:11.896042775Z" */
+    iat: string;
+    /**  "https://id.keencloud.co.za" */
+    iss: string;
+    /**  "Ross Keenan" */
+    name: string;
+    /**  "https://id.keencloud.co.za/api/users/90ec9e5a-5bb6-44c6-b95e-a8c2c54932b5/profile-picture.png" */
+    picture: string;
+    /**  "ross" */
+    preferred_username: string;
+    /**  "90ec9e5a-5bb6-44c6-b95e-a8c2c54932b5" */
+    sub: string;
+    /**  "id-token" */
+    type: string;
+  };
 }

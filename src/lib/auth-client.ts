@@ -1,5 +1,6 @@
 import {
   adminClient,
+  genericOAuthClient,
   organizationClient,
   passkeyClient,
 } from "better-auth/client/plugins";
@@ -10,6 +11,7 @@ export const BetterAuthClient = createAuthClient({
   plugins: [
     passkeyClient(),
     organizationClient(),
+    genericOAuthClient(),
     adminClient({
       ac: AccessControl.ac,
       roles: AccessControl.roles,

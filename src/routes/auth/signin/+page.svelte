@@ -1,48 +1,15 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client.js";
+  import CredentialSigninForm from "$lib/components/auth/authenticate/CredentialSigninForm.svelte";
+  import GenericOAuthSigninButton from "$lib/components/auth/GenericOAuthSigninButton.svelte";
   import PasskeySigninButton from "$lib/components/auth/passkeys/PasskeySigninButton.svelte";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
-  import { AUTH, type IAuth } from "$lib/const/auth.const.js";
-  import { ROUTES } from "$lib/const/routes.const.js";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
-  import { preventDefault } from "svelte/legacy";
+  import { AUTH, type IAuth } from "$lib/const/auth.const";
+  import { ROUTES } from "$lib/const/routes.const";
+  import { Loader } from "$lib/utils/loader";
 
   let { data } = $props();
 
-  const loader = Loader<`signin:${IAuth.ProviderId}`>();
-
-  let form = $state({
-    password: "",
-    rememberMe: false,
-    email: data.search.email_hint ?? "",
-  });
-
-  const signin = async () => {
-    loader.load("signin:credential");
-
-    try {
-      const res = await BetterAuthClient.signIn.email({
-        ...form,
-      });
-
-      if (res.data) {
-        await goto(data.search.redirect_uri ?? ROUTES.HOME);
-      } else {
-        toast.warning(res.error.message ?? "Signin failed. Please try again.");
-        console.warn(res.error);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Signin failed.");
-    }
-
-    loader.reset();
-  };
+  const loader = Loader<`signin:${IAuth.ProviderId | "passkey"}`>();
 </script>
 
 <div class="mx-auto flex max-w-xs flex-col gap-5">
@@ -56,14 +23,21 @@
 
   <div class="flex flex-col gap-2">
     {#each AUTH.PROVIDERS.IDS as provider_id}
-      {@const { is_sso } = AUTH.PROVIDERS.MAP[provider_id]}
-
-      {#if is_sso}
-        <SocialSigninButton
-          {loader}
-          {provider_id}
-          redirect_uri={data.search.redirect_uri}
-        />
+      {@const { is_social, is_oidc } = AUTH.PROVIDERS.MAP[provider_id]}
+      {#if is_oidc}
+        {#if is_social}
+          <SocialSigninButton
+            {loader}
+            {provider_id}
+            redirect_uri={data.search.redirect_uri}
+          />
+        {:else}
+          <GenericOAuthSigninButton
+            {loader}
+            {provider_id}
+            redirect_uri={data.search.redirect_uri}
+          />
+        {/if}
       {/if}
     {/each}
 
@@ -72,52 +46,11 @@
 
   <div class="divider">OR</div>
 
-  <form onsubmit={preventDefault(signin)}>
-    <Fieldset legend="Signin with email">
-      <div class="space-y-3">
-        <Label lbl="Email">
-          <input
-            type="email"
-            class="input w-full"
-            placeholder="Email"
-            autocomplete="email webauthn"
-            disabled={!!data.search.email_hint}
-            bind:value={form.email}
-          />
-        </Label>
-
-        <Label lbl="Password">
-          <input
-            type="password"
-            class="input w-full"
-            placeholder="Password"
-            autocomplete="current-password webauthn"
-            bind:value={form.password}
-          />
-        </Label>
-
-        <div class="flex items-center justify-between">
-          <label class="flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              class="checkbox"
-              bind:checked={form.rememberMe}
-            />
-            <span>Remember me</span>
-          </label>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            disabled={!form.email || !form.password || any_loading($loader)}
-          >
-            <Loading loading={$loader["signin:credential"]} />
-            Signin
-          </button>
-        </div>
-      </div>
-    </Fieldset>
-  </form>
+  <CredentialSigninForm
+    {loader}
+    email_hint={data.search.email_hint}
+    redirect_uri={data.search.redirect_uri}
+  />
 
   <ul>
     <li>
