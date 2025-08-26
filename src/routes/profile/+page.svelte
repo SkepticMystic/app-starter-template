@@ -32,7 +32,7 @@
     <p>
       Logged in as <strong>{data.user.email}</strong>
       {#if data.user.name}
-        (Name: <strong>{data.user.name}</strong>)
+        ({data.user.name})
       {/if}
     </p>
   </div>
@@ -48,7 +48,11 @@
     <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
     <AddPasskeyButton on_added={() => location.reload()} />
   </div>
-  <UserPasskeysList bind:passkeys />
+  {#if passkeys.length}
+    <UserPasskeysList bind:passkeys />
+  {:else}
+    <p>No passkeys added yet.</p>
+  {/if}
 
   <div class="divider">
     <h2 class="text-xl">Accounts</h2>

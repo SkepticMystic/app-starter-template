@@ -1,5 +1,6 @@
 import { getRequestEvent } from "$app/server";
 import {
+  BETTER_AUTH_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   POCKETID_BASE_URL,
@@ -47,6 +48,21 @@ export const auth = betterAuth({
 
   baseURL: APP.URL,
   basePath: "/api/auth",
+
+  // .env is not explicitly loaded in prod, so we import it
+  // Rather than running dotenv, or something
+  secret: BETTER_AUTH_SECRET,
+
+  logger: {
+    level: "debug",
+    log: (level, message, ...args) => {
+      Log[level]({ args }, message);
+    },
+  },
+
+  telemetry: {
+    enabled: false,
+  },
 
   database: mongodbAdapter(
     // NOTE: Actually passing .db doesn't work, seems to be a type bug
