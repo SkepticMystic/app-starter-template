@@ -6,18 +6,16 @@ import type Mail from "nodemailer/lib/mailer";
 import { APP } from "./app";
 import { ROUTES } from "./routes.const";
 
-const COMMON = {
-  SIGNATURE: {
-    TEXT: `
-${APP.NAME}
-${APP.URL}
-`.trim(),
-
-    HTML: `
+const HTML_SIGNATURE = `
 <p>
   Regards,<br />
-  ${APP.NAME}
-</p>`.trim(),
+  <a href="${APP.URL}">${APP.NAME}</a>
+</p>`.trim();
+
+const COMMON = {
+  SIGNATURE: {
+    HTML: HTML_SIGNATURE,
+    TEXT: Markdown.from_html(HTML_SIGNATURE),
   },
 };
 

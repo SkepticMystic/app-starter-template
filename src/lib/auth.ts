@@ -171,7 +171,6 @@ export const auth = betterAuth({
     }),
 
     passkey({
-      origin: APP.URL,
       rpName: APP.NAME,
       rpID: new URL(APP.URL).hostname,
     }),
