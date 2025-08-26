@@ -10,7 +10,8 @@ import { APP } from "./const/app";
 
 export const BetterAuthClient = createAuthClient({
   baseURL: APP.URL,
-  basePath: "/api/auth",
+  // NOTE: Seems to break when I add both? Just use baseURL
+  // basePath: "/api/auth",
 
   plugins: [
     passkeyClient(),

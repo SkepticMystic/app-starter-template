@@ -26,7 +26,6 @@
 
     try {
       const signin_res = await BetterAuthClient.signIn.oauth2({
-        requestSignUp: false,
         disableRedirect: false,
         providerId: provider_id,
         callbackURL: redirect_uri,

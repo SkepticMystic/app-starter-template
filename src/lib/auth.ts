@@ -21,6 +21,7 @@ import {
   genericOAuth,
   haveIBeenPwned,
   organization,
+  type GenericOAuthConfig,
   type Member,
   type MemberInput,
   type Organization,
@@ -47,7 +48,8 @@ export const auth = betterAuth({
   appName: APP.NAME,
 
   baseURL: APP.URL,
-  basePath: "/api/auth",
+  // NOTE: Seems to break when I add both? Just use baseURL
+  // basePath: "/api/auth",
 
   // .env is not explicitly loaded in prod, so we import it
   // Rather than running dotenv, or something
@@ -213,13 +215,14 @@ export const auth = betterAuth({
     genericOAuth({
       config: [
         POCKETID_CLIENT_ID && POCKETID_CLIENT_SECRET && POCKETID_BASE_URL
-          ? (() => {
+          ? ((): GenericOAuthConfig => {
               const providerId = "pocket-id" satisfies IAuth.ProviderId;
 
               return {
                 providerId,
                 clientId: POCKETID_CLIENT_ID,
                 clientSecret: POCKETID_CLIENT_SECRET,
+
                 discoveryUrl:
                   POCKETID_BASE_URL + "/.well-known/openid-configuration",
                 // ... other config options
