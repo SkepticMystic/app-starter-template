@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
+  import { browser, dev } from "$app/environment";
   import { afterNavigate } from "$app/navigation";
   import { page } from "$app/state";
 
@@ -69,6 +69,8 @@
       defer
       src="{PUBLIC_UMAMI_BASE_URL}/script.js"
       data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
+      data-do-not-track="true"
+      data-tag={dev ? "dev" : "prod"}
     ></script>
   {/if}
 </svelte:head>
