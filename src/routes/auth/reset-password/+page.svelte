@@ -4,6 +4,8 @@
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
+  import { TOAST } from "$lib/const/toast.const.js";
+  import { App } from "$lib/utils/app.js";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-daisyui-toast";
   import { preventDefault } from "svelte/legacy";
@@ -29,12 +31,10 @@
       newPassword: form.new_password,
     });
     if (res.data) {
-      toast.success("Password reset successfully.", {
-        clear_on_navigate: false,
-      });
-
       // Hard reload. auth config will revoke all sessions
-      location.href = ROUTES.AUTH_SIGNIN;
+      location.href = App.url(ROUTES.AUTH_SIGNIN, {
+        toast: TOAST.IDS.PASSWORD_RESET,
+      });
     } else {
       toast.error("Failed to reset password: " + res.error.message);
     }
