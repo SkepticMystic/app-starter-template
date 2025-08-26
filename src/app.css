@@ -3,6 +3,7 @@
   /* TODO: Narrow down themes */
   themes: all;
 }
+@plugin '@tailwindcss/forms';
 @source "../node_modules/svelte-daisyui-toast/dist/**/*.{js,svelte}";
 
 /*
