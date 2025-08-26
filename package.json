@@ -25,6 +25,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "@types/nodemailer": "^7.0.1",
     "@types/turndown": "^5.0.5",
+    "@types/umami": "^2.10.0",
     "daisyui": "^5.0.50",
     "dotenv": "^17.2.1",
     "eslint": "^9.18.0",
