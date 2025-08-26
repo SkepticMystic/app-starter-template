@@ -80,7 +80,7 @@
 
   <button
     onclick={signin}
-    class="btn btn-info w-full"
+    class="btn w-full btn-info"
     disabled={any_loading($loader)}
   >
     <Loading loading={$loader["signin:passkey"]}>

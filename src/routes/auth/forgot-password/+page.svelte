@@ -44,7 +44,7 @@
   </Fieldset>
 
   <button
-    class="btn btn-primary w-fit"
+    class="btn w-fit btn-primary"
     type="submit"
     disabled={!form.email || any_loading($loader)}
   >
