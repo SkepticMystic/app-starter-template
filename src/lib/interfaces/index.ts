@@ -14,3 +14,11 @@ export type OID<T> = T & { _id: ObjectId };
 export type Timestamps = { createdAt: Date; updatedAt: Date };
 
 export type MaybePromise<T> = T | Promise<T>;
+
+// Allows types like { count: number } & Record<string, any>
+// to still get proper intellisense for 'count'
+export type PartiallyTypedObject<T> = {
+  [K in keyof T]: T[K];
+} & {
+  [key: string]: any;
+};

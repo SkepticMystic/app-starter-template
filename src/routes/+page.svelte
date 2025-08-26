@@ -1,15 +1,5 @@
 <script lang="ts">
   import { APP } from "$lib/const/app.js";
-  import { TOAST } from "$lib/const/toast.const.js";
-  import { toast } from "svelte-daisyui-toast";
-
-  let { data } = $props();
-
-  if (data.search.toast === TOAST.IDS.EMAIL_VERIFIED) {
-    toast.add(TOAST.MAP["EMAIL_VERIFIED"]);
-  } else if (data.search.toast === TOAST.IDS.INVITE_ACCEPTED) {
-    toast.add(TOAST.MAP["INVITE_ACCEPTED"]);
-  }
 </script>
 
 <div class="hero mt-32">

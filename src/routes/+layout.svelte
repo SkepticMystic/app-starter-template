@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { afterNavigate } from "$app/navigation";
+  import { page } from "$app/state";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Navbar from "$lib/components/daisyui/Navbar.svelte";
+  import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
   import { onMount } from "svelte";
   import { toast, Toaster } from "svelte-daisyui-toast";
@@ -13,46 +16,9 @@
 
   let { children }: Props = $props();
 
-  toast.defaults.set({ clear_on_navigate: true, duration_ms: 10_000 });
-
   let loading = $state(true);
   onMount(async () => {
     themeChange(false);
-
-    // if (
-    //   $user &&
-    //   $session.data?.session &&
-    //   !$session.data.session.activeOrganizationId
-    // ) {
-    //   console.log("Creating organization for user:", $user.email);
-
-    //   const org_res = await AuthClient.organization.create({
-    //     slug: $user.email,
-    //     name: "My Organization",
-    //     keepCurrentActiveOrganization: false,
-    //   });
-
-    //   if (org_res.error) {
-    //     console.warn("org_res.error", org_res.error);
-    //     return toast.warning(
-    //       org_res.error.message ?? "Org creation failed. Please try again.",
-    //     );
-    //   }
-
-    //   const active_res = await AuthClient.organization.setActive({
-    //     organizationId: org_res.data.id,
-    //   });
-
-    //   if (active_res.error) {
-    //     console.warn("active_res.error", active_res.error);
-    //     return toast.warning(
-    //       active_res.error.message ??
-    //         "Set active org failed. Please try again.",
-    //     );
-    //   }
-    // }
-
-    loading = false;
   });
 
   $effect(() => {
@@ -61,7 +27,19 @@
     } else if ($session.isPending) {
       console.log("$session pending...");
     } else {
+      loading = false;
       console.log("$session loaded", $session.data);
+    }
+  });
+
+  afterNavigate(() => {
+    const toast_id = page.url.searchParams.get("toast") as IToast.Id | null;
+
+    if (toast_id) {
+      const toast_key = TOAST.IDS_REVERSED[toast_id];
+      if (!toast_key) return;
+
+      toast.add(TOAST.MAP[toast_key]);
     }
   });
 </script>

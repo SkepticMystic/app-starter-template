@@ -23,7 +23,9 @@
 
     const res = await OrganizationsClient.accept_invitation(data.invitation.id);
     if (res.ok) {
-      await goto(App.url(ROUTES.HOME, { toast: TOAST.IDS.INVITE_ACCEPTED }));
+      await goto(
+        App.url(ROUTES.HOME, { toast: TOAST.IDS.ORG_INVITE_ACCEPTED }),
+      );
     }
 
     loader.reset();

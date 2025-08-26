@@ -6,6 +6,8 @@
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { ROUTES } from "$lib/const/routes.const";
+  import { TOAST } from "$lib/const/toast.const";
+  import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
   import ChangePassword from "./changePassword.svelte";
 
@@ -19,7 +21,9 @@
 
     const res = await UserClient.delete();
     if (res.ok) {
-      await goto(ROUTES.AUTH_SIGNIN);
+      await goto(
+        App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.USER_DELETED }),
+      );
     }
 
     loader.reset();
