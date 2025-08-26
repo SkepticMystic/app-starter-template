@@ -6,5 +6,3 @@ export const APP = {
   LOGO_URL: "https://placehold.co/600x400/png",
   DESCRIPTION: "An awesome app built with SvelteKit and BetterAuth",
 };
-
-console.log({ APP });

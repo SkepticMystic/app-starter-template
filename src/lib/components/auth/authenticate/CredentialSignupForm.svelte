@@ -99,7 +99,7 @@
 
       <button
         type="submit"
-        class="btn btn-primary"
+        class="btn btn-primary btn-wide"
         disabled={!form.email || !form.password || any_loading($loader)}
       >
         <Loading loading={$loader[`signup:${provider_id}`]}>

@@ -36,6 +36,10 @@
     const toast_id = page.url.searchParams.get("toast") as IToast.Id | null;
 
     if (toast_id) {
+      // Remove the toast param from the URL after showing the toast
+      // so it doesn't show again on page refresh
+      page.url.searchParams.delete("toast");
+
       const toast_key = TOAST.IDS_REVERSED[toast_id];
       if (!toast_key) return;
 
