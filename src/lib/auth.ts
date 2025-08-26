@@ -43,8 +43,10 @@ import { err, suc } from "./utils/result.util";
 
 // SECTION: betterAuth init
 export const auth = betterAuth({
-  baseURL: APP.URL,
   appName: APP.NAME,
+
+  baseURL: APP.URL,
+  basePath: "/api/auth",
 
   database: mongodbAdapter(
     // NOTE: Actually passing .db doesn't work, seems to be a type bug
