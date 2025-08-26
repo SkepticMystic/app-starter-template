@@ -47,9 +47,10 @@ import { err, suc } from "./utils/result.util";
 export const auth = betterAuth({
   appName: APP.NAME,
 
-  baseURL: APP.URL,
-  // NOTE: Seems to break when I add both? Just use baseURL
-  // basePath: "/api/auth",
+  // NOTE: Can't get this working...
+  // It seems like the behaviour is different when setting baseURL
+  // versus just using the BETTER_AUTH_URL env var
+  // baseURL: APP.URL,
 
   // .env is not explicitly loaded in prod, so we import it
   // Rather than running dotenv, or something
