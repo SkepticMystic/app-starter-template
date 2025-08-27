@@ -4,6 +4,7 @@ toast.defaults.set({ clear_on_navigate: true, duration_ms: 10_000 });
 
 const TOAST_IDS = {
   USER_DELETED: "user-deleted",
+  PASSKEY_ADDED: "passkey-added",
   EMAIL_VERIFIED: "email-verified",
   PASSWORD_RESET: "password-reset",
   ORG_INVITE_ACCEPTED: "org-invite-accepted",
@@ -28,6 +29,11 @@ export const TOAST = {
     USER_DELETED: {
       type: "success",
       message: "User deleted successfully",
+    },
+
+    PASSKEY_ADDED: {
+      type: "success",
+      message: "Passkey added successfully",
     },
 
     EMAIL_VERIFIED: {

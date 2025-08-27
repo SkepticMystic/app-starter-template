@@ -50,7 +50,13 @@
   <div class="divider">
     <h2 class="text-xl">Passkeys</h2>
     <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
-    <AddPasskeyButton on_added={() => location.reload()} />
+    <AddPasskeyButton
+      on_added={() => {
+        location.href = App.url(ROUTES.PROFILE, {
+          toast: TOAST.IDS.PASSKEY_ADDED,
+        });
+      }}
+    />
   </div>
   {#if passkeys.length}
     <UserPasskeysList bind:passkeys />
