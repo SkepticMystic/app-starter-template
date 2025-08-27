@@ -1,5 +1,5 @@
 import { get_session } from "$lib/auth/server";
-import { db } from "$lib/server/db";
+import { db } from "$lib/server/db/drizzle.db";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async ({ request }) => {
