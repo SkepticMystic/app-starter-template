@@ -84,6 +84,10 @@
               member.id,
               e.currentTarget.value as IOrganization.RoleId,
             );
+            if (!res.ok) {
+              // Revert selection on error
+              e.currentTarget.value = member.role;
+            }
           }}
         >
           {#each ORGANIZATION.ROLES.IDS as role_id (role_id)}

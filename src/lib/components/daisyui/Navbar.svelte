@@ -107,7 +107,6 @@
   <div class="navbar-end flex lg:hidden">
     <div class="dropdown dropdown-left z-50">
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <!-- svelte-ignore a11y_label_has_associated_control -->
       <label tabindex="0" class="btn btn-square btn-ghost">
         <Icon class="heroicons/bars-3" />
       </label>

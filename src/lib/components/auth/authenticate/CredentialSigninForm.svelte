@@ -95,7 +95,7 @@
           <Loading loading={$loader[`signin:${provider_id}`]}>
             <AuthProviderIcon {provider_id} />
           </Loading>
-          Signin
+          Signin with {provider.name}
         </button>
       </div>
     </div>

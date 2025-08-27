@@ -105,7 +105,7 @@
         <Loading loading={$loader[`signup:${provider_id}`]}>
           <AuthProviderIcon {provider_id} />
         </Loading>
-        Signup
+        Signup with {provider.name}
       </button>
     </div>
   </Fieldset>
