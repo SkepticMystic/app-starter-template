@@ -8,7 +8,10 @@ const TOAST_IDS = {
   PASSKEY_ADDED: "passkey-added",
   EMAIL_VERIFIED: "email-verified",
   PASSWORD_RESET: "password-reset",
+
   ORG_INVITE_ACCEPTED: "org-invite-accepted",
+
+  ADMIN_IMPERSONATING_USER: "admin-impersonating-user",
 } as const;
 
 const TOAST_IDS_REVERSED = Object.fromEntries(
@@ -28,8 +31,8 @@ export const TOAST = {
 
   MAP: {
     SIGNED_OUT: {
-      type: "success",
-      message: "Signed out successfully",
+      type: "info",
+      message: "Signed out",
     },
 
     USER_DELETED: {
@@ -55,6 +58,11 @@ export const TOAST = {
     ORG_INVITE_ACCEPTED: {
       type: "success",
       message: "Invitation accepted successfully",
+    },
+
+    ADMIN_IMPERSONATING_USER: {
+      type: "info",
+      message: "You are now impersonating this user",
     },
   } satisfies Record<IToast.Key, IToast.Input>,
 };

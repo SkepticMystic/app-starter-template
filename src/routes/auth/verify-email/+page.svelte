@@ -11,4 +11,9 @@
   });
 </script>
 
-<h2 class="text-xl">Please verify your email using the link we sent you</h2>
+<h2>Verify your email address</h2>
+
+<p>
+  A verification link has been sent to your email address. Please check your
+  inbox and click the link to verify your email.
+</p>

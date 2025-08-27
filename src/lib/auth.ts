@@ -32,8 +32,8 @@ import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
 import { AUTH, type IAuth } from "./const/auth.const";
 import { EMAIL } from "./const/email";
-import { redis } from "./server/db/redis.db";
 import { db } from "./server/db/drizzle.db";
+import { redis } from "./server/db/redis.db";
 import {
   AccountTable,
   InvitationTable,

@@ -2,7 +2,6 @@
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import AuthProviderIcon from "$lib/components/icons/AuthProviderIcon.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { Dates } from "$lib/utils/dates";
@@ -42,8 +41,8 @@
     {#each provider_accounts as account (account.id)}
       <div class="rounded-box border p-3 shadow-md">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <AuthProviderIcon {provider_id} class="h-8 w-8" />
+          <div class="flex items-center gap-3">
+            <Icon class={provider.icon} size="size-8" />
 
             <div class="flex flex-col">
               <span class="font-bold">{provider.name}</span>

@@ -1,28 +1,30 @@
+import { Items, type Item } from "$lib/utils/items.util";
 import { get, type Writable } from "svelte/store";
-import type { PartiallyTypedObject } from "../interfaces";
 
-type Item = PartiallyTypedObject<{ id: string }>;
-
-const get_by_id = <T extends Item>(store: Writable<T[]>, id: string) =>
-  get(store).find((item) => item.id === id);
+type ItemStore<T extends Record<string, unknown>> = Writable<Item<T>[]>;
 
 export const Store = {
-  get_by_id,
+  find: <T extends Record<string, unknown>>(store: ItemStore<T>, id: string) =>
+    Items.find(get(store), id),
 
-  create: <T extends Item>(store: Writable<T[]>, resource: T) =>
-    store.update((items) => [...items, resource]),
+  add: <T extends Record<string, unknown>>(
+    store: ItemStore<T>,
+    item: Item<T>,
+  ) => store.update((items) => Items.add(items, item)),
 
-  patch: <T extends Item>(
-    store: Writable<T[]>,
-    resource_id: string,
-    resource: Partial<T>,
-  ) =>
-    store.update((items) =>
-      items.map((item) =>
-        item.id === resource_id ? { ...item, ...resource } : item,
-      ),
-    ),
+  patch: <T extends Record<string, unknown>>(
+    store: ItemStore<T>,
+    item_id: string,
+    patch: Partial<Item<T>>,
+  ) => store.update((items) => Items.patch(items, item_id, patch)),
 
-  delete: <T extends Item>(store: Writable<T[]>, resource_id: string) =>
-    store.update((items) => items.filter((item) => item.id !== resource_id)),
+  delete: <T extends Record<string, unknown>>(
+    store: ItemStore<T>,
+    item_id: string,
+  ) => store.update((items) => Items.remove(items, item_id)),
+
+  filter: <T extends Record<string, unknown>>(
+    store: ItemStore<T>,
+    ids: string[],
+  ) => Items.filter(get(store), ids),
 };

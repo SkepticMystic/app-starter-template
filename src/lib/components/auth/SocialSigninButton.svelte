@@ -5,7 +5,7 @@
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-daisyui-toast";
-  import AuthProviderIcon from "../icons/AuthProviderIcon.svelte";
+  import Icon from "../icons/Icon.svelte";
 
   let {
     loader,
@@ -52,7 +52,7 @@
 
 <button onclick={signin} class="btn btn-info" disabled={any_loading($loader)}>
   <Loading loading={$loader[`signin:${provider_id}`]}>
-    <AuthProviderIcon {provider_id} />
+    <Icon class={provider.icon} />
   </Loading>
   Continue with {provider.name}
 </button>

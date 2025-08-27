@@ -9,7 +9,6 @@
     {
       label: "Users",
       href: "/admin/users",
-      routes: [{ label: "Invite", href: "/admin/users/invite" }],
     },
   ];
 </script>

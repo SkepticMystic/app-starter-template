@@ -4,8 +4,13 @@
   import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
+  import {
+    type IOrganization,
+    ORGANIZATION,
+  } from "$lib/const/organization.const";
   import { Dates } from "$lib/utils/dates";
   import { Format } from "$lib/utils/format.util";
+  import { Items } from "$lib/utils/items.util";
   import { Loader } from "$lib/utils/loader";
   import { Strings } from "$lib/utils/strings.util";
   import type { Invitation } from "better-auth/plugins";
@@ -23,9 +28,7 @@
 
     const res = await OrganizationsClient.cancel_invitation(invite_id);
     if (res.ok) {
-      invitations = invitations.map((inv) =>
-        inv.id === invite_id ? { ...inv, ...res.data } : inv,
-      );
+      invitations = Items.patch(invitations, invite_id, res.data);
     }
 
     loader.reset();
@@ -50,14 +53,14 @@
       </td>
 
       <td>
-        {invitation.role}
+        {ORGANIZATION.ROLES.MAP[invitation.role as IOrganization.RoleId].name}
       </td>
 
       <td>
         <Time date={invitation.expiresAt} show={Dates.show_datetime} />
       </td>
 
-      <td> {invitation.status} </td>
+      <td> {ORGANIZATION.INVITATIONS.STATUSES.MAP[invitation.status].name} </td>
 
       <td>
         <button

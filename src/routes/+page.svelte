@@ -5,7 +5,7 @@
 <div class="hero mt-32">
   <div class="hero-content text-center">
     <div class="max-w-lg">
-      <h1 class="text-5xl font-bold">{APP.NAME}</h1>
+      <h1>{APP.NAME}</h1>
 
       <div class="my-14 flex flex-wrap justify-center gap-5">
         <a href="/projects">

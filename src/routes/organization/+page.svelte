@@ -8,14 +8,14 @@
   let { invitations, members } = $state(data);
 </script>
 
-<div class="space-y-5">
-  <h1 class="text-2xl">Organization</h1>
+<div class="flex flex-col gap-5">
+  <h1>Organization</h1>
 
   <OrganizationSelector />
 
   <div class="space-y-5">
     <div class="divider">
-      <h2 class="text-xl">Members</h2>
+      <h2>Members</h2>
     </div>
 
     <InviteOrganizationMemberForm
@@ -29,7 +29,7 @@
   {#if invitations.length}
     <div>
       <div class="divider">
-        <h2 class="text-xl">Invites</h2>
+        <h2>Invites</h2>
       </div>
 
       <OrganizationInvitationsList bind:invitations />

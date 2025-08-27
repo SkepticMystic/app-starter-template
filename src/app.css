@@ -7,11 +7,11 @@
 }
 
 @plugin "@iconify/tailwind4" {
-  prefixes: heroicons, devicon-plain;
+  prefixes: mdi, heroicons, devicon-plain;
   backgroundselector: ".icon-bg";
   maskselector: ".icon";
   iconselector: ".{prefix}/{name}";
-  scale: 1.2;
+  scale: 1.4;
 }
 @source "../node_modules/svelte-daisyui-toast/dist/**/*.{js,svelte}";
 
@@ -31,6 +31,22 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+}
+
+h1 {
+  @apply text-3xl font-medium;
+}
+h2 {
+  @apply text-2xl font-medium;
+}
+h3 {
+  @apply text-xl font-medium;
+}
+h4 {
+  @apply text-lg font-medium;
+}
+h5 {
+  @apply text-base font-medium;
 }
 
 tbody > tr {

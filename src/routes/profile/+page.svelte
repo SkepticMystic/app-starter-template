@@ -32,7 +32,7 @@
 
 <div class="space-y-9">
   <div>
-    <h1 class="text-2xl">Profile</h1>
+    <h1>Profile</h1>
     <p>
       Logged in as <strong>{data.user.email}</strong>
       {#if data.user.name}
@@ -48,7 +48,7 @@
   {/if}
 
   <div class="divider">
-    <h2 class="text-xl">Passkeys</h2>
+    <h2>Passkeys</h2>
     <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
     <AddPasskeyButton
       on_added={() => {
@@ -65,7 +65,7 @@
   {/if}
 
   <div class="divider">
-    <h2 class="text-xl">Accounts</h2>
+    <h2>Accounts</h2>
   </div>
   <UserAccountsList bind:accounts />
 

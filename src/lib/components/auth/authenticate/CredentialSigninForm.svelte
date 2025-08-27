@@ -4,7 +4,7 @@
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
-  import AuthProviderIcon from "$lib/components/icons/AuthProviderIcon.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const.js";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -54,7 +54,7 @@
 </script>
 
 <form onsubmit={preventDefault(signin)}>
-  <Fieldset legend="Signin with email">
+  <Fieldset legend="Signin with {provider.name}">
     <div class="space-y-3">
       <Label lbl="Email">
         <input
@@ -93,7 +93,7 @@
           disabled={!form.email || !form.password || any_loading($loader)}
         >
           <Loading loading={$loader[`signin:${provider_id}`]}>
-            <AuthProviderIcon {provider_id} />
+            <Icon class={provider.icon} />
           </Loading>
           Signin with {provider.name}
         </button>

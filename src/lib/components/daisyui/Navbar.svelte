@@ -140,21 +140,21 @@
   </div>
 
   <div class="navbar-end hidden lg:flex">
-    <ul class="flex items-center gap-5">
+    <ul class="flex items-center gap-1">
       <ThemeSelector />
 
       {#each routes as r (r.href)}
         {#if show_route($user, r, "right")}
           {@const { href, label } = r}
           <li>
-            <a class="link" {href}>{label}</a>
+            <a class="btn btn-ghost" {href}>{label}</a>
           </li>
         {/if}
       {/each}
 
       {#if $user}
         <li>
-          <button class="link" onclick={signout}> Sign out </button>
+          <button class="btn btn-ghost" onclick={signout}> Sign out </button>
         </li>
       {/if}
     </ul>

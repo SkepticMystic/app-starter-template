@@ -1,3 +1,4 @@
+import { ORGANIZATION } from "$lib/const/organization.const";
 import {
   boolean,
   index,
@@ -175,12 +176,10 @@ export const PasskeyTable = pgTable(
 export type Passkey = typeof PasskeyTable.$inferSelect;
 export type InsertPasskey = typeof PasskeyTable.$inferInsert;
 
-export const invitation_status_enum = pgEnum("invitation_status", [
-  "accepted",
-  "canceled",
-  "rejected",
-  "pending",
-]);
+export const invitation_status_enum = pgEnum(
+  "invitation_status",
+  ORGANIZATION.INVITATIONS.STATUSES.IDS,
+);
 
 export const InvitationTable = pgTable(
   "invitation",

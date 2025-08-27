@@ -33,7 +33,7 @@
 </script>
 
 <div class="space-y-3">
-  <h2 class="text-xl font-semibold">Accept Invitation</h2>
+  <h2>Accept Invitation</h2>
 
   {#if data.prompt === "accept_invite"}
     <p>
