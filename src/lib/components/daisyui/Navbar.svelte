@@ -3,7 +3,9 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import { APP } from "$lib/const/app";
   import { ROUTES } from "$lib/const/routes.const";
+  import { TOAST } from "$lib/const/toast.const";
   import { user } from "$lib/stores/session";
+  import { App } from "$lib/utils/app";
   import { onMount } from "svelte";
   import { themeChange } from "theme-change";
   import Icon from "../icons/Icon.svelte";
@@ -80,7 +82,10 @@
 
   const signout = () => {
     BetterAuthClient.signOut({
-      fetchOptions: { onSuccess: () => goto(ROUTES.AUTH_SIGNIN) },
+      fetchOptions: {
+        onSuccess: () =>
+          goto(App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.SIGNED_OUT })),
+      },
     });
   };
 </script>
@@ -149,9 +154,7 @@
 
       {#if $user}
         <li>
-          <button class="btn btn-ghost btn-sm" onclick={signout}>
-            Sign out
-          </button>
+          <button class="link" onclick={signout}> Sign out </button>
         </li>
       {/if}
     </ul>

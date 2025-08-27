@@ -3,6 +3,7 @@ import { toast } from "svelte-daisyui-toast";
 toast.defaults.set({ clear_on_navigate: true, duration_ms: 10_000 });
 
 const TOAST_IDS = {
+  SIGNED_OUT: "signed-out",
   USER_DELETED: "user-deleted",
   PASSKEY_ADDED: "passkey-added",
   EMAIL_VERIFIED: "email-verified",
@@ -26,6 +27,11 @@ export const TOAST = {
   IDS_REVERSED: TOAST_IDS_REVERSED,
 
   MAP: {
+    SIGNED_OUT: {
+      type: "success",
+      message: "Signed out successfully",
+    },
+
     USER_DELETED: {
       type: "success",
       message: "User deleted successfully",
