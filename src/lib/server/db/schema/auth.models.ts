@@ -154,7 +154,7 @@ export const PasskeyTable = pgTable(
   {
     id: varchar().primaryKey(),
 
-    name: varchar({ length: 255 }).notNull(),
+    name: varchar({ length: 255 }),
     userId: varchar()
       .notNull()
       .references(() => UserTable.id, { onDelete: "cascade" }),
