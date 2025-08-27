@@ -1,4 +1,3 @@
-import { ORGANIZATION } from "$lib/const/organization.const";
 import {
   boolean,
   index,
@@ -12,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { ACCESS_CONTROL } from "../../../const/access_control.const";
 import { AUTH } from "../../../const/auth.const";
+import { ORGANIZATION } from "../../../const/organization.const";
 import { Schema } from "./index.schema";
 
 export const user_role_enum = pgEnum("user_role", ACCESS_CONTROL.ROLES.IDS);

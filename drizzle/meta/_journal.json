@@ -15,6 +15,13 @@
       "when": 1756319089377,
       "tag": "0001_sour_wildside",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756329004848,
+      "tag": "0002_neat_captain_britain",
+      "breakpoints": true
     }
   ]
 }
