@@ -1,8 +1,5 @@
 <script lang="ts">
-  import IconChevronDoubleLeft from "~icons/heroicons/chevron-double-left";
-  import IconChevronDoubleRight from "~icons/heroicons/chevron-double-right";
-  import IconChevronLeft from "~icons/heroicons/chevron-left";
-  import IconChevronRight from "~icons/heroicons/chevron-right";
+  import Icon from "./icons/Icon.svelte";
 
   interface Props {
     filters: { skip: number; limit: number };
@@ -46,7 +43,7 @@
     class="btn join-item btn-square border-0 btn-ghost btn-sm"
     onclick={() => set_skip(0)}
   >
-    <IconChevronDoubleLeft />
+    <Icon class="heroicons/chevron-double-left" />
   </button>
 
   <button
@@ -55,7 +52,7 @@
     class="btn join-item btn-square border-0 btn-ghost btn-sm"
     onclick={() => set_skip(filters.skip - filters.limit)}
   >
-    <IconChevronLeft />
+    <Icon class="heroicons/chevron-left" />
   </button>
 
   <button
@@ -73,7 +70,7 @@
     disabled={disabled || page === last_page || !has_more}
     onclick={() => set_skip(filters.skip + filters.limit)}
   >
-    <IconChevronRight />
+    <Icon class="heroicons/chevron-right" />
   </button>
 
   {#if last_page !== null}
@@ -83,7 +80,7 @@
       class="btn join-item btn-square border-0 btn-ghost btn-sm"
       onclick={() => set_skip(last_page * filters.limit)}
     >
-      <IconChevronDoubleRight />
+      <Icon class="heroicons/chevron-double-right" />
     </button>
   {/if}
 

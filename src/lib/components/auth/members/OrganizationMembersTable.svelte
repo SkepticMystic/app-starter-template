@@ -2,6 +2,7 @@
   import type { auth } from "$lib/auth";
   import { MembersClient } from "$lib/clients/members.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
   import {
@@ -11,7 +12,6 @@
   import { Format } from "$lib/utils/format.util";
   import { Loader } from "$lib/utils/loader";
   import { Strings } from "$lib/utils/strings.util";
-  import IconUserMinus from "~icons/heroicons/user-minus";
 
   let {
     members = $bindable(),
@@ -84,9 +84,6 @@
               member.id,
               e.currentTarget.value as IOrganization.RoleId,
             );
-            if (!res.ok) {
-              e.currentTarget.value = member.role;
-            }
           }}
         >
           {#each ORGANIZATION.ROLES.IDS as role_id (role_id)}
@@ -109,7 +106,7 @@
           disabled={$loader[`remove_member:${member.id}`]}
         >
           <Loading loading={$loader[`remove_member:${member.id}`]}>
-            <IconUserMinus />
+            <Icon class="heroicons/user-minus" />
           </Loading>
         </button>
       </td>

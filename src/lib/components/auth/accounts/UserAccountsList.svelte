@@ -2,10 +2,11 @@
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import AuthProviderIcon from "$lib/components/icons/AuthProviderIcon.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import IconXMark from "~icons/heroicons/x-mark";
 
   let {
     accounts = $bindable(),
@@ -42,7 +43,7 @@
       <div class="rounded-box border p-3 shadow-md">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
-            <svelte:component this={provider.icon} class="h-8 w-8" />
+            <AuthProviderIcon {provider_id} class="h-8 w-8" />
 
             <div class="flex flex-col">
               <span class="font-bold">{provider.name}</span>
@@ -59,7 +60,7 @@
             onclick={() => unlink_account(provider_id)}
           >
             <Loading loading={$loader[`unlink_account:${provider_id}`]}>
-              <IconXMark />
+              <Icon class="heroicons/link-slash" />
             </Loading>
           </button>
         </div>

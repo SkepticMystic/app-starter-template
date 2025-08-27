@@ -67,6 +67,9 @@
 
 <!-- Sigh... can't get this to work in app.html
  Vite docs suggest I can interpolate public env vars using %PUBLIC_VARIABLE%, but it never works -->
+<!-- Svelte says to use %sveltekit.env.[NAME]% 
+     But at this point, there's enough js stuff that I think this is fine
+     SOURCE: https://svelte.dev/docs/kit/project-structure#Project-files-tsconfig.json -->
 <svelte:head>
   {#if PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID}
     <script

@@ -4,6 +4,7 @@
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import AuthProviderIcon from "$lib/components/icons/AuthProviderIcon.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const.js";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -92,8 +93,7 @@
           disabled={!form.email || !form.password || any_loading($loader)}
         >
           <Loading loading={$loader[`signin:${provider_id}`]}>
-            <!-- svelte-ignore svelte_component_deprecated -->
-            <svelte:component this={provider.icon} />
+            <AuthProviderIcon {provider_id} />
           </Loading>
           Signin
         </button>

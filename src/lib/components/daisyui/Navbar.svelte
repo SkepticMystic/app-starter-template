@@ -6,7 +6,7 @@
   import { user } from "$lib/stores/session";
   import { onMount } from "svelte";
   import { themeChange } from "theme-change";
-  import IconBars3 from "~icons/heroicons/bars-3";
+  import Icon from "../icons/Icon.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
   onMount(() => themeChange(false));
@@ -109,7 +109,7 @@
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <!-- svelte-ignore a11y_label_has_associated_control -->
       <label tabindex="0" class="btn btn-square btn-ghost">
-        <IconBars3 />
+        <Icon class="heroicons/bars-3" />
       </label>
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <ul

@@ -1,12 +1,7 @@
-import type { Component } from "svelte";
-import IconGoogle from "~icons/devicon-plain/google";
-import IconEnvelope from "~icons/heroicons/envelope";
-import IconKey from "~icons/heroicons/key";
-
 const PROVIDER_IDS = [
-  "credential",
   // NOTE: Passkeys aren't providers rn, as they are tied to an existing account
   // "passkey",
+  "credential",
   "google",
   "pocket-id",
 ] as const;
@@ -15,7 +10,7 @@ const PROVIDER_MAP: Record<
   IAuth.ProviderId,
   {
     name: string;
-    icon: Component;
+
     is_oidc: boolean;
     is_social: boolean;
     force_email_verified: boolean;
@@ -23,7 +18,6 @@ const PROVIDER_MAP: Record<
 > = {
   credential: {
     name: "Email",
-    icon: IconEnvelope,
 
     is_oidc: false,
     is_social: false,
@@ -31,7 +25,6 @@ const PROVIDER_MAP: Record<
   },
   google: {
     name: "Google",
-    icon: IconGoogle,
 
     is_oidc: true,
     is_social: true,
@@ -39,7 +32,6 @@ const PROVIDER_MAP: Record<
   },
   "pocket-id": {
     name: "Pocket ID",
-    icon: IconKey,
 
     is_oidc: true,
     is_social: false,

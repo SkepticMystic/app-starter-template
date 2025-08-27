@@ -1,6 +1,7 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
   import { Dates } from "$lib/utils/dates";
@@ -8,7 +9,6 @@
   import { Loader } from "$lib/utils/loader";
   import { Strings } from "$lib/utils/strings.util";
   import type { Invitation } from "better-auth/plugins";
-  import IconXMark from "~icons/heroicons/x-mark";
 
   interface Props {
     invitations: Invitation[];
@@ -68,7 +68,7 @@
             $loader[`cancel_invitation:${invitation.id}`]}
         >
           <Loading loading={$loader[`cancel_invitation:${invitation.id}`]}>
-            <IconXMark />
+            <Icon class="heroicons/x-mark" />
           </Loading>
         </button>
       </td>

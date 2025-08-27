@@ -1,9 +1,18 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
 @plugin "daisyui" {
   /* TODO: Narrow down themes */
   themes: all;
 }
-@plugin '@tailwindcss/forms';
+
+@plugin "@iconify/tailwind4" {
+  prefixes: heroicons, devicon-plain;
+  backgroundselector: ".icon-bg";
+  maskselector: ".icon";
+  iconselector: ".{prefix}/{name}";
+  scale: 1.2;
+}
 @source "../node_modules/svelte-daisyui-toast/dist/**/*.{js,svelte}";
 
 /*

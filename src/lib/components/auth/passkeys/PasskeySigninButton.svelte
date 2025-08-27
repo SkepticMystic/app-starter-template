@@ -1,11 +1,11 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { onMount } from "svelte";
   import { toast } from "svelte-daisyui-toast";
-  import IconFingerprint from "~icons/heroicons/finger-print";
 
   let {
     loader,
@@ -84,7 +84,7 @@
     disabled={any_loading($loader)}
   >
     <Loading loading={$loader["signin:passkey"]}>
-      <IconFingerprint />
+      <Icon class="heroicons/finger-print" />
     </Loading>
     Continue with Passkey
   </button>

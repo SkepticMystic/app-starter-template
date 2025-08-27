@@ -34,9 +34,18 @@ import { AUTH, type IAuth } from "./const/auth.const";
 import { EMAIL } from "./const/email";
 import { redis } from "./db/redis.db";
 import { db } from "./server/db";
+import {
+  AccountTable,
+  InvitationTable,
+  MemberTable,
+  OrganizationTable,
+  PasskeyTable,
+  SessionTable,
+  UserTable,
+  VerificationTable,
+} from "./server/db/schema/auth.models";
 import { Email } from "./utils/email";
 import { Log } from "./utils/logger.util";
-import { AuthModels } from "./server/db/auth.models";
 
 // SECTION: betterAuth init
 export const auth = betterAuth({
@@ -64,7 +73,18 @@ export const auth = betterAuth({
 
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: { ...AuthModels },
+    debugLogs: false,
+
+    schema: {
+      user: UserTable,
+      account: AccountTable,
+      session: SessionTable,
+      verification: VerificationTable,
+      organization: OrganizationTable,
+      member: MemberTable,
+      invitation: InvitationTable,
+      passkey: PasskeyTable,
+    },
   }),
 
   session: {
@@ -459,8 +479,8 @@ const get_or_create_org_id = async (
 //         );
 
 //         return db
-//           .delete(AuthModels.organizations)
-//           .where(eq(AuthModels.organizations.id, org_id));
+//           .delete(OrganizationTable)
+//           .where(eq(OrganizationTable.id, org_id));
 //       }
 
 //       Log.debug(

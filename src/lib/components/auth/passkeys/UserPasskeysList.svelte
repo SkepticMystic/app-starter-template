@@ -2,9 +2,9 @@
   import type { auth } from "$lib/auth";
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import IconXMark from "~icons/heroicons/x-mark";
 
   let {
     passkeys = $bindable(),
@@ -44,7 +44,7 @@
           onclick={() => delete_passkey(passkey.id)}
         >
           <Loading loading={$loader[`delete_passkey:${passkey.id}`]}>
-            <IconXMark />
+            <Icon class="heroicons/x-mark" />
           </Loading>
         </button>
       </div>
