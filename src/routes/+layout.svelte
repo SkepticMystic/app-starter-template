@@ -38,12 +38,12 @@
       console.log("$session loaded", $session.data);
 
       if (browser && umami && $session.data?.user) {
-        umami.identify($session.data?.session.id, {
+        umami.identify($session.data.user.id, {
           name: $session.data.user.name,
           email: $session.data.user.email,
-          user_id: $session.data?.session.userId,
-          ip_address: $session.data?.session.ipAddress,
-          user_agent: $session.data?.session.userAgent,
+          session_id: $session.data.session.id,
+          ip_address: $session.data.session.ipAddress,
+          user_agent: $session.data.session.userAgent,
         });
       }
     }
