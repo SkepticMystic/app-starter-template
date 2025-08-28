@@ -29,7 +29,7 @@
     loader.reset();
   };
 
-  let items = $state(passkeys);
+  let items = $derived(passkeys);
 </script>
 
 <List {items}>

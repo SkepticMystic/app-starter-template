@@ -27,7 +27,7 @@
 
     const res = await PasskeysClient.update(passkey.id, dirty);
     if (res.ok) {
-      passkey = { ...res.data.passkey };
+      dirty = res.data.passkey;
       on_update?.(res.data.passkey);
     }
 
