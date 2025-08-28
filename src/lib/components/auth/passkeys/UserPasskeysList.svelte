@@ -3,10 +3,12 @@
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import List from "$lib/components/daisyui/List.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Modal from "$lib/components/daisyui/Modal.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import { Dates } from "$lib/utils/dates";
   import { Items } from "$lib/utils/items.util";
   import { any_loading, Loader } from "$lib/utils/loader";
+  import EditPasskeyForm from "./EditPasskeyForm.svelte";
 
   let {
     passkeys = $bindable(),
@@ -44,9 +46,31 @@
     </div>
 
     <div class="flex gap-0.5">
+      <Modal>
+        {#snippet btn(dialog)}
+          <button
+            title="Edit Passkey"
+            class="btn btn-square btn-info"
+            onclick={() => dialog?.showModal()}
+          >
+            <Icon class="heroicons/pencil" />
+          </button>
+        {/snippet}
+
+        {#snippet content(dialog)}
+          <EditPasskeyForm
+            {passkey}
+            on_update={(updated) => {
+              passkeys = Items.patch(passkeys, passkey.id, updated);
+              dialog?.close();
+            }}
+          />
+        {/snippet}
+      </Modal>
+
       <button
         title="Delete Passkey"
-        class="btn btn-square"
+        class="btn btn-square btn-warning"
         disabled={any_loading($loader)}
         onclick={() => delete_passkey(passkey.id)}
       >

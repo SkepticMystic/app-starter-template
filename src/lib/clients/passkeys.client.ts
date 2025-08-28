@@ -1,5 +1,6 @@
 import { BetterAuthClient } from "$lib/auth-client";
 import { err, suc } from "$lib/utils/result.util";
+import type { Passkey } from "better-auth/plugins/passkey";
 import { Client } from "./index.client";
 
 export const PasskeysClient = {
@@ -23,6 +24,27 @@ export const PasskeysClient = {
         }
       },
       { toast: { suc: "Passkey added successfully" } },
+    ),
+
+  update: (passkey_id: string, passkey: Pick<Passkey, "name">) =>
+    Client.request(
+      async () => {
+        if (!passkey.name) {
+          return err("Passkey name cannot be empty");
+        }
+
+        const res = await BetterAuthClient.passkey.updatePasskey({
+          id: passkey_id,
+          name: passkey.name,
+        });
+
+        if (res.error) {
+          return err(res.error.message ?? "Failed to update passkey");
+        } else {
+          return suc(res.data);
+        }
+      },
+      { toast: { suc: "Passkey updated successfully" } },
     ),
 
   delete: (passkey_id: string) =>
