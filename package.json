@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@qwik.dev/partytown": "^0.11.2",
     "better-auth": "^1.3.7",
     "drizzle-orm": "^0.44.5",
     "ioredis": "^5.7.0",

@@ -2,17 +2,16 @@
   import { browser, dev } from "$app/environment";
   import { afterNavigate } from "$app/navigation";
   import { page } from "$app/state";
-
   import {
-    PUBLIC_UMAMI_BASE_URL,
-    PUBLIC_UMAMI_WEBSITE_ID,
+      PUBLIC_UMAMI_BASE_URL,
+      PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
-
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Navbar from "$lib/components/daisyui/Navbar.svelte";
   import SEO from "$lib/components/SEO.svelte";
   import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
+  import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { onMount } from "svelte";
   import { toast, Toaster } from "svelte-daisyui-toast";
   import { themeChange } from "theme-change";
@@ -38,8 +37,8 @@
       loading = false;
       console.log("$session loaded", $session.data);
 
-      if (browser && window.umami && $session.data?.user) {
-        window.umami.identify($session.data?.session.id, {
+      if (browser && umami && $session.data?.user) {
+        umami.identify($session.data?.session.id, {
           name: $session.data.user.name,
           email: $session.data.user.email,
           user_id: $session.data?.session.userId,
@@ -67,21 +66,28 @@
 </script>
 
 <svelte:head>
+  <script>
+    partytown = {
+      forward: ["umami.identify"],
+    }
+  </script>
+
+  {@html "<script>" + partytownSnippet() + "</script>"}
+
   <SEO />
 
-  <!-- Sigh... can't get this to work in app.html
-   Vite docs suggest I can interpolate public env vars using %PUBLIC_VARIABLE%, but it never works -->
   <!-- Svelte says to use %sveltekit.env.[NAME]% 
        But at this point, there's enough js stuff that I think this is fine
        SOURCE: https://svelte.dev/docs/kit/project-structure#Project-files-tsconfig.json -->
   {#if PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID}
     <script
       defer
+      type="text/partytown"
       src="{PUBLIC_UMAMI_BASE_URL}/script.js"
       data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
-      data-do-not-track="true"
       data-tag={dev ? "dev" : "prod"}
-    ></script>
+      ></script>
+      <!-- data-do-not-track="true" -->
   {/if}
 </svelte:head>
 
