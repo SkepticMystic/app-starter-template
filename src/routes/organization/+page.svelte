@@ -1,7 +1,7 @@
 <script lang="ts">
   import OrganizationMembersList from "$lib/components/auth/members/OrganizationMembersTable.svelte";
   import InviteOrganizationMemberForm from "$lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
-  import OrganizationInvitationsList from "$lib/components/auth/organizations/OrganizationInvitationsList.svelte";
+  import OrganizationInvitationsTable from "$lib/components/auth/organizations/OrganizationInvitationsTable.svelte";
   import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
 
   let { data } = $props();
@@ -32,7 +32,7 @@
         <h2>Invites</h2>
       </div>
 
-      <OrganizationInvitationsList bind:invitations />
+      <OrganizationInvitationsTable bind:invitations />
     </div>
   {/if}
 </div>
