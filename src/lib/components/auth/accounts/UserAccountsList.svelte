@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
+  import List from "$lib/components/daisyui/List.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
@@ -28,42 +29,46 @@
 
     loader.reset();
   };
+
+  let items = $state(
+    accounts.map((acc) => {
+      const provider_id = acc.provider as IAuth.ProviderId;
+      const provider = AUTH.PROVIDERS.MAP[provider_id];
+
+      return {
+        ...acc,
+        provider_id,
+        name: provider.name,
+        icon: provider.icon,
+      };
+    }),
+  );
 </script>
 
-<div class="flex flex-col gap-2">
-  {#each AUTH.PROVIDERS.IDS as provider_id (provider_id)}
-    {@const provider = AUTH.PROVIDERS.MAP[provider_id]}
+<List {items}>
+  {#snippet row(item)}
+    <Icon class={item.icon} size="size-7" />
 
-    {@const provider_accounts = accounts.filter(
-      (account) => account.provider === provider_id,
-    )}
+    <div>
+      <p class="text-lg">
+        {item.name}
+      </p>
+      <p class="text-xs font-semibold uppercase opacity-60">
+        Connected on {Dates.show_date(item.createdAt)}
+      </p>
+    </div>
 
-    {#each provider_accounts as account (account.id)}
-      <div class="rounded-box border p-3 shadow-md">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <Icon class={provider.icon} size="size-8" />
-
-            <div class="flex flex-col">
-              <span class="font-bold">{provider.name}</span>
-              <span class="text-sm">
-                Added on {Dates.show_date(account.createdAt)}
-              </span>
-            </div>
-          </div>
-
-          <button
-            title="Unlink Account"
-            class="btn btn-square"
-            disabled={any_loading($loader)}
-            onclick={() => unlink_account(provider_id)}
-          >
-            <Loading loading={$loader[`unlink_account:${provider_id}`]}>
-              <Icon class="heroicons/link-slash" />
-            </Loading>
-          </button>
-        </div>
-      </div>
-    {/each}
-  {/each}
-</div>
+    <div class="flex gap-0.5">
+      <button
+        title="Unlink Account"
+        class="btn btn-square btn-warning"
+        disabled={any_loading($loader)}
+        onclick={() => unlink_account(item.provider_id)}
+      >
+        <Loading loading={$loader[`unlink_account:${item.provider_id}`]}>
+          <Icon class="heroicons/link-slash" />
+        </Loading>
+      </button>
+    </div>
+  {/snippet}
+</List>

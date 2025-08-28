@@ -22,7 +22,9 @@
 >
   <table class="table {klass}">
     <thead>
-      <tr class="bg-base-200 shadow-sm">{@render header()}</tr>
+      <tr class="bg-base-200 shadow-sm">
+        {@render header()}
+      </tr>
     </thead>
 
     <tbody class="">
