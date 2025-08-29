@@ -1,0 +1,24 @@
+{
+  "short_name": "App",
+  "name": "App Starter Template",
+  "description": "A starter template for building web applications.",
+  "categories": ["utilities", "productivity"],
+
+  "theme_color": "black",
+  "background_color": "white",
+
+  "display": "minimal-ui",
+  "start_url": "/?source=pwa",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
