@@ -85,8 +85,8 @@
       src="{PUBLIC_UMAMI_BASE_URL}/script.js"
       data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
       data-tag={dev ? "dev" : "prod"}
+      data-do-not-track="true"
       ></script>
-      <!-- data-do-not-track="true" -->
   {/if}
 </svelte:head>
 
@@ -102,4 +102,4 @@
   </Loading>
 </main>
 
-<Toaster theme={mode.current} />
+<Toaster theme={mode.current} closeButton />

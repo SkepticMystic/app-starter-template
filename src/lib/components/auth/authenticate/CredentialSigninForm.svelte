@@ -1,103 +1,93 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client.js";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import { page } from "$app/state";
+  import FormControl from "$lib/components/form/FormControl.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
+  import * as Form from "$lib/components/ui/form/index.js";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const.js";
-  import { ROUTES } from "$lib/const/routes.const.js";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
-  import { preventDefault } from "svelte/legacy";
+  import { AuthSchema } from "$lib/schema/auth.schema";
+  import {
+    superForm,
+    type Infer,
+    type SuperValidated,
+  } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
 
   let {
-    loader,
-    email_hint,
-    redirect_uri,
+    form_input,
   }: {
-    email_hint?: string;
-    redirect_uri?: string;
-    loader: Loader<`signin:${IAuth.ProviderId}`>;
+    form_input: SuperValidated<Infer<typeof AuthSchema.signin_form>>;
   } = $props();
 
   const provider_id = "credential" satisfies IAuth.ProviderId;
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  let form = $state({
-    password: "",
-    rememberMe: false,
-    email: email_hint ?? "",
+  const form = superForm(form_input, {
+    validators: zod4Client(AuthSchema.signin_form),
+
+    delayMs: 500,
+    timeoutMs: 8_000,
+
+    onResult: ({ result }) => {
+      if (result.type === "redirect") {
+        location.href = result.location;
+      }
+    },
   });
 
-  const signin = async () => {
-    loader.load(`signin:${provider_id}`);
-
-    try {
-      const res = await BetterAuthClient.signIn.email({
-        ...form,
-      });
-
-      if (res.data) {
-        await goto(redirect_uri ?? ROUTES.HOME);
-      } else {
-        toast.warning(res.error.message ?? "Signin failed. Please try again.");
-        console.warn(res.error);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Signin failed.");
-    }
-
-    loader.reset();
-  };
+  const { form: form_data, enhance, submitting, delayed } = form;
 </script>
 
-<form onsubmit={preventDefault(signin)}>
-  <Fieldset legend="Signin with {provider.name}">
-    <div class="space-y-3">
-      <Label lbl="Email">
-        <input
+<form class="space-y-4" method="POST" use:enhance>
+  <Form.Field {form} name="email">
+    <FormControl label="Email">
+      {#snippet children({ props })}
+        <Input
+          {...props}
+          required
           type="email"
-          class="input w-full"
-          placeholder="Email"
           autocomplete="email"
-          disabled={!!email_hint}
-          bind:value={form.email}
+          bind:value={$form_data.email}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <Label lbl="Password">
-        <input
+    <Form.FieldErrors />
+  </Form.Field>
+
+  <Form.Field {form} name="password">
+    <FormControl label="Password">
+      {#snippet children({ props })}
+        <Input
+          {...props}
+          required
           type="password"
-          class="input w-full"
-          placeholder="Password"
           autocomplete="current-password"
-          bind:value={form.password}
+          bind:value={$form_data.password}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <div class="flex items-center justify-between">
-        <label class="flex items-center gap-1.5">
-          <input
-            type="checkbox"
-            class="checkbox"
-            bind:checked={form.rememberMe}
-          />
-          <span>Remember me</span>
-        </label>
+    <Form.FieldErrors />
+  </Form.Field>
 
-        <button
-          type="submit"
-          class="btn btn-primary"
-          disabled={!form.email || !form.password || any_loading($loader)}
-        >
-          <Loading loading={$loader[`signin:${provider_id}`]}>
-            <Icon icon={provider.icon} />
-          </Loading>
-          Signin with {provider.name}
-        </button>
-      </div>
-    </div>
-  </Fieldset>
+  <Form.Field {form} name="remember">
+    <FormControl horizontal label="Remember me">
+      {#snippet children({ props })}
+        <Checkbox {...props} bind:checked={$form_data.remember} />
+      {/snippet}
+    </FormControl>
+
+    <Form.FieldErrors />
+  </Form.Field>
+
+  <Form.Button class="w-full" disabled={$submitting} loading={$delayed}>
+    <Icon icon={provider.icon} />
+    Signin with {provider.name}
+  </Form.Button>
+
+  {#if page.form?.message}
+    <p class="text-warning">{page.form?.message}</p>
+  {/if}
 </form>

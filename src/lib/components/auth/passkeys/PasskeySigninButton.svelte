@@ -2,18 +2,25 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { ROUTES } from "$lib/const/routes.const";
+  import { TOAST } from "$lib/const/toast.const";
+  import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
 
   let {
     loader,
-    redirect_uri = ROUTES.HOME,
+    redirect_uri,
   }: {
     redirect_uri?: string;
     loader: Loader<"signin:passkey">;
   } = $props();
+
+  const resolved_redirect_uri = App.url(redirect_uri ?? ROUTES.HOME, {
+    toast: TOAST.IDS.SIGNED_IN,
+  });
 
   const signin = async () => {
     toast.dismiss();
@@ -35,7 +42,7 @@
 
         // NOTE: It seems like signIn.passkey doesn't refresh the session store
         // Whereas signIn.email does, so we can just goto, instead of hard refresh
-        location.href = redirect_uri;
+        location.href = resolved_redirect_uri;
       }
     } catch (error) {
       toast.error("Signin failed. Please try again.");
@@ -54,7 +61,7 @@
             { autoFill: true },
             {
               onSuccess: () => {
-                location.href = redirect_uri;
+                location.href = resolved_redirect_uri;
               },
             },
           );
@@ -64,28 +71,24 @@
   });
 </script>
 
-<div>
-  <input
-    class="hidden"
-    type="text"
-    name="name"
-    autocomplete="username webauthn"
-  />
-  <input
-    class="hidden"
-    type="password"
-    name="password"
-    autocomplete="current-password webauthn"
-  />
+<input
+  type="text"
+  name="name"
+  class="hidden"
+  autocomplete="username webauthn"
+/>
+<input
+  class="hidden"
+  type="password"
+  name="password"
+  autocomplete="current-password webauthn"
+/>
 
-  <button
-    onclick={signin}
-    class="btn btn-info w-full"
-    disabled={any_loading($loader)}
-  >
-    <Loading loading={$loader["signin:passkey"]}>
-      <Icon icon="heroicons/finger-print" />
-    </Loading>
-    Continue with Passkey
-  </button>
-</div>
+<Button
+  onclick={signin}
+  disabled={any_loading($loader)}
+  loading={$loader["signin:passkey"]}
+>
+  <Icon icon="heroicons/finger-print" />
+  Continue with Passkey
+</Button>

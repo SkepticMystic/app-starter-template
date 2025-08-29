@@ -4,6 +4,7 @@
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
   import type { Passkey } from "better-auth/plugins/passkey";
   import { preventDefault } from "svelte/legacy";
@@ -39,6 +40,7 @@
   <Fieldset legend="Update Passkey">
     <div class="space-y-3">
       <Label lbl="Name">
+        <Input type="text" placeholder="Name" bind:value={dirty.name} />
         <input
           type="text"
           class="input"

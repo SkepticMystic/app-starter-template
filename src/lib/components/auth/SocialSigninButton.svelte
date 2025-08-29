@@ -3,14 +3,17 @@
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
+  import { TOAST } from "$lib/const/toast.const";
+  import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-sonner";
   import Icon from "../icons/Icon.svelte";
+  import Button from "../ui/button/button.svelte";
 
   let {
     loader,
     provider_id,
-    redirect_uri = ROUTES.HOME,
+    redirect_uri,
   }: {
     provider_id: IAuth.ProviderId;
     loader: Loader<`signin:${IAuth.ProviderId}`>;
@@ -26,7 +29,9 @@
     try {
       const signin_res = await BetterAuthClient.signIn.social({
         provider: provider_id,
-        callbackURL: redirect_uri,
+        callbackURL: App.url(redirect_uri ?? ROUTES.HOME, {
+          toast: TOAST.IDS.SIGNED_IN,
+        }),
       });
 
       if (signin_res.error) {
@@ -50,9 +55,11 @@
   };
 </script>
 
-<button onclick={signin} class="btn btn-info" disabled={any_loading($loader)}>
-  <Loading loading={$loader[`signin:${provider_id}`]}>
-    <Icon icon={provider.icon} />
-  </Loading>
+<Button
+  onclick={signin}
+  disabled={any_loading($loader)}
+  loading={$loader[`signin:${provider_id}`]}
+>
+  <Icon icon={provider.icon} />
   Continue with {provider.name}
-</button>
+</Button>

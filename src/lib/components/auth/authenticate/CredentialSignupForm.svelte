@@ -39,6 +39,8 @@
     try {
       const signup_res = await BetterAuthClient.signUp.email({
         ...form,
+        // NOTE: This is called after email verification
+        // The _actual_ redirect is below, to the VERIFY_EMAIL page
         callbackURL:
           redirect_uri ??
           App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
@@ -52,7 +54,11 @@
           signup_res.error.message ?? "Signup failed. Please try again.",
         );
       } else {
-        await goto(ROUTES.AUTH_VERIFY_EMAIL);
+        await goto(
+          App.url(ROUTES.AUTH_VERIFY_EMAIL, {
+            toast: TOAST.IDS.SIGNED_UP,
+          }),
+        );
       }
     } catch (error) {
       toast.error("Signup failed. Please try again.");

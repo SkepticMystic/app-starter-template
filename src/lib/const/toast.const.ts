@@ -1,4 +1,6 @@
 const TOAST_IDS = {
+  SIGNED_UP: "signed-up",
+  SIGNED_IN: "signed-in",
   SIGNED_OUT: "signed-out",
   USER_DELETED: "user-deleted",
   PASSKEY_ADDED: "passkey-added",
@@ -29,6 +31,14 @@ export const TOAST = {
   IDS_REVERSED: TOAST_IDS_REVERSED,
 
   MAP: {
+    SIGNED_UP: {
+      type: "success",
+      message: "Signed up successfully",
+    },
+    SIGNED_IN: {
+      type: "success",
+      message: "Signed in successfully",
+    },
     SIGNED_OUT: {
       type: "info",
       message: "Signed out",
