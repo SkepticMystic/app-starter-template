@@ -195,8 +195,6 @@ export const auth = betterAuth({
   },
 
   plugins: [
-    sveltekitCookies(getRequestEvent),
-
     admin({
       ac: AccessControl.ac,
       roles: AccessControl.roles,
@@ -271,6 +269,10 @@ export const auth = betterAuth({
           : null,
       ].flatMap((cfg) => (cfg ? [cfg] : [])),
     }),
+
+    // NOTE: Must be last, as it needs the request event
+    // SOURCE: https://www.better-auth.com/docs/integrations/svelte-kit#server-action-cookies
+    sveltekitCookies(getRequestEvent),
   ],
 
   // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage

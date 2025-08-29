@@ -4,7 +4,7 @@
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
+  import { toast } from "svelte-sonner";
   import Icon from "../icons/Icon.svelte";
 
   let {
@@ -22,7 +22,7 @@
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
   const signin = async () => {
-    toast.set([]);
+    toast.dismiss();
     loader.load(`signin:${provider_id}`);
 
     try {

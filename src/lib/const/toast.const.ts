@@ -1,7 +1,3 @@
-import { toast } from "svelte-daisyui-toast";
-
-toast.defaults.set({ clear_on_navigate: true, duration_ms: 10_000 });
-
 const TOAST_IDS = {
   SIGNED_OUT: "signed-out",
   USER_DELETED: "user-deleted",
@@ -22,7 +18,10 @@ export declare namespace IToast {
   export type Key = keyof typeof TOAST_IDS;
   export type Id = (typeof TOAST_IDS)[IToast.Key];
 
-  export type Input = Omit<ReturnType<typeof toast.add>, "id">;
+  export type Input = {
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  };
 }
 
 export const TOAST = {

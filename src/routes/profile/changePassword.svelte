@@ -4,7 +4,7 @@
   import Label from "$lib/components/daisyui/Label.svelte";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
+  import { toast } from "svelte-sonner";
   import { preventDefault } from "svelte/legacy";
 
   let form = $state({
@@ -15,7 +15,7 @@
   const loader = Loader<"change-pwd">();
 
   const changePassword = async () => {
-    toast.set([]);
+    toast.dismiss();
     loader.load("change-pwd");
 
     const res = await BetterAuthClient.changePassword({

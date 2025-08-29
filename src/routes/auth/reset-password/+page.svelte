@@ -7,7 +7,7 @@
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
+  import { toast } from "svelte-sonner";
   import { preventDefault } from "svelte/legacy";
 
   let { data } = $props();
@@ -23,7 +23,7 @@
       return;
     }
 
-    toast.set([]);
+    toast.dismiss();
     loader.load("reset-pwd");
 
     const res = await BetterAuthClient.resetPassword({

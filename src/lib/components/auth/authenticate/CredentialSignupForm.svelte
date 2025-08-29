@@ -10,7 +10,7 @@
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
+  import { toast } from "svelte-sonner";
   import { preventDefault } from "svelte/legacy";
 
   let {
@@ -33,7 +33,7 @@
   });
 
   const signup_email = async () => {
-    toast.set([]);
+    toast.dismiss();
     loader.load(`signup:${provider_id}`);
 
     try {

@@ -5,7 +5,7 @@
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { onMount } from "svelte";
-  import { toast } from "svelte-daisyui-toast";
+  import { toast } from "svelte-sonner";
 
   let {
     loader,
@@ -16,7 +16,7 @@
   } = $props();
 
   const signin = async () => {
-    toast.set([]);
+    toast.dismiss();
     loader.load("signin:passkey");
 
     console.log("Starting passkey signin");

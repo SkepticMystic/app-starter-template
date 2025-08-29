@@ -8,7 +8,6 @@
   iconselector: ".{prefix}/{name}";
   scale: 1.4;
 }
-@source "../node_modules/svelte-daisyui-toast/dist/**/*.{js,svelte}";
 
 @import "tw-animate-css";
 

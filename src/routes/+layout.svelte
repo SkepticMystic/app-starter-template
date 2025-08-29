@@ -12,9 +12,9 @@
   import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
-  import { ModeWatcher } from "mode-watcher";
+  import { mode, ModeWatcher } from "mode-watcher";
   import { type Snippet } from "svelte";
-  import { toast, Toaster } from "svelte-daisyui-toast";
+  import { toast, Toaster } from "svelte-sonner";
   import "../app.css";
 
   interface Props {
@@ -57,7 +57,9 @@
       const toast_key = TOAST.IDS_REVERSED[toast_id];
 
       if (!toast_key) return;
-      toast.add(TOAST.MAP[toast_key]);
+
+      const input = TOAST.MAP[toast_key];
+      toast[input.type](input.message);
     }
   });
 </script>
@@ -100,4 +102,4 @@
   </Loading>
 </main>
 
-<Toaster />
+<Toaster theme={mode.current} />

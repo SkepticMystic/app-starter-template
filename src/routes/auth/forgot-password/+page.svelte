@@ -5,7 +5,7 @@
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-daisyui-toast";
+  import { toast } from "svelte-sonner";
   import { preventDefault } from "svelte/legacy";
 
   let form = $state({ email: "" });
