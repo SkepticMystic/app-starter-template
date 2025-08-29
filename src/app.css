@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/forms";
 
 @plugin "@iconify/tailwind4" {
-  prefixes: mdi, heroicons, devicon-plain;
+  prefixes: mdi, heroicons, devicon-plain, lucide;
   backgroundselector: ".icon-bg";
   maskselector: ".icon";
   iconselector: ".{prefix}/{name}";
@@ -173,3 +173,11 @@ h5 {
 tbody > tr {
   @apply hover:bg-base-200/80;
 } */
+
+/* NOTE: In Button.svelte, we add the .loading class to the button when loading starts 
+  This triggers the Loading.svelte component to show the spinner icon
+  We hide all other icons except the first one (the spinner) when loading
+*/
+button.loading > .icon:not(:first-child) {
+  display: none !important;
+}

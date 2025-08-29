@@ -1,46 +1,18 @@
 <script lang="ts">
-  import type { DaisyUI } from "$lib/interfaces/tailwind";
+  import type { ClassValue } from "svelte/elements";
+  import Icon from "../icons/Icon.svelte";
 
   interface Props {
+    class?: ClassValue;
     loading: boolean | undefined;
-    size?: DaisyUI.Size;
-    animation?: "spinner" | "dots" | "ring" | "ball" | "bars" | "infinity";
     children?: import("svelte").Snippet;
   }
 
-  let {
-    loading,
-    size = "sm",
-    animation = "spinner",
-    children,
-  }: Props = $props();
-
-  const loadingSizes: Record<DaisyUI.Size, `loading-${DaisyUI.Size}`> = {
-    xs: "loading-xs",
-    sm: "loading-sm",
-    md: "loading-md",
-    lg: "loading-lg",
-    xl: "loading-xl",
-  };
-
-  const loadingAnimations: Record<
-    typeof animation,
-    `loading-${typeof animation}`
-  > = {
-    spinner: "loading-spinner",
-    dots: "loading-dots",
-    ring: "loading-ring",
-    ball: "loading-ball",
-    bars: "loading-bars",
-    infinity: "loading-infinity",
-  };
+  let { loading, class: klass = "", children }: Props = $props();
 </script>
 
 {#if loading}
-  <span
-    class="{loadingSizes[size]} {loadingAnimations[animation]}"
-    class:loading
-  ></span>
+  <Icon icon="lucide/loader-2" class="animate-spin {klass}" />
 {:else}
   {@render children?.()}
 {/if}

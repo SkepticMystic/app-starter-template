@@ -6,12 +6,8 @@
   import { TOAST } from "$lib/const/toast.const";
   import { user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
-  import { onMount } from "svelte";
-  import { themeChange } from "theme-change";
   import Icon from "../icons/Icon.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
-
-  onMount(() => themeChange(false));
 
   interface Route {
     side: "center" | "right";

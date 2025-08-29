@@ -13,21 +13,17 @@
   import { session } from "$lib/stores/session";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { ModeWatcher } from "mode-watcher";
-  import { onMount } from "svelte";
+  import { type Snippet } from "svelte";
   import { toast, Toaster } from "svelte-daisyui-toast";
-  import { themeChange } from "theme-change";
   import "../app.css";
 
   interface Props {
-    children?: import("svelte").Snippet;
+    children?: Snippet;
   }
 
   let { children }: Props = $props();
-  let loading = $state(true);
 
-  onMount(async () => {
-    themeChange(false);
-  });
+  let loading = $state(true);
 
   $effect(() => {
     if ($session.isRefetching) {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Button from "$lib/components/ui/button/button.svelte";
   import { APP } from "$lib/const/app.js";
 </script>
 
@@ -8,12 +9,8 @@
       <h1>{APP.NAME}</h1>
 
       <div class="my-14 flex flex-wrap justify-center gap-5">
-        <a href="/projects">
-          <button class="btn btn-primary">Projects</button>
-        </a>
-        <a href="/tasks">
-          <button class="btn btn-secondary">Tasks</button>
-        </a>
+        <Button href="/projects">Projects</Button>
+        <Button href="/about" variant="outline">About</Button>
       </div>
     </div>
   </div>
