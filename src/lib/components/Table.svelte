@@ -18,7 +18,7 @@
 </script>
 
 <div
-  class="overflow-x-auto rounded-box border border-base-content/10 bg-base-100"
+  class="rounded-box border-base-content/10 bg-base-100 overflow-x-auto border"
 >
   <table class="table {klass}">
     <thead>

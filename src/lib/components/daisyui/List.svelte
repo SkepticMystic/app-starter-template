@@ -16,7 +16,7 @@
   } = $props();
 </script>
 
-<ul class="list {klass} rounded-box border bg-base-100 shadow-md" role="list">
+<ul class="list {klass} rounded-box bg-base-100 border shadow-md" role="list">
   {@render header?.()}
 
   {#each items as item, i (item.id)}
