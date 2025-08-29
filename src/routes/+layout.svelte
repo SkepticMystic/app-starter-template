@@ -12,6 +12,7 @@
   import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
+  import { ModeWatcher } from "mode-watcher";
   import { onMount } from "svelte";
   import { toast, Toaster } from "svelte-daisyui-toast";
   import { themeChange } from "theme-change";
@@ -90,6 +91,8 @@
       <!-- data-do-not-track="true" -->
   {/if}
 </svelte:head>
+
+<ModeWatcher />
 
 <header>
   <Navbar />

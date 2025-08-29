@@ -92,7 +92,7 @@
 
 <nav class="navbar bg-base-100 px-5">
   <div class="navbar-start">
-    <a href="/" class="btn text-xl normal-case btn-ghost">{APP.NAME}</a>
+    <a href="/" class="btn btn-ghost text-xl normal-case">{APP.NAME}</a>
   </div>
 
   <div class="navbar-center hidden lg:flex">
@@ -113,12 +113,12 @@
     <div class="dropdown dropdown-left z-50">
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <label tabindex="0" class="btn btn-square btn-ghost">
-        <Icon class="heroicons/bars-3" />
+        <Icon icon="heroicons/bars-3" />
       </label>
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <ul
         tabindex="0"
-        class="menu-compact dropdown-content menu mt-3 w-40 rounded-box bg-base-100 p-2 shadow-sm"
+        class="menu-compact dropdown-content menu rounded-box bg-base-100 mt-3 w-40 p-2 shadow-sm"
       >
         <!-- Shows all routes, not just those for a given `side` -->
         {#each routes as r (r.href)}

@@ -2,17 +2,17 @@
   import type { ClassValue } from "svelte/elements";
 
   let {
+    icon,
     size,
     bg = false,
-    class: klass,
+    class: klass = "",
   }: {
     bg?: boolean;
-    // NOTE: Seems to matter that the variable is called `class`,
-    // even tho we use the ClassValue type, intellisense breaks if we rename it
-    class: ClassValue;
+    icon: ClassValue;
+    class?: ClassValue;
     size?: `size-${number}`;
   } = $props();
 </script>
 
 <!-- These values are configurable in the iconify/tailwind plugin, found in app.css -->
-<span class="{bg ? 'icon-bg' : 'icon'} {size} {klass}"></span>
+<span class="{bg ? 'icon-bg' : 'icon'} {icon} {size} {klass}"></span>

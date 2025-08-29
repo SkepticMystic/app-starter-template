@@ -52,7 +52,7 @@
 
 <button onclick={signin} class="btn btn-info" disabled={any_loading($loader)}>
   <Loading loading={$loader[`signin:${provider_id}`]}>
-    <Icon class={provider.icon} />
+    <Icon icon={provider.icon} />
   </Loading>
   Continue with {provider.name}
 </button>

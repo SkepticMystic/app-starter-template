@@ -34,7 +34,7 @@
 
 <List {items}>
   {#snippet row(passkey)}
-    <Icon class="heroicons/finger-print" size="size-7" />
+    <Icon icon="heroicons/finger-print" size="size-7" />
 
     <div>
       <p class="text-lg">
@@ -53,7 +53,7 @@
             class="btn btn-square btn-info"
             onclick={() => dialog?.showModal()}
           >
-            <Icon class="heroicons/pencil" />
+            <Icon icon="heroicons/pencil" />
           </button>
         {/snippet}
 
@@ -75,7 +75,7 @@
         onclick={() => delete_passkey(passkey.id)}
       >
         <Loading loading={$loader[`delete_passkey:${passkey.id}`]}>
-          <Icon class="heroicons/x-mark" />
+          <Icon icon="heroicons/x-mark" />
         </Loading>
       </button>
     </div>

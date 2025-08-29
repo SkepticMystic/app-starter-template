@@ -80,11 +80,11 @@
 
   <button
     onclick={signin}
-    class="btn w-full btn-info"
+    class="btn btn-info w-full"
     disabled={any_loading($loader)}
   >
     <Loading loading={$loader["signin:passkey"]}>
-      <Icon class="heroicons/finger-print" />
+      <Icon icon="heroicons/finger-print" />
     </Loading>
     Continue with Passkey
   </button>

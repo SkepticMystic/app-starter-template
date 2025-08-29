@@ -23,7 +23,7 @@
     <!-- Button to close the modal -->
     <form method="dialog" class="absolute top-1 right-1">
       <button class="btn btn-square btn-ghost">
-        <Icon class="heroicons/x-mark" />
+        <Icon icon="heroicons/x-mark" />
       </button>
     </form>
 

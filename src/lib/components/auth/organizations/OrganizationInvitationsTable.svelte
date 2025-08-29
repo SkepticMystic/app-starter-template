@@ -71,7 +71,7 @@
             $loader[`cancel_invitation:${invitation.id}`]}
         >
           <Loading loading={$loader[`cancel_invitation:${invitation.id}`]}>
-            <Icon class="heroicons/x-mark" />
+            <Icon icon="heroicons/x-mark" />
           </Loading>
         </button>
       </td>

@@ -110,7 +110,7 @@
           disabled={$loader[`remove_member:${member.id}`]}
         >
           <Loading loading={$loader[`remove_member:${member.id}`]}>
-            <Icon class="heroicons/user-minus" />
+            <Icon icon="heroicons/user-minus" />
           </Loading>
         </button>
       </td>

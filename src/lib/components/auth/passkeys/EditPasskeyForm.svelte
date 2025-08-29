@@ -53,7 +53,7 @@
         disabled={any_loading($loader)}
       >
         <Loading loading={$loader["update_passkey"]}>
-          <Icon class="heroicons/tag" />
+          <Icon icon="heroicons/tag" />
         </Loading>
         Update Passkey
       </button>

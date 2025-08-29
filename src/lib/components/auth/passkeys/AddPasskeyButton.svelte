@@ -33,7 +33,7 @@
   disabled={any_loading($loader)}
 >
   <Loading loading={$loader["add_passkey"]}>
-    <Icon class="heroicons/finger-print" />
+    <Icon icon="heroicons/finger-print" />
   </Loading>
   Add Passkey
 </button>

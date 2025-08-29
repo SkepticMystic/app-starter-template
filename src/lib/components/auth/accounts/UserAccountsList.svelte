@@ -47,7 +47,7 @@
 
 <List {items}>
   {#snippet row(item)}
-    <Icon class={item.icon} size="size-7" />
+    <Icon icon={item.icon} size="size-7" />
 
     <div>
       <p class="text-lg">
@@ -66,7 +66,7 @@
         onclick={() => unlink_account(item.provider_id)}
       >
         <Loading loading={$loader[`unlink_account:${item.provider_id}`]}>
-          <Icon class="heroicons/link-slash" />
+          <Icon icon="heroicons/link-slash" />
         </Loading>
       </button>
     </div>

@@ -126,7 +126,7 @@
             disabled={$loader[`impersonate_user:${user.id}`]}
           >
             <Loading loading={$loader[`impersonate_user:${user.id}`]}>
-              <Icon class="heroicons/user-circle" />
+              <Icon icon="heroicons/user-circle" />
             </Loading>
           </button>
 
@@ -137,7 +137,7 @@
             disabled={$loader[`delete_user:${user.id}`]}
           >
             <Loading loading={$loader[`delete_user:${user.id}`]}>
-              <Icon class="heroicons/user-minus" />
+              <Icon icon="heroicons/user-minus" />
             </Loading>
           </button>
         </div>
