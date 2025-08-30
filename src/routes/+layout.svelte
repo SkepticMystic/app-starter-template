@@ -8,6 +8,7 @@
   } from "$env/static/public";
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Navbar from "$lib/components/daisyui/Navbar.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import SEO from "$lib/components/SEO.svelte";
   import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
@@ -102,4 +103,28 @@
   </Loading>
 </main>
 
-<Toaster theme={mode.current} closeButton />
+<Toaster 
+  theme={mode.current}
+  closeButton={true}
+  duration={10_000}
+>
+  {#snippet loadingIcon()}
+		<Icon icon='lucide/loader-2' class="animate-spin" />  
+	{/snippet}
+
+	{#snippet successIcon()}
+		<Icon icon='lucide/check' />
+	{/snippet}
+
+	{#snippet errorIcon()}
+    <Icon icon='lucide/x' />
+	{/snippet}
+
+	{#snippet infoIcon()}
+    <Icon icon='lucide/info' />
+	{/snippet}
+
+	{#snippet warningIcon()}
+    <Icon icon='lucide/alert-triangle' />
+	{/snippet}
+</Toaster>

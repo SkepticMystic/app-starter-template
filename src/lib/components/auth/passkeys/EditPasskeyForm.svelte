@@ -2,7 +2,6 @@
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";

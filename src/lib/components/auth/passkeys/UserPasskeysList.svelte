@@ -2,9 +2,9 @@
   import type { auth } from "$lib/auth";
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import List from "$lib/components/daisyui/List.svelte";
-  import Modal from "$lib/components/daisyui/Modal.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import { Dates } from "$lib/utils/dates";
   import { Items } from "$lib/utils/items.util";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -46,25 +46,24 @@
     </div>
 
     <div class="flex gap-0.5">
-      <Modal>
-        {#snippet btn(dialog)}
-          <Button
-            title="Edit Passkey"
-            icon="heroicons/pencil"
-            onclick={() => dialog?.showModal()}
-          />
+      <Dialog
+        size="icon"
+        title="Edit Passkey"
+        description="Update your passkey"
+      >
+        {#snippet btn()}
+          <Icon icon="heroicons/pencil" />
         {/snippet}
 
-        {#snippet content(dialog)}
+        {#snippet children()}
           <EditPasskeyForm
             {passkey}
             on_update={(updated) => {
               passkeys = Items.patch(passkeys, passkey.id, updated);
-              dialog?.close();
             }}
           />
         {/snippet}
-      </Modal>
+      </Dialog>
 
       <Button
         variant="destructive"
