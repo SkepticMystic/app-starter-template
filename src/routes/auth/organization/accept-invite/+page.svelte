@@ -2,7 +2,8 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { OrganizationsClient } from "$lib/clients/organizations.client.js";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
@@ -44,14 +45,14 @@
       <strong>{data.organization.name}</strong>.
     </p>
 
-    <button
-      class="btn btn-primary"
+    <Button
       onclick={accept_invite}
+      icon="heroicons/check-circle"
       disabled={any_loading($loader)}
+      loading={$loader["accept_invite"]}
     >
-      <Loading loading={$loader["accept_invite"]} />
       Accept Invite
-    </button>
+    </Button>
   {:else if data.prompt === "signup_login"}
     <p>Please login or signup to accept the invitation.</p>
 

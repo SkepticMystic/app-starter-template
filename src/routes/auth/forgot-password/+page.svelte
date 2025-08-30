@@ -2,7 +2,8 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-sonner";
@@ -33,8 +34,7 @@
 <form onsubmit={preventDefault(forgotPassword)} class="flex flex-col gap-3">
   <Fieldset legend="Forgot password">
     <Label lbl="Email">
-      <input
-        class="input"
+      <Input
         type="email"
         placeholder="Email"
         autocomplete="email"
@@ -43,12 +43,12 @@
     </Label>
   </Fieldset>
 
-  <button
-    class="btn btn-primary w-fit"
+  <Button
     type="submit"
+    icon="heroicons/envelope"
+    loading={$loader["forgot-password"]}
     disabled={!form.email || any_loading($loader)}
   >
-    <Loading loading={$loader["forgot-password"]} />
     Send Password Reset Email
-  </button>
+  </Button>
 </form>

@@ -2,7 +2,8 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-sonner";
   import { preventDefault } from "svelte/legacy";
@@ -38,8 +39,7 @@
   <Fieldset legend="Change password">
     <div class="space-y-3">
       <Label lbl="Current Password">
-        <input
-          class="input"
+        <Input
           type="password"
           autocomplete="current-password"
           bind:value={form.current_password}
@@ -47,24 +47,23 @@
       </Label>
 
       <Label lbl="Confirm Password">
-        <input
-          class="input"
+        <Input
           type="password"
           autocomplete="new-password"
           bind:value={form.new_password}
         />
       </Label>
 
-      <button
+      <Button
         type="submit"
-        class="btn btn-primary"
+        icon="heroicons/lock-closed"
+        loading={$loader["change-pwd"]}
         disabled={!form.current_password ||
           !form.new_password ||
           any_loading($loader)}
       >
-        <Loading loading={$loader["change-pwd"]} />
         Change Password
-      </button>
+      </Button>
     </div>
   </Fieldset>
 </form>

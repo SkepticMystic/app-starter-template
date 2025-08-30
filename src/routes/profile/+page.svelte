@@ -4,7 +4,7 @@
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
@@ -72,12 +72,13 @@
 
   <div class="divider"></div>
 
-  <button
-    class="btn btn-error"
-    disabled={any_loading($loader)}
+  <Button
+    variant="destructive"
     onclick={delete_user}
+    icon="heroicons/trash"
+    disabled={any_loading($loader)}
+    loading={$loader["delete_user"]}
   >
-    <Loading loading={$loader["delete_user"]} />
     Delete User
-  </button>
+  </Button>
 </div>
