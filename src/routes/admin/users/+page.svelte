@@ -1,9 +1,9 @@
 <script lang="ts">
   import { AdminClient } from "$lib/clients/admin.client.js";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import {
     ACCESS_CONTROL,
     type IAccessControl,
@@ -119,27 +119,21 @@
 
       <td>
         <div class="flex gap-1">
-          <button
+          <Button
             title="Impersonate user"
-            class="btn btn-square btn-info"
+            variant="secondary"
+            icon="heroicons/user-circle"
             onclick={() => impersonate_user(user.id)}
-            disabled={$loader[`impersonate_user:${user.id}`]}
-          >
-            <Loading loading={$loader[`impersonate_user:${user.id}`]}>
-              <Icon icon="heroicons/user-circle" />
-            </Loading>
-          </button>
+            loading={$loader[`impersonate_user:${user.id}`]}
+          />
 
-          <button
+          <Button
             title="Remove user"
-            class="btn btn-square btn-warning"
+            variant="destructive"
+            icon="heroicons/user-minus"
             onclick={() => delete_user(user.id)}
-            disabled={$loader[`delete_user:${user.id}`]}
-          >
-            <Loading loading={$loader[`delete_user:${user.id}`]}>
-              <Icon icon="heroicons/user-minus" />
-            </Loading>
-          </button>
+            loading={$loader[`delete_user:${user.id}`]}
+          />
         </div>
       </td>
     </tr>

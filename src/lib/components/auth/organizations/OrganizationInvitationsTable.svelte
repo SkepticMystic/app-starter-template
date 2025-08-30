@@ -1,9 +1,10 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import TableCell from "$lib/components/ui/table/table-cell.svelte";
+  import TableHead from "$lib/components/ui/table/table-head.svelte";
   import {
     type IOrganization,
     ORGANIZATION,
@@ -39,49 +40,47 @@
 
 <Table data={rows}>
   {#snippet header()}
-    <th> Email </th>
-    <th> Role </th>
-    <th> Expiry date </th>
-    <th> Status </th>
-    <th> Actions </th>
+    <TableHead>Email</TableHead>
+    <TableHead>Role</TableHead>
+    <TableHead>Expiry date</TableHead>
+    <TableHead>Status</TableHead>
+    <TableHead>Actions</TableHead>
   {/snippet}
 
   {#snippet row(invitation)}
-    <tr>
-      <td>
-        {invitation.email}
-      </td>
+    <TableCell>
+      {invitation.email}
+    </TableCell>
 
-      <td>
-        {ORGANIZATION.ROLES.MAP[invitation.role as IOrganization.RoleId].name}
-      </td>
+    <TableCell>
+      {ORGANIZATION.ROLES.MAP[invitation.role as IOrganization.RoleId].name}
+    </TableCell>
 
-      <td>
-        <Time date={invitation.expiresAt} show={Dates.show_datetime} />
-      </td>
+    <TableCell>
+      <Time date={invitation.expiresAt} show={Dates.show_datetime} />
+    </TableCell>
 
-      <td> {ORGANIZATION.INVITATIONS.STATUSES.MAP[invitation.status].name} </td>
+    <TableCell>
+      {ORGANIZATION.INVITATIONS.STATUSES.MAP[invitation.status].name}
+    </TableCell>
 
-      <td>
-        <button
-          title="Cancel invitation"
-          class="btn btn-square btn-warning"
-          onclick={() => cancel_invitation(invitation.id)}
-          disabled={invitation.status !== "pending" ||
-            $loader[`cancel_invitation:${invitation.id}`]}
-        >
-          <Loading loading={$loader[`cancel_invitation:${invitation.id}`]}>
-            <Icon icon="heroicons/x-mark" />
-          </Loading>
-        </button>
-      </td>
-    </tr>
+    <TableCell>
+      <Button
+        variant="destructive"
+        icon="heroicons/x-mark"
+        title="Cancel invitation"
+        onclick={() => cancel_invitation(invitation.id)}
+        loading={$loader[`cancel_invitation:${invitation.id}`]}
+        disabled={invitation.status !== "pending" ||
+          $loader[`cancel_invitation:${invitation.id}`]}
+      />
+    </TableCell>
   {/snippet}
 
   {#snippet footer()}
-    <td colspan="5">
+    <TableCell colspan={5}>
       {Format.number(rows.length)}
       {Strings.pluralize("invitation", rows.length)}
-    </td>
+    </TableCell>
   {/snippet}
 </Table>

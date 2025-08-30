@@ -82,8 +82,12 @@
     <Form.FieldErrors />
   </Form.Field>
 
-  <Form.Button class="w-full" disabled={$submitting} loading={$delayed}>
-    <Icon icon={provider.icon} />
+  <Form.Button
+    class="w-full"
+    loading={$delayed}
+    icon={provider.icon}
+    disabled={$submitting}
+  >
     Signin with {provider.name}
   </Form.Button>
 

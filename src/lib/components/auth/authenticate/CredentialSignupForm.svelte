@@ -1,118 +1,113 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import { page } from "$app/state";
+  import FormControl from "$lib/components/form/FormControl.svelte";
+  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import FormFieldErrors from "$lib/components/ui/form/form-field-errors.svelte";
+  import FormField from "$lib/components/ui/form/form-field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { ROUTES } from "$lib/const/routes.const";
-  import { TOAST } from "$lib/const/toast.const";
-  import { App } from "$lib/utils/app";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-sonner";
-  import { preventDefault } from "svelte/legacy";
+  import { AuthSchema } from "$lib/schema/auth.schema";
+  import {
+    superForm,
+    type Infer,
+    type SuperValidated,
+  } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
 
   let {
-    loader,
-    email_hint,
-    redirect_uri,
+    form_input,
   }: {
-    email_hint?: string;
-    redirect_uri?: string;
-    loader: Loader<`signup:${IAuth.ProviderId}`>;
+    form_input: SuperValidated<Infer<typeof AuthSchema.signup_form>>;
   } = $props();
 
   const provider_id = "credential" satisfies IAuth.ProviderId;
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  let form = $state({
-    name: "",
-    password: "",
-    email: email_hint ?? "",
+  const form = superForm(form_input, {
+    validators: zod4Client(AuthSchema.signin_form),
+
+    delayMs: 500,
+    timeoutMs: 8_000,
+
+    onResult: ({ result }) => {
+      if (result.type === "redirect") {
+        location.href = result.location;
+      }
+    },
   });
 
-  const signup_email = async () => {
-    toast.dismiss();
-    loader.load(`signup:${provider_id}`);
-
-    try {
-      const signup_res = await BetterAuthClient.signUp.email({
-        ...form,
-        // NOTE: This is called after email verification
-        // The _actual_ redirect is below, to the VERIFY_EMAIL page
-        callbackURL:
-          redirect_uri ??
-          App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
-      });
-
-      console.log("signup_res", signup_res);
-
-      if (signup_res.error) {
-        console.warn("signup_res.error", signup_res.error);
-        toast.warning(
-          signup_res.error.message ?? "Signup failed. Please try again.",
-        );
-      } else {
-        await goto(
-          App.url(ROUTES.AUTH_VERIFY_EMAIL, {
-            toast: TOAST.IDS.SIGNED_UP,
-          }),
-        );
-      }
-    } catch (error) {
-      toast.error("Signup failed. Please try again.");
-      console.error("Signup error:", error);
-    }
-
-    loader.reset();
-  };
+  const { form: form_data, enhance, submitting, delayed } = form;
 </script>
 
-<form onsubmit={preventDefault(signup_email)}>
-  <Fieldset legend="Signup with {provider.name}">
-    <div class="space-y-3">
-      <Label lbl="Name (optional)">
-        <input
+<form class="space-y-4" method="POST" use:enhance>
+  <FormField {form} name="name">
+    <FormControl label="Name">
+      {#snippet children({ props })}
+        <Input
+          {...props}
+          required
           type="text"
-          class="input w-full"
-          placeholder="Name"
           autocomplete="name"
-          bind:value={form.name}
+          bind:value={$form_data.name}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <Label lbl="Email">
-        <input
+    <FormFieldErrors />
+  </FormField>
+
+  <FormField {form} name="email">
+    <FormControl label="Email">
+      {#snippet children({ props })}
+        <Input
+          required
+          {...props}
           type="email"
-          class="input w-full"
-          placeholder="Email"
           autocomplete="email"
-          disabled={!!email_hint}
-          bind:value={form.email}
+          bind:value={$form_data.email}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <Label lbl="Password">
-        <input
+    <FormFieldErrors />
+  </FormField>
+
+  <FormField {form} name="password">
+    <FormControl label="Password">
+      {#snippet children({ props })}
+        <Input
+          {...props}
           type="password"
-          class="input w-full"
-          placeholder="Password"
           autocomplete="new-password"
-          bind:value={form.password}
+          bind:value={$form_data.password}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <button
-        type="submit"
-        class="btn btn-primary w-full"
-        disabled={!form.email || !form.password || any_loading($loader)}
-      >
-        <Loading loading={$loader[`signup:${provider_id}`]}>
-          <Icon icon={provider.icon} />
-        </Loading>
-        Signup with {provider.name}
-      </button>
-    </div>
-  </Fieldset>
+    <FormFieldErrors />
+  </FormField>
+
+  <FormField {form} name="remember">
+    <FormControl horizontal label="Remember me">
+      {#snippet children({ props })}
+        <Checkbox {...props} bind:checked={$form_data.remember} />
+      {/snippet}
+    </FormControl>
+
+    <FormFieldErrors />
+  </FormField>
+
+  <FormButton
+    class="w-full"
+    loading={$delayed}
+    icon={provider.icon}
+    disabled={$submitting}
+  >
+    Signup with {provider.name}
+  </FormButton>
+
+  {#if page.form?.message}
+    <p class="text-warning">{page.form?.message}</p>
+  {/if}
 </form>

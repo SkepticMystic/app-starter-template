@@ -2,8 +2,8 @@
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
   import type { Passkey } from "better-auth/plugins/passkey";
@@ -41,24 +41,16 @@
     <div class="space-y-3">
       <Label lbl="Name">
         <Input type="text" placeholder="Name" bind:value={dirty.name} />
-        <input
-          type="text"
-          class="input"
-          placeholder="Name"
-          bind:value={dirty.name}
-        />
       </Label>
 
-      <button
+      <Button
         type="submit"
-        class="btn btn-primary"
+        icon="heroicons/tag"
         disabled={any_loading($loader)}
+        loading={$loader["update_passkey"]}
       >
-        <Loading loading={$loader["update_passkey"]}>
-          <Icon icon="heroicons/tag" />
-        </Loading>
         Update Passkey
-      </button>
+      </Button>
     </div>
   </Fieldset>
 </form>

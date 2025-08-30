@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from "./icons/Icon.svelte";
+  import Button from "./ui/button/button.svelte";
 
   interface Props {
     filters: { skip: number; limit: number };
@@ -37,56 +38,52 @@
 </script>
 
 <div class="my-card join flex w-fit p-1.5">
-  <button
+  <Button
     title="First"
-    disabled={disabled || page === 0}
-    class="btn join-item btn-square btn-ghost btn-sm border-0"
+    variant="ghost"
     onclick={() => set_skip(0)}
-  >
-    <Icon icon="heroicons/chevron-double-left" />
-  </button>
+    disabled={disabled || page === 0}
+    icon="heroicons/chevron-double-left"
+  />
 
-  <button
+  <Button
+    icon="heroicons/chevron-left"
+    variant="ghost"
     title="Previous"
     disabled={disabled || page === 0}
-    class="btn join-item btn-square btn-ghost btn-sm border-0"
     onclick={() => set_skip(filters.skip - filters.limit)}
-  >
-    <Icon icon="heroicons/chevron-left" />
-  </button>
+  />
 
-  <button
+  <Button
     {disabled}
     title="Refresh"
-    class="btn join-item btn-ghost btn-sm border-0 font-bold"
+    variant="ghost"
     onclick={() => set_skip(filters.skip)}
   >
     {page + 1}{last_page !== null ? " / " + (last_page + 1) : ""}
-  </button>
+  </Button>
 
-  <button
+  <Button
     title="Next"
-    class="btn join-item btn-square btn-ghost btn-sm border-0"
+    variant="ghost"
+    icon="heroicons/chevron-right"
     disabled={disabled || page === last_page || !has_more}
     onclick={() => set_skip(filters.skip + filters.limit)}
-  >
-    <Icon icon="heroicons/chevron-right" />
-  </button>
+  />
 
   {#if last_page !== null}
-    <button
+    <Button
       title="Last"
-      disabled={disabled || page === last_page || !has_more}
-      class="btn join-item btn-square btn-ghost btn-sm border-0"
+      variant="ghost"
+      icon="heroicons/chevron-double-right"
       onclick={() => set_skip(last_page * filters.limit)}
-    >
-      <Icon icon="heroicons/chevron-double-right" />
-    </button>
+      disabled={disabled || page === last_page || !has_more}
+    />
   {/if}
 
   <select
     title="Items per page"
-    class="select join-item select-sm border-none"
+    class="join-item"
     bind:value={filters.limit}
     onchange={() => set_skip(0)}
   >

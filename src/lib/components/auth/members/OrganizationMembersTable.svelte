@@ -1,10 +1,12 @@
 <script lang="ts">
   import type { auth } from "$lib/auth";
   import { MembersClient } from "$lib/clients/members.client";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Select from "$lib/components/ui/select/select.svelte";
+  import TableCell from "$lib/components/ui/table/table-cell.svelte";
+  import TableHead from "$lib/components/ui/table/table-head.svelte";
   import {
     ORGANIZATION,
     type IOrganization,
@@ -57,70 +59,57 @@
 
 <Table data={rows}>
   {#snippet header()}
-    <th> Name </th>
-    <th> Role </th>
-    <th> Join date </th>
-    <th> Actions </th>
+    <TableHead>Name</TableHead>
+    <TableHead>Role</TableHead>
+    <TableHead>Join date</TableHead>
+    <TableHead>Actions</TableHead>
   {/snippet}
 
   {#snippet row(member)}
-    <tr>
-      <td>
-        <div class="flex flex-col">
-          {#if member.user.name}
-            <span>{member.user.name}</span>
-          {/if}
-          <span>{member.user.email}</span>
-        </div>
-      </td>
+    <TableCell>
+      <div class="flex flex-col">
+        {#if member.user.name}
+          <span class="font-semibold">
+            {member.user.name}
+          </span>
+        {/if}
+        <span>{member.user.email}</span>
+      </div>
+    </TableCell>
 
-      <td>
-        <select
-          class="select"
-          value={member.role}
-          disabled={$loader[`update_member_role:${member.id}`]}
-          onchange={async (e) => {
-            const res = await update_member_role(
-              member.id,
-              e.currentTarget.value as IOrganization.RoleId,
-            );
-            if (!res.ok) {
-              // Revert selection on error
-              e.currentTarget.value = member.role;
-            }
-          }}
-        >
-          {#each ORGANIZATION.ROLES.IDS as role_id (role_id)}
-            <option value={role_id}>
-              {ORGANIZATION.ROLES.MAP[role_id].name}
-            </option>
-          {/each}
-        </select>
-      </td>
+    <TableCell>
+      <Select
+        type="single"
+        value={member.role}
+        disabled={$loader[`update_member_role:${member.id}`]}
+        items={ORGANIZATION.ROLES.IDS.map((id) => ({
+          value: id,
+          label: ORGANIZATION.ROLES.MAP[id].name,
+        }))}
+        onValueChange={(value) =>
+          update_member_role(member.id, value as IOrganization.RoleId)}
+      ></Select>
+    </TableCell>
 
-      <td>
-        <Time date={member.createdAt} />
-      </td>
+    <TableCell>
+      <Time date={member.createdAt} />
+    </TableCell>
 
-      <td>
-        <button
-          title="Remove member"
-          class="btn btn-square btn-warning"
-          onclick={() => remove_member(member.id)}
-          disabled={$loader[`remove_member:${member.id}`]}
-        >
-          <Loading loading={$loader[`remove_member:${member.id}`]}>
-            <Icon icon="heroicons/user-minus" />
-          </Loading>
-        </button>
-      </td>
-    </tr>
+    <TableCell>
+      <Button
+        title="Remove member"
+        variant="destructive"
+        icon="heroicons/user-minus"
+        onclick={() => remove_member(member.id)}
+        loading={$loader[`remove_member:${member.id}`]}
+      />
+    </TableCell>
   {/snippet}
 
   {#snippet footer()}
-    <td colspan="4">
+    <TableCell colspan={4}>
       {Format.number(rows.length)}
       {Strings.pluralize("member", rows.length)}
-    </td>
+    </TableCell>
   {/snippet}
 </Table>

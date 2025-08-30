@@ -2,9 +2,9 @@
   import type { auth } from "$lib/auth";
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import List from "$lib/components/daisyui/List.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
   import Modal from "$lib/components/daisyui/Modal.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { Dates } from "$lib/utils/dates";
   import { Items } from "$lib/utils/items.util";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -48,13 +48,11 @@
     <div class="flex gap-0.5">
       <Modal>
         {#snippet btn(dialog)}
-          <button
+          <Button
             title="Edit Passkey"
-            class="btn btn-square btn-info"
+            icon="heroicons/pencil"
             onclick={() => dialog?.showModal()}
-          >
-            <Icon icon="heroicons/pencil" />
-          </button>
+          />
         {/snippet}
 
         {#snippet content(dialog)}
@@ -68,16 +66,14 @@
         {/snippet}
       </Modal>
 
-      <button
+      <Button
+        variant="destructive"
         title="Delete Passkey"
-        class="btn btn-square btn-warning"
+        icon="heroicons/x-mark"
         disabled={any_loading($loader)}
         onclick={() => delete_passkey(passkey.id)}
-      >
-        <Loading loading={$loader[`delete_passkey:${passkey.id}`]}>
-          <Icon icon="heroicons/x-mark" />
-        </Loading>
-      </button>
+        loading={$loader[`delete_passkey:${passkey.id}`]}
+      />
     </div>
   {/snippet}
 </List>

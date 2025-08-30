@@ -1,7 +1,9 @@
 <script lang="ts" module>
   import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type {
+    ClassValue,
     HTMLAnchorAttributes,
     HTMLButtonAttributes,
   } from "svelte/elements";
@@ -46,6 +48,7 @@
     } & {
       // NOTE: Mine
       loading?: boolean;
+      icon?: ClassValue;
     };
 </script>
 
@@ -59,10 +62,15 @@
     type = "button",
     disabled,
     loading,
+    icon,
 
     children,
     ...restProps
   }: ButtonProps = $props();
+
+  if (size === "default" && icon && !children) {
+    size = "icon";
+  }
 </script>
 
 {#if href}
@@ -78,6 +86,10 @@
     {...restProps}
   >
     <Loading {loading} />
+
+    {#if icon}
+      <Icon {icon} />
+    {/if}
     {@render children?.()}
   </a>
 {:else}
@@ -91,6 +103,10 @@
     {...restProps}
   >
     <Loading {loading} />
+
+    {#if icon}
+      <Icon {icon} />
+    {/if}
     {@render children?.()}
   </button>
 {/if}

@@ -3,6 +3,7 @@
   import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
@@ -71,13 +72,13 @@
   });
 </script>
 
-<input
+<Input
   type="text"
   name="name"
   class="hidden"
   autocomplete="username webauthn"
 />
-<input
+<Input
   class="hidden"
   type="password"
   name="password"
@@ -86,9 +87,9 @@
 
 <Button
   onclick={signin}
+  icon="heroicons/finger-print"
   disabled={any_loading($loader)}
   loading={$loader["signin:passkey"]}
 >
-  <Icon icon="heroicons/finger-print" />
   Continue with Passkey
 </Button>

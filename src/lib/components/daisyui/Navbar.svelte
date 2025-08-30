@@ -7,6 +7,7 @@
   import { user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
   import Icon from "../icons/Icon.svelte";
+  import Button from "../ui/button/button.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
   interface Route {
@@ -106,6 +107,8 @@
 
   <!-- Mobile menu -->
   <div class="navbar-end flex lg:hidden">
+    <ThemeSelector />
+
     <div class="dropdown dropdown-left z-50">
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <label tabindex="0" class="btn btn-square btn-ghost">
@@ -128,7 +131,7 @@
 
         {#if $user}
           <li>
-            <button class="link" onclick={signout}> Sign out </button>
+            <Button variant="link" onclick={signout}>Sign out</Button>
           </li>
         {/if}
       </ul>
@@ -150,7 +153,7 @@
 
       {#if $user}
         <li>
-          <button class="btn btn-ghost" onclick={signout}> Sign out </button>
+          <Button variant="ghost" onclick={signout}>Sign out</Button>
         </li>
       {/if}
     </ul>

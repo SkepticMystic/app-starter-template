@@ -1,7 +1,8 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
   import Label from "$lib/components/daisyui/Label.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import type { Invitation } from "better-auth/plugins";
@@ -34,12 +35,7 @@
 <form class="flex flex-col gap-3">
   <div class="flex flex-wrap items-end gap-3">
     <Label lbl="Email">
-      <input
-        type="email"
-        class="input"
-        autocomplete="email"
-        bind:value={form.email}
-      />
+      <Input type="email" autocomplete="email" bind:value={form.email} />
     </Label>
 
     <Label lbl="Role">
@@ -54,13 +50,13 @@
       </select>
     </Label>
 
-    <button
+    <Button
       onclick={invite_member}
-      class="btn btn-secondary"
+      icon="lucide/plus-circle"
+      loading={$loader["invite_member"]}
       disabled={!form.email || any_loading($loader)}
     >
-      <Loading loading={$loader["invite_member"]} />
       Invite Member
-    </button>
+    </Button>
   </div>
 </form>

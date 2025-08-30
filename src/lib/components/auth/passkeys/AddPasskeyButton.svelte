@@ -1,7 +1,7 @@
 <script lang="ts">
   import { PasskeysClient } from "$lib/clients/passkeys.client";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import type { MaybePromise } from "$lib/interfaces";
   import { any_loading, Loader } from "$lib/utils/loader";
 
@@ -27,13 +27,11 @@
   };
 </script>
 
-<button
-  class="btn btn-secondary"
+<Button
   onclick={add_passkey}
+  icon="heroicons/finger-print"
   disabled={any_loading($loader)}
+  loading={$loader["add_passkey"]}
 >
-  <Loading loading={$loader["add_passkey"]}>
-    <Icon icon="heroicons/finger-print" />
-  </Loading>
   Add Passkey
-</button>
+</Button>

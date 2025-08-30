@@ -2,8 +2,8 @@
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
   import List from "$lib/components/daisyui/List.svelte";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
@@ -59,16 +59,14 @@
     </div>
 
     <div class="flex gap-0.5">
-      <button
+      <Button
+        variant="destructive"
         title="Unlink Account"
-        class="btn btn-square btn-warning"
+        icon="heroicons/link-slash"
         disabled={any_loading($loader)}
+        loading={$loader[`unlink_account:${item.provider_id}`]}
         onclick={() => unlink_account(item.provider_id)}
-      >
-        <Loading loading={$loader[`unlink_account:${item.provider_id}`]}>
-          <Icon icon="heroicons/link-slash" />
-        </Loading>
-      </button>
+      />
     </div>
   {/snippet}
 </List>

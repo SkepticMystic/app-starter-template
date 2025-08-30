@@ -1,4 +1,6 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
+  import * as Table from "$lib/components/ui/table/index.js";
+  import type { Item } from "$lib/utils/items.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
 
@@ -7,38 +9,36 @@
     data,
     header,
     footer,
-    class: klass = "table-pin-rows",
+    class: klass,
   }: {
-    data: T[];
+    data: Item<T>[];
     class?: ClassValue;
-    row: Snippet<[T, number]>;
+    row: Snippet<[Item<T>, number]>;
     header: Snippet<[]>;
     footer?: Snippet;
   } = $props();
 </script>
 
-<div
-  class="rounded-box border-base-content/10 bg-base-100 overflow-x-auto border"
->
-  <table class="table {klass}">
-    <thead>
-      <tr class="bg-base-200 shadow-sm">
-        {@render header()}
-      </tr>
-    </thead>
+<Table.Root class={klass}>
+  <Table.Header>
+    <Table.Row>
+      {@render header()}
+    </Table.Row>
+  </Table.Header>
 
-    <tbody class="">
-      {#each data as item, i (item.id)}
+  <Table.Body>
+    {#each data as item, i (item.id)}
+      <Table.Row>
         {@render row(item, i)}
-      {/each}
-    </tbody>
+      </Table.Row>
+    {/each}
+  </Table.Body>
 
-    {#if footer}
-      <tfoot>
-        <tr class="bg-base-200">
-          {@render footer()}
-        </tr>
-      </tfoot>
-    {/if}
-  </table>
-</div>
+  {#if footer}
+    <Table.Footer>
+      <Table.Row>
+        {@render footer()}
+      </Table.Row>
+    </Table.Footer>
+  {/if}
+</Table.Root>
