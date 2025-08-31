@@ -1,3 +1,4 @@
+import { getRequestEvent } from "$app/server";
 import { auth } from "$lib/auth";
 import { BetterAuthClient } from "$lib/auth-client";
 import type { IAccessControl } from "$lib/const/access_control.const";
@@ -18,7 +19,9 @@ type Options = {
 };
 
 /** Redirect to signin if not logged in. */
-export const get_session = async (request: Request, options?: Options) => {
+export const get_session = async (options?: Options) => {
+  const event = getRequestEvent();
+
   const resolved = {
     admin: false,
     email_verified: true,
@@ -26,9 +29,11 @@ export const get_session = async (request: Request, options?: Options) => {
     ...(options ?? {}),
   };
 
-  const redirect_uri = Url.strip_origin(new URL(request.url));
+  const redirect_uri = Url.strip_origin(new URL(event.url));
 
-  const session = await auth.api.getSession({ headers: request.headers });
+  const session = await auth.api.getSession({
+    headers: event.request.headers,
+  });
 
   if (!session) {
     redirect(302, App.url(ROUTES.AUTH_SIGNIN, { redirect_uri }));

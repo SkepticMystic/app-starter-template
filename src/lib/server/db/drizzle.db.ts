@@ -11,6 +11,7 @@ import {
   UserTable,
   VerificationTable,
 } from "./schema/auth.models";
+import { TaskTable } from "./schema/task.models";
 
 if (!DATABASE_URL) throw new Error("DATABASE_URL is not set");
 
@@ -19,6 +20,7 @@ const client = neon(DATABASE_URL);
 export const db = drizzle(client, {
   casing: "snake_case",
   schema: {
+    // Auth
     user: UserTable,
     account: AccountTable,
     session: SessionTable,
@@ -28,6 +30,6 @@ export const db = drizzle(client, {
     invitation: InvitationTable,
     passkey: PasskeyTable,
 
-    // Add other models here
+    task: TaskTable,
   },
 });

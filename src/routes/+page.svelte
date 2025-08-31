@@ -7,7 +7,8 @@
   <h1>{APP.NAME}</h1>
 
   <div class="my-14 flex flex-wrap gap-2">
-    <Button href="/profile">Profile</Button>
+    <Button href="/tasks">Tasks</Button>
+    <Button href="/profile" variant="secondary">Profile</Button>
     <Button href="/organization" variant="outline">Team</Button>
   </div>
 </div>

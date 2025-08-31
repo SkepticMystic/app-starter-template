@@ -22,7 +22,6 @@ import {
   organization,
   type GenericOAuthConfig,
   type Member,
-  type MemberInput,
   type Organization,
   type OrganizationInput,
 } from "better-auth/plugins";
@@ -93,6 +92,30 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60, // Cache duration in seconds
     },
+
+    additionalFields: {
+      // NOTE: These are set in the session create hook below
+      member_id: {
+        type: "string",
+        defaultValue: null,
+        fieldName: "member_id",
+        references: {
+          model: "member",
+          field: "id",
+          onDelete: "set null",
+        },
+      },
+      org_id: {
+        type: "string",
+        defaultValue: null,
+        fieldName: "org_id",
+        references: {
+          model: "organization",
+          field: "id",
+          onDelete: "set null",
+        },
+      },
+    },
   },
 
   rateLimit: {
@@ -115,12 +138,14 @@ export const auth = betterAuth({
             return { data: session };
           }
 
-          const activeOrganizationId = await get_or_create_org_id(session, ctx);
+          const data = await get_or_create_org_id(session, ctx);
 
           return {
             data: {
               ...session,
-              activeOrganizationId,
+
+              member_id: data?.member_id,
+              org_id: data?.org_id,
             },
           };
         },
@@ -307,27 +332,33 @@ export const auth = betterAuth({
 const get_or_create_org_id = async (
   session: Session,
   ctx: GenericEndpointContext,
-): Promise<string | null> => {
+): Promise<{
+  org_id: string;
+  member_id: string;
+} | null> => {
   // NOTE: Order is preserved when logging, so show ctx first
   const log = Log.child({
     ctx: "[auth.session.create.before]",
     userId: session.userId,
   });
 
-  const member = await ctx.context.adapter.findOne<
-    Pick<Member, "organizationId">
+  const existing_member = await ctx.context.adapter.findOne<
+    Pick<Member, "id" | "organizationId">
   >({
     model: "member",
-    select: ["organizationId"],
+    select: ["id", "organizationId"],
     where: [{ field: "userId", operator: "eq", value: session.userId }],
   });
 
-  if (member) {
+  if (existing_member) {
     log.debug(
-      { organizationId: member.organizationId },
+      { organizationId: existing_member.organizationId },
       "Found existing organization",
     );
-    return member.organizationId;
+    return {
+      member_id: existing_member.id,
+      org_id: existing_member.organizationId,
+    };
   }
 
   log.info("Creating new organization");
@@ -366,7 +397,7 @@ const get_or_create_org_id = async (
     return null;
   }
 
-  await ctx.context.adapter.create<MemberInput>({
+  const new_member = await ctx.context.adapter.create<Member>({
     model: "member",
     data: {
       role: "owner",
@@ -377,7 +408,10 @@ const get_or_create_org_id = async (
     },
   });
 
-  return org.id;
+  return {
+    org_id: org.id,
+    member_id: new_member.id,
+  };
 };
 
 // ====
