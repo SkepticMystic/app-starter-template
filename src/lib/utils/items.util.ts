@@ -12,8 +12,13 @@ const find = <T extends Record<string, unknown>>(
 const add = <T extends Record<string, unknown>>(
   items: Item<T>[],
   item: Item<T>,
+  options?: { front?: boolean },
 ): Item<T>[] => {
-  return [...items, item];
+  if (options?.front) {
+    return [item, ...items];
+  } else {
+    return [...items, item];
+  }
 };
 
 /** Patch an item by its ID */

@@ -36,13 +36,13 @@
 {:else}
   <Labeled label="Select Organization">
     <SingleSelect
-      on_value_select={set_active}
       disabled={$loader["set_active"]}
-      value={$session.data?.session.org_id ?? undefined}
+      value={$session.data?.session.activeOrganizationId ?? undefined}
       options={$organizations.data.map((org) => ({
         value: org.id,
         label: `${org.name} (${org.slug})`,
       }))}
+      on_value_select={set_active}
     />
   </Labeled>
 {/if}

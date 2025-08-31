@@ -7,25 +7,17 @@
   let {
     options,
     on_value_select,
-    on_option_select,
-    option = $bindable(),
     value = $bindable(),
     placeholder = "Select an option",
     ...rest_props
   }: Omit<SelectRootProps, "type" | "value" | "onValueChange"> & {
     value?: V;
-    option?: Option;
     options: Option[];
     placeholder?: string;
     on_value_select?: (value?: V) => void;
-    on_option_select?: (option?: Option) => void;
   } = $props();
 
-  if (value && !option) {
-    option = options.find((i) => i.value === value) as Option | undefined;
-  } else if (option && !value) {
-    value = option.value;
-  }
+  let option = $derived(options.find((i) => i.value === value));
 </script>
 
 <Select.Root
@@ -36,14 +28,12 @@
   items={options}
   onValueChange={(e) => {
     value = e as V;
-    option = options.find((i) => i.value === value) as Option | undefined;
 
-    on_option_select?.(option);
     on_value_select?.(value);
   }}
 >
-  <Select.Trigger class="w-fit max-w-sm" {placeholder}>
-    {option?.label ?? placeholder}
+  <Select.Trigger class="w-fit max-w-sm">
+    {option?.label ?? value ?? placeholder}
   </Select.Trigger>
 
   <Select.Content>

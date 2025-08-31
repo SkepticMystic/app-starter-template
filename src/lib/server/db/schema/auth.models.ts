@@ -60,7 +60,8 @@ export const SessionTable = pgTable(
     member_id: varchar().references(() => MemberTable.id, {
       onDelete: "set null",
     }),
-    org_id: varchar().references(() => OrganizationTable.id, {
+
+    activeOrganizationId: varchar().references(() => OrganizationTable.id, {
       onDelete: "set null",
     }),
 

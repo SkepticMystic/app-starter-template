@@ -105,16 +105,16 @@ export const auth = betterAuth({
           onDelete: "set null",
         },
       },
-      org_id: {
-        type: "string",
-        defaultValue: null,
-        fieldName: "org_id",
-        references: {
-          model: "organization",
-          field: "id",
-          onDelete: "set null",
-        },
-      },
+      // org_id: {
+      //   type: "string",
+      //   defaultValue: null,
+      //   fieldName: "org_id",
+      //   references: {
+      //     model: "organization",
+      //     field: "id",
+      //     onDelete: "set null",
+      //   },
+      // },
     },
   },
 
@@ -145,7 +145,7 @@ export const auth = betterAuth({
               ...session,
 
               member_id: data?.member_id,
-              org_id: data?.org_id,
+              activeOrganizationId: data?.org_id,
             },
           };
         },
@@ -239,6 +239,14 @@ export const auth = betterAuth({
       allowUserToCreateOrganization: false,
       cancelPendingInvitationsOnReInvite: true,
       requireEmailVerificationOnInvitation: true,
+
+      // schema: {
+      //   session: {
+      //     fields: {
+      //       activeOrganizationId: "org_id",
+      //     },
+      //   },
+      // },
 
       // Doesn't seem to do anything?
       // SOURCE: https://github.com/better-auth/better-auth/blob/eb691e213dbe44a3c177d10a2dfd2f39ace0bf98/packages/better-auth/src/plugins/organization/types.ts#L340
