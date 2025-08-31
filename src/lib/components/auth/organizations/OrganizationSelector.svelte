@@ -38,7 +38,7 @@
     <SingleSelect
       on_value_select={set_active}
       disabled={$loader["set_active"]}
-      value={$session.data?.session.activeOrganizationId ?? undefined}
+      value={$session.data?.session.org_id ?? undefined}
       options={$organizations.data.map((org) => ({
         value: org.id,
         label: `${org.name} (${org.slug})`,
