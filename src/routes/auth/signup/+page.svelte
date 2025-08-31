@@ -3,6 +3,7 @@
   import GenericOAuthSigninButton from "$lib/components/auth/GenericOAuthSigninButton.svelte";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
   import Card from "$lib/components/Card.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
@@ -48,7 +49,9 @@
 
       <ul>
         <li>
-          <a class="link" href={ROUTES.AUTH_SIGNIN}>Sign in instead</a>
+          <Button size="sm" variant="link" href={ROUTES.AUTH_SIGNIN}>
+            Sign in instead
+          </Button>
         </li>
       </ul>
     </div>

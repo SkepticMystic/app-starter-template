@@ -4,6 +4,7 @@
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
+  import Card from "$lib/components/Card.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
@@ -42,12 +43,18 @@
   </div>
 
   {#if accounts.find((acc) => acc.provider === "credential")}
-    <div>
-      <ChangePassword />
-    </div>
+    <Card
+      class="max-w-xs"
+      title="Change Password"
+      description="Change your account password."
+    >
+      {#snippet content()}
+        <ChangePassword form_input={data.forms.change_password_form_input} />
+      {/snippet}
+    </Card>
   {/if}
 
-  <div class="divider">
+  <div class="flex items-center gap-3">
     <h2>Passkeys</h2>
     <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
     <AddPasskeyButton
@@ -65,12 +72,8 @@
     <p>No passkeys added yet.</p>
   {/if}
 
-  <div class="divider">
-    <h2>Accounts</h2>
-  </div>
+  <h2>Accounts</h2>
   <UserAccountsList bind:accounts />
-
-  <div class="divider"></div>
 
   <Button
     variant="destructive"

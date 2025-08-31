@@ -49,7 +49,7 @@
   {#snippet row(item)}
     <Icon icon={item.icon} size="size-7" />
 
-    <div>
+    <div class="grow">
       <p class="text-lg">
         {item.name}
       </p>

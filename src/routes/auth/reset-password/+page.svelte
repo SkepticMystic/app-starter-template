@@ -1,9 +1,9 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Labeled from "$lib/components/ui/label/Labeled.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
@@ -47,14 +47,14 @@
 {#if data.search.token}
   <form onsubmit={preventDefault(reset_password)} class="flex flex-col gap-3">
     <Fieldset legend="Reset password">
-      <Label lbl="New Password">
+      <Labeled label="New Password">
         <Input
           type="password"
           placeholder="New Password"
           autocomplete="new-password"
           bind:value={form.new_password}
         />
-      </Label>
+      </Labeled>
     </Fieldset>
 
     <Button

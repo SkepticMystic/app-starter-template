@@ -16,4 +16,9 @@ export const AuthSchema = {
     password: z.string(), // NOTE: Better-auth will do validation, so no need to do it here
     remember: z.boolean().default(false),
   }),
+
+  change_password_form: z.object({
+    current_password: z.string(),
+    new_password: z.string(),
+  }),
 };

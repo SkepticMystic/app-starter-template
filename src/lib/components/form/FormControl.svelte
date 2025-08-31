@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Control, Label } from "$lib/components/ui/form/index.js";
+  import { Control } from "$lib/components/ui/form/index.js";
   import type { ComponentProps } from "svelte";
+  import LabelWrapper from "../ui/label/Labeled.svelte";
 
   let {
     label,
@@ -16,16 +17,8 @@
 
 <Control {...control_props}>
   {#snippet children({ props: input_props })}
-    <div
-      class={[
-        horizontal
-          ? "flex flex-row-reverse items-center justify-end gap-2"
-          : "flex flex-col gap-2",
-      ]}
-    >
-      <Label>{label}</Label>
-
+    <LabelWrapper is_form {label} {horizontal}>
       {@render input_children?.({ props: input_props })}
-    </div>
+    </LabelWrapper>
   {/snippet}
 </Control>

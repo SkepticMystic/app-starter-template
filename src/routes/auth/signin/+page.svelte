@@ -4,6 +4,7 @@
   import PasskeySigninButton from "$lib/components/auth/passkeys/PasskeySigninButton.svelte";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
   import Card from "$lib/components/Card.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
@@ -48,13 +49,15 @@
 
       <ul>
         <li>
-          <a class="link" href={ROUTES.AUTH_SIGNUP}>Signup instead</a>
+          <Button size="sm" variant="link" href={ROUTES.AUTH_FORGOT_PASSWORD}>
+            Forgot password?
+          </Button>
         </li>
 
         <li>
-          <a class="link" href={ROUTES.AUTH_FORGOT_PASSWORD}>
-            Forgot password?
-          </a>
+          <Button size="sm" variant="link" href={ROUTES.AUTH_SIGNUP}>
+            Don't have an account? Sign up
+          </Button>
         </li>
       </ul>
     </div>

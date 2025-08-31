@@ -1,8 +1,9 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Label from "$lib/components/daisyui/Label.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Labeled from "$lib/components/ui/label/Labeled.svelte";
+  import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import type { Invitation } from "better-auth/plugins";
@@ -34,25 +35,20 @@
 
 <form class="flex flex-col gap-3">
   <div class="flex flex-wrap items-end gap-3">
-    <Label lbl="Email">
+    <Labeled label="Email">
       <Input type="email" autocomplete="email" bind:value={form.email} />
-    </Label>
+    </Labeled>
 
-    <Label lbl="Role">
-      <select class="select" bind:value={form.role}>
-        {#each ORGANIZATION.ROLES.IDS as role_id (role_id)}
-          {@const role = ORGANIZATION.ROLES.MAP[role_id]}
-
-          <option value={role_id}>
-            {role.name}
-          </option>
-        {/each}
-      </select>
-    </Label>
+    <Labeled label="Role">
+      <SingleSelect
+        options={ORGANIZATION.ROLES.OPTIONS}
+        bind:value={form.role}
+      />
+    </Labeled>
 
     <Button
       onclick={invite_member}
-      icon="lucide/plus-circle"
+      icon="lucide/user-plus"
       loading={$loader["invite_member"]}
       disabled={!form.email || any_loading($loader)}
     >

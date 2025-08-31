@@ -3,15 +3,11 @@
   import { APP } from "$lib/const/app.js";
 </script>
 
-<div class="hero mt-32">
-  <div class="hero-content text-center">
-    <div class="max-w-lg">
-      <h1>{APP.NAME}</h1>
+<div class="mx-auto mt-32 flex max-w-lg flex-col items-center">
+  <h1>{APP.NAME}</h1>
 
-      <div class="my-14 flex flex-wrap justify-center gap-5">
-        <Button href="/projects">Projects</Button>
-        <Button href="/about" variant="outline">About</Button>
-      </div>
-    </div>
+  <div class="my-14 flex flex-wrap gap-2">
+    <Button href="/profile">Profile</Button>
+    <Button href="/organization" variant="outline">Team</Button>
   </div>
 </div>

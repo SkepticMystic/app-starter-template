@@ -1,9 +1,9 @@
 <script lang="ts">
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Labeled from "$lib/components/ui/label/Labeled.svelte";
   import { any_loading, Loader } from "$lib/utils/loader";
   import type { Passkey } from "better-auth/plugins/passkey";
   import { preventDefault } from "svelte/legacy";
@@ -38,9 +38,9 @@
 <form onsubmit={preventDefault(update_passkey)}>
   <Fieldset legend="Update Passkey">
     <div class="space-y-3">
-      <Label lbl="Name">
+      <Labeled label="Name">
         <Input type="text" placeholder="Name" bind:value={dirty.name} />
-      </Label>
+      </Labeled>
 
       <Button
         type="submit"

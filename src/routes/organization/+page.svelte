@@ -13,25 +13,21 @@
 
   <OrganizationSelector />
 
-  <div class="space-y-5">
-    <div class="divider">
-      <h2>Members</h2>
-    </div>
+  <div class="space-y-3">
+    <h2>Members</h2>
 
-    <InviteOrganizationMemberForm
-      on_invite={(invitiation) => {
-        invitations = [invitiation, ...invitations];
-      }}
-    />
     <OrganizationMembersList bind:members />
   </div>
 
   {#if invitations.length}
-    <div>
-      <div class="divider">
-        <h2>Invites</h2>
-      </div>
+    <div class="space-y-3">
+      <h2>Invites</h2>
 
+      <InviteOrganizationMemberForm
+        on_invite={(invitiation) => {
+          invitations = [invitiation, ...invitations];
+        }}
+      />
       <OrganizationInvitationsTable bind:invitations />
     </div>
   {/if}

@@ -1,4 +1,3 @@
-/// <reference types="@sveltejs/kit" />
 declare global {
   namespace App {
     interface PageData {
@@ -8,5 +7,14 @@ declare global {
         image_url?: string;
       };
     }
+
+    namespace Superforms {
+      type Message = import("$lib/interfaces/index").Result<
+        string | undefined,
+        string | undefined
+      >;
+    }
   }
 }
+
+export {};

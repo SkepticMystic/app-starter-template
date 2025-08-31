@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/state";
   import FormControl from "$lib/components/form/FormControl.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
@@ -25,10 +24,9 @@
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
   const form = superForm(form_input, {
-    validators: zod4Client(AuthSchema.signin_form),
-
     delayMs: 500,
     timeoutMs: 8_000,
+    validators: zod4Client(AuthSchema.signin_form),
 
     onResult: ({ result }) => {
       if (result.type === "redirect") {
@@ -37,7 +35,7 @@
     },
   });
 
-  const { form: form_data, enhance, submitting, delayed } = form;
+  const { form: form_data, enhance, message, submitting, delayed } = form;
 </script>
 
 <form class="space-y-4" method="POST" use:enhance>
@@ -107,7 +105,7 @@
     Signup with {provider.name}
   </FormButton>
 
-  {#if page.form?.message}
-    <p class="text-warning">{page.form?.message}</p>
+  {#if $message && !$message.ok}
+    <p class="text-warning">{$message.error}</p>
   {/if}
 </form>

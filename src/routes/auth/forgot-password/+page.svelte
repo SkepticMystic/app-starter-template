@@ -1,9 +1,9 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
   import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Labeled from "$lib/components/ui/label/Labeled.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-sonner";
@@ -33,14 +33,14 @@
 
 <form onsubmit={preventDefault(forgotPassword)} class="flex flex-col gap-3">
   <Fieldset legend="Forgot password">
-    <Label lbl="Email">
+    <Labeled label="Email">
       <Input
         type="email"
         placeholder="Email"
         autocomplete="email"
         bind:value={form.email}
       />
-    </Label>
+    </Labeled>
   </Fieldset>
 
   <Button

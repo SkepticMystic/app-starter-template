@@ -16,11 +16,14 @@
   } = $props();
 </script>
 
-<ul class="list {klass} rounded-box bg-base-100 border shadow-md" role="list">
+<ul class="{klass} bg-base-100 rounded-md border shadow" role="list">
   {@render header?.()}
 
   {#each items as item, i (item.id)}
-    <li class="list-row items-center px-3 py-3" role="listitem">
+    <li
+      role="listitem"
+      class="flex items-center gap-2 border-b px-3 py-3 last:border-0"
+    >
       {@render row(item, i)}
     </li>
   {/each}

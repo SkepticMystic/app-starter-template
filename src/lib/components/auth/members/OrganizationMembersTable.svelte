@@ -4,7 +4,7 @@
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Select from "$lib/components/ui/select/select.svelte";
+  import Select from "$lib/components/ui/select/SingleSelect.svelte";
   import TableCell from "$lib/components/ui/table/table-cell.svelte";
   import TableHead from "$lib/components/ui/table/table-head.svelte";
   import {
@@ -79,15 +79,13 @@
 
     <TableCell>
       <Select
-        type="single"
         value={member.role}
+        options={ORGANIZATION.ROLES.OPTIONS}
         disabled={$loader[`update_member_role:${member.id}`]}
-        items={ORGANIZATION.ROLES.IDS.map((id) => ({
-          value: id,
-          label: ORGANIZATION.ROLES.MAP[id].name,
-        }))}
-        onValueChange={(value) =>
-          update_member_role(member.id, value as IOrganization.RoleId)}
+        on_value_select={(value) => {
+          if (!value || value === member.role) return;
+          update_member_role(member.id, value as IOrganization.RoleId);
+        }}
       ></Select>
     </TableCell>
 

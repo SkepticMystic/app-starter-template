@@ -1,12 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { BetterAuthClient } from "$lib/auth-client";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
-  import Icon from "../icons/Icon.svelte";
   import Button from "../ui/button/button.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
@@ -20,18 +20,6 @@
   }
 
   const routes: Route[] = [
-    {
-      side: "center",
-      label: "Tasks",
-      href: "/tasks",
-      authed: true,
-    },
-    {
-      side: "center",
-      label: "Projects",
-      href: "/projects",
-      authed: true,
-    },
     {
       side: "right",
       label: "Team",
@@ -77,85 +65,63 @@
     return true;
   };
 
-  const signout = () => {
+  const signout = () =>
     BetterAuthClient.signOut({
       fetchOptions: {
-        onSuccess: () =>
-          goto(App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.SIGNED_OUT })),
+        onError: (error) => {
+          console.error("Error signing out:", error);
+          alert("Error signing out. Please try again.");
+        },
+        onSuccess: () => {
+          goto(
+            App.url(ROUTES.AUTH_SIGNIN, {
+              toast: TOAST.IDS.SIGNED_OUT,
+            }),
+          );
+        },
       },
     });
-  };
 </script>
 
-<nav class="navbar bg-base-100 px-5">
-  <div class="navbar-start">
-    <a href="/" class="btn btn-ghost text-xl normal-case">{APP.NAME}</a>
+<nav
+  class="bg-base-100 mx-auto flex h-16 max-w-5xl items-center justify-between"
+>
+  <div>
+    <Button href="/" size="lg" variant="link">
+      {APP.NAME}
+    </Button>
   </div>
 
-  <div class="navbar-center hidden lg:flex">
-    <ul class="flex items-center gap-5">
-      {#each routes as r (r.href)}
-        {#if show_route($user, r, "center")}
-          {@const { href, label } = r}
-          <li>
-            <a class="link" {href}>{label}</a>
-          </li>
-        {/if}
-      {/each}
-    </ul>
-  </div>
-
-  <!-- Mobile menu -->
-  <div class="navbar-end flex lg:hidden">
+  <div class="mr-3 flex gap-1">
     <ThemeSelector />
 
-    <div class="dropdown dropdown-left z-50">
-      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <label tabindex="0" class="btn btn-square btn-ghost">
-        <Icon icon="heroicons/bars-3" />
-      </label>
-      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <ul
-        tabindex="0"
-        class="menu-compact dropdown-content menu rounded-box bg-base-100 mt-3 w-40 p-2 shadow-sm"
-      >
-        <!-- Shows all routes, not just those for a given `side` -->
-        {#each routes as r (r.href)}
-          {#if show_route($user, r)}
-            {@const { href, label } = r}
-            <li>
-              <a class="link" {href}>{label}</a>
-            </li>
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger>
+        {#snippet child({ props })}
+          <Button {...props} variant="outline" icon="lucide/menu"></Button>
+        {/snippet}
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Content>
+        <DropdownMenu.Group>
+          <DropdownMenu.Label>My Account</DropdownMenu.Label>
+
+          <DropdownMenu.Separator />
+
+          {#each routes as r (r.href)}
+            {#if show_route($user, r)}
+              {@const { href, label } = r}
+              <DropdownMenu.Item onSelect={() => goto(href)}>
+                {label}
+              </DropdownMenu.Item>
+            {/if}
+          {/each}
+
+          {#if $user}
+            <DropdownMenu.Item onSelect={signout}>Sign out</DropdownMenu.Item>
           {/if}
-        {/each}
-
-        {#if $user}
-          <li>
-            <Button variant="link" onclick={signout}>Sign out</Button>
-          </li>
-        {/if}
-      </ul>
-    </div>
-  </div>
-
-  <div class="navbar-end hidden lg:flex">
-    <ul class="flex items-center gap-1">
-      <ThemeSelector />
-
-      {#each routes as r (r.href)}
-        {#if show_route($user, r, "right")}
-          {@const { href, label } = r}
-          <li>
-            <a class="btn btn-ghost" {href}>{label}</a>
-          </li>
-        {/if}
-      {/each}
-
-      {#if $user}
-        <li>
-          <Button variant="ghost" onclick={signout}>Sign out</Button>
-        </li>
-      {/if}
-    </ul>
+        </DropdownMenu.Group>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   </div>
 </nav>

@@ -1,69 +1,82 @@
 <script lang="ts">
-  import { BetterAuthClient } from "$lib/auth-client";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Label from "$lib/components/daisyui/Label.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import FormControl from "$lib/components/form/FormControl.svelte";
+  import * as Form from "$lib/components/ui/form/index.js";
   import Input from "$lib/components/ui/input/input.svelte";
-  import { any_loading, Loader } from "$lib/utils/loader";
+  import { AuthSchema } from "$lib/schema/auth.schema";
   import { toast } from "svelte-sonner";
-  import { preventDefault } from "svelte/legacy";
+  import {
+    superForm,
+    type Infer,
+    type SuperValidated,
+  } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
 
-  let form = $state({
-    new_password: "",
-    current_password: "",
+  let {
+    form_input,
+  }: {
+    form_input: SuperValidated<Infer<typeof AuthSchema.change_password_form>>;
+  } = $props();
+
+  const form = superForm(form_input, {
+    delayMs: 500,
+    timeoutMs: 8_000,
+    validators: zod4Client(AuthSchema.change_password_form),
+
+    onUpdated({ form }) {
+      if (form.message?.ok && form.message.data) {
+        toast.success(form.message.data);
+      }
+    },
   });
 
-  const loader = Loader<"change-pwd">();
-
-  const changePassword = async () => {
-    toast.dismiss();
-    loader.load("change-pwd");
-
-    const res = await BetterAuthClient.changePassword({
-      revokeOtherSessions: true,
-      newPassword: form.new_password,
-      currentPassword: form.current_password,
-    });
-
-    if (res.data) {
-      toast.success("Password changed successfully.");
-    } else {
-      toast.error("Failed to change password: " + res.error.message);
-    }
-
-    loader.reset();
-  };
+  const { form: form_data, message, enhance, submitting, delayed } = form;
 </script>
 
-<form onsubmit={preventDefault(changePassword)}>
-  <Fieldset legend="Change password">
-    <div class="space-y-3">
-      <Label lbl="Current Password">
+<form class="space-y-4" method="POST" action="?/change-password" use:enhance>
+  <Form.Field {form} name="current_password">
+    <FormControl label="Current Password">
+      {#snippet children({ props })}
         <Input
+          {...props}
+          required
           type="password"
           autocomplete="current-password"
-          bind:value={form.current_password}
+          bind:value={$form_data.current_password}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <Label lbl="Confirm Password">
+    <Form.FieldErrors />
+  </Form.Field>
+
+  <Form.Field {form} name="new_password">
+    <FormControl label="New Password">
+      {#snippet children({ props })}
         <Input
+          {...props}
+          required
           type="password"
           autocomplete="new-password"
-          bind:value={form.new_password}
+          bind:value={$form_data.new_password}
         />
-      </Label>
+      {/snippet}
+    </FormControl>
 
-      <Button
-        type="submit"
-        icon="heroicons/lock-closed"
-        loading={$loader["change-pwd"]}
-        disabled={!form.current_password ||
-          !form.new_password ||
-          any_loading($loader)}
-      >
-        Change Password
-      </Button>
-    </div>
-  </Fieldset>
+    <Form.FieldErrors />
+  </Form.Field>
+
+  <Form.Button
+    class="w-full"
+    loading={$delayed}
+    disabled={$submitting}
+    icon="heroicons/lock-closed"
+  >
+    Change Password
+  </Form.Button>
+
+  {#if $message && !$message.ok}
+    <p class="text-warning">
+      {$message.error}
+    </p>
+  {/if}
 </form>
