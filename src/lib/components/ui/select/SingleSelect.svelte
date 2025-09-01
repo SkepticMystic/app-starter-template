@@ -6,6 +6,8 @@
 
   let {
     options,
+    loading,
+    disabled,
     on_value_select,
     value = $bindable(),
     placeholder = "Select an option",
@@ -13,6 +15,7 @@
   }: Omit<SelectRootProps, "type" | "value" | "onValueChange"> & {
     value?: V;
     options: Option[];
+    loading?: boolean;
     placeholder?: string;
     on_value_select?: (value?: V) => void;
   } = $props();
@@ -26,13 +29,14 @@
   {value}
   type="single"
   items={options}
+  disabled={disabled || loading}
   onValueChange={(e) => {
     value = e as V;
 
     on_value_select?.(value);
   }}
 >
-  <Select.Trigger class="w-fit max-w-sm">
+  <Select.Trigger {loading} class="w-fit max-w-sm">
     {option?.label ?? value ?? placeholder}
   </Select.Trigger>
 

@@ -9,17 +9,25 @@
     data,
     header,
     footer,
+    caption,
     class: klass,
   }: {
     data: Item<T>[];
     class?: ClassValue;
     row: Snippet<[Item<T>, number]>;
+    caption?: Snippet;
     header: Snippet<[]>;
     footer?: Snippet;
   } = $props();
 </script>
 
 <Table.Root class={klass}>
+  {#if caption}
+    <Table.Caption>
+      {@render caption()}
+    </Table.Caption>
+  {/if}
+
   <Table.Header>
     <Table.Row>
       {@render header()}

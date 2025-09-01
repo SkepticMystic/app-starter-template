@@ -1,3 +1,4 @@
+import { ORGANIZATION } from "$lib/const/organization.const";
 import z from "zod";
 
 export const AuthSchema = {
@@ -21,4 +22,11 @@ export const AuthSchema = {
     current_password: z.string(),
     new_password: z.string(),
   }),
+
+  Org: {
+    member_invite_form: z.object({
+      email: z.email("Invalid email address"),
+      role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
+    }),
+  },
 };

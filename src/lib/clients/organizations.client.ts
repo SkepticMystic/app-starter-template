@@ -52,26 +52,6 @@ export const OrganizationsClient = {
       { toast: { suc: "Organization deleted successfully." } },
     ),
 
-  invite_member: (input: {
-    email: string;
-    role: "member" | "admin" | "owner";
-  }) =>
-    Client.request(
-      async () => {
-        const res = await BetterAuthClient.organization.inviteMember(input);
-
-        if (res.data) {
-          return suc(res.data);
-        } else {
-          console.warn("Failed to invite member:", res.error);
-          return err(
-            res.error?.message ?? "Failed to invite member. Please try again.",
-          );
-        }
-      },
-      { toast: { suc: "Member invited successfully." } },
-    ),
-
   accept_invitation: (invitationId: string) =>
     Client.request(
       async () => {

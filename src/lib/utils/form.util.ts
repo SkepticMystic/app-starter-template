@@ -16,25 +16,29 @@ import {
 } from "sveltekit-superforms/adapters";
 import { err } from "./result.util";
 
-export type FormCommandResult<Out extends Record<string, unknown>> =
-  ActionResult<
-    {
-      form: SuperValidated<Out>;
-      toast?: string;
-    },
-    {
-      form: SuperValidated<Out>;
-      /** Optionally pass a message to show at the bottom of the form (instead of in a FormFieldErrors)
-       * This can be used to pass non-validation-error messages, e.g. "Internal server error, please try again later."
-       */
-      message?: App.Superforms.Message;
-    }
-  >;
+export type FormCommandResult<
+  Out extends Record<string, unknown>,
+  D extends Record<string, unknown> = Record<string, never>,
+> = ActionResult<
+  {
+    form: SuperValidated<Out>;
+    toast?: string;
+    data: D;
+  },
+  {
+    form: SuperValidated<Out>;
+    /** Optionally pass a message to show at the bottom of the form (instead of in a FormFieldErrors)
+     * This can be used to pass non-validation-error messages, e.g. "Internal server error, please try again later."
+     */
+    message?: Extract<App.Superforms.Message, { ok: false }>["error"];
+  }
+>;
 
 export function make_super_form<
   S extends ZodValidationSchema,
   Out extends Infer<S, "zod4">,
   In extends InferIn<S, "zod4">,
+  D extends Record<string, unknown> = Record<string, never>,
 >(
   form: SuperValidated<Out, App.Superforms.Message, In>,
   schema: S,
@@ -47,11 +51,11 @@ export function make_super_form<
     onResult,
     ...rest
   }: FormOptions<Out, App.Superforms.Message, In> & {
-    remote?: (data: Out) => Promise<FormCommandResult<Out>>;
+    remote?: (data: Out) => Promise<FormCommandResult<Out, D>>;
 
     handle?: {
       [T in ActionResult["type"]]?: (
-        result: Extract<FormCommandResult<Out>, { type: T }>,
+        result: Extract<FormCommandResult<Out, D>, { type: T }>,
       ) => MaybePromise<void>;
     };
   } = {},
@@ -111,7 +115,9 @@ export function make_super_form<
           // Otherwise it's probably just a validation failure,
           // which the client already knows about.
           // (What I mean is, we could _build_ a message from form.errors)
-          super_form.message.set(result.data?.message);
+          super_form.message.set(
+            result.data?.message ? err(result.data.message) : undefined,
+          );
 
           pending.set(false);
         } else if (result.type === "error") {

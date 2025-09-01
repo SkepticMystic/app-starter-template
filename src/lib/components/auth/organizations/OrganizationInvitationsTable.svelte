@@ -53,7 +53,7 @@
     </TableCell>
 
     <TableCell>
-      {ORGANIZATION.ROLES.MAP[invitation.role as IOrganization.RoleId].name}
+      {ORGANIZATION.ROLES.MAP[invitation.role as IOrganization.RoleId].label}
     </TableCell>
 
     <TableCell>
@@ -61,7 +61,7 @@
     </TableCell>
 
     <TableCell>
-      {ORGANIZATION.INVITATIONS.STATUSES.MAP[invitation.status].name}
+      {ORGANIZATION.INVITATIONS.STATUSES.MAP[invitation.status].label}
     </TableCell>
 
     <TableCell>

@@ -88,7 +88,7 @@ export const create_task = command(
 
       return {
         type: "failure",
-        ...fail(500, { form, message: err("Failed to create task") }),
+        ...fail(500, { form, message: "Failed to create task" }),
       };
     }
   },

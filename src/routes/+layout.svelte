@@ -103,7 +103,14 @@
   </Loading>
 </main>
 
+
+
+<!-- NOTE: I struggled to get shad semantic classes working to style the toasts
+ It's possible to apply them, but only when toastOptions.unstyled: true
+ And then ALL other styles are removed... 
+ So, richColors for now -->
 <Toaster 
+  richColors
   theme={mode.current}
   closeButton={true}
   duration={10_000}

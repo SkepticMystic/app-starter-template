@@ -88,7 +88,7 @@
     Signin with {provider.name}
   </Form.Button>
 
-  {#if $message && !$message.ok}
+  {#if $message && !$message.ok && $message.error}
     <p class="text-warning">{$message.error}</p>
   {/if}
 </form>

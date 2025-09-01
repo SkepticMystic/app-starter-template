@@ -15,7 +15,7 @@ export const MembersClient = {
       async () => {
         if (
           !confirm(
-            `Are you sure you want to update this member's role to ${ORGANIZATION.ROLES.MAP[target_role_id].name}?`,
+            `Are you sure you want to update this member's role to ${ORGANIZATION.ROLES.MAP[target_role_id].label}?`,
           )
         ) {
           return err();

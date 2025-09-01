@@ -81,7 +81,7 @@
       <Select
         value={member.role}
         options={ORGANIZATION.ROLES.OPTIONS}
-        disabled={$loader[`update_member_role:${member.id}`]}
+        loading={$loader[`update_member_role:${member.id}`]}
         on_value_select={(value) => {
           if (!value || value === member.role) return;
           update_member_role(member.id, value as IOrganization.RoleId);

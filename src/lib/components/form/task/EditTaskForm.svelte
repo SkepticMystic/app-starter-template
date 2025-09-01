@@ -35,23 +35,23 @@
   const { form: form_data, message, enhance, pending } = form;
 </script>
 
-<form class="space-y-4" method="POST" use:enhance>
-  <Form.Field {form} name="title">
-    <FormControl label="Title">
-      {#snippet children({ props })}
-        <Input
-          {...props}
-          required
-          placeholder="Task title"
-          bind:value={$form_data.title}
-        />
-      {/snippet}
-    </FormControl>
+<form class="space-y-2" method="POST" use:enhance>
+  <div class="flex gap-x-2">
+    <Form.Field {form} class="grow" name="title">
+      <FormControl label="Title">
+        {#snippet children({ props })}
+          <Input
+            {...props}
+            required
+            placeholder="Task title"
+            bind:value={$form_data.title}
+          />
+        {/snippet}
+      </FormControl>
 
-    <Form.FieldErrors />
-  </Form.Field>
+      <Form.FieldErrors />
+    </Form.Field>
 
-  <div class="flex gap-x-4">
     <Form.Field {form} name="status">
       <FormControl label="Status">
         {#snippet children({ props })}

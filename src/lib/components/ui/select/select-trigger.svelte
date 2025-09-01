@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Loading from "$lib/components/daisyui/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import { cn, type WithoutChild } from "$lib/utils/shadcn.util.js";
   import { Select as SelectPrimitive } from "bits-ui";
@@ -8,9 +9,11 @@
     class: className,
     children,
     size = "default",
+    loading,
     ...restProps
   }: WithoutChild<SelectPrimitive.TriggerProps> & {
     size?: "sm" | "default";
+    loading?: boolean;
   } = $props();
 </script>
 
@@ -26,5 +29,7 @@
 >
   {@render children?.()}
 
-  <Icon icon="lucide/chevron-down" class="size-4 opacity-50" />
+  <Loading {loading} class="size-4 opacity-50">
+    <Icon icon="lucide/chevron-down" class="size-4 opacity-50" />
+  </Loading>
 </SelectPrimitive.Trigger>
