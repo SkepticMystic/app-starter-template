@@ -331,11 +331,6 @@ export const auth = betterAuth({
 
 // !SECTION
 
-//  TODO:
-//  - Database indexes: https://www.better-auth.com/docs/guides/optimizing-for-performance#recommended-fields-to-index
-
-// ===
-
 // SECTION: Helper functions
 const get_or_create_org_id = async (
   session: Session,

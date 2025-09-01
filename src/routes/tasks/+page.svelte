@@ -15,63 +15,71 @@
   const tasks_query = get_tasks({});
 </script>
 
-<h1>Tasks</h1>
+<div class="space-y-4">
+  <h1>Tasks</h1>
 
-<Card title="Create Task" description="Create a new task item">
-  {#snippet content()}
-    <EditTaskForm form_input={data.form_input} />
-  {/snippet}
-</Card>
-
-{#await tasks_query}
-  <Loading loading />
-{:then tasks}
-  <List items={tasks}>
-    {#snippet row(task)}
-      <div>
-        <Icon
-          icon={task.status === "completed"
-            ? "lucide/check"
-            : task.status === "in_progress"
-              ? "lucide/clock"
-              : task.status === "pending"
-                ? "lucide/pause"
-                : "lucide/archive"}
-        />
-      </div>
-
-      <div class="flex grow flex-col">
-        <a href="/tasks/{task.id}">
-          {task.title}
-        </a>
-
-        <span class="text-sm text-muted-foreground">
-          {task.description}
-        </span>
-      </div>
-
-      <div>
-        {Dates.show_date(task.due_date)}
-      </div>
-
-      <div>
-        <Button
-          variant="destructive"
-          icon="lucide/x"
-          onclick={() => {
-            try {
-              delete_task(task.id).updates(
-                tasks_query.withOverride((old) => Items.remove(old, task.id)),
-              );
-            } catch (error) {
-              console.log("Error deleting task", error);
-              toast.error("Error deleting task");
-            }
-          }}
-        ></Button>
-      </div>
+  <Card title="Create Task" description="Create a new task item">
+    {#snippet content()}
+      <EditTaskForm form_input={data.form_input} />
     {/snippet}
-  </List>
-{:catch _error}
-  <p class="text-warning">Error loading tasks</p>
-{/await}
+  </Card>
+
+  {#await tasks_query}
+    <Loading loading />
+  {:then tasks}
+    <List items={tasks}>
+      {#snippet row(task)}
+        <div>
+          <Icon
+            icon={task.status === "completed"
+              ? "lucide/check"
+              : task.status === "in_progress"
+                ? "lucide/clock"
+                : task.status === "pending"
+                  ? "lucide/pause"
+                  : "lucide/archive"}
+          />
+        </div>
+
+        <div class="flex grow flex-col">
+          <a href="/tasks/{task.id}">
+            {task.title}
+          </a>
+
+          <span class="text-sm text-muted-foreground">
+            {task.description}
+          </span>
+        </div>
+
+        <div>
+          {Dates.show_date(task.due_date)}
+        </div>
+
+        <div>
+          <Button
+            variant="destructive"
+            icon="lucide/x"
+            onclick={() => {
+              try {
+                delete_task(task.id)
+                  .updates(
+                    tasks_query.withOverride((old) =>
+                      Items.remove(old, task.id),
+                    ),
+                  )
+                  .then(() => {
+                    toast.success("Task deleted");
+                  });
+              } catch (error) {
+                console.log("Error deleting task", error);
+                toast.error("Error deleting task");
+              }
+            }}
+          ></Button>
+        </div>
+      {/snippet}
+    </List>
+  {:catch _error}
+    <p class="text-warning">Error loading tasks</p>
+  {/await}
+</div>

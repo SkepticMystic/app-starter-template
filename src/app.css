@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/forms";
 
 @plugin "@iconify/tailwind4" {
-  prefixes: mdi, heroicons, devicon-plain, lucide;
+  prefixes: heroicons, devicon-plain, lucide;
   backgroundselector: ".icon-bg";
   maskselector: ".icon";
   iconselector: ".{prefix}/{name}";

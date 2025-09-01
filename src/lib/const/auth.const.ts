@@ -37,7 +37,7 @@ const PROVIDER_MAP: Record<
   },
   "pocket-id": {
     name: "Pocket ID",
-    icon: "mdi/pocket",
+    icon: "lucide/pocket",
 
     is_oidc: true,
     is_social: false,

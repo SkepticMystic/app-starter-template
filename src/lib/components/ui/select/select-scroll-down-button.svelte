@@ -1,7 +1,7 @@
 <script lang="ts">
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  import { Select as SelectPrimitive } from "bits-ui";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import { Select as SelectPrimitive } from "bits-ui";
 
   let {
     ref = $bindable(null),
@@ -16,5 +16,5 @@
   class={cn("flex cursor-default items-center justify-center py-1", className)}
   {...restProps}
 >
-  <ChevronDownIcon class="size-4" />
+  <Icon icon="lucide/chevron-down" class="size-4" />
 </SelectPrimitive.ScrollDownButton>

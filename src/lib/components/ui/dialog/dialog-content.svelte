@@ -1,9 +1,9 @@
 <script lang="ts">
+  import Icon from "$lib/components/icons/Icon.svelte";
+  import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
   import { Dialog as DialogPrimitive } from "bits-ui";
-  import XIcon from "@lucide/svelte/icons/x";
   import type { Snippet } from "svelte";
   import * as Dialog from "./index.js";
-  import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
 
   let {
     ref = $bindable(null),
@@ -35,7 +35,7 @@
       <DialogPrimitive.Close
         class="absolute end-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
       >
-        <XIcon />
+        <Icon icon="lucide/x" />
         <span class="sr-only">Close</span>
       </DialogPrimitive.Close>
     {/if}
