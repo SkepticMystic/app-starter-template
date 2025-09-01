@@ -8,11 +8,13 @@
     class: klass = "",
   }: {
     bg?: boolean;
-    icon: ClassValue;
+    icon?: ClassValue;
     class?: ClassValue;
     size?: `size-${number}`;
   } = $props();
 </script>
 
 <!-- These values are configurable in the iconify/tailwind plugin, found in app.css -->
-<span class="{bg ? 'icon-bg' : 'icon'} {icon} {size} {klass}"></span>
+{#if icon}
+  <span class="{bg ? 'icon-bg' : 'icon'} {icon} {size} {klass}"></span>
+{/if}

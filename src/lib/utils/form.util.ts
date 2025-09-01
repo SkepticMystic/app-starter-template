@@ -18,7 +18,7 @@ import { err } from "./result.util";
 
 export type FormCommandResult<
   Out extends Record<string, unknown>,
-  D extends Record<string, unknown> = Record<string, never>,
+  D extends Record<string, unknown>,
 > = ActionResult<
   {
     form: SuperValidated<Out>;

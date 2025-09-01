@@ -4,9 +4,9 @@ import { get_session } from "$lib/auth/server";
 import { TASKS } from "$lib/const/task.const";
 import { TaskSchema } from "$lib/schema/task.schema";
 import { db } from "$lib/server/db/drizzle.db";
-import { TaskTable } from "$lib/server/db/schema/task.models";
+import { TaskTable, type Task } from "$lib/server/db/schema/task.models";
 import type { FormCommandResult } from "$lib/utils/form.util";
-import { err, suc } from "$lib/utils/result.util";
+import { suc } from "$lib/utils/result.util";
 import { error, fail } from "@sveltejs/kit";
 import { and, eq } from "drizzle-orm";
 import { superValidate, type Infer } from "sveltekit-superforms";
@@ -27,20 +27,7 @@ export const get_tasks = query(
           input.status ? eq(task.status, input.status) : undefined,
         ),
 
-      orderBy: (task, { desc }) => [desc(task.createdAt)],
-
-      columns: {
-        id: true,
-        title: true,
-        status: true,
-        due_date: true,
-        member_id: true,
-        description: true,
-        assigned_member_id: true,
-
-        createdAt: true,
-        updatedAt: true,
-      },
+      orderBy: (task, { desc }) => [desc(task.due_date)],
     });
 
     return tasks;
@@ -49,7 +36,9 @@ export const get_tasks = query(
 
 export const create_task = command(
   "unchecked",
-  async (data): Promise<FormCommandResult<Infer<typeof TaskSchema.create>>> => {
+  async (
+    data,
+  ): Promise<FormCommandResult<Infer<typeof TaskSchema.create>, Task>> => {
     const [{ session }, form] = await Promise.all([
       get_session(),
       superValidate(data as any, zod4(TaskSchema.create)),
@@ -70,13 +59,13 @@ export const create_task = command(
           user_id: session.userId,
           member_id: session.member_id,
         })
-        .returning({ id: TaskTable.id });
+        .returning();
 
       return true
         ? {
             type: "success",
             status: 201,
-            data: { form, toast: "Task created" },
+            data: { form, data: task, toast: "Task created" },
           }
         : {
             status: 303,
