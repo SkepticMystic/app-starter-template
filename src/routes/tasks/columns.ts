@@ -48,25 +48,25 @@ export const columns = TanstackTable.make_columns<TData>({
       kind: "item",
       title: "Copy task ID",
       icon: "lucide/copy",
-      onclick: (data) => navigator.clipboard.writeText(data.id),
+      onclick: (row) => navigator.clipboard.writeText(row.original.id),
     },
     {
       kind: "item",
       title: "Delete task",
       icon: "lucide/trash-2",
       variant: "destructive",
-      onclick: (row) => {
+      onclick: async (row) => {
+        const toast_id = toast.success("Task deleted");
+
         try {
-          delete_task(row.original.id)
-            .updates(
-              get_tasks({}).withOverride((old) =>
-                Items.remove(old, row.original.id),
-              ),
-            )
-            .then(() => toast.success("Task deleted"));
+          await delete_task(row.original.id).updates(
+            get_tasks({}).withOverride((old) =>
+              Items.remove(old, row.original.id),
+            ),
+          );
         } catch (error) {
           console.log("Error deleting task", error);
-          toast.error("Error deleting task");
+          toast.error("Error deleting task", { id: toast_id });
         }
       },
     },
