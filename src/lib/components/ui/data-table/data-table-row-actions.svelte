@@ -6,6 +6,7 @@
   } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import type { Item } from "$lib/utils/items.util";
+  import type { Row } from "@tanstack/table-core";
   import type { ClassValue } from "svelte/elements";
 
   type Action =
@@ -17,7 +18,7 @@
         title: string;
         icon?: ClassValue;
         variant?: ButtonVariant;
-        onclick: (item: TData) => void;
+        onclick: (row: Row<TData>) => void;
       }
     | {
         kind: "group";
@@ -29,12 +30,12 @@
     row,
     actions,
   }: {
-    row: TData;
+    row: Row<TData>;
     actions: Action[];
   } = $props();
 </script>
 
-{#snippet action_snippet(action: Action, row: TData)}
+{#snippet action_snippet(action: Action, row: Row<TData>)}
   {#if action.kind === "separator"}
     <DropdownMenu.Separator />
   {:else if action.kind === "item"}

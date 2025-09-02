@@ -125,8 +125,8 @@
   });
 </script>
 
-<div>
-  <div class="flex justify-between py-4">
+<div class="space-y-3">
+  <div class="flex justify-between">
     <!-- TODO filters snippet -->
     <div>
       <Input
@@ -189,7 +189,7 @@
       {Format.number(table.getFilteredRowModel().rows.length)} rows selected
     </div>
 
-    <div class="flex items-center justify-end space-x-2 py-4">
+    <div class="flex items-center justify-end space-x-2">
       <Button
         variant="outline"
         size="sm"
