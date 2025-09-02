@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DatePicker from "$lib/components/ui/date-picker/DatePicker.svelte";
   import * as Form from "$lib/components/ui/form/index";
   import Input from "$lib/components/ui/input/input.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
@@ -71,15 +72,7 @@
     <Form.Field {form} name="due_date">
       <FormControl label="Due Date">
         {#snippet children({ props })}
-          <Input
-            {...props}
-            type="date"
-            class="w-fit"
-            placeholder="Due date"
-            value={$form_data.due_date?.toISOString().substring(0, 10) ?? ""}
-            onchange={(e) =>
-              ($form_data.due_date = e.currentTarget.valueAsDate ?? undefined)}
-          />
+          <DatePicker {...props} bind:value={$form_data.due_date}></DatePicker>
         {/snippet}
       </FormControl>
 

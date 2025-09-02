@@ -5,7 +5,9 @@
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
   import Card from "$lib/components/Card.svelte";
+  import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Separator from "$lib/components/ui/separator/separator.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
@@ -32,14 +34,19 @@
 </script>
 
 <div class="space-y-9">
-  <div>
+  <div class="space-y-3">
     <h1>Profile</h1>
-    <p>
-      Logged in as <strong>{data.user.email}</strong>
-      {#if data.user.name}
-        ({data.user.name})
-      {/if}
-    </p>
+
+    <div class="flex items-center gap-3">
+      <UserAvatar class="size-14" user={data.user} />
+
+      <div class="flex flex-col">
+        {#if data.user.name}
+          <strong>{data.user.name}</strong>
+        {/if}
+        {data.user.email}
+      </div>
+    </div>
   </div>
 
   {#if accounts.find((acc) => acc.provider === "credential")}
@@ -54,26 +61,31 @@
     </Card>
   {/if}
 
-  <div class="flex items-center gap-3">
-    <h2>Passkeys</h2>
-    <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
-    <AddPasskeyButton
-      on_added={() => {
-        location.href = App.url(ROUTES.PROFILE, {
-          toast: TOAST.IDS.PASSKEY_ADDED,
-        });
-      }}
-    />
+  <div class="space-y-3">
+    <div class="flex items-center gap-3">
+      <h2>Passkeys</h2>
+      <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
+      <AddPasskeyButton
+        on_added={() => {
+          location.href = App.url(ROUTES.PROFILE, {
+            toast: TOAST.IDS.PASSKEY_ADDED,
+          });
+        }}
+      />
+    </div>
+    {#if passkeys.length}
+      <UserPasskeysList bind:passkeys />
+    {:else}
+      <p>No passkeys added yet.</p>
+    {/if}
   </div>
 
-  {#if passkeys.length}
-    <UserPasskeysList bind:passkeys />
-  {:else}
-    <p>No passkeys added yet.</p>
-  {/if}
+  <div class="space-y-3">
+    <h2>Accounts</h2>
+    <UserAccountsList bind:accounts />
+  </div>
 
-  <h2>Accounts</h2>
-  <UserAccountsList bind:accounts />
+  <Separator />
 
   <Button
     variant="destructive"
@@ -82,6 +94,6 @@
     disabled={any_loading($loader)}
     loading={$loader["delete_user"]}
   >
-    Delete User
+    Delete user
   </Button>
 </div>

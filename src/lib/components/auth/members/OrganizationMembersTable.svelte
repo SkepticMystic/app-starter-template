@@ -3,6 +3,7 @@
   import { MembersClient } from "$lib/clients/members.client";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
+  import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Select from "$lib/components/ui/select/SingleSelect.svelte";
   import TableCell from "$lib/components/ui/table/table-cell.svelte";
@@ -67,13 +68,15 @@
 
   {#snippet row(member)}
     <TableCell>
-      <div class="flex flex-col">
-        {#if member.user.name}
-          <span class="font-semibold">
-            {member.user.name}
-          </span>
-        {/if}
-        <span>{member.user.email}</span>
+      <div class="flex items-center gap-2">
+        <UserAvatar class="size-9" user={member.user} />
+
+        <div class="flex flex-col">
+          {#if member.user.name}
+            <strong>{member.user.name}</strong>
+          {/if}
+          <span>{member.user.email}</span>
+        </div>
       </div>
     </TableCell>
 

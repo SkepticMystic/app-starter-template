@@ -1,4 +1,5 @@
 <script lang="ts" generics="TData, TValue">
+  import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import {
     createSvelteTable,
@@ -128,14 +129,23 @@
 <div class="space-y-3">
   <div class="flex justify-between">
     <!-- TODO filters snippet -->
-    <div>
-      <Input
-        class="max-w-sm"
-        placeholder="Filter tasks..."
-        value={table.getColumn("title")?.getFilterValue() ?? ""}
-        oninput={(e) =>
-          table.getColumn("title")?.setFilterValue(e.currentTarget.value)}
-      />
+    <div class="flex gap-2">
+      {#if filters}
+        <Input
+          class="max-w-sm"
+          placeholder="Filter tasks..."
+          value={table.getColumn("title")?.getFilterValue() ?? ""}
+          oninput={(e) =>
+            table.getColumn("title")?.setFilterValue(e.currentTarget.value)}
+        />
+
+        {#if filters.length}
+          <Button variant="ghost" onclick={() => table.resetColumnFilters()}>
+            <Icon icon="lucide/x" />
+            Clear
+          </Button>
+        {/if}
+      {/if}
     </div>
 
     <DataTableVisibilityDropdownMenu {table} />
