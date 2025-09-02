@@ -26,7 +26,7 @@
     <DataTable
       {columns}
       data={tasks}
-      sorting={[{ id: "due_date", desc: true }]}
+      sorting={[{ id: "createdAt", desc: true }]}
     />
   {:catch _error}
     <p class="text-warning">Error loading tasks</p>

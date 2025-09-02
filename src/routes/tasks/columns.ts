@@ -1,5 +1,3 @@
-import { renderComponent } from "$lib/components/ui/data-table";
-import DataTableColumnHeaderDropdownMenu from "$lib/components/ui/data-table/data-table-column-header-dropdown-menu.svelte";
 import { TASKS } from "$lib/const/task.const";
 import { delete_task, get_tasks } from "$lib/remote/tasks.remote";
 import type { Task } from "$lib/server/db/schema/task.models";
@@ -16,25 +14,16 @@ export const columns = TanstackTable.make_columns<TData>({
       accessorKey: "status",
       meta: { label: "Status" },
 
-      header: ({ column }) =>
-        renderComponent(DataTableColumnHeaderDropdownMenu<TData>, { column }),
-
       cell: ({ row }) =>
         TASKS.STATUS.MAP[row.original.status]?.label || "Unknown",
     },
     {
       accessorKey: "title",
       meta: { label: "Title" },
-
-      header: ({ column }) =>
-        renderComponent(DataTableColumnHeaderDropdownMenu<TData>, { column }),
     },
     {
       accessorKey: "due_date",
       meta: { label: "Due date" },
-
-      header: ({ column }) =>
-        renderComponent(DataTableColumnHeaderDropdownMenu<TData>, { column }),
 
       cell: ({ row }) =>
         row.original.due_date

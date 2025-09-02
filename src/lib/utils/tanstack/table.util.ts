@@ -1,5 +1,6 @@
 import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
 import { renderComponent } from "$lib/components/ui/data-table";
+import DataTableColumnHeaderDropdownMenu from "$lib/components/ui/data-table/data-table-column-header-dropdown-menu.svelte";
 import DataTableRowActions from "$lib/components/ui/data-table/data-table-row-actions.svelte";
 import type { Column, ColumnDef } from "@tanstack/table-core";
 import type { ComponentProps } from "svelte";
@@ -44,7 +45,17 @@ const make_columns = <TData extends Item>(input: {
     });
   }
 
-  columns.push(...input.columns);
+  columns.push(
+    ...input.columns.map((col) => {
+      // Enable HeaderDropdown by default, unless both of its purposes are explicitly disabled
+      if (col.enableSorting !== false && col.enableHiding !== false) {
+        col.header = ({ column }) =>
+          renderComponent(DataTableColumnHeaderDropdownMenu<TData>, { column });
+      }
+
+      return col;
+    }),
+  );
 
   if (input.actions) {
     columns.push({

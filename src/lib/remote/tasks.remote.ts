@@ -27,7 +27,7 @@ export const get_tasks = query(
           input.status ? eq(task.status, input.status) : undefined,
         ),
 
-      orderBy: (task, { desc }) => [desc(task.due_date)],
+      orderBy: (task, { desc }) => [desc(task.createdAt)],
     });
 
     return tasks;

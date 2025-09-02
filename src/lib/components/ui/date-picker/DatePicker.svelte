@@ -20,7 +20,7 @@
   } = $props();
 
   const df = new DateFormatter("en-US", {
-    dateStyle: "long",
+    dateStyle: "medium",
   });
 
   let contentRef = $state<HTMLElement | null>(null);
@@ -34,7 +34,7 @@
     class={cn(
       buttonVariants({
         variant: "outline",
-        class: "w-fit max-w-sm justify-start text-left font-normal",
+        class: "w-fit max-w-sm min-w-36 justify-between gap-2 font-normal",
       }),
       !value && "text-muted-foreground",
     )}
