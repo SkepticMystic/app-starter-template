@@ -24,7 +24,7 @@
     remote: (task) =>
       create_task(task).updates(
         get_tasks({}).withOverride((tasks) =>
-          Items.add(tasks, task, { front: true }),
+          Items.add(tasks, { ...task, createdAt: new Date() }, { front: true }),
         ),
       ),
 
@@ -36,29 +36,30 @@
   const { form: form_data, message, enhance, pending } = form;
 </script>
 
-<form class="space-y-2" method="POST" use:enhance>
+<form class="flex flex-col gap-2" method="POST" use:enhance>
+  <Form.Field {form} name="title">
+    <FormControl label="Title">
+      {#snippet children({ props })}
+        <Input
+          {...props}
+          required
+          placeholder="Task title"
+          bind:value={$form_data.title}
+        />
+      {/snippet}
+    </FormControl>
+
+    <Form.FieldErrors />
+  </Form.Field>
+
   <div class="flex gap-x-2">
-    <Form.Field {form} class="grow" name="title">
-      <FormControl label="Title">
-        {#snippet children({ props })}
-          <Input
-            {...props}
-            required
-            placeholder="Task title"
-            bind:value={$form_data.title}
-          />
-        {/snippet}
-      </FormControl>
-
-      <Form.FieldErrors />
-    </Form.Field>
-
-    <Form.Field {form} name="status">
+    <Form.Field {form} name="status" class="grow">
       <FormControl label="Status">
         {#snippet children({ props })}
           <SingleSelect
             {...props}
             required
+            class="w-full"
             placeholder="Select status"
             options={TASKS.STATUS.OPTIONS}
             bind:value={$form_data.status}
@@ -69,10 +70,14 @@
       <Form.FieldErrors />
     </Form.Field>
 
-    <Form.Field {form} name="due_date">
+    <Form.Field {form} name="due_date" class="grow">
       <FormControl label="Due Date">
         {#snippet children({ props })}
-          <DatePicker {...props} bind:value={$form_data.due_date}></DatePicker>
+          <DatePicker
+            {...props}
+            class="w-full"
+            bind:value={$form_data.due_date}
+          />
         {/snippet}
       </FormControl>
 

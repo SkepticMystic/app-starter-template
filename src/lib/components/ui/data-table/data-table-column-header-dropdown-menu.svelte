@@ -18,7 +18,7 @@
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
     {#snippet child({ props })}
-      <Button {...props} variant="ghost">
+      <Button {...props} variant="ghost" class="-ml-4">
         {label}
 
         <Icon

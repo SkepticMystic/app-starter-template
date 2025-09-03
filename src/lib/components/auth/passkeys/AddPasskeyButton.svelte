@@ -1,6 +1,5 @@
 <script lang="ts">
   import { PasskeysClient } from "$lib/clients/passkeys.client";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import type { MaybePromise } from "$lib/interfaces";
   import { any_loading, Loader } from "$lib/utils/loader";

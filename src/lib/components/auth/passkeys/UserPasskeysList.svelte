@@ -51,7 +51,7 @@
         title="Edit Passkey"
         description="Update your passkey"
       >
-        {#snippet btn()}
+        {#snippet trigger()}
           <Icon icon="heroicons/pencil" />
         {/snippet}
 

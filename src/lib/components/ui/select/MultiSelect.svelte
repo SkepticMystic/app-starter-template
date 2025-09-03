@@ -1,8 +1,6 @@
 <script lang="ts" generics="V extends string">
   import * as Select from "$lib/components/ui/select/index.js";
-  import { cn } from "$lib/utils/shadcn.util";
   import type { SelectRootProps } from "bits-ui";
-  import type { ClassValue } from "svelte/elements";
 
   type Option = { value: V; label: string };
 
@@ -10,37 +8,40 @@
     options,
     loading,
     disabled,
-    on_value_select,
+    on_value_change,
     value = $bindable(),
     placeholder = "Select an option",
-    ...rest
-  }: Omit<SelectRootProps, "type" | "value" | "onValueChange"> & {
-    value?: V;
+    ...rest_props
+  }: Omit<SelectRootProps, "type" | "value" | "onValueChange" | "items"> & {
+    value?: V[];
     options: Option[];
     loading?: boolean;
-    class?: ClassValue;
     placeholder?: string;
-    on_value_select?: (value?: V) => void;
+    on_value_change?: (value?: V[]) => void;
   } = $props();
 
-  let option = $derived(options.find((i) => i.value === value));
+  let selected = $derived(
+    options.filter((option) => value?.includes(option.value)),
+  );
 </script>
 
 <Select.Root
+  {...rest_props}
   loop
   {value}
-  type="single"
+  type="multiple"
   items={options}
   disabled={disabled || loading}
   onValueChange={(e) => {
-    value = e as V;
+    value = e as V[];
 
-    on_value_select?.(value);
+    on_value_change?.(value);
   }}
-  {...rest}
 >
-  <Select.Trigger {loading} class={cn("w-fit max-w-sm", rest.class)}>
-    {option?.label ?? placeholder}
+  <Select.Trigger {loading} class="w-fit max-w-sm">
+    {selected.length === options.length
+      ? "All selected"
+      : selected.map((option) => option.label).join(", ") || placeholder}
   </Select.Trigger>
 
   <Select.Content>

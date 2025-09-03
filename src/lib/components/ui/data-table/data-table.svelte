@@ -1,12 +1,10 @@
 <script lang="ts" generics="TData, TValue">
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import {
     createSvelteTable,
     FlexRender,
   } from "$lib/components/ui/data-table/index.js";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import * as Table from "$lib/components/ui/table/index.js";
+  import * as ShadTable from "$lib/components/ui/table/index.js";
   import { Format } from "$lib/utils/format.util";
   import {
     type ColumnDef,
@@ -18,37 +16,45 @@
     type PaginationState,
     type RowSelectionState,
     type SortingState,
+    type Table,
     type VisibilityState,
   } from "@tanstack/table-core";
+  import type { Snippet } from "svelte";
   import DataTableVisibilityDropdownMenu from "./data-table-visibility-dropdown-menu.svelte";
 
   let {
     data,
+    states,
     columns,
-    ...states
+    filters,
   }: {
     data: TData[];
     columns: ColumnDef<TData, TValue>[];
 
-    // states
-    sorting?: SortingState | false;
-    filters?: ColumnFiltersState | false;
-    visibility?: VisibilityState | false;
-    selection?: RowSelectionState | false;
-    pagination?: PaginationState | false;
+    // snippets
+    filters?: Snippet<[table: Table<TData>]>;
+
+    // state
+    states: {
+      sorting?: SortingState | false;
+      pagination?: PaginationState | false;
+      visibility?: VisibilityState | false;
+      selection?: RowSelectionState | false;
+      column_filters?: ColumnFiltersState | false;
+    };
   } = $props();
 
   let sorting = $state(
     states.sorting === false ? undefined : (states.sorting ?? []),
-  );
-  let filters = $state(
-    states.filters === false ? undefined : (states.filters ?? []),
   );
   let visibility = $state(
     states.visibility === false ? undefined : (states.visibility ?? {}),
   );
   let selection = $state(
     states.selection === false ? undefined : (states.selection ?? {}),
+  );
+  let column_filters = $state(
+    states.column_filters === false ? undefined : (states.column_filters ?? []),
   );
   let pagination = $state(
     states.pagination === false
@@ -67,7 +73,7 @@
     getSortedRowModel:
       states.sorting === false ? undefined : getSortedRowModel(),
     getFilteredRowModel:
-      states.filters === false ? undefined : getFilteredRowModel(),
+      states.column_filters === false ? undefined : getFilteredRowModel(),
     getPaginationRowModel:
       states.pagination === false ? undefined : getPaginationRowModel(),
 
@@ -82,7 +88,7 @@
         return selection;
       },
       get columnFilters() {
-        return filters;
+        return column_filters;
       },
       get columnVisibility() {
         return visibility;
@@ -97,11 +103,13 @@
               typeof updater === "function" ? updater(sorting!) : updater),
 
     onColumnFiltersChange:
-      states.filters === false
+      states.column_filters === false
         ? undefined
         : (updater) =>
-            (filters =
-              typeof updater === "function" ? updater(filters!) : updater),
+            (column_filters =
+              typeof updater === "function"
+                ? updater(column_filters!)
+                : updater),
 
     onPaginationChange:
       states.pagination === false
@@ -128,69 +136,53 @@
 
 <div class="space-y-3">
   <div class="flex justify-between">
-    <!-- TODO filters snippet -->
-    <div class="flex gap-2">
-      {#if filters}
-        <Input
-          class="max-w-sm"
-          placeholder="Filter tasks..."
-          value={table.getColumn("title")?.getFilterValue() ?? ""}
-          oninput={(e) =>
-            table.getColumn("title")?.setFilterValue(e.currentTarget.value)}
-        />
-
-        {#if filters.length}
-          <Button variant="ghost" onclick={() => table.resetColumnFilters()}>
-            <Icon icon="lucide/x" />
-            Clear
-          </Button>
-        {/if}
-      {/if}
-    </div>
+    {#if column_filters}
+      {@render filters?.(table)}
+    {/if}
 
     <DataTableVisibilityDropdownMenu {table} />
   </div>
 
   <div>
-    <Table.Root>
-      <Table.Header>
+    <ShadTable.Root>
+      <ShadTable.Header>
         {#each table.getHeaderGroups() as header_group (header_group.id)}
-          <Table.Row>
+          <ShadTable.Row>
             {#each header_group.headers as header (header.id)}
-              <Table.Head colspan={header.colSpan}>
+              <ShadTable.Head colspan={header.colSpan}>
                 {#if !header.isPlaceholder}
                   <FlexRender
                     content={header.column.columnDef.header}
                     context={header.getContext()}
                   />
                 {/if}
-              </Table.Head>
+              </ShadTable.Head>
             {/each}
-          </Table.Row>
+          </ShadTable.Row>
         {/each}
-      </Table.Header>
+      </ShadTable.Header>
 
-      <Table.Body>
+      <ShadTable.Body>
         {#each table.getRowModel().rows as row (row.id)}
-          <Table.Row data-state={row.getIsSelected() && "selected"}>
+          <ShadTable.Row data-state={row.getIsSelected() && "selected"}>
             {#each row.getVisibleCells() as cell (cell.id)}
-              <Table.Cell>
+              <ShadTable.Cell>
                 <FlexRender
                   content={cell.column.columnDef.cell}
                   context={cell.getContext()}
                 />
-              </Table.Cell>
+              </ShadTable.Cell>
             {/each}
-          </Table.Row>
+          </ShadTable.Row>
         {:else}
-          <Table.Row>
-            <Table.Cell colspan={columns.length} class="h-24 text-center">
+          <ShadTable.Row>
+            <ShadTable.Cell colspan={columns.length} class="h-24 text-center">
               No results.
-            </Table.Cell>
-          </Table.Row>
+            </ShadTable.Cell>
+          </ShadTable.Row>
         {/each}
-      </Table.Body>
-    </Table.Root>
+      </ShadTable.Body>
+    </ShadTable.Root>
   </div>
 
   <div class="flex items-center justify-between">

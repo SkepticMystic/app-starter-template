@@ -14,7 +14,9 @@
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
     {#snippet child({ props })}
-      <Button {...props} variant="outline">Columns</Button>
+      <Button {...props} variant="outline" icon="lucide/settings-2">
+        View
+      </Button>
     {/snippet}
   </DropdownMenu.Trigger>
 

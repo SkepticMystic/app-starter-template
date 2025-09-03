@@ -4,6 +4,8 @@ import type { Task } from "$lib/server/db/schema/task.models";
 import { Dates } from "$lib/utils/dates";
 import { Items } from "$lib/utils/items.util";
 import { TanstackTable } from "$lib/utils/tanstack/table.util";
+import { getLocalTimeZone } from "@internationalized/date";
+import type { DateRange } from "bits-ui";
 import { toast } from "svelte-sonner";
 
 type TData = Task;
@@ -13,6 +15,8 @@ export const columns = TanstackTable.make_columns<TData>({
     {
       accessorKey: "status",
       meta: { label: "Status" },
+
+      filterFn: "arrIncludesSome",
 
       cell: ({ row }) =>
         TASKS.STATUS.MAP[row.original.status]?.label || "Unknown",
@@ -25,10 +29,29 @@ export const columns = TanstackTable.make_columns<TData>({
       accessorKey: "due_date",
       meta: { label: "Due date" },
 
+      // SOURCE: https://tanstack.com/table/latest/docs/guide/column-filtering#custom-filter-functions
+      filterFn: (row, column_id, filter: DateRange | undefined) => {
+        if (!filter || !filter.start || !filter.end) return true;
+
+        const due_date = row.getValue<Task["due_date"]>(column_id);
+        if (!due_date) return false;
+
+        return (
+          due_date >= filter.start.toDate(getLocalTimeZone()) &&
+          due_date <= filter.end.toDate(getLocalTimeZone())
+        );
+      },
+
       cell: ({ row }) =>
         row.original.due_date
           ? Dates.show_date(row.original.due_date)
           : "No due date",
+    },
+    {
+      accessorKey: "createdAt",
+      meta: { label: "Created" },
+
+      cell: ({ row }) => Dates.show_date(row.original.createdAt),
     },
   ],
 

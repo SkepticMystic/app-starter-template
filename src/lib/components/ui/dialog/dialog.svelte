@@ -13,7 +13,7 @@
     size = "default",
     variant = "default",
 
-    btn,
+    trigger,
     actions,
     children,
     ...rest_props
@@ -23,14 +23,14 @@
     size?: ButtonProps["size"];
     variant?: ButtonProps["variant"];
 
-    btn: Snippet;
+    trigger: Snippet;
     actions?: Snippet;
   } = $props();
 </script>
 
 <Dialog.Root {...rest_props}>
   <Dialog.Trigger {title} class={buttonVariants({ variant, size })}>
-    {@render btn?.()}
+    {@render trigger?.()}
   </Dialog.Trigger>
 
   <Dialog.Content class="sm:max-w-[425px]">

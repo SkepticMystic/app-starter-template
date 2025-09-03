@@ -10,12 +10,15 @@
     getLocalTimeZone,
     type DateValue,
   } from "@internationalized/date";
+  import type { ClassValue } from "svelte/elements";
 
   let {
     value = $bindable(),
     onchange,
+    ...rest
   }: {
     value: Date | undefined;
+    class?: ClassValue;
     onchange?: (date: Date | undefined) => void;
   } = $props();
 
@@ -37,6 +40,7 @@
         class: "w-fit max-w-sm min-w-36 justify-between gap-2 font-normal",
       }),
       !value && "text-muted-foreground",
+      rest.class,
     )}
   >
     {instance ? df.format(instance.toDate(getLocalTimeZone())) : "Pick a date"}
