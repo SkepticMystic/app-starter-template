@@ -34,7 +34,7 @@
     },
   });
 
-  const { form: form_data, message, enhance, submitting, delayed } = form;
+  const { form: form_data, message, enhance } = form;
 </script>
 
 <form class="space-y-4" method="POST" use:enhance>
@@ -74,12 +74,7 @@
     </FormControl>
   </FormField>
 
-  <FormButton
-    class="w-full"
-    loading={$delayed}
-    icon={provider.icon}
-    disabled={$submitting}
-  >
+  <FormButton {form} class="w-full" icon={provider.icon}>
     Signin with {provider.name}
   </FormButton>
 

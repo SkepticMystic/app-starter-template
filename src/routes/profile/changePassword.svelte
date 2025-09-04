@@ -1,39 +1,39 @@
 <script lang="ts">
+  import { AccountsClient } from "$lib/clients/accounts.client";
   import FormControl from "$lib/components/form/FormControl.svelte";
-  import * as Form from "$lib/components/ui/form/index.js";
+  import FormField from "$lib/components/form/FormField.svelte";
+  import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { AuthSchema } from "$lib/schema/auth.schema";
-  import { toast } from "svelte-sonner";
-  import {
-    superForm,
-    type Infer,
-    type SuperValidated,
-  } from "sveltekit-superforms";
+  import { make_super_form } from "$lib/utils/form.util";
+  import { defaults } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
 
   let {
-    form_input,
+    on_success,
   }: {
-    form_input: SuperValidated<Infer<typeof AuthSchema.change_password_form>>;
+    on_success?: () => void;
   } = $props();
 
-  const form = superForm(form_input, {
-    delayMs: 500,
-    timeoutMs: 8_000,
-    validators: zod4Client(AuthSchema.change_password_form),
+  const validators = zod4Client(AuthSchema.change_password_form);
+  const form = make_super_form(
+    defaults({ new_password: "", current_password: "" }, validators),
+    {
+      SPA: true,
+      validators,
+      timeoutMs: 8_000,
 
-    onUpdated({ form }) {
-      if (form.message?.ok && form.message.data) {
-        toast.success(form.message.data);
-      }
+      on_success,
+      submit: AccountsClient.change_password,
     },
-  });
+  );
 
-  const { form: form_data, message, enhance, submitting, delayed } = form;
+  const { form: form_data } = form;
 </script>
 
-<form class="space-y-4" method="POST" action="?/change-password" use:enhance>
-  <Form.Field {form} name="current_password">
+<form class="space-y-4" method="POST" use:form.enhance>
+  <FormField {form} name="current_password">
     <FormControl label="Current Password">
       {#snippet children({ props })}
         <Input
@@ -45,11 +45,9 @@
         />
       {/snippet}
     </FormControl>
+  </FormField>
 
-    <Form.FieldErrors />
-  </Form.Field>
-
-  <Form.Field {form} name="new_password">
+  <FormField {form} name="new_password">
     <FormControl label="New Password">
       {#snippet children({ props })}
         <Input
@@ -61,22 +59,11 @@
         />
       {/snippet}
     </FormControl>
+  </FormField>
 
-    <Form.FieldErrors />
-  </Form.Field>
-
-  <Form.Button
-    class="w-full"
-    loading={$delayed}
-    disabled={$submitting}
-    icon="heroicons/lock-closed"
-  >
+  <FormButton {form} class="w-full" icon="heroicons/lock-closed">
     Change Password
-  </Form.Button>
+  </FormButton>
 
-  {#if $message && !$message.ok}
-    <p class="text-warning">
-      {$message.error}
-    </p>
-  {/if}
+  <FormMessage message={form.message} />
 </form>

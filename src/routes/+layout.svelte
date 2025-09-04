@@ -56,7 +56,6 @@
       page.url.searchParams.delete("toast");
 
       const toast_key = TOAST.IDS_REVERSED[toast_id];
-
       if (!toast_key) return;
 
       const input = TOAST.MAP[toast_key];

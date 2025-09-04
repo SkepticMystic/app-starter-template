@@ -29,4 +29,14 @@ export const AuthSchema = {
       role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
     }),
   },
+
+  Passkey: {
+    update: z.object({
+      name: z
+        .string()
+        .min(1, "Passkey name cannot be empty")
+        .max(100, "Passkey name must be at most 100 characters")
+        .optional(),
+    }),
+  },
 };

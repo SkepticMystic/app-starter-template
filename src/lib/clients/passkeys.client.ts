@@ -51,12 +51,12 @@ export const PasskeysClient = {
             message: res.error.message ?? "Failed to update passkey",
           });
         } else {
-          return suc(res.data);
+          return suc(res.data.passkey);
         }
       },
       {
         toast: {
-          loading: "Updating passkey...",
+          optimistic: true,
           success: "Passkey updated successfully",
         },
       },

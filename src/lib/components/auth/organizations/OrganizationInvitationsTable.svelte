@@ -3,7 +3,10 @@
   import Time from "$lib/components/Time.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { ORGANIZATION } from "$lib/const/organization.const";
+  import {
+    type IOrganization,
+    ORGANIZATION,
+  } from "$lib/const/organization.const";
   import { Items } from "$lib/utils/items.util";
   import { TanstackTable } from "$lib/utils/tanstack/table.util";
   import type { Invitation } from "better-auth/plugins";
@@ -33,7 +36,8 @@
         meta: { label: "Role" },
 
         cell: ({ row }) =>
-          ORGANIZATION.INVITATIONS.STATUSES.MAP[row.original.status].label,
+          ORGANIZATION.ROLES.MAP[row.original.role as IOrganization.RoleId]
+            .label,
       },
       {
         accessorKey: "status",

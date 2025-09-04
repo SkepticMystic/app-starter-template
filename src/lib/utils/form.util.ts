@@ -1,4 +1,3 @@
-import { Client } from "$lib/clients/index.client";
 import type { MaybePromise, Result } from "$lib/interfaces";
 import { get, writable } from "svelte/store";
 import {
@@ -8,12 +7,8 @@ import {
   type InferIn,
   type SuperValidated,
 } from "sveltekit-superforms";
-import {
-  zod4Client,
-  type ZodValidationSchema,
-} from "sveltekit-superforms/adapters";
+import { type ZodValidationSchema } from "sveltekit-superforms/adapters";
 import { err } from "./result.util";
-import type { ToastPromiseOptions } from "./toast/toast.util";
 
 export type FormSubmitResult<D> = Result<
   D,
@@ -29,15 +24,15 @@ export type FormSubmitResult<D> = Result<
 >;
 
 export function make_super_form<
-  S extends ZodValidationSchema,
-  Out extends Infer<S, "zod4">,
-  In extends InferIn<S, "zod4">,
-  D,
+  Schema extends ZodValidationSchema,
+  In extends InferIn<Schema, "zod4">,
+  Out extends Infer<Schema, "zod4">,
+  Data,
 >(
   form: SuperValidated<Out, App.Superforms.Message, In>,
-  schema: S,
   {
-    delayMs = 500,
+    delayMs,
+    validators,
     invalidateAll: invalidate,
 
     submit,
@@ -49,24 +44,21 @@ export function make_super_form<
     onResult,
     ...rest
   }: FormOptions<Out, App.Superforms.Message, In> & {
-    submit: (data: Out) => Promise<FormSubmitResult<D>>;
+    submit: (data: Out) => Promise<FormSubmitResult<Data>>;
 
-    toast?: ToastPromiseOptions<D>;
-
-    on_success?: (data: D) => MaybePromise<unknown>;
+    on_success?: (data: Data) => MaybePromise<void>;
 
     on_error?: (
-      result: Extract<FormSubmitResult<D>, { ok: false }>["error"],
-    ) => MaybePromise<unknown>;
+      result: Extract<FormSubmitResult<Data>, { ok: false }>["error"],
+    ) => MaybePromise<void>;
   },
 ) {
   const pending = writable(false);
 
   const super_form = superForm(form, {
-    delayMs,
-
+    validators,
     dataType: "json",
-    validators: zod4Client(schema),
+    delayMs: delayMs ?? 500,
     taintedMessage: "You have unsaved changes. Are you sure you want to leave?",
 
     ...rest,
@@ -89,10 +81,7 @@ export function make_super_form<
         super_form.message.set(undefined);
       }
 
-      const result = await Client.request(() => submit(get(super_form.form)), {
-        toast: rest.toast,
-      });
-
+      const result = await submit(get(super_form.form));
       console.log("submit result", result);
 
       if (result.ok) {

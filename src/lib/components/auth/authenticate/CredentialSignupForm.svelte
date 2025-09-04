@@ -1,9 +1,8 @@
 <script lang="ts">
   import FormControl from "$lib/components/form/FormControl.svelte";
+  import FormField from "$lib/components/form/FormField.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import FormFieldErrors from "$lib/components/ui/form/form-field-errors.svelte";
-  import FormField from "$lib/components/ui/form/form-field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { AuthSchema } from "$lib/schema/auth.schema";
@@ -35,7 +34,7 @@
     },
   });
 
-  const { form: form_data, enhance, message, submitting, delayed } = form;
+  const { form: form_data, enhance, message } = form;
 </script>
 
 <form class="space-y-4" method="POST" use:enhance>
@@ -51,8 +50,6 @@
         />
       {/snippet}
     </FormControl>
-
-    <FormFieldErrors />
   </FormField>
 
   <FormField {form} name="email">
@@ -67,8 +64,6 @@
         />
       {/snippet}
     </FormControl>
-
-    <FormFieldErrors />
   </FormField>
 
   <FormField {form} name="password">
@@ -82,8 +77,6 @@
         />
       {/snippet}
     </FormControl>
-
-    <FormFieldErrors />
   </FormField>
 
   <FormField {form} name="remember">
@@ -92,16 +85,9 @@
         <Checkbox {...props} bind:checked={$form_data.remember} />
       {/snippet}
     </FormControl>
-
-    <FormFieldErrors />
   </FormField>
 
-  <FormButton
-    class="w-full"
-    loading={$delayed}
-    icon={provider.icon}
-    disabled={$submitting}
-  >
+  <FormButton {form} class="w-full" icon={provider.icon}>
     Signup with {provider.name}
   </FormButton>
 

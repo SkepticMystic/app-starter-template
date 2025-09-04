@@ -37,7 +37,7 @@
         {#snippet content({ close })}
           <InviteOrganizationMemberForm
             form_input={data.member_invite_form_input}
-            on_invite={(invitation) =>
+            on_success={(invitation) =>
               invitations.unshift(invitation) && close()}
           />
         {/snippet}

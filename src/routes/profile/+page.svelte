@@ -4,9 +4,10 @@
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
-  import Card from "$lib/components/Card.svelte";
+  import Icon from "$lib/components/icons/Icon.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
@@ -49,18 +50,6 @@
     </div>
   </div>
 
-  {#if accounts.find((acc) => acc.provider === "credential")}
-    <Card
-      class="max-w-xs"
-      title="Change Password"
-      description="Change your account password."
-    >
-      {#snippet content()}
-        <ChangePassword form_input={data.forms.change_password_form_input} />
-      {/snippet}
-    </Card>
-  {/if}
-
   <div class="space-y-3">
     <div class="flex items-center gap-3">
       <h2>Passkeys</h2>
@@ -87,13 +76,31 @@
 
   <Separator />
 
-  <Button
-    variant="destructive"
-    onclick={delete_user}
-    icon="heroicons/trash"
-    disabled={any_loading($loader)}
-    loading={$loader["delete_user"]}
-  >
-    Delete user
-  </Button>
+  <div class="flex gap-2">
+    {#if accounts.find((acc) => acc.provider === "credential")}
+      <Dialog
+        title="Change Password"
+        description="Change your account password"
+      >
+        {#snippet trigger()}
+          <Icon icon="heroicons/lock-closed" />
+          Change Password
+        {/snippet}
+
+        {#snippet content({ close })}
+          <ChangePassword on_success={() => close()} />
+        {/snippet}
+      </Dialog>
+    {/if}
+
+    <Button
+      variant="destructive"
+      onclick={delete_user}
+      icon="heroicons/trash"
+      disabled={any_loading($loader)}
+      loading={$loader["delete_user"]}
+    >
+      Delete user
+    </Button>
+  </div>
 </div>

@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { Client } from "$lib/clients/index.client";
   import DatePicker from "$lib/components/ui/date-picker/DatePicker.svelte";
-  import * as Form from "$lib/components/ui/form/index";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import FormField from "$lib/components/ui/form/form-field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
@@ -9,41 +11,46 @@
   import { TaskSchema } from "$lib/schema/task.schema";
   import type { Task } from "$lib/server/db/schema/task.models";
   import { make_super_form } from "$lib/utils/form.util";
-  import { Items } from "$lib/utils/items.util";
   import { type Infer, type SuperValidated } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
   import FormControl from "../FormControl.svelte";
+  import FormMessage from "../FormMessage.svelte";
 
   let {
     form_input,
     on_success,
   }: {
-    form_input: SuperValidated<Infer<typeof TaskSchema.create>>;
     on_success?: (task: Task) => void;
+    form_input: SuperValidated<Infer<typeof TaskSchema.create>>;
   } = $props();
 
-  const form = make_super_form(form_input, TaskSchema.create, {
+  const form = make_super_form(form_input, {
     delayMs: 500,
     timeoutMs: 8_000,
     // NOTE: Seems to be the only way to prevent form data from being cleared,
     // even on failure
     applyAction: "never",
-
-    toast: { optimistic: true, success: "Task created" },
+    validators: zod4Client(TaskSchema.create),
 
     on_success,
     submit: (task) =>
-      create_task(task).updates(
-        get_tasks({}).withOverride((tasks) =>
-          Items.add(tasks, { ...task, createdAt: new Date() }, { front: true }),
-        ),
+      Client.request(
+        () =>
+          create_task(task).updates(
+            get_tasks({}).withOverride((tasks) => [
+              { ...task, createdAt: new Date() } as Task,
+              ...tasks,
+            ]),
+          ),
+        { toast: { optimistic: true, success: "Task created" } },
       ),
   });
 
-  const { form: form_data, message, enhance, pending } = form;
+  const { form: form_data } = form;
 </script>
 
-<form class="flex flex-col gap-2" method="POST" use:enhance>
-  <Form.Field {form} name="title">
+<form class="flex flex-col gap-2" method="POST" use:form.enhance>
+  <FormField {form} name="title">
     <FormControl label="Title">
       {#snippet children({ props })}
         <Input
@@ -54,12 +61,10 @@
         />
       {/snippet}
     </FormControl>
-
-    <Form.FieldErrors />
-  </Form.Field>
+  </FormField>
 
   <div class="flex gap-x-2">
-    <Form.Field {form} name="status" class="grow">
+    <FormField {form} name="status" class="grow">
       <FormControl label="Status">
         {#snippet children({ props })}
           <SingleSelect
@@ -72,11 +77,9 @@
           />
         {/snippet}
       </FormControl>
+    </FormField>
 
-      <Form.FieldErrors />
-    </Form.Field>
-
-    <Form.Field {form} name="due_date" class="grow">
+    <FormField {form} name="due_date" class="grow">
       <FormControl label="Due Date">
         {#snippet children({ props })}
           <DatePicker
@@ -86,12 +89,10 @@
           />
         {/snippet}
       </FormControl>
-
-      <Form.FieldErrors />
-    </Form.Field>
+    </FormField>
   </div>
 
-  <Form.Field {form} name="description">
+  <FormField {form} name="description">
     <FormControl label="Description">
       {#snippet children({ props })}
         <Textarea
@@ -101,15 +102,9 @@
         />
       {/snippet}
     </FormControl>
+  </FormField>
 
-    <Form.FieldErrors />
-  </Form.Field>
+  <FormButton {form} class="w-full" icon="lucide/plus">Create Task</FormButton>
 
-  <Form.Button class="w-full" icon="lucide/plus" loading={$pending}>
-    Create Task
-  </Form.Button>
-
-  {#if $message && !$message.ok && $message.error}
-    <p class="text-warning">{$message.error}</p>
-  {/if}
+  <FormMessage message={form.message} />
 </form>

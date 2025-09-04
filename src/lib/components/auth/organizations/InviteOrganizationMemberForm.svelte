@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { Client } from "$lib/clients/index.client";
   import FormControl from "$lib/components/form/FormControl.svelte";
   import FormField from "$lib/components/form/FormField.svelte";
+  import FormMessage from "$lib/components/form/FormMessage.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
@@ -8,33 +10,33 @@
   import { create_invitation } from "$lib/remote/auth/organization.remote";
   import { AuthSchema } from "$lib/schema/auth.schema";
   import { make_super_form } from "$lib/utils/form.util";
+  import type { Invitation } from "better-auth/plugins";
   import { type Infer, type SuperValidated } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
 
   let {
-    on_invite,
+    on_success,
     form_input,
   }: {
+    on_success?: (data: Invitation) => void;
     form_input: SuperValidated<Infer<typeof AuthSchema.Org.member_invite_form>>;
-    on_invite?: (
-      data: Extract<
-        Awaited<ReturnType<typeof create_invitation>>,
-        { ok: true }
-      >["data"],
-    ) => void;
   } = $props();
 
-  const form = make_super_form(form_input, AuthSchema.Org.member_invite_form, {
-    timeoutMs: 8_000,
+  const form = make_super_form(form_input, {
+    timeoutMs: 16_000,
+    validators: zod4Client(AuthSchema.Org.member_invite_form),
 
-    on_success: on_invite,
-    submit: create_invitation,
-    toast: { loading: "Inviting member...", success: "Member invited!" },
+    on_success,
+    submit: (data) =>
+      Client.request(() => create_invitation(data), {
+        toast: { loading: "Inviting member...", success: "Member invited!" },
+      }),
   });
 
-  const { form: form_data, message, enhance, pending } = form;
+  const { form: form_data } = form;
 </script>
 
-<form class="flex flex-col gap-3" method="POST" use:enhance>
+<form class="flex flex-col gap-3" method="POST" use:form.enhance>
   <div class="flex gap-3">
     <FormField class="grow" {form} name="email">
       <FormControl label="Email">
@@ -62,11 +64,7 @@
     </FormField>
   </div>
 
-  <FormButton loading={$pending} icon="lucide/user-plus">
-    Invite Member
-  </FormButton>
+  <FormButton {form} icon="lucide/user-plus">Invite Member</FormButton>
 
-  {#if $message && !$message.ok && $message.error}
-    <p class="text-warning">{$message.error}</p>
-  {/if}
+  <FormMessage message={form.message} />
 </form>

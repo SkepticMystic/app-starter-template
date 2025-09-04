@@ -58,7 +58,7 @@
         {#snippet content()}
           <EditPasskeyForm
             {passkey}
-            on_update={(updated) => {
+            on_success={(updated) => {
               passkeys = Items.patch(passkeys, passkey.id, updated);
             }}
           />

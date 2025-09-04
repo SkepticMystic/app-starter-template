@@ -1,55 +1,52 @@
 <script lang="ts">
   import { PasskeysClient } from "$lib/clients/passkeys.client";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import FormControl from "$lib/components/form/FormControl.svelte";
+  import FormField from "$lib/components/form/FormField.svelte";
+  import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
-  import Labeled from "$lib/components/ui/label/Labeled.svelte";
-  import { any_loading, Loader } from "$lib/utils/loader";
+  import { AuthSchema } from "$lib/schema/auth.schema";
+  import { make_super_form } from "$lib/utils/form.util";
   import type { Passkey } from "better-auth/plugins/passkey";
-  import { preventDefault } from "svelte/legacy";
+  import { defaults, type Infer } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
+
+  const schema = AuthSchema.Passkey.update;
 
   let {
     // NOTE: Not bindable, we use a local dirty copy instead
     // Then emit updates via on_update
     passkey,
-    on_update,
+    on_success,
   }: {
     passkey: Passkey;
-    on_update: (passkey: Passkey) => void;
+    on_success: (passkey: Infer<typeof schema>) => void;
   } = $props();
 
-  const loader = Loader<"update_passkey">();
+  // SOURCE: https://superforms.rocks/concepts/spa
+  // Main things seem to be SPA, defaults, zod4Client (instead of zod4),
+  // and validateForm({ update: true }) to initialize the form with validation
+  const form = make_super_form(defaults(passkey, zod4Client(schema)), {
+    SPA: true,
+    on_success,
+    validators: zod4Client(schema),
+    submit: (data) => PasskeysClient.update(passkey.id, data),
+  });
+  form.validateForm({ update: true });
 
-  let dirty: Passkey = $state({ ...passkey });
-
-  const update_passkey = async () => {
-    loader.load("update_passkey");
-
-    const res = await PasskeysClient.update(passkey.id, dirty);
-    if (res.ok) {
-      dirty = res.data.passkey;
-      on_update?.(res.data.passkey);
-    }
-
-    loader.reset();
-  };
+  const { form: form_data } = form;
 </script>
 
-<form onsubmit={preventDefault(update_passkey)}>
-  <Fieldset legend="Update Passkey">
-    <div class="space-y-3">
-      <Labeled label="Name">
-        <Input type="text" placeholder="Name" bind:value={dirty.name} />
-      </Labeled>
+<form class="flex flex-col gap-2" method="POST" use:form.enhance>
+  <FormField {form} name="name">
+    <FormControl label="Name">
+      {#snippet children({ props })}
+        <Input {...props} bind:value={$form_data.name} />
+      {/snippet}
+    </FormControl>
+  </FormField>
 
-      <Button
-        type="submit"
-        icon="heroicons/tag"
-        disabled={any_loading($loader)}
-        loading={$loader["update_passkey"]}
-      >
-        Update Passkey
-      </Button>
-    </div>
-  </Fieldset>
+  <FormButton {form} icon="heroicons/tag">Update passkey</FormButton>
+
+  <FormMessage message={form.message} />
 </form>
