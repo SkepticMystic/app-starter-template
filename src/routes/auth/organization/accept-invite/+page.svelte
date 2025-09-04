@@ -2,7 +2,6 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { OrganizationsClient } from "$lib/clients/organizations.client.js";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";

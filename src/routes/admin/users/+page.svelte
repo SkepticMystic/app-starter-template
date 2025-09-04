@@ -1,6 +1,5 @@
 <script lang="ts">
   import { AdminClient } from "$lib/clients/admin.client.js";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";

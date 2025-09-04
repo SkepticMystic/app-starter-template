@@ -1,13 +1,11 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
   import { toast } from "svelte-sonner";
-  import Icon from "../icons/Icon.svelte";
   import Button from "../ui/button/button.svelte";
 
   let {

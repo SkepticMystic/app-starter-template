@@ -1,7 +1,5 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { ROUTES } from "$lib/const/routes.const";

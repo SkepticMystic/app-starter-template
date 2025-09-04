@@ -2,7 +2,7 @@ import { get_session } from "$lib/auth/server";
 import { db } from "$lib/server/db/drizzle.db";
 import type { PageServerLoad } from "./$types";
 
-export const load = (async ({}) => {
+export const load = (async () => {
   const [_admin, users] = await Promise.all([
     get_session({ admin: true }),
     db.query.user.findMany({

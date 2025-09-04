@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Icon from "./icons/Icon.svelte";
   import Button from "./ui/button/button.svelte";
 
   interface Props {
