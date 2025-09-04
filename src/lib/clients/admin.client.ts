@@ -29,13 +29,19 @@ export const AdminClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to update user role:", res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to update user role. Please try again.",
-          );
+          });
         }
       },
-      { toast: { suc: "User role updated successfully." } },
+      {
+        toast: {
+          loading: "Updating user role...",
+          success: "User role updated successfully.",
+        },
+      },
     ),
 
   impersonate_user: (user_id: string) =>
@@ -53,10 +59,11 @@ export const AdminClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to impersonate user:", res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to impersonate user. Please try again.",
-          );
+          });
         }
       },
       // NOTE: Show toast after redirect in ?toast param
@@ -71,13 +78,19 @@ export const AdminClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to stop impersonation:", res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to stop impersonation. Please try again.",
-          );
+          });
         }
       },
-      { toast: { suc: "Stopped impersonation successfully." } },
+      {
+        toast: {
+          loading: "Stopping impersonation...",
+          success: "Stopped impersonation successfully.",
+        },
+      },
     ),
 
   ban_user: (
@@ -91,7 +104,7 @@ export const AdminClient = {
             `Are you sure you want to ban this user ${
               options.expires_in
                 ? `for ${Format.number(options.expires_in / TIME.DAY)} days?`
-                : "idefinitely?"
+                : "indefinitely?"
             }`,
           )
         ) {
@@ -108,12 +121,18 @@ export const AdminClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to ban user:", res.error);
-          return err(
-            res.error?.message ?? "Failed to ban user. Please try again.",
-          );
+          return err({
+            message:
+              res.error?.message ?? "Failed to ban user. Please try again.",
+          });
         }
       },
-      { toast: { suc: "User banned successfully." } },
+      {
+        toast: {
+          loading: "Banning user...",
+          success: "User banned successfully.",
+        },
+      },
     ),
 
   unban_user: (user_id: string) =>
@@ -131,15 +150,21 @@ export const AdminClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to unban user:", res.error);
-          return err(
-            res.error?.message ?? "Failed to unban user. Please try again.",
-          );
+          return err({
+            message:
+              res.error?.message ?? "Failed to unban user. Please try again.",
+          });
         }
       },
-      { toast: { suc: "User unbanned successfully." } },
+      {
+        toast: {
+          loading: "Unbanning user...",
+          success: "User unbanned successfully.",
+        },
+      },
     ),
 
-  delete_user: async (user_id: string) =>
+  delete_user: (user_id: string) =>
     Client.request(
       async () => {
         if (!confirm("Are you sure you want to delete this user?")) {
@@ -154,11 +179,17 @@ export const AdminClient = {
           return suc(res.data);
         } else {
           console.warn(res.error);
-          return err(
-            res.error.message ?? "Failed to delete user. Please try again.",
-          );
+          return err({
+            message:
+              res.error?.message ?? "Failed to delete user. Please try again.",
+          });
         }
       },
-      { toast: { suc: "User deleted successfully" } },
+      {
+        toast: {
+          loading: "Deleting user...",
+          success: "User deleted successfully",
+        },
+      },
     ),
 };

@@ -11,17 +11,21 @@ const set_active_inner = async (organizationId: string) => {
     return suc(res.data);
   } else {
     console.warn("Failed to set active organization:", res.error);
-    return err(
-      res.error?.message ??
+    return err({
+      message:
+        res.error?.message ??
         "Failed to set active organization. Please try again.",
-    );
+    });
   }
 };
 
 export const OrganizationsClient = {
   set_active: (organizationId: string) =>
     Client.request(() => set_active_inner(organizationId), {
-      toast: { suc: "Active organization updated." },
+      toast: {
+        loading: "Setting active organization...",
+        success: "Active organization updated.",
+      },
     }),
 
   delete: (organizationId: string) =>
@@ -43,13 +47,19 @@ export const OrganizationsClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to delete organization:", res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to delete organization. Please try again.",
-          );
+          });
         }
       },
-      { toast: { suc: "Organization deleted successfully." } },
+      {
+        toast: {
+          loading: "Deleting organization...",
+          success: "Organization deleted successfully.",
+        },
+      },
     ),
 
   accept_invitation: (invitationId: string) =>
@@ -71,13 +81,19 @@ export const OrganizationsClient = {
           return suc(res.data);
         } else {
           console.warn(res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to accept invitation. Please try again.",
-          );
+          });
         }
       },
-      { toast: { suc: "Invitation accepted successfully." } },
+      {
+        toast: {
+          loading: "Accepting invitation...",
+          success: "Invitation accepted successfully.",
+        },
+      },
     ),
 
   cancel_invitation: (invitation_id: string) =>
@@ -95,12 +111,18 @@ export const OrganizationsClient = {
           return suc(res.data);
         } else {
           console.warn(res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to delete invitation. Please try again.",
-          );
+          });
         }
       },
-      { toast: { suc: "Invitation cancelled successfully." } },
+      {
+        toast: {
+          loading: "Cancelling invitation...",
+          success: "Invitation cancelled successfully.",
+        },
+      },
     ),
 };

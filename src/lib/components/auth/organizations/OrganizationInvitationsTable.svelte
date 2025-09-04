@@ -1,86 +1,79 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import TableCell from "$lib/components/ui/table/table-cell.svelte";
-  import TableHead from "$lib/components/ui/table/table-head.svelte";
-  import {
-    type IOrganization,
-    ORGANIZATION,
-  } from "$lib/const/organization.const";
-  import { Dates } from "$lib/utils/dates";
-  import { Format } from "$lib/utils/format.util";
+  import { renderComponent } from "$lib/components/ui/data-table";
+  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
+  import { ORGANIZATION } from "$lib/const/organization.const";
   import { Items } from "$lib/utils/items.util";
-  import { Loader } from "$lib/utils/loader";
-  import { Strings } from "$lib/utils/strings.util";
+  import { TanstackTable } from "$lib/utils/tanstack/table.util";
   import type { Invitation } from "better-auth/plugins";
 
-  interface Props {
+  let {
+    on_delete,
+    invitations,
+  }: {
     invitations: Invitation[];
-  }
-
-  let { invitations = $bindable() }: Props = $props();
-
-  const loader = Loader<`cancel_invitation:${string}`>();
-
-  const cancel_invitation = async (invite_id: string) => {
-    loader.load(`cancel_invitation:${invite_id}`);
-
-    const res = await OrganizationsClient.cancel_invitation(invite_id);
-    if (res.ok) {
-      invitations = Items.patch(invitations, invite_id, res.data);
-    }
-
-    loader.reset();
-  };
-
-  let rows = $derived(invitations);
+    on_delete?: (invitation: Invitation) => void;
+  } = $props();
 </script>
 
-<Table data={rows}>
-  {#snippet header()}
-    <TableHead>Email</TableHead>
-    <TableHead>Role</TableHead>
-    <TableHead>Expiry date</TableHead>
-    <TableHead>Status</TableHead>
-    <TableHead>Actions</TableHead>
-  {/snippet}
+<DataTable
+  data={invitations}
+  states={{
+    column_filters: [{ id: "status", value: ["pending"] }],
+  }}
+  columns={TanstackTable.make_columns<Invitation>({
+    columns: [
+      {
+        accessorKey: "email",
+        meta: { label: "Email" },
+      },
+      {
+        accessorKey: "role",
+        meta: { label: "Role" },
 
-  {#snippet row(invitation)}
-    <TableCell>
-      {invitation.email}
-    </TableCell>
+        cell: ({ row }) =>
+          ORGANIZATION.INVITATIONS.STATUSES.MAP[row.original.status].label,
+      },
+      {
+        accessorKey: "status",
+        meta: { label: "Status" },
 
-    <TableCell>
-      {ORGANIZATION.ROLES.MAP[invitation.role as IOrganization.RoleId].label}
-    </TableCell>
+        cell: ({ row }) =>
+          ORGANIZATION.INVITATIONS.STATUSES.MAP[row.original.status].label,
+      },
 
-    <TableCell>
-      <Time date={invitation.expiresAt} show={Dates.show_datetime} />
-    </TableCell>
+      {
+        accessorKey: "expiresAt",
+        meta: { label: "Expiry date" },
 
-    <TableCell>
-      {ORGANIZATION.INVITATIONS.STATUSES.MAP[invitation.status].label}
-    </TableCell>
+        cell: ({ row }) =>
+          renderComponent(Time, {
+            show: "datetime",
+            date: row.original.expiresAt,
+          }),
+      },
+    ],
 
-    <TableCell>
-      <Button
-        variant="destructive"
-        icon="heroicons/x-mark"
-        title="Cancel invitation"
-        onclick={() => cancel_invitation(invitation.id)}
-        loading={$loader[`cancel_invitation:${invitation.id}`]}
-        disabled={invitation.status !== "pending" ||
-          $loader[`cancel_invitation:${invitation.id}`]}
-      />
-    </TableCell>
-  {/snippet}
+    actions: [
+      {
+        kind: "item",
+        icon: "lucide/x",
+        title: "Cancel invitation",
 
-  {#snippet footer()}
-    <TableCell colspan={5}>
-      {Format.number(rows.length)}
-      {Strings.pluralize("invitation", rows.length)}
-    </TableCell>
-  {/snippet}
-</Table>
+        disabled: (row) => row.original.status !== "pending",
+
+        onselect: async (row) => {
+          const res = await OrganizationsClient.cancel_invitation(
+            row.original.id,
+          );
+
+          if (res.ok) {
+            invitations = Items.patch(invitations, row.original.id, res.data);
+            on_delete?.(res.data);
+          }
+        },
+      },
+    ],
+  })}
+></DataTable>

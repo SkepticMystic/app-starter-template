@@ -19,9 +19,16 @@ export const AccountsClient = {
         if (res.data) {
           return suc(res.data);
         } else {
-          return err(res.error.message ?? "Failed to unlink account");
+          return err({
+            message: res.error.message ?? "Failed to unlink account",
+          });
         }
       },
-      { toast: { suc: "Account unlinked successfully" } },
+      {
+        toast: {
+          loading: "Unlinking account...",
+          success: "Account unlinked successfully",
+        },
+      },
     ),
 };

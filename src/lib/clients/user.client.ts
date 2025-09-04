@@ -3,7 +3,7 @@ import { err, suc } from "$lib/utils/result.util";
 import { Client } from "./index.client";
 
 export const UserClient = {
-  delete: async () =>
+  delete: () =>
     Client.request(
       async () => {
         if (!confirm("Are you sure you want to delete your account?")) {
@@ -16,11 +16,18 @@ export const UserClient = {
           return suc(res.data);
         } else {
           console.warn(res.error);
-          return err(
-            res.error.message ?? "Failed to delete account. Please try again.",
-          );
+          return err({
+            message:
+              res.error.message ??
+              "Failed to delete account. Please try again.",
+          });
         }
       },
-      { toast: { suc: "Account deleted successfully" } },
+      {
+        toast: {
+          loading: "Deleting account...",
+          success: "Account deleted successfully",
+        },
+      },
     ),
 };

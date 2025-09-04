@@ -3,9 +3,9 @@
   import { PasskeysClient } from "$lib/clients/passkeys.client";
   import List from "$lib/components/daisyui/List.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
-  import { Dates } from "$lib/utils/dates";
   import { Items } from "$lib/utils/items.util";
   import { any_loading, Loader } from "$lib/utils/loader";
   import EditPasskeyForm from "./EditPasskeyForm.svelte";
@@ -41,7 +41,7 @@
         {passkey.name || "Unnamed Passkey"}
       </p>
       <p class="text-xs font-semibold uppercase opacity-60">
-        Connected on {Dates.show_date(passkey.createdAt)}
+        Connected on <Time date={passkey.createdAt} show="date" />
       </p>
     </div>
 
@@ -55,7 +55,7 @@
           <Icon icon="heroicons/pencil" />
         {/snippet}
 
-        {#snippet children()}
+        {#snippet content()}
           <EditPasskeyForm
             {passkey}
             on_update={(updated) => {

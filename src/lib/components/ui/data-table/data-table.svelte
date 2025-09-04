@@ -138,6 +138,8 @@
   <div class="flex justify-between">
     {#if column_filters}
       {@render filters?.(table)}
+    {:else}
+      <div></div>
     {/if}
 
     <DataTableVisibilityDropdownMenu {table} />

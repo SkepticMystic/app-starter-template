@@ -7,6 +7,7 @@
   import { TASKS } from "$lib/const/task.const";
   import { create_task, get_tasks } from "$lib/remote/tasks.remote";
   import { TaskSchema } from "$lib/schema/task.schema";
+  import type { Task } from "$lib/server/db/schema/task.models";
   import { make_super_form } from "$lib/utils/form.util";
   import { Items } from "$lib/utils/items.util";
   import { type Infer, type SuperValidated } from "sveltekit-superforms";
@@ -14,23 +15,28 @@
 
   let {
     form_input,
+    on_success,
   }: {
     form_input: SuperValidated<Infer<typeof TaskSchema.create>>;
+    on_success?: (task: Task) => void;
   } = $props();
 
   const form = make_super_form(form_input, TaskSchema.create, {
     delayMs: 500,
     timeoutMs: 8_000,
-    remote: (task) =>
+    // NOTE: Seems to be the only way to prevent form data from being cleared,
+    // even on failure
+    applyAction: "never",
+
+    toast: { optimistic: true, success: "Task created" },
+
+    on_success,
+    submit: (task) =>
       create_task(task).updates(
         get_tasks({}).withOverride((tasks) =>
           Items.add(tasks, { ...task, createdAt: new Date() }, { front: true }),
         ),
       ),
-
-    // NOTE: Seems to be the only way to prevent form data from being cleared,
-    // even on failure
-    applyAction: "never",
   });
 
   const { form: form_data, message, enhance, pending } = form;

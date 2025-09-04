@@ -1,12 +1,10 @@
 <script lang="ts" generics="TData extends Item">
   import Icon from "$lib/components/icons/Icon.svelte";
-  import {
-    Button,
-    type ButtonVariant,
-  } from "$lib/components/ui/button/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import type { Item } from "$lib/utils/items.util";
   import type { Row } from "@tanstack/table-core";
+  import type { DropdownMenuItemPropsWithoutHTML } from "bits-ui";
   import type { ClassValue } from "svelte/elements";
 
   type Action =
@@ -14,17 +12,17 @@
         kind: "separator";
       }
     | {
-        kind: "item";
-        title: string;
-        icon?: ClassValue;
-        variant?: ButtonVariant;
-        onclick: (row: Row<TData>) => void;
-      }
-    | {
         kind: "group";
         label: string;
         actions: Action[];
-      };
+      }
+    | ({
+        kind: "item";
+        title: string;
+        icon?: ClassValue;
+        onselect: (row: Row<TData>) => void;
+        disabled?: (row: Row<TData>) => boolean;
+      } & Omit<DropdownMenuItemPropsWithoutHTML, "onSelect" | "disabled">);
 
   let {
     row,
@@ -39,10 +37,16 @@
   {#if action.kind === "separator"}
     <DropdownMenu.Separator />
   {:else if action.kind === "item"}
-    <DropdownMenu.Item onclick={() => action.onclick(row)}>
-      <Icon icon={action.icon} />
+    {@const { onselect, icon, title, disabled, kind: _kind, ...rest } = action}
 
-      {action.title}
+    <DropdownMenu.Item
+      {...rest}
+      disabled={disabled?.(row)}
+      onSelect={() => onselect(row)}
+    >
+      <Icon {icon} />
+
+      {title}
     </DropdownMenu.Item>
   {:else if action.kind === "group"}
     <DropdownMenu.Group>

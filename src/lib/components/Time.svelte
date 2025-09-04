@@ -1,26 +1,35 @@
 <script lang="ts">
-  import { Dates } from "$lib/utils/dates";
+  import { Format } from "$lib/utils/format.util";
   import type { ClassValue } from "svelte/elements";
 
   let {
     date,
     title,
+    fallback,
+    show = "date",
     class: klass = "",
-    show = Dates.show_date,
   }: {
     title?: string;
+    fallback?: string;
     class?: ClassValue;
     date: Date | string | number | undefined | null;
-    show?: (dt: Date | number | string | undefined | null) => string;
+    show?:
+      | "date"
+      | "datetime"
+      | ((dt: Date | number | string | undefined | null) => string);
   } = $props();
+
+  const resolved = date ? new Date(date) : null;
+
+  const format = typeof show === "string" ? Format[show] : show;
 </script>
 
-{#if date}
-  <time {title} class={klass} datetime={new Date(date).toISOString()}>
-    {show(date)}
+{#if resolved}
+  <time {title} class={klass} datetime={resolved.toISOString()}>
+    {format(resolved)}
   </time>
 {:else}
   <span {title} class={klass}>
-    {show(date)}
+    {fallback ?? format(resolved)}
   </span>
 {/if}

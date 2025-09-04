@@ -49,3 +49,4 @@
 
 - [ ] runed.dev
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store
+- [ ] Add llm.txt n instructions.md, where its helpful

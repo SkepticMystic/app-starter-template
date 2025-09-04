@@ -1,42 +1,42 @@
 <script lang="ts">
   import FormControl from "$lib/components/form/FormControl.svelte";
-  import * as Form from "$lib/components/ui/form/index.js";
+  import FormField from "$lib/components/form/FormField.svelte";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
   import { create_invitation } from "$lib/remote/auth/organization.remote";
   import { AuthSchema } from "$lib/schema/auth.schema";
   import { make_super_form } from "$lib/utils/form.util";
-  import type { Invitation } from "better-auth/plugins";
   import { type Infer, type SuperValidated } from "sveltekit-superforms";
 
   let {
     on_invite,
     form_input,
   }: {
-    on_invite?: (data: Invitation) => void;
     form_input: SuperValidated<Infer<typeof AuthSchema.Org.member_invite_form>>;
+    on_invite?: (
+      data: Extract<
+        Awaited<ReturnType<typeof create_invitation>>,
+        { ok: true }
+      >["data"],
+    ) => void;
   } = $props();
 
-  const super_form = make_super_form(
-    form_input,
-    AuthSchema.Org.member_invite_form,
-    {
-      timeoutMs: 8_000,
-      remote: create_invitation,
+  const form = make_super_form(form_input, AuthSchema.Org.member_invite_form, {
+    timeoutMs: 8_000,
 
-      handle: {
-        success: (res) => on_invite && res.data && on_invite(res.data.data),
-      },
-    },
-  );
+    on_success: on_invite,
+    submit: create_invitation,
+    toast: { loading: "Inviting member...", success: "Member invited!" },
+  });
 
-  const { form: form_data, message, enhance, pending } = super_form;
+  const { form: form_data, message, enhance, pending } = form;
 </script>
 
 <form class="flex flex-col gap-3" method="POST" use:enhance>
   <div class="flex gap-3">
-    <Form.Field class="grow" form={super_form} name="email">
+    <FormField class="grow" {form} name="email">
       <FormControl label="Email">
         {#snippet children({ props })}
           <Input
@@ -47,11 +47,9 @@
           />
         {/snippet}
       </FormControl>
+    </FormField>
 
-      <Form.FieldErrors />
-    </Form.Field>
-
-    <Form.Field form={super_form} name="role">
+    <FormField {form} name="role">
       <FormControl label="Role">
         {#snippet children({ props })}
           <SingleSelect
@@ -61,14 +59,12 @@
           />
         {/snippet}
       </FormControl>
-
-      <Form.FieldErrors />
-    </Form.Field>
+    </FormField>
   </div>
 
-  <Form.Button loading={$pending} icon="lucide/user-plus">
+  <FormButton loading={$pending} icon="lucide/user-plus">
     Invite Member
-  </Form.Button>
+  </FormButton>
 
   {#if $message && !$message.ok && $message.error}
     <p class="text-warning">{$message.error}</p>

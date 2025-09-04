@@ -15,22 +15,30 @@ export const PasskeysClient = {
           return suc(null);
         } else if (res.error) {
           console.warn("res.error", res.error);
-          return err(
-            res.error.message ?? "Adding passkey failed. Please try again.",
-          );
+          return err({
+            message:
+              res.error.message ?? "Adding passkey failed. Please try again.",
+          });
         } else {
           console.log("res.data", res.data);
           return suc(res.data);
         }
       },
-      { toast: { suc: "Passkey added successfully" } },
+      {
+        toast: {
+          loading: "Adding passkey...",
+          success: "Passkey added successfully",
+        },
+      },
     ),
 
   update: (passkey_id: string, passkey: Pick<Passkey, "name">) =>
     Client.request(
       async () => {
         if (!passkey.name) {
-          return err("Passkey name cannot be empty");
+          return err({
+            message: "Passkey name cannot be empty",
+          });
         }
 
         const res = await BetterAuthClient.passkey.updatePasskey({
@@ -39,12 +47,19 @@ export const PasskeysClient = {
         });
 
         if (res.error) {
-          return err(res.error.message ?? "Failed to update passkey");
+          return err({
+            message: res.error.message ?? "Failed to update passkey",
+          });
         } else {
           return suc(res.data);
         }
       },
-      { toast: { suc: "Passkey updated successfully" } },
+      {
+        toast: {
+          loading: "Updating passkey...",
+          success: "Passkey updated successfully",
+        },
+      },
     ),
 
   delete: (passkey_id: string) =>
@@ -59,11 +74,18 @@ export const PasskeysClient = {
         });
 
         if (res.error) {
-          return err(res.error.message ?? "Failed to delete passkey");
+          return err({
+            message: res.error.message ?? "Failed to delete passkey",
+          });
         } else {
-          return suc();
+          return suc(res.data);
         }
       },
-      { toast: { suc: "Passkey deleted successfully" } },
+      {
+        toast: {
+          loading: "Deleting passkey...",
+          success: "Passkey deleted successfully",
+        },
+      },
     ),
 };

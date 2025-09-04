@@ -1,12 +1,13 @@
+import { Client } from "$lib/clients/index.client";
+import Time from "$lib/components/Time.svelte";
+import { renderComponent } from "$lib/components/ui/data-table";
 import { TASKS } from "$lib/const/task.const";
 import { delete_task, get_tasks } from "$lib/remote/tasks.remote";
 import type { Task } from "$lib/server/db/schema/task.models";
-import { Dates } from "$lib/utils/dates";
 import { Items } from "$lib/utils/items.util";
 import { TanstackTable } from "$lib/utils/tanstack/table.util";
 import { getLocalTimeZone } from "@internationalized/date";
 import type { DateRange } from "bits-ui";
-import { toast } from "svelte-sonner";
 
 type TData = Task;
 
@@ -43,15 +44,17 @@ export const columns = TanstackTable.make_columns<TData>({
       },
 
       cell: ({ row }) =>
-        row.original.due_date
-          ? Dates.show_date(row.original.due_date)
-          : "No due date",
+        renderComponent(Time, {
+          show: "datetime",
+          date: row.original.due_date,
+        }),
     },
     {
       accessorKey: "createdAt",
       meta: { label: "Created" },
 
-      cell: ({ row }) => Dates.show_date(row.original.createdAt),
+      cell: ({ row }) =>
+        renderComponent(Time, { date: row.original.createdAt }),
     },
   ],
 
@@ -60,27 +63,24 @@ export const columns = TanstackTable.make_columns<TData>({
       kind: "item",
       title: "Copy task ID",
       icon: "lucide/copy",
-      onclick: (row) => navigator.clipboard.writeText(row.original.id),
+      onselect: (row) => navigator.clipboard.writeText(row.original.id),
     },
     {
       kind: "item",
       title: "Delete task",
       icon: "lucide/trash-2",
-      variant: "destructive",
-      onclick: async (row) => {
-        const toast_id = toast.success("Task deleted");
-
-        try {
-          await delete_task(row.original.id).updates(
-            get_tasks({}).withOverride((old) =>
-              Items.remove(old, row.original.id),
+      onselect: (row) =>
+        Client.request(
+          () =>
+            delete_task(row.original.id).updates(
+              get_tasks({}).withOverride((old) =>
+                Items.remove(old, row.original.id),
+              ),
             ),
-          );
-        } catch (error) {
-          console.log("Error deleting task", error);
-          toast.error("Error deleting task", { id: toast_id });
-        }
-      },
+          {
+            toast: { optimistic: true, success: "Task deleted" },
+          },
+        ),
     },
   ],
 });

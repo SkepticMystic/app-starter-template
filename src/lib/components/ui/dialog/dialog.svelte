@@ -8,6 +8,7 @@
   import type { Snippet } from "svelte";
 
   let {
+    open,
     title,
     description,
     size = "default",
@@ -15,7 +16,8 @@
 
     trigger,
     actions,
-    children,
+    content,
+
     ...rest_props
   }: DialogRootProps & {
     title?: string;
@@ -24,11 +26,16 @@
     variant?: ButtonProps["variant"];
 
     trigger: Snippet;
+    content: Snippet<[{ close: typeof close }]>;
     actions?: Snippet;
   } = $props();
+
+  const close = () => {
+    open = false;
+  };
 </script>
 
-<Dialog.Root {...rest_props}>
+<Dialog.Root {...rest_props} {open}>
   <Dialog.Trigger {title} class={buttonVariants({ variant, size })}>
     {@render trigger?.()}
   </Dialog.Trigger>
@@ -48,7 +55,7 @@
       </Dialog.Header>
     {/if}
 
-    {@render children?.()}
+    {@render content({ close })}
 
     {#if actions}
       <Dialog.Footer>

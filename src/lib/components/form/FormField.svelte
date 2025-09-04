@@ -11,19 +11,23 @@
   lang="ts"
   generics="T extends Record<string, unknown>, U extends FormPath<T>"
 >
-  import { Description, Field, FieldErrors, type FieldProps } from "formsnap";
+  import type { FieldProps } from "formsnap";
+  import type { ClassValue } from "svelte/elements";
+  import { Description, Field, FieldErrors } from "../ui/form";
 
   let {
     form,
     name,
     description,
+    class: klass,
     children: control_children,
   }: FieldProps<T, U> & {
+    class?: ClassValue;
     description?: string;
   } = $props();
 </script>
 
-<Field {form} {name}>
+<Field {form} {name} class={klass}>
   {#snippet children(control_props)}
     {@render control_children?.(control_props)}
 

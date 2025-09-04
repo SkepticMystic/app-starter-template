@@ -4,11 +4,11 @@ import { get_session } from "$lib/auth/server";
 import { ORGANIZATION } from "$lib/const/organization.const";
 import { AuthSchema } from "$lib/schema/auth.schema";
 import { db } from "$lib/server/db/drizzle.db";
-import type { FormCommandResult } from "$lib/utils/form.util";
-import { fail } from "@sveltejs/kit";
+import type { FormSubmitResult } from "$lib/utils/form.util";
+import { err, suc } from "$lib/utils/result.util";
 import { APIError } from "better-auth/api";
 import type { Invitation } from "better-auth/plugins";
-import { superValidate, type Infer } from "sveltekit-superforms";
+import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import z from "zod";
 
@@ -44,21 +44,14 @@ export const get_invitations = query(
 
 export const create_invitation = command(
   "unchecked",
-  async (
-    data,
-  ): Promise<
-    FormCommandResult<
-      Infer<typeof AuthSchema.Org.member_invite_form>,
-      Invitation
-    >
-  > => {
+  async (data): Promise<FormSubmitResult<Invitation>> => {
     const [form] = await Promise.all([
       superValidate(data as any, zod4(AuthSchema.Org.member_invite_form)),
     ]);
     console.log("create_invitation.form", form);
 
     if (!form.valid) {
-      return { type: "failure", ...fail(400, { form }) };
+      return err();
     }
 
     try {
@@ -67,24 +60,14 @@ export const create_invitation = command(
         headers: getRequestEvent().request.headers,
       });
 
-      return {
-        status: 201,
-        type: "success",
-        data: { form, data, toast: "Invitation created" },
-      };
+      return suc(data);
     } catch (error) {
       console.error("create_invitation.error", error);
 
       if (error instanceof APIError) {
-        return {
-          type: "failure",
-          ...fail(error.statusCode, { form, message: error.message }),
-        };
+        return err({ message: error.message });
       } else {
-        return {
-          type: "failure",
-          ...fail(500, { form, message: "Failed to create invitation" }),
-        };
+        return err({ message: "Failed to create invitation" });
       }
     }
   },

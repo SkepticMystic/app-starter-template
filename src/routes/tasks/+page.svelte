@@ -28,7 +28,9 @@
         New task
       {/snippet}
 
-      <EditTaskForm form_input={data.form_input} />
+      {#snippet content({ close })}
+        <EditTaskForm form_input={data.form_input} on_success={() => close()} />
+      {/snippet}
     </Dialog>
   </div>
 

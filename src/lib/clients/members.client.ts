@@ -23,17 +23,18 @@ export const MembersClient = {
 
         const members = await BetterAuthClient.organization.listMembers();
         if (!members.data) {
-          return err(
-            members.error?.message ??
+          return err({
+            message:
+              members.error?.message ??
               "Failed to fetch members. Please try again.",
-          );
+          });
         }
 
         const target_member = members.data.members.find(
           (m) => m.id === target_member_id,
         );
         if (!target_member) {
-          return err("Member not found");
+          return err({ message: "Member not found" });
         } else if (
           target_role_id !== "owner" &&
           target_member.role === "owner" &&
@@ -41,7 +42,9 @@ export const MembersClient = {
             (m) => m.id !== target_member_id && m.role === "owner",
           )
         ) {
-          return err("Organization must have at least one owner.");
+          return err({
+            message: "Organization must have at least one owner.",
+          });
         }
 
         const res = await BetterAuthClient.organization.updateMemberRole({
@@ -53,13 +56,19 @@ export const MembersClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to update member role:", res.error);
-          return err(
-            res.error?.message ??
+          return err({
+            message:
+              res.error?.message ??
               "Failed to update member role. Please try again.",
-          );
+          });
         }
       },
-      { toast: { suc: "Member role updated successfully." } },
+      {
+        toast: {
+          loading: "Updating member role...",
+          success: "Member role updated successfully.",
+        },
+      },
     ),
 
   // TODO: Report a bug on better-auth orgs
@@ -83,11 +92,18 @@ export const MembersClient = {
           return suc(res.data);
         } else {
           console.warn("Failed to remove member:", res.error);
-          return err(
-            res.error?.message ?? "Failed to remove member. Please try again.",
-          );
+          return err({
+            message:
+              res.error?.message ??
+              "Failed to remove member. Please try again.",
+          });
         }
       },
-      { toast: { suc: "Member removed successfully." } },
+      {
+        toast: {
+          loading: "Removing member...",
+          success: "Member removed successfully.",
+        },
+      },
     ),
 };

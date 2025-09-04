@@ -3,9 +3,9 @@
   import { AccountsClient } from "$lib/clients/accounts.client";
   import List from "$lib/components/daisyui/List.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
+  import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { Dates } from "$lib/utils/dates";
   import { any_loading, Loader } from "$lib/utils/loader";
 
   let {
@@ -54,7 +54,7 @@
         {item.name}
       </p>
       <p class="text-xs font-semibold uppercase opacity-60">
-        Connected on {Dates.show_date(item.createdAt)}
+        Connected on <Time date={item.createdAt} show="datetime" />
       </p>
     </div>
 

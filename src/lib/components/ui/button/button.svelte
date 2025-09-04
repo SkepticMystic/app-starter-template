@@ -103,10 +103,8 @@
     {...restProps}
   >
     <Loading {loading} />
+    <Icon {icon} />
 
-    {#if icon}
-      <Icon {icon} />
-    {/if}
     {@render children?.()}
   </button>
 {/if}

@@ -9,11 +9,9 @@
   import type { DateRange } from "bits-ui";
 
   let {
-    on_value_change,
     value = $bindable(),
   }: {
     value: DateRange | undefined;
-    on_value_change?: (range: DateRange | undefined) => void;
   } = $props();
 
   const tz = getLocalTimeZone();
@@ -50,7 +48,6 @@
         bind:value
         numberOfMonths={2}
         onStartValueChange={(v) => (startValue = v)}
-        onValueChange={(range) => on_value_change?.(range)}
       />
     </Popover.Content>
   </Popover.Root>

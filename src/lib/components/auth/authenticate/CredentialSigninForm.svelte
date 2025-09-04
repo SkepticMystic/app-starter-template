@@ -1,7 +1,8 @@
 <script lang="ts">
   import FormControl from "$lib/components/form/FormControl.svelte";
+  import FormField from "$lib/components/form/FormField.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
-  import * as Form from "$lib/components/ui/form/index.js";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const.js";
   import { AuthSchema } from "$lib/schema/auth.schema";
@@ -37,7 +38,7 @@
 </script>
 
 <form class="space-y-4" method="POST" use:enhance>
-  <Form.Field {form} name="email">
+  <FormField {form} name="email">
     <FormControl label="Email">
       {#snippet children({ props })}
         <Input
@@ -49,11 +50,9 @@
         />
       {/snippet}
     </FormControl>
+  </FormField>
 
-    <Form.FieldErrors />
-  </Form.Field>
-
-  <Form.Field {form} name="password">
+  <FormField {form} name="password">
     <FormControl label="Password">
       {#snippet children({ props })}
         <Input
@@ -65,28 +64,24 @@
         />
       {/snippet}
     </FormControl>
+  </FormField>
 
-    <Form.FieldErrors />
-  </Form.Field>
-
-  <Form.Field {form} name="remember">
+  <FormField {form} name="remember">
     <FormControl horizontal label="Remember me">
       {#snippet children({ props })}
         <Checkbox {...props} bind:checked={$form_data.remember} />
       {/snippet}
     </FormControl>
+  </FormField>
 
-    <Form.FieldErrors />
-  </Form.Field>
-
-  <Form.Button
+  <FormButton
     class="w-full"
     loading={$delayed}
     icon={provider.icon}
     disabled={$submitting}
   >
     Signin with {provider.name}
-  </Form.Button>
+  </FormButton>
 
   {#if $message && !$message.ok && $message.error}
     <p class="text-warning">{$message.error}</p>

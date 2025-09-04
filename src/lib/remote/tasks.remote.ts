@@ -1,15 +1,13 @@
 import { command, query } from "$app/server";
-import type { Pathname } from "$app/types";
 import { get_session } from "$lib/auth/server";
 import { TASKS } from "$lib/const/task.const";
 import { TaskSchema } from "$lib/schema/task.schema";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskTable, type Task } from "$lib/server/db/schema/task.models";
-import type { FormCommandResult } from "$lib/utils/form.util";
-import { suc } from "$lib/utils/result.util";
-import { error, fail } from "@sveltejs/kit";
+import type { FormSubmitResult } from "$lib/utils/form.util";
+import { err, suc } from "$lib/utils/result.util";
 import { and, eq } from "drizzle-orm";
-import { superValidate, type Infer } from "sveltekit-superforms";
+import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import z from "zod";
 
@@ -36,9 +34,7 @@ export const get_tasks = query(
 
 export const create_task = command(
   "unchecked",
-  async (
-    data,
-  ): Promise<FormCommandResult<Infer<typeof TaskSchema.create>, Task>> => {
+  async (data): Promise<FormSubmitResult<Task>> => {
     const [{ session }, form] = await Promise.all([
       get_session(),
       superValidate(data as any, zod4(TaskSchema.create)),
@@ -46,7 +42,7 @@ export const create_task = command(
     console.log("create_task.form", form);
 
     if (!form.valid) {
-      return { type: "failure", ...fail(400, { form }) };
+      return err();
     }
 
     try {
@@ -61,46 +57,36 @@ export const create_task = command(
         })
         .returning();
 
-      return true
-        ? {
-            type: "success",
-            status: 201,
-            data: { form, data: task, toast: "Task created" },
-          }
-        : {
-            status: 303,
-            type: "redirect",
-            location: `/tasks/${task.id}` satisfies Pathname,
-          };
+      return suc(task);
     } catch (error) {
       console.error("create_task.error", error);
 
-      return {
-        type: "failure",
-        ...fail(500, { form, message: "Failed to create task" }),
-      };
+      return err({ message: "Failed to create task" });
     }
   },
 );
 
-export const delete_task = command(z.string().min(1), async (task_id) => {
-  const { session } = await get_session();
+export const delete_task = command(
+  z.string().min(1),
+  async (task_id): Promise<FormSubmitResult<undefined>> => {
+    const { session } = await get_session();
 
-  try {
-    const result = await db
-      .delete(TaskTable)
-      .where(
-        and(eq(TaskTable.id, task_id), eq(TaskTable.org_id, session.org_id)),
-      )
-      .execute();
+    try {
+      const result = await db
+        .delete(TaskTable)
+        .where(
+          and(eq(TaskTable.id, task_id), eq(TaskTable.org_id, session.org_id)),
+        )
+        .execute();
 
-    if (!result.rowCount) {
-      error(400, "Task not found");
+      if (!result.rowCount) {
+        return err({ message: "Task not found" });
+      }
+
+      return suc();
+    } catch (e) {
+      console.error("delete_task.error", e);
+      return err({ message: "Failed to delete task" });
     }
-
-    return suc();
-  } catch (e) {
-    console.error("delete_task.error", e);
-    error(500, "Failed to delete task");
-  }
-});
+  },
+);
