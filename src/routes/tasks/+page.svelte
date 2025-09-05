@@ -35,20 +35,18 @@
   </div>
 
   {#await tasks_query}
-    <Loading loading />
+    <Loading loading title="Fetching tasks..." />
   {:then tasks}
     <DataTable
       {columns}
       data={tasks}
-      states={{
-        sorting: [{ id: "createdAt", desc: true }],
-      }}
+      states={{ sorting: [{ id: "createdAt", desc: true }] }}
     >
       {#snippet filters(table)}
         <div class="flex gap-1.5">
           <Input
             class="max-w-sm"
-            placeholder="Filter tasks..."
+            placeholder="Filter by title"
             bind:value={
               () => table.getColumn("title")?.getFilterValue() ?? "",
               (value) => table.getColumn("title")?.setFilterValue(value)
@@ -57,6 +55,7 @@
 
           <MultiSelect
             options={TASKS.STATUS.OPTIONS}
+            placeholder="Filter by status"
             bind:value={
               () =>
                 (table.getColumn("status")?.getFilterValue() ?? []) as string[],
@@ -65,6 +64,7 @@
           />
 
           <DateRangePicker
+            placeholder="Filter by due date"
             bind:value={
               () =>
                 table.getColumn("due_date")?.getFilterValue() as

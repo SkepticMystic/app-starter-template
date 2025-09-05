@@ -135,7 +135,7 @@
 </script>
 
 <div class="space-y-3">
-  <div class="flex justify-between">
+  <div class="flex items-end justify-between">
     {#if column_filters}
       {@render filters?.(table)}
     {:else}

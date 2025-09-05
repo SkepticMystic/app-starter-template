@@ -4,7 +4,7 @@ import { TASKS } from "$lib/const/task.const";
 import { TaskSchema } from "$lib/schema/task.schema";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskTable, type Task } from "$lib/server/db/schema/task.models";
-import type { FormSubmitResult } from "$lib/utils/form.util";
+import type { APIResult } from "$lib/utils/form.util";
 import { err, suc } from "$lib/utils/result.util";
 import { and, eq } from "drizzle-orm";
 import { superValidate } from "sveltekit-superforms";
@@ -16,6 +16,7 @@ export const get_tasks = query(
     status: z.enum(TASKS.STATUS.IDS).optional(),
   }),
   async (input) => {
+    // TODO: Calling redirect in a remote function seems to break svelte
     const session = await get_session();
 
     const tasks = await db.query.task.findMany({
@@ -34,7 +35,7 @@ export const get_tasks = query(
 
 export const create_task = command(
   "unchecked",
-  async (data): Promise<FormSubmitResult<Task>> => {
+  async (data): Promise<APIResult<Task>> => {
     const [{ session }, form] = await Promise.all([
       get_session(),
       superValidate(data as any, zod4(TaskSchema.create)),
@@ -68,7 +69,7 @@ export const create_task = command(
 
 export const delete_task = command(
   z.string().min(1),
-  async (task_id): Promise<FormSubmitResult<undefined>> => {
+  async (task_id): Promise<APIResult<undefined>> => {
     const { session } = await get_session();
 
     try {

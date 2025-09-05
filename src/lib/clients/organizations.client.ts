@@ -1,23 +1,25 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import { err, suc } from "$lib/utils/result.util";
+import { BetterAuth } from "$lib/utils/better-auth.util";
+import { err } from "$lib/utils/result.util";
+import { Effect, pipe } from "effect";
 import { Client } from "./index.client";
 
-const set_active_inner = async (organizationId: string) => {
-  const res = await BetterAuthClient.organization.setActive({
-    organizationId,
-  });
-
-  if (res.data) {
-    return suc(res.data);
-  } else {
-    console.warn("Failed to set active organization:", res.error);
-    return err({
-      message:
-        res.error?.message ??
-        "Failed to set active organization. Please try again.",
-    });
-  }
-};
+const set_active_inner = async (organizationId: string) =>
+  Effect.runPromise(
+    pipe(
+      Effect.promise(() =>
+        BetterAuthClient.organization.setActive({ organizationId }),
+      ),
+      Effect.andThen((r) =>
+        BetterAuth.to_result(r, {
+          fallback: "Failed to set active organization.",
+        }),
+      ),
+      Effect.tap(
+        (r) => r.ok && BetterAuthClient.$store.notify("$sessionSignal"),
+      ),
+    ),
+  );
 
 export const OrganizationsClient = {
   set_active: (organizationId: string) =>
@@ -39,20 +41,9 @@ export const OrganizationsClient = {
           return err();
         }
 
-        const res = await BetterAuthClient.organization.delete({
-          organizationId,
-        });
-
-        if (res.data) {
-          return suc(res.data);
-        } else {
-          console.warn("Failed to delete organization:", res.error);
-          return err({
-            message:
-              res.error?.message ??
-              "Failed to delete organization. Please try again.",
-          });
-        }
+        return BetterAuthClient.organization
+          .delete({ organizationId })
+          .then(BetterAuth.to_result);
       },
       {
         toast: {
@@ -65,28 +56,22 @@ export const OrganizationsClient = {
   accept_invitation: (invitationId: string) =>
     Client.request(
       async () => {
-        const res = await BetterAuthClient.organization.acceptInvitation({
-          invitationId,
-        });
+        const accept_res = await BetterAuth.to_result(
+          BetterAuthClient.organization.acceptInvitation({ invitationId }),
+          { fallback: "Failed to accept invitation." },
+        );
 
-        if (res.data) {
+        if (accept_res.ok) {
           const set_active_res = await set_active_inner(
-            res.data.invitation.organizationId,
+            accept_res.data.invitation.organizationId,
           );
 
           if (!set_active_res.ok) {
             return set_active_res;
           }
-
-          return suc(res.data);
-        } else {
-          console.warn(res.error);
-          return err({
-            message:
-              res.error?.message ??
-              "Failed to accept invitation. Please try again.",
-          });
         }
+
+        return accept_res;
       },
       {
         toast: {
@@ -103,20 +88,12 @@ export const OrganizationsClient = {
           return err();
         }
 
-        const res = await BetterAuthClient.organization.cancelInvitation({
-          invitationId: invitation_id,
-        });
-
-        if (res.data) {
-          return suc(res.data);
-        } else {
-          console.warn(res.error);
-          return err({
-            message:
-              res.error?.message ??
-              "Failed to delete invitation. Please try again.",
-          });
-        }
+        return BetterAuth.to_result(
+          BetterAuthClient.organization.cancelInvitation({
+            invitationId: invitation_id,
+          }),
+          { fallback: "Failed to cancel invitation." },
+        );
       },
       {
         toast: {

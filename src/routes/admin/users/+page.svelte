@@ -1,8 +1,8 @@
 <script lang="ts">
   import { AdminClient } from "$lib/clients/admin.client.js";
-  import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Table from "$lib/components/ui/table/Table.svelte";
   import {
     ACCESS_CONTROL,
     type IAccessControl,

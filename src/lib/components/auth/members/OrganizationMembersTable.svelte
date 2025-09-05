@@ -1,20 +1,17 @@
 <script lang="ts">
   import type { auth } from "$lib/auth";
   import { MembersClient } from "$lib/clients/members.client";
-  import Table from "$lib/components/Table.svelte";
   import Time from "$lib/components/Time.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import { renderComponent } from "$lib/components/ui/data-table";
+  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Select from "$lib/components/ui/select/SingleSelect.svelte";
-  import TableCell from "$lib/components/ui/table/table-cell.svelte";
-  import TableHead from "$lib/components/ui/table/table-head.svelte";
   import {
     ORGANIZATION,
     type IOrganization,
   } from "$lib/const/organization.const";
-  import { Format } from "$lib/utils/format.util";
-  import { Loader } from "$lib/utils/loader";
-  import { Strings } from "$lib/utils/strings.util";
+  import { Items } from "$lib/utils/items.util";
+  import { TanstackTable } from "$lib/utils/tanstack/table.util";
 
   let {
     members = $bindable(),
@@ -22,95 +19,78 @@
     members: Awaited<ReturnType<typeof auth.api.listMembers>>["members"];
   } = $props();
 
-  const loader = Loader<
-    `update_member_role:${string}` | `remove_member:${string}`
-  >();
-
   const update_member_role = async (
-    member_id: string,
+    member: (typeof members)[number],
     role_id: IOrganization.RoleId,
   ) => {
-    loader.load(`update_member_role:${member_id}`);
-
-    const res = await MembersClient.update_member_role(member_id, role_id);
-    if (res.ok) {
-      members = members.map((member) =>
-        member.id === member_id ? { ...member, role: role_id } : member,
-      );
+    if (!role_id || role_id === member.role) {
+      return;
     }
 
-    loader.reset();
-
-    return res;
+    const res = await MembersClient.update_member_role(member.id, role_id);
+    if (res.ok) {
+      members = Items.patch(members, member.id, { role: role_id });
+    }
   };
 
   const remove_member = async (member_id: string) => {
-    loader.load(`remove_member:${member_id}`);
-
     const res = await MembersClient.remove_member(member_id);
     if (res.ok) {
-      members = members.filter((member) => member.id !== member_id);
+      members = Items.remove(members, member_id);
     }
-
-    loader.reset();
   };
-
-  let rows = $derived(members);
 </script>
 
-<Table data={rows}>
-  {#snippet header()}
-    <TableHead>Name</TableHead>
-    <TableHead>Role</TableHead>
-    <TableHead>Join date</TableHead>
-    <TableHead>Actions</TableHead>
-  {/snippet}
+<DataTable
+  data={members}
+  states={{ column_filters: [{ id: "status", value: ["pending"] }] }}
+  columns={TanstackTable.make_columns<(typeof members)[number]>({
+    columns: [
+      {
+        id: "avatar",
+        enableHiding: false,
+        enableSorting: false,
 
-  {#snippet row(member)}
-    <TableCell>
-      <div class="flex items-center gap-2">
-        <UserAvatar class="size-9" user={member.user} />
+        cell: ({ row }) =>
+          renderComponent(UserAvatar, { user: row.original.user }),
+      },
+      {
+        accessorKey: "user.name",
+        meta: { label: "Name" },
+      },
+      {
+        accessorKey: "user.email",
+        meta: { label: "Email" },
+      },
+      {
+        accessorKey: "role",
+        meta: { label: "Role" },
 
-        <div class="flex flex-col">
-          {#if member.user.name}
-            <strong>{member.user.name}</strong>
-          {/if}
-          <span>{member.user.email}</span>
-        </div>
-      </div>
-    </TableCell>
+        cell: ({ row }) =>
+          renderComponent(Select, {
+            value: row.original.role,
+            options: ORGANIZATION.ROLES.OPTIONS,
+            on_value_select: (value) =>
+              update_member_role(row.original, value as IOrganization.RoleId),
+          }),
+      },
 
-    <TableCell>
-      <Select
-        value={member.role}
-        options={ORGANIZATION.ROLES.OPTIONS}
-        loading={$loader[`update_member_role:${member.id}`]}
-        on_value_select={(value) => {
-          if (!value || value === member.role) return;
-          update_member_role(member.id, value as IOrganization.RoleId);
-        }}
-      ></Select>
-    </TableCell>
+      {
+        accessorKey: "createdAt",
+        meta: { label: "Join date" },
 
-    <TableCell>
-      <Time date={member.createdAt} />
-    </TableCell>
+        cell: ({ row }) =>
+          renderComponent(Time, { date: row.original.createdAt }),
+      },
+    ],
 
-    <TableCell>
-      <Button
-        title="Remove member"
-        variant="destructive"
-        icon="heroicons/user-minus"
-        onclick={() => remove_member(member.id)}
-        loading={$loader[`remove_member:${member.id}`]}
-      />
-    </TableCell>
-  {/snippet}
-
-  {#snippet footer()}
-    <TableCell colspan={4}>
-      {Format.number(rows.length)}
-      {Strings.pluralize("member", rows.length)}
-    </TableCell>
-  {/snippet}
-</Table>
+    actions: [
+      {
+        kind: "item",
+        icon: "lucide/x",
+        title: "Remove member",
+        onselect: (row) => remove_member(row.original.id),
+      },
+    ],
+  })}
+></DataTable>

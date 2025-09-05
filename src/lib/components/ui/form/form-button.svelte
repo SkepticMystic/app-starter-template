@@ -9,7 +9,7 @@
   let {
     form,
     ref = $bindable(null),
-    ...restProps
+    ...button
   }: Omit<ButtonProps, "form"> & {
     form: SuperForm<T, M> & { pending?: Readable<boolean> };
   } = $props();
@@ -22,5 +22,5 @@
   type="submit"
   loading={$delayed || $pending}
   disabled={$submitting || $pending}
-  {...restProps}
+  {...button}
 />

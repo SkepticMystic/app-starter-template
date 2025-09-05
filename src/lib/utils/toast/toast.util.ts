@@ -1,4 +1,4 @@
-import type { FormSubmitResult } from "$lib/utils/form.util";
+import type { APIResult } from "$lib/utils/form.util";
 import { toast } from "svelte-sonner";
 
 export type ToastPromiseOptions<D> = {
@@ -15,9 +15,9 @@ export const Toast = {
   // So we manually manage loading and toast_id
   // (Instead of simply being able to use toast.promise)
   promise: async <D>(
-    promise: Promise<FormSubmitResult<D>>,
+    promise: Promise<APIResult<D>>,
     options: ToastPromiseOptions<D> = {},
-  ): Promise<FormSubmitResult<D>> => {
+  ): Promise<APIResult<D>> => {
     const toast_id = Math.random().toString(36).substring(2, 8);
 
     if (options.loading) {

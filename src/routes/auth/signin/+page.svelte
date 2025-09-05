@@ -3,8 +3,8 @@
   import GenericOAuthSigninButton from "$lib/components/auth/GenericOAuthSigninButton.svelte";
   import PasskeySigninButton from "$lib/components/auth/passkeys/PasskeySigninButton.svelte";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
-  import Card from "$lib/components/Card.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Card from "$lib/components/ui/card/Card.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
   import { AUTH, type IAuth } from "$lib/const/auth.const";

@@ -7,6 +7,8 @@
   import { TOAST } from "$lib/const/toast.const";
   import { user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
+  import type { ClassValue } from "svelte/elements";
+  import Icon from "../icons/Icon.svelte";
   import Button from "../ui/button/button.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
@@ -14,6 +16,7 @@
     side: "center" | "right";
     label: string;
     href: string;
+    icon: ClassValue;
     /** Only show if user is authenticated */
     authed: boolean;
     admin?: boolean;
@@ -24,18 +27,21 @@
       side: "right",
       label: "Team",
       href: ROUTES.ORGANIZATION,
+      icon: "lucide/users",
       authed: true,
     },
     {
       side: "right",
       label: "Profile",
       href: ROUTES.PROFILE,
+      icon: "lucide/user",
       authed: true,
     },
     {
       side: "right",
       label: "Admin",
       href: ROUTES.ADMIN,
+      icon: "lucide/shield-check",
       authed: true,
       admin: true,
     },
@@ -43,12 +49,14 @@
       side: "right",
       label: "Sign in",
       href: ROUTES.AUTH_SIGNIN,
+      icon: "lucide/log-in",
       authed: false,
     },
     {
       side: "right",
       label: "Sign up",
       href: ROUTES.AUTH_SIGNUP,
+      icon: "lucide/user-plus",
       authed: false,
     },
   ];
@@ -110,15 +118,18 @@
 
           {#each routes as r (r.href)}
             {#if show_route($user, r)}
-              {@const { href, label } = r}
-              <DropdownMenu.Item onSelect={() => goto(href)}>
-                {label}
+              <DropdownMenu.Item onSelect={() => goto(r.href)}>
+                <Icon icon={r.icon} />
+                {r.label}
               </DropdownMenu.Item>
             {/if}
           {/each}
 
           {#if $user}
-            <DropdownMenu.Item onSelect={signout}>Sign out</DropdownMenu.Item>
+            <DropdownMenu.Item onSelect={signout}>
+              <Icon icon="lucide/log-out" />
+              Sign out
+            </DropdownMenu.Item>
           {/if}
         </DropdownMenu.Group>
       </DropdownMenu.Content>

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Client } from "$lib/clients/index.client";
-  import FormControl from "$lib/components/form/FormControl.svelte";
-  import FormField from "$lib/components/form/FormField.svelte";
+  import FormControl from "$lib/components/form/controls/FormControl.svelte";
+  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
+  import FormField from "$lib/components/form/fields/FormField.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
   import { create_invitation } from "$lib/remote/auth/organization.remote";
@@ -38,18 +38,7 @@
 
 <form class="flex flex-col gap-3" method="POST" use:form.enhance>
   <div class="flex gap-3">
-    <FormField class="grow" {form} name="email">
-      <FormControl label="Email">
-        {#snippet children({ props })}
-          <Input
-            {...props}
-            required
-            type="email"
-            bind:value={$form_data.email}
-          />
-        {/snippet}
-      </FormControl>
-    </FormField>
+    <EmailFormField {form} bind:value={$form_data.email} />
 
     <FormField {form} name="role">
       <FormControl label="Role">

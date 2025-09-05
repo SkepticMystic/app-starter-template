@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Client } from "$lib/clients/index.client";
+  import { TaskClient } from "$lib/clients/tasks.client";
   import DatePicker from "$lib/components/ui/date-picker/DatePicker.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import FormField from "$lib/components/ui/form/form-field.svelte";
@@ -7,13 +7,12 @@
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { TASKS } from "$lib/const/task.const";
-  import { create_task, get_tasks } from "$lib/remote/tasks.remote";
   import { TaskSchema } from "$lib/schema/task.schema";
   import type { Task } from "$lib/server/db/schema/task.models";
   import { make_super_form } from "$lib/utils/form.util";
   import { type Infer, type SuperValidated } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
-  import FormControl from "../FormControl.svelte";
+  import FormControl from "../controls/FormControl.svelte";
   import FormMessage from "../FormMessage.svelte";
 
   let {
@@ -25,7 +24,6 @@
   } = $props();
 
   const form = make_super_form(form_input, {
-    delayMs: 500,
     timeoutMs: 8_000,
     // NOTE: Seems to be the only way to prevent form data from being cleared,
     // even on failure
@@ -33,17 +31,7 @@
     validators: zod4Client(TaskSchema.create),
 
     on_success,
-    submit: (task) =>
-      Client.request(
-        () =>
-          create_task(task).updates(
-            get_tasks({}).withOverride((tasks) => [
-              { ...task, createdAt: new Date() } as Task,
-              ...tasks,
-            ]),
-          ),
-        { toast: { optimistic: true, success: "Task created" } },
-      ),
+    submit: TaskClient.create,
   });
 
   const { form: form_data } = form;

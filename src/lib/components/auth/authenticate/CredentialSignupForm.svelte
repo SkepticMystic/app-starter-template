@@ -1,6 +1,7 @@
 <script lang="ts">
-  import FormControl from "$lib/components/form/FormControl.svelte";
-  import FormField from "$lib/components/form/FormField.svelte";
+  import FormControl from "$lib/components/form/controls/FormControl.svelte";
+  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
+  import FormField from "$lib/components/form/fields/FormField.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -52,19 +53,7 @@
     </FormControl>
   </FormField>
 
-  <FormField {form} name="email">
-    <FormControl label="Email">
-      {#snippet children({ props })}
-        <Input
-          required
-          {...props}
-          type="email"
-          autocomplete="email"
-          bind:value={$form_data.email}
-        />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <EmailFormField {form} bind:value={$form_data.email} />
 
   <FormField {form} name="password">
     <FormControl label="Password">

@@ -115,22 +115,22 @@
   duration={10_000}
 >
   {#snippet loadingIcon()}
-		<Icon icon='lucide/loader-2' class="animate-spin" />  
+		<Icon icon='lucide/loader-2' size='size-5' class="animate-spin" />  
 	{/snippet}
 
 	{#snippet successIcon()}
-		<Icon icon='lucide/check' />
+		<Icon icon='lucide/check' size='size-5' />
 	{/snippet}
 
 	{#snippet errorIcon()}
-    <Icon icon='lucide/x' />
+    <Icon icon='lucide/x' size='size-5' />
 	{/snippet}
 
 	{#snippet infoIcon()}
-    <Icon icon='lucide/info' />
+    <Icon icon='lucide/info' size='size-5' />
 	{/snippet}
 
 	{#snippet warningIcon()}
-    <Icon icon='lucide/alert-triangle' />
+    <Icon icon='lucide/alert-triangle' size='size-5' />
 	{/snippet}
 </Toaster>

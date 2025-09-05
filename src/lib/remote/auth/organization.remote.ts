@@ -4,7 +4,7 @@ import { get_session } from "$lib/auth/server";
 import { ORGANIZATION } from "$lib/const/organization.const";
 import { AuthSchema } from "$lib/schema/auth.schema";
 import { db } from "$lib/server/db/drizzle.db";
-import type { FormSubmitResult } from "$lib/utils/form.util";
+import type { APIResult } from "$lib/utils/form.util";
 import { err, suc } from "$lib/utils/result.util";
 import { APIError } from "better-auth/api";
 import type { Invitation } from "better-auth/plugins";
@@ -44,7 +44,7 @@ export const get_invitations = query(
 
 export const create_invitation = command(
   "unchecked",
-  async (data): Promise<FormSubmitResult<Invitation>> => {
+  async (data): Promise<APIResult<Invitation>> => {
     const [form] = await Promise.all([
       superValidate(data as any, zod4(AuthSchema.Org.member_invite_form)),
     ]);

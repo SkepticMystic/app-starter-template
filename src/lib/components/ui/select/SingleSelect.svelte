@@ -1,5 +1,6 @@
 <script lang="ts" generics="V extends string">
   import * as Select from "$lib/components/ui/select/index.js";
+  import type { MaybePromise } from "$lib/interfaces";
   import { cn } from "$lib/utils/shadcn.util";
   import type { SelectRootProps } from "bits-ui";
   import type { ClassValue } from "svelte/elements";
@@ -20,7 +21,7 @@
     loading?: boolean;
     class?: ClassValue;
     placeholder?: string;
-    on_value_select?: (value?: V) => void;
+    on_value_select?: (value: V) => MaybePromise<unknown>;
   } = $props();
 
   let option = $derived(options.find((i) => i.value === value));
@@ -32,10 +33,12 @@
   type="single"
   items={options}
   disabled={disabled || loading}
-  onValueChange={(e) => {
+  onValueChange={async (e) => {
     value = e as V;
 
-    on_value_select?.(value);
+    loading = true;
+    await on_value_select?.(value);
+    loading = false;
   }}
   {...rest}
 >

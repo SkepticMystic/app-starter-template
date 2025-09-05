@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Control } from "$lib/components/ui/form/index.js";
   import type { ComponentProps } from "svelte";
-  import LabelWrapper from "../ui/label/Labeled.svelte";
+  import LabelWrapper from "../../ui/label/Labeled.svelte";
 
   let {
     label,

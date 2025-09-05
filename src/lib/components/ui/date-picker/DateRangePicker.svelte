@@ -9,9 +9,11 @@
   import type { DateRange } from "bits-ui";
 
   let {
+    placeholder,
     value = $bindable(),
   }: {
     value: DateRange | undefined;
+    placeholder?: string;
   } = $props();
 
   const tz = getLocalTimeZone();
@@ -39,7 +41,7 @@
       {:else if startValue}
         {Format.date(startValue.toDate(tz))}
       {:else}
-        Pick a date
+        {placeholder ?? "Pick a date range"}
       {/if}
     </Popover.Trigger>
 

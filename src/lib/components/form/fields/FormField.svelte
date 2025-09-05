@@ -1,19 +1,11 @@
-<script lang="ts" module>
-  import type { FormPath } from "sveltekit-superforms";
-
-  // the form object
-  type T = Record<string, unknown>;
-  // the path/name of the field in the form object
-  type U = unknown;
-</script>
-
 <script
   lang="ts"
   generics="T extends Record<string, unknown>, U extends FormPath<T>"
 >
   import type { FieldProps } from "formsnap";
   import type { ClassValue } from "svelte/elements";
-  import { Description, Field, FieldErrors } from "../ui/form";
+  import type { FormPath } from "sveltekit-superforms";
+  import { Description, Field, FieldErrors } from "../../ui/form";
 
   let {
     form,

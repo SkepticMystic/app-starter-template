@@ -13,7 +13,7 @@
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
   import { any_loading, Loader } from "$lib/utils/loader";
-  import ChangePassword from "./changePassword.svelte";
+  import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
 
   let { data } = $props();
   let { passkeys, accounts } = $state(data);
@@ -88,7 +88,7 @@
         {/snippet}
 
         {#snippet content({ close })}
-          <ChangePassword on_success={() => close()} />
+          <ChangePasswordForm on_success={() => close()} />
         {/snippet}
       </Dialog>
     {/if}

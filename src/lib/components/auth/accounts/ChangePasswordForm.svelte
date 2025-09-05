@@ -1,7 +1,7 @@
 <script lang="ts">
   import { AccountsClient } from "$lib/clients/accounts.client";
-  import FormControl from "$lib/components/form/FormControl.svelte";
-  import FormField from "$lib/components/form/FormField.svelte";
+  import FormControl from "$lib/components/form/controls/FormControl.svelte";
+  import FormField from "$lib/components/form/fields/FormField.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";

@@ -3,6 +3,8 @@
   import Time from "$lib/components/Time.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
+  import Labeled from "$lib/components/ui/label/Labeled.svelte";
+  import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import {
     type IOrganization,
     ORGANIZATION,
@@ -23,6 +25,7 @@
 <DataTable
   data={invitations}
   states={{
+    sorting: [{ id: "expiresAt", desc: true }],
     column_filters: [{ id: "status", value: ["pending"] }],
   }}
   columns={TanstackTable.make_columns<Invitation>({
@@ -42,6 +45,8 @@
       {
         accessorKey: "status",
         meta: { label: "Status" },
+
+        filterFn: "arrIncludesSome",
 
         cell: ({ row }) =>
           ORGANIZATION.INVITATIONS.STATUSES.MAP[row.original.status].label,
@@ -80,4 +85,16 @@
       },
     ],
   })}
-></DataTable>
+>
+  {#snippet filters(table)}
+    <Labeled label="Statuses">
+      <MultiSelect
+        options={ORGANIZATION.INVITATIONS.STATUSES.OPTIONS}
+        bind:value={
+          () => (table.getColumn("status")?.getFilterValue() as string[]) ?? [],
+          (v) => table.getColumn("status")?.setFilterValue(v)
+        }
+      />
+    </Labeled>
+  {/snippet}
+</DataTable>

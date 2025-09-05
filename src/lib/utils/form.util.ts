@@ -10,7 +10,7 @@ import {
 import { type ZodValidationSchema } from "sveltekit-superforms/adapters";
 import { err } from "./result.util";
 
-export type FormSubmitResult<D> = Result<
+export type APIResult<D> = Result<
   D,
   /** Optionally pass a message to show at the bottom of the form (instead of in a FormFieldErrors)
    * This can be used to pass non-validation-error messages, e.g. "Internal server error, please try again later."
@@ -44,12 +44,12 @@ export function make_super_form<
     onResult,
     ...rest
   }: FormOptions<Out, App.Superforms.Message, In> & {
-    submit: (data: Out) => Promise<FormSubmitResult<Data>>;
+    submit: (data: Out) => Promise<APIResult<Data>>;
 
     on_success?: (data: Data) => MaybePromise<void>;
 
     on_error?: (
-      result: Extract<FormSubmitResult<Data>, { ok: false }>["error"],
+      result: Extract<APIResult<Data>, { ok: false }>["error"],
     ) => MaybePromise<void>;
   },
 ) {
