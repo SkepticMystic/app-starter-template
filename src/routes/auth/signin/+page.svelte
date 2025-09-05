@@ -26,13 +26,11 @@
           {#if is_oidc}
             {#if is_social}
               <SocialSigninButton
-                {loader}
                 {provider_id}
                 redirect_uri={data.search.redirect_uri}
               />
             {:else}
               <GenericOAuthSigninButton
-                {loader}
                 {provider_id}
                 redirect_uri={data.search.redirect_uri}
               />
@@ -40,7 +38,7 @@
           {/if}
         {/each}
 
-        <PasskeySigninButton {loader} redirect_uri={data.search.redirect_uri} />
+        <PasskeySigninButton redirect_uri={data.search.redirect_uri} />
       </div>
 
       <Separator />

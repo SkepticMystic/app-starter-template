@@ -1,54 +1,55 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import Labeled from "$lib/components/ui/label/Labeled.svelte";
+  import { Client } from "$lib/clients/index.client";
+  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
+  import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import Card from "$lib/components/ui/card/Card.svelte";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
   import { ROUTES } from "$lib/const/routes.const";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-sonner";
-  import { preventDefault } from "svelte/legacy";
+  import { make_super_form } from "$lib/utils/form.util";
+  import { defaults } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
+  import { z } from "zod/mini";
 
-  let form = $state({ email: "" });
+  const validators = zod4Client(
+    z.object({ email: z.email("Please enter a valid email address.") }),
+  );
 
-  const loader = Loader<"forgot-password">();
+  const form = make_super_form(defaults({ email: "" }, validators), {
+    SPA: true,
+    validators,
 
-  const forgotPassword = async () => {
-    loader.load("forgot-password");
+    submit: (data) =>
+      Client.better_auth(
+        () =>
+          BetterAuthClient.requestPasswordReset({
+            ...data,
+            redirectTo: ROUTES.AUTH_RESET_PASSWORD,
+          }),
+        {
+          validate_session: false,
+          toast: { success: "Password reset email sent" },
+        },
+      ),
+  });
 
-    const res = await BetterAuthClient.requestPasswordReset({
-      ...form,
-      redirectTo: ROUTES.AUTH_RESET_PASSWORD,
-    });
-
-    if (res.data) {
-      toast.success("Password reset email sent successfully.");
-    } else {
-      toast.error("Failed to send password reset email: " + res.error.message);
-    }
-
-    loader.reset();
-  };
+  const { form: form_data } = form;
 </script>
 
-<form onsubmit={preventDefault(forgotPassword)} class="flex flex-col gap-3">
-  <Fieldset legend="Forgot password">
-    <Labeled label="Email">
-      <Input
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-        bind:value={form.email}
-      />
-    </Labeled>
-  </Fieldset>
+<Card
+  title="Forgot your password?"
+  description="Enter your email to reset it"
+  class="mx-auto w-full max-w-xs"
+>
+  {#snippet content()}
+    <form method="POST" class="flex flex-col gap-2" use:form.enhance>
+      <EmailFormField {form} bind:value={$form_data.email} />
 
-  <Button
-    type="submit"
-    icon="heroicons/envelope"
-    loading={$loader["forgot-password"]}
-    disabled={!form.email || any_loading($loader)}
-  >
-    Send Password Reset Email
-  </Button>
-</form>
+      <FormButton {form} icon="heroicons/envelope">
+        Request password reset
+      </FormButton>
+
+      <FormMessage message={form.message} />
+    </form>
+  {/snippet}
+</Card>

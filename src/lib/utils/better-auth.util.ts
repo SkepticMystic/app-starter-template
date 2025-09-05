@@ -2,24 +2,25 @@ import type { MaybePromise } from "$lib/interfaces";
 import type { APIResult } from "./form.util";
 import { err, suc } from "./result.util";
 
+export type BetterAuthResult<D> =
+  | {
+      data: D;
+      error: null;
+    }
+  | {
+      data: null;
+      error: {
+        code?: string | undefined;
+        message?: string | undefined;
+        status: number;
+        statusText: string;
+      };
+    };
+
 export const BetterAuth = {
   /** Transform a better-auth result into one of mine */
   to_result: async <D>(
-    res: MaybePromise<
-      | {
-          data: D;
-          error: null;
-        }
-      | {
-          data: null;
-          error: {
-            code?: string | undefined;
-            message?: string | undefined;
-            status: number;
-            statusText: string;
-          };
-        }
-    >,
+    res: MaybePromise<BetterAuthResult<D>>,
     options?: { fallback?: string },
   ): Promise<APIResult<D>> => {
     const awaited = res instanceof Promise ? await res : res;

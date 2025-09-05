@@ -1,4 +1,5 @@
 import { BetterAuthClient } from "$lib/auth-client";
+import { BetterAuth } from "$lib/utils/better-auth.util";
 import { err, suc } from "$lib/utils/result.util";
 import type { Passkey } from "better-auth/plugins/passkey";
 import { Client } from "./index.client";
@@ -7,6 +8,7 @@ export const PasskeysClient = {
   create: (name?: string) =>
     Client.request(
       async () => {
+        // NOTE: Can't use BetterAuth.to_result, because it returns an inconsistent shape to the rest of the client api
         const res = await BetterAuthClient.passkey.addPasskey({ name });
 
         if (!res) {
@@ -24,68 +26,32 @@ export const PasskeysClient = {
           return suc(res.data);
         }
       },
-      {
-        toast: {
-          loading: "Adding passkey...",
-          success: "Passkey added successfully",
-        },
-      },
+      { toast: { success: "Passkey added successfully" } },
     ),
 
   update: (passkey_id: string, passkey: Pick<Passkey, "name">) =>
     Client.request(
       async () => {
         if (!passkey.name) {
-          return err({
-            message: "Passkey name cannot be empty",
-          });
+          return err({ message: "Passkey name cannot be empty" });
         }
 
-        const res = await BetterAuthClient.passkey.updatePasskey({
-          id: passkey_id,
-          name: passkey.name,
-        });
-
-        if (res.error) {
-          return err({
-            message: res.error.message ?? "Failed to update passkey",
-          });
-        } else {
-          return suc(res.data.passkey);
-        }
+        return BetterAuth.to_result(
+          BetterAuthClient.passkey.updatePasskey({
+            id: passkey_id,
+            name: passkey.name,
+          }),
+        );
       },
-      {
-        toast: {
-          optimistic: true,
-          success: "Passkey updated successfully",
-        },
-      },
+      { toast: { optimistic: true, success: "Passkey updated successfully" } },
     ),
 
   delete: (passkey_id: string) =>
-    Client.request(
-      async () => {
-        if (!confirm("Are you sure you want to delete this passkey?")) {
-          return err();
-        }
-
-        const res = await BetterAuthClient.passkey.deletePasskey({
-          id: passkey_id,
-        });
-
-        if (res.error) {
-          return err({
-            message: res.error.message ?? "Failed to delete passkey",
-          });
-        } else {
-          return suc(res.data);
-        }
-      },
+    Client.better_auth(
+      () => BetterAuthClient.passkey.deletePasskey({ id: passkey_id }),
       {
-        toast: {
-          loading: "Deleting passkey...",
-          success: "Passkey deleted successfully",
-        },
+        confirm: "Are you sure you want to delete this passkey?",
+        toast: { success: "Passkey deleted successfully" },
       },
     ),
 };

@@ -76,16 +76,11 @@
   const signout = () =>
     BetterAuthClient.signOut({
       fetchOptions: {
+        onSuccess: () =>
+          goto(App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.SIGNED_OUT })),
         onError: (error) => {
           console.error("Error signing out:", error);
-          alert("Error signing out. Please try again.");
-        },
-        onSuccess: () => {
-          goto(
-            App.url(ROUTES.AUTH_SIGNIN, {
-              toast: TOAST.IDS.SIGNED_OUT,
-            }),
-          );
+          location.reload();
         },
       },
     });

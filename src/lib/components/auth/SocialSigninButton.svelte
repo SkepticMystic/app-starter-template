@@ -1,63 +1,35 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
+  import { Client } from "$lib/clients/index.client";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-sonner";
   import Button from "../ui/button/button.svelte";
 
   let {
-    loader,
     provider_id,
     redirect_uri,
   }: {
-    provider_id: IAuth.ProviderId;
-    loader: Loader<`signin:${IAuth.ProviderId}`>;
     redirect_uri?: string;
+    provider_id: IAuth.ProviderId;
   } = $props();
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  const signin = async () => {
-    toast.dismiss();
-    loader.load(`signin:${provider_id}`);
-
-    try {
-      const signin_res = await BetterAuthClient.signIn.social({
-        provider: provider_id,
-        callbackURL: App.url(redirect_uri ?? ROUTES.HOME, {
-          toast: TOAST.IDS.SIGNED_IN,
+  const signin = () =>
+    Client.better_auth(
+      () =>
+        BetterAuthClient.signIn.social({
+          provider: provider_id,
+          callbackURL: App.url(redirect_uri ?? ROUTES.HOME, {
+            toast: TOAST.IDS.SIGNED_IN,
+          }),
         }),
-      });
-
-      if (signin_res.error) {
-        console.warn("signin_res.error", signin_res.error);
-        toast.warning(
-          signin_res.error.message ?? "signin failed. Please try again.",
-        );
-
-        loader.reset();
-      } else {
-        console.log("signin_res.data", signin_res.data);
-        // Auto redirects, no need here
-        // Only reset loader if error
-      }
-    } catch (error) {
-      toast.error("signin failed. Please try again.");
-      console.error("signin error:", error);
-
-      loader.reset();
-    }
-  };
+      { validate_session: false },
+    );
 </script>
 
-<Button
-  onclick={signin}
-  icon={provider.icon}
-  disabled={any_loading($loader)}
-  loading={$loader[`signin:${provider_id}`]}
->
+<Button onclick={signin} icon={provider.icon}>
   Continue with {provider.name}
 </Button>

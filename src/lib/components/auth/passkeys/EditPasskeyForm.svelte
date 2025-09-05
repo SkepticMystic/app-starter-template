@@ -8,10 +8,8 @@
   import { AuthSchema } from "$lib/schema/auth.schema";
   import { make_super_form } from "$lib/utils/form.util";
   import type { Passkey } from "better-auth/plugins/passkey";
-  import { defaults, type Infer } from "sveltekit-superforms";
+  import { defaults } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
-
-  const schema = AuthSchema.Passkey.update;
 
   let {
     // NOTE: Not bindable, we use a local dirty copy instead
@@ -20,16 +18,19 @@
     on_success,
   }: {
     passkey: Passkey;
-    on_success: (passkey: Infer<typeof schema>) => void;
+    // Weird arg shape, just happens to be what BetterAuth returns
+    on_success: (data: { passkey: Passkey }) => void;
   } = $props();
+
+  const validators = zod4Client(AuthSchema.Passkey.update);
 
   // SOURCE: https://superforms.rocks/concepts/spa
   // Main things seem to be SPA, defaults, zod4Client (instead of zod4),
   // and validateForm({ update: true }) to initialize the form with validation
-  const form = make_super_form(defaults(passkey, zod4Client(schema)), {
+  const form = make_super_form(defaults(passkey, validators), {
     SPA: true,
+    validators,
     on_success,
-    validators: zod4Client(schema),
     submit: (data) => PasskeysClient.update(passkey.id, data),
   });
   form.validateForm({ update: true });

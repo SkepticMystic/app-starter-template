@@ -2,6 +2,7 @@
   import FormControl from "$lib/components/form/controls/FormControl.svelte";
   import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
   import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormMessage from "$lib/components/form/FormMessage.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -67,7 +68,5 @@
     Signin with {provider.name}
   </FormButton>
 
-  {#if $message && !$message.ok && $message.error}
-    <p class="text-warning">{$message.error}</p>
-  {/if}
+  <FormMessage message={form.message} />
 </form>

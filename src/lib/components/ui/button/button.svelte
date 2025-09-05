@@ -101,6 +101,11 @@
     disabled={disabled || loading}
     bind:this={ref}
     {...restProps}
+    onclick={async (e) => {
+      loading = true;
+      await restProps.onclick?.(e);
+      loading = false;
+    }}
   >
     <Loading {loading} />
     <Icon {icon} />

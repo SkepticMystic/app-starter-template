@@ -1,73 +1,69 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
-  import Fieldset from "$lib/components/daisyui/Fieldset.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import { Client } from "$lib/clients/index.client.js";
+  import FormControl from "$lib/components/form/controls/FormControl.svelte";
+  import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import FormButton from "$lib/components/ui/form/form-button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
-  import Labeled from "$lib/components/ui/label/Labeled.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import { toast } from "svelte-sonner";
-  import { preventDefault } from "svelte/legacy";
+  import { make_super_form } from "$lib/utils/form.util.js";
+  import { defaults } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
+  import { z } from "zod/mini";
 
   let { data } = $props();
 
-  const loader = Loader<"reset-pwd">();
+  const validators = zod4Client(z.object({ new_password: z.string() }));
 
-  let form = $state({
-    new_password: "",
-  });
+  const form = make_super_form(defaults({ new_password: "" }, validators), {
+    SPA: true,
+    validators,
 
-  const reset_password = async () => {
-    if (data.search.error) {
-      return;
-    }
+    submit: (form_data) =>
+      Client.better_auth(() =>
+        BetterAuthClient.resetPassword({
+          token: data.search.token,
+          newPassword: form_data.new_password,
+        }),
+      ),
 
-    toast.dismiss();
-    loader.load("reset-pwd");
-
-    const res = await BetterAuthClient.resetPassword({
-      token: data.search.token,
-      newPassword: form.new_password,
-    });
-    if (res.data) {
-      // Hard reload. auth config will revoke all sessions
+    on_success: () => {
       location.href = App.url(ROUTES.AUTH_SIGNIN, {
         toast: TOAST.IDS.PASSWORD_RESET,
       });
-    } else {
-      toast.error("Failed to reset password: " + res.error.message);
-    }
+    },
+  });
 
-    loader.reset();
-  };
+  const { form: form_data } = form;
 </script>
 
 {#if data.search.token}
-  <form onsubmit={preventDefault(reset_password)} class="flex flex-col gap-3">
-    <Fieldset legend="Reset password">
-      <Labeled label="New Password">
-        <Input
-          type="password"
-          placeholder="New Password"
-          autocomplete="new-password"
-          bind:value={form.new_password}
-        />
-      </Labeled>
-    </Fieldset>
+  <form class="flex flex-col gap-3" method="POST" use:form.enhance>
+    <FormField {form} name="new_password">
+      <FormControl label="Password">
+        {#snippet children({ props })}
+          <Input
+            {...props}
+            required
+            type="password"
+            autocomplete="new-password"
+            bind:value={$form_data.new_password}
+          />
+        {/snippet}
+      </FormControl>
+    </FormField>
 
-    <Button
-      type="submit"
-      icon="heroicons/key"
-      loading={$loader["reset-pwd"]}
-      disabled={!form.new_password || any_loading($loader)}
-    >
+    <FormButton {form} class="w-full" icon="lucide/key">
       Reset Password
-    </Button>
+    </FormButton>
+
+    <FormMessage message={form.message} />
   </form>
 {:else}
   <div class="alert alert-error">
-    <span>Invalid or missing reset token.</span>
+    <span>Invalid or missing reset token ({data.search.error ?? ""})</span>
   </div>
 {/if}
