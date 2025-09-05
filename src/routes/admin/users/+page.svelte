@@ -16,7 +16,7 @@
   import { TanstackTable } from "$lib/utils/tanstack/table.util.js";
 
   let { data } = $props();
-  let { users } = $state(data);
+  let users = $state(data.users);
 
   const update_user_role = async (
     user_id: string,
@@ -92,6 +92,17 @@
         icon: "lucide/user-circle",
         title: "Impersonate user",
         onselect: (row) => impersonate_user(row.original.id),
+      },
+      { kind: "separator" },
+      {
+        kind: "item",
+        title: (row) => (row.original.banned ? "Unban user" : "Ban user"),
+        icon: (row) =>
+          row.original.banned ? "lucide/check-circle-2" : "lucide/ban",
+        onselect: (row) =>
+          row.original.banned
+            ? AdminClient.unban_user(row.original.id)
+            : AdminClient.ban_user(row.original.id, {}),
       },
       {
         kind: "item",

@@ -43,7 +43,6 @@
 
 <DataTable
   data={members}
-  states={{ column_filters: [{ id: "status", value: ["pending"] }] }}
   columns={TanstackTable.make_columns<(typeof members)[number]>({
     columns: [
       {

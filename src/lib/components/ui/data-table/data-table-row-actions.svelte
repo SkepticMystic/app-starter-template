@@ -19,8 +19,9 @@
       }
     | ({
         kind: "item";
-        title: string;
-        icon?: ClassValue;
+        title: string | ((row: Row<TData>) => string);
+        icon?: ClassValue | ((row: Row<TData>) => ClassValue);
+
         disabled?: (row: Row<TData>) => boolean;
         onselect: (row: Row<TData>) => MaybePromise<unknown>;
       } & Omit<DropdownMenuItemPropsWithoutHTML, "onSelect" | "disabled">);
@@ -51,9 +52,9 @@
         loading = false;
       }}
     >
-      <Icon {icon} />
+      <Icon icon={typeof icon === "function" ? icon(row) : icon} />
 
-      {title}
+      {typeof title === "function" ? title(row) : title}
     </DropdownMenu.Item>
   {:else if action.kind === "group"}
     <DropdownMenu.Group>
