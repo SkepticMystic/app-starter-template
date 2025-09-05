@@ -4,6 +4,7 @@ import {
   type IAccessControl,
 } from "$lib/const/access_control.const";
 import { TIME } from "$lib/const/time";
+import { BetterAuth } from "$lib/utils/better-auth.util";
 import { Format } from "$lib/utils/format.util";
 import { Client } from "./index.client";
 
@@ -16,7 +17,7 @@ export const AdminClient = {
           userId: user_id,
         }),
       {
-        confirm: `Are you sure you want to update this user's role to ${ACCESS_CONTROL.ROLES.MAP[role_id].name}?`,
+        confirm: `Are you sure you want to update this user's role to ${ACCESS_CONTROL.ROLES.MAP[role_id].label}?`,
         toast: { success: "User role updated successfully." },
       },
     ),
@@ -28,9 +29,27 @@ export const AdminClient = {
     ),
 
   stop_impersonating: () =>
-    Client.better_auth(() => BetterAuthClient.admin.stopImpersonating(), {
-      toast: { success: "Stopped impersonation successfully." },
-    }),
+    Client.request(
+      async () => {
+        const res = await BetterAuth.to_result(
+          BetterAuthClient.admin.stopImpersonating(),
+        );
+
+        if (res.ok) {
+          // NOTE: I saw the session.subscribe callback run
+          // But the /profile page didn't update.
+          // So that's a TODO, but for now, a hard reload works.
+          // BetterAuthClient.$store.notify("$sessionSignal");
+          location.reload();
+        }
+
+        return res;
+      },
+      {
+        confirm: "Are you sure you want to stop impersonating?",
+        toast: { success: "Stopped impersonation successfully." },
+      },
+    ),
 
   ban_user: (
     user_id: string,

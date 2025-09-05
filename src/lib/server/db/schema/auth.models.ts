@@ -20,7 +20,8 @@ export const user_role_enum = pgEnum("user_role", ACCESS_CONTROL.ROLES.IDS);
 export const UserTable = pgTable("user", {
   id: varchar().primaryKey(),
 
-  name: varchar({ length: 255 }),
+  // NOTE: BetterAuth defaults name to ''
+  name: varchar({ length: 255 }).default(""),
   email: varchar({ length: 255 }).unique(),
   emailVerified: boolean().default(false).notNull(),
   image: varchar({ length: 2048 }),

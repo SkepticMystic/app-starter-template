@@ -2,6 +2,7 @@
   import Icon from "$lib/components/icons/Icon.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import type { MaybePromise } from "$lib/interfaces";
   import type { Item } from "$lib/utils/items.util";
   import type { Row } from "@tanstack/table-core";
   import type { DropdownMenuItemPropsWithoutHTML } from "bits-ui";
@@ -20,16 +21,18 @@
         kind: "item";
         title: string;
         icon?: ClassValue;
-        onselect: (row: Row<TData>) => void;
         disabled?: (row: Row<TData>) => boolean;
+        onselect: (row: Row<TData>) => MaybePromise<unknown>;
       } & Omit<DropdownMenuItemPropsWithoutHTML, "onSelect" | "disabled">);
 
   let {
     row,
     actions,
+    loading,
   }: {
     row: Row<TData>;
     actions: Action[];
+    loading?: boolean;
   } = $props();
 </script>
 
@@ -42,7 +45,11 @@
     <DropdownMenu.Item
       {...rest}
       disabled={disabled?.(row)}
-      onSelect={() => onselect(row)}
+      onSelect={async () => {
+        loading = true;
+        await onselect(row);
+        loading = false;
+      }}
     >
       <Icon {icon} />
 
@@ -64,12 +71,11 @@
     {#snippet child({ props })}
       <Button
         {...props}
-        size="icon"
+        {loading}
         variant="ghost"
+        icon="lucide/ellipsis"
         class="relative size-8 p-0"
-      >
-        <Icon icon="lucide/ellipsis" />
-      </Button>
+      />
     {/snippet}
   </DropdownMenu.Trigger>
 

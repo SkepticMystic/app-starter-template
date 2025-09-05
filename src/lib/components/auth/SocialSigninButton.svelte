@@ -22,6 +22,7 @@
       () =>
         BetterAuthClient.signIn.social({
           provider: provider_id,
+          disableRedirect: false,
           callbackURL: App.url(redirect_uri ?? ROUTES.HOME, {
             toast: TOAST.IDS.SIGNED_IN,
           }),

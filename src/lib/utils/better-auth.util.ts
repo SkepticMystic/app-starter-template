@@ -32,6 +32,7 @@ export const BetterAuth = {
       return err({
         message:
           awaited.error?.message ??
+          awaited.error?.statusText ??
           options?.fallback ??
           "An unknown error occurred",
       });

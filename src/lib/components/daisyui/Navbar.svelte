@@ -1,11 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { BetterAuthClient } from "$lib/auth-client";
+  import { AdminClient } from "$lib/clients/admin.client";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
-  import { user } from "$lib/stores/session";
+  import { session, user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
   import type { ClassValue } from "svelte/elements";
   import Icon from "../icons/Icon.svelte";
@@ -105,7 +106,7 @@
         {/snippet}
       </DropdownMenu.Trigger>
 
-      <DropdownMenu.Content>
+      <DropdownMenu.Content align="end">
         <DropdownMenu.Group>
           <DropdownMenu.Label>My Account</DropdownMenu.Label>
 
@@ -124,6 +125,15 @@
             <DropdownMenu.Item onSelect={signout}>
               <Icon icon="lucide/log-out" />
               Sign out
+            </DropdownMenu.Item>
+          {/if}
+
+          {#if $session.data?.session.impersonatedBy}
+            <DropdownMenu.Item
+              onSelect={() => AdminClient.stop_impersonating()}
+            >
+              <Icon icon="lucide/stop-circle" />
+              Stop impersonating
             </DropdownMenu.Item>
           {/if}
         </DropdownMenu.Group>

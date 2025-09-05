@@ -21,6 +21,7 @@
     Client.better_auth(
       () =>
         BetterAuthClient.signIn.oauth2({
+          disableRedirect: false,
           providerId: provider_id,
           scopes: ["openid", "profile", "email"],
           callbackURL: App.url(redirect_uri ?? ROUTES.HOME, {

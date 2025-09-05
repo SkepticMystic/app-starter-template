@@ -1,8 +1,10 @@
 <script lang="ts">
   import { AdminClient } from "$lib/clients/admin.client.js";
   import Time from "$lib/components/Time.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Table from "$lib/components/ui/table/Table.svelte";
+  import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
+  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
+  import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
+  import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import {
     ACCESS_CONTROL,
     type IAccessControl,
@@ -10,138 +12,93 @@
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
-  import { Format } from "$lib/utils/format.util";
   import { Items } from "$lib/utils/items.util.js";
-  import { Loader } from "$lib/utils/loader";
-  import { Strings } from "$lib/utils/strings.util";
+  import { TanstackTable } from "$lib/utils/tanstack/table.util.js";
 
   let { data } = $props();
   let { users } = $state(data);
 
-  const loader = Loader<
-    | `update_user_role:${string}`
-    | `impersonate_user:${string}`
-    | `delete_user:${string}`
-  >();
-
   const update_user_role = async (
     user_id: string,
-    role_id: IAccessControl.RoleId,
+    role: IAccessControl.RoleId,
   ) => {
-    loader.load(`update_user_role:${user_id}`);
-
-    const res = await AdminClient.update_user_role(user_id, role_id);
+    const res = await AdminClient.update_user_role(user_id, role);
     if (res.ok) {
-      users = Items.patch(users, user_id, { role: role_id });
+      users = Items.patch(users, user_id, { role });
     }
-
-    loader.reset();
-
-    return res;
   };
 
   const impersonate_user = async (user_id: string) => {
-    loader.load(`impersonate_user:${user_id}`);
-
     const res = await AdminClient.impersonate_user(user_id);
     if (res.ok) {
       location.href = App.url(ROUTES.PROFILE, {
         toast: TOAST.IDS.ADMIN_IMPERSONATING_USER,
       });
     }
-
-    loader.reset();
-
-    return res;
   };
 
   const delete_user = async (user_id: string) => {
-    loader.load(`delete_user:${user_id}`);
-
     const res = await AdminClient.delete_user(user_id);
     if (res.ok) {
       users = Items.remove(users, user_id);
     }
-
-    loader.reset();
   };
-
-  let rows = $derived(users);
 </script>
 
-<Table data={rows}>
-  {#snippet header()}
-    <th> Name </th>
-    <th> Role </th>
-    <th> Join date </th>
-    <th> Actions </th>
-  {/snippet}
+<DataTable
+  data={users}
+  columns={TanstackTable.make_columns<(typeof users)[number]>({
+    columns: [
+      {
+        id: "avatar",
+        enableHiding: false,
+        enableSorting: false,
 
-  {#snippet row(user)}
-    <tr>
-      <td>
-        <div class="flex flex-col">
-          {#if user.name}
-            <span>{user.name}</span>
-          {/if}
-          <span>{user.email}</span>
-        </div>
-      </td>
+        cell: ({ row }) => renderComponent(UserAvatar, { user: row.original }),
+      },
+      {
+        accessorKey: "name",
+        meta: { label: "Name" },
+      },
+      {
+        accessorKey: "email",
+        meta: { label: "Email" },
+      },
+      {
+        accessorKey: "role",
+        meta: { label: "Role" },
 
-      <td>
-        <select
-          class="select"
-          value={user.role}
-          disabled={$loader[`update_user_role:${user.id}`]}
-          onchange={async (e) => {
-            const res = await update_user_role(
-              user.id,
-              e.currentTarget.value as IAccessControl.RoleId,
-            );
-            if (!res.ok) {
-              // Revert selection on error
-              e.currentTarget.value = user.role;
-            }
-          }}
-        >
-          {#each ACCESS_CONTROL.ROLES.IDS as role_id (role_id)}
-            <option value={role_id}>
-              {ACCESS_CONTROL.ROLES.MAP[role_id].name}
-            </option>
-          {/each}
-        </select>
-      </td>
+        cell: ({ row }) =>
+          renderComponent(SingleSelect, {
+            value: row.original.role,
+            options: ACCESS_CONTROL.ROLES.OPTIONS,
+            on_value_select: (value) =>
+              update_user_role(row.original.id, value as IAccessControl.RoleId),
+          }),
+      },
 
-      <td>
-        <Time date={user.createdAt} />
-      </td>
+      {
+        accessorKey: "createdAt",
+        meta: { label: "Join date" },
 
-      <td>
-        <div class="flex gap-1">
-          <Button
-            title="Impersonate user"
-            variant="secondary"
-            icon="heroicons/user-circle"
-            onclick={() => impersonate_user(user.id)}
-            loading={$loader[`impersonate_user:${user.id}`]}
-          />
+        cell: ({ row }) =>
+          renderComponent(Time, { date: row.original.createdAt }),
+      },
+    ],
 
-          <Button
-            title="Remove user"
-            variant="destructive"
-            icon="heroicons/user-minus"
-            onclick={() => delete_user(user.id)}
-            loading={$loader[`delete_user:${user.id}`]}
-          />
-        </div>
-      </td>
-    </tr>
-  {/snippet}
-
-  {#snippet footer()}
-    <td colspan="4">
-      {Format.number(rows.length)}
-      {Strings.pluralize("user", rows.length)}
-    </td>
-  {/snippet}
-</Table>
+    actions: [
+      {
+        kind: "item",
+        icon: "lucide/user-circle",
+        title: "Impersonate user",
+        onselect: (row) => impersonate_user(row.original.id),
+      },
+      {
+        kind: "item",
+        icon: "lucide/x",
+        title: "Delete user",
+        onselect: (row) => delete_user(row.original.id),
+      },
+    ],
+  })}
+></DataTable>

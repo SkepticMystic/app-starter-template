@@ -7,13 +7,10 @@
   import Card from "$lib/components/ui/card/Card.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
-  import { AUTH, type IAuth } from "$lib/const/auth.const";
+  import { AUTH } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
-  import { Loader } from "$lib/utils/loader";
 
   let { data } = $props();
-
-  const loader = Loader<`signin:${IAuth.ProviderId | "passkey"}`>();
 </script>
 
 <Card class="mx-auto w-full max-w-xs" title="Signin to {APP.NAME}">

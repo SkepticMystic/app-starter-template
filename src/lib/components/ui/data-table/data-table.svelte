@@ -24,8 +24,8 @@
 
   let {
     data,
-    states,
     columns,
+    states = {},
     filters,
   }: {
     data: TData[];
@@ -35,7 +35,7 @@
     filters?: Snippet<[table: Table<TData>]>;
 
     // state
-    states: {
+    states?: {
       sorting?: SortingState | false;
       pagination?: PaginationState | false;
       visibility?: VisibilityState | false;

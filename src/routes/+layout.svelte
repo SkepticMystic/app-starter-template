@@ -14,7 +14,7 @@
   import { session } from "$lib/stores/session";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { mode, ModeWatcher } from "mode-watcher";
-  import { type Snippet } from "svelte";
+  import { onMount, type Snippet } from "svelte";
   import { toast, Toaster } from "svelte-sonner";
   import "../app.css";
 
@@ -26,11 +26,9 @@
 
   let loading = $state(true);
 
-  $effect(() => {
-    if ($session.isRefetching) {
-      console.log("$session refetching...");
-    } else if ($session.isPending) {
-      console.log("$session pending...");
+  session.subscribe(($session) => {
+    if ($session.isRefetching || $session.isPending) {
+      return;
     } else {
       loading = false;
       console.log("$session loaded", $session.data);
@@ -47,7 +45,7 @@
     }
   });
 
-  afterNavigate(() => {
+  const handle_toast_flash_query = () => {
     const toast_id = page.url.searchParams.get("toast") as IToast.Id | null;
 
     if (toast_id) {
@@ -61,14 +59,20 @@
       const input = TOAST.MAP[toast_key];
       toast[input.type](input.message);
     }
-  });
+  };
+
+  // NOTE: We have to check in both cases...
+  // - If we `goto` a route with a ?toast, then afterNavigate is called
+  // - If we visit from an external link - or `location.href =` - with a ?toast, then onMount is called
+  onMount(() => handle_toast_flash_query());
+  afterNavigate(() => handle_toast_flash_query());
 </script>
 
 <svelte:head>
   <script>
     partytown = {
       forward: ["umami.identify"],
-    }
+    };
   </script>
 
   {@html "<script>" + partytownSnippet() + "</script>"}
@@ -86,7 +90,7 @@
       data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
       data-tag={dev ? "dev" : "prod"}
       data-do-not-track="true"
-      ></script>
+    ></script>
   {/if}
 </svelte:head>
 
@@ -102,35 +106,28 @@
   </Loading>
 </main>
 
-
-
 <!-- NOTE: I struggled to get shad semantic classes working to style the toasts
  It's possible to apply them, but only when toastOptions.unstyled: true
  And then ALL other styles are removed... 
  So, richColors for now -->
-<Toaster 
-  richColors
-  theme={mode.current}
-  closeButton={true}
-  duration={10_000}
->
+<Toaster richColors theme={mode.current} closeButton={true} duration={10_000}>
   {#snippet loadingIcon()}
-		<Icon icon='lucide/loader-2' size='size-5' class="animate-spin" />  
-	{/snippet}
+    <Icon icon="lucide/loader-2" size="size-5" class="animate-spin" />
+  {/snippet}
 
-	{#snippet successIcon()}
-		<Icon icon='lucide/check' size='size-5' />
-	{/snippet}
+  {#snippet successIcon()}
+    <Icon icon="lucide/check" size="size-5" />
+  {/snippet}
 
-	{#snippet errorIcon()}
-    <Icon icon='lucide/x' size='size-5' />
-	{/snippet}
+  {#snippet errorIcon()}
+    <Icon icon="lucide/x" size="size-5" />
+  {/snippet}
 
-	{#snippet infoIcon()}
-    <Icon icon='lucide/info' size='size-5' />
-	{/snippet}
+  {#snippet infoIcon()}
+    <Icon icon="lucide/info" size="size-5" />
+  {/snippet}
 
-	{#snippet warningIcon()}
-    <Icon icon='lucide/alert-triangle' size='size-5' />
-	{/snippet}
+  {#snippet warningIcon()}
+    <Icon icon="lucide/alert-triangle" size="size-5" />
+  {/snippet}
 </Toaster>
