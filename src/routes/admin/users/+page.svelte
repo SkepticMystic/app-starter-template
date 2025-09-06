@@ -19,12 +19,11 @@
   let users = $state(data.users);
 
   const update_user_role = async (
-    user_id: string,
-    role: IAccessControl.RoleId,
+    input: Parameters<typeof AdminClient.update_user_role>[0],
   ) => {
-    const res = await AdminClient.update_user_role(user_id, role);
+    const res = await AdminClient.update_user_role(input);
     if (res.ok) {
-      users = Items.patch(users, user_id, { role });
+      users = Items.patch(users, input.userId, { role: input.role });
     }
   };
 
@@ -73,7 +72,10 @@
             value: row.original.role,
             options: ACCESS_CONTROL.ROLES.OPTIONS,
             on_value_select: (value) =>
-              update_user_role(row.original.id, value as IAccessControl.RoleId),
+              update_user_role({
+                userId: row.original.id,
+                role: value as IAccessControl.RoleId,
+              }),
           }),
       },
 

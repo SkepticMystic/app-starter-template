@@ -7,13 +7,10 @@ const set_active_inner = async (organizationId: string) =>
   Effect.runPromise(
     pipe(
       Effect.promise(() =>
-        BetterAuth.to_result(
-          BetterAuthClient.organization.setActive({ organizationId }),
-        ),
+        BetterAuthClient.organization.setActive({ organizationId }),
       ),
-      Effect.tap(
-        (r) => r.ok && BetterAuthClient.$store.notify("$sessionSignal"),
-      ),
+      Effect.andThen((r) => BetterAuth.to_result(r)),
+      Effect.tap((r) => r.ok && location.reload()),
     ),
   );
 

@@ -43,6 +43,13 @@
       "when": 1757105783900,
       "tag": "0005_purple_cobalt_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1757145455110,
+      "tag": "0006_chemical_vapor",
+      "breakpoints": true
     }
   ]
 }

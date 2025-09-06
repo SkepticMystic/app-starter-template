@@ -5,18 +5,11 @@ import type { Infer } from "sveltekit-superforms";
 import { Client } from "./index.client";
 
 export const AccountsClient = {
-  unlink: async (provider_id: IAuth.ProviderId, account_id?: string) =>
-    Client.better_auth(
-      () =>
-        BetterAuthClient.unlinkAccount({
-          accountId: account_id,
-          providerId: provider_id,
-        }),
-      {
-        confirm: "Are you sure you want to unlink this account?",
-        toast: { success: "Account unlinked successfully" },
-      },
-    ),
+  unlink: async (input: { providerId: IAuth.ProviderId; accountId?: string }) =>
+    Client.better_auth(() => BetterAuthClient.unlinkAccount(input), {
+      confirm: "Are you sure you want to unlink this account?",
+      toast: { success: "Account unlinked successfully" },
+    }),
 
   change_password: (input: Infer<typeof AuthSchema.change_password_form>) =>
     Client.better_auth(

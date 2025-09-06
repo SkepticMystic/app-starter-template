@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { UserClient } from "$lib/clients/user.client";
+  import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
@@ -12,25 +13,17 @@
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
-  import { any_loading, Loader } from "$lib/utils/loader";
-  import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
 
   let { data } = $props();
   let { passkeys, accounts } = $state(data);
 
-  const loader = Loader<"delete_user">();
-
   const delete_user = async () => {
-    loader.load("delete_user");
-
     const res = await UserClient.delete();
     if (res.ok) {
       await goto(
         App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.USER_DELETED }),
       );
     }
-
-    loader.reset();
   };
 </script>
 
@@ -77,7 +70,7 @@
   <Separator />
 
   <div class="flex gap-2">
-    {#if accounts.find((acc) => acc.provider === "credential")}
+    {#if accounts.find((acc) => acc.providerId === "credential")}
       <Dialog
         title="Change Password"
         description="Change your account password"
@@ -93,13 +86,7 @@
       </Dialog>
     {/if}
 
-    <Button
-      variant="destructive"
-      onclick={delete_user}
-      icon="heroicons/trash"
-      disabled={any_loading($loader)}
-      loading={$loader["delete_user"]}
-    >
+    <Button variant="destructive" onclick={delete_user} icon="heroicons/trash">
       Delete user
     </Button>
   </div>

@@ -8,9 +8,9 @@ export const ACCESS_CONTROL = {
   ROLES: {
     IDS: ROLE_IDS,
     MAP: ROLE_MAP,
-    OPTIONS: Object.entries(ROLE_MAP).map(([value, { label }]) => ({
-      value,
-      label,
+    OPTIONS: ROLE_IDS.map((id) => ({
+      value: id,
+      label: ROLE_MAP[id].label,
     })),
   },
 };

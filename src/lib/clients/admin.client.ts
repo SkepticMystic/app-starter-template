@@ -6,87 +6,67 @@ import {
 import { TIME } from "$lib/const/time";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { Format } from "$lib/utils/format.util";
+import { Effect, pipe } from "effect";
 import { Client } from "./index.client";
 
 export const AdminClient = {
-  update_user_role: (user_id: string, role_id: IAccessControl.RoleId) =>
-    Client.better_auth(
-      () =>
-        BetterAuthClient.admin.setRole({
-          role: role_id,
-          userId: user_id,
-        }),
-      {
-        confirm: `Are you sure you want to update this user's role to ${ACCESS_CONTROL.ROLES.MAP[role_id].label}?`,
-        toast: { success: "User role updated successfully." },
-      },
-    ),
+  update_user_role: (input: { userId: string; role: IAccessControl.RoleId }) =>
+    Client.better_auth(() => BetterAuthClient.admin.setRole(input), {
+      confirm: `Are you sure you want to update this user's role to ${ACCESS_CONTROL.ROLES.MAP[input.role].label}?`,
+      toast: { success: "User role updated" },
+    }),
 
-  impersonate_user: (user_id: string) =>
+  impersonate_user: (userId: string) =>
     Client.better_auth(
-      () => BetterAuthClient.admin.impersonateUser({ userId: user_id }),
+      () => BetterAuthClient.admin.impersonateUser({ userId }),
       // NOTE: Show toast after redirect in ?toast param
     ),
 
   stop_impersonating: () =>
     Client.request(
-      async () => {
-        const res = await BetterAuth.to_result(
-          BetterAuthClient.admin.stopImpersonating(),
-        );
-
-        if (res.ok) {
-          // NOTE: I saw the session.subscribe callback run
-          // But the /profile page didn't update.
-          // So that's a TODO, but for now, a hard reload works.
-          // BetterAuthClient.$store.notify("$sessionSignal");
-          location.reload();
-        }
-
-        return res;
-      },
+      () =>
+        Effect.runPromise(
+          pipe(
+            Effect.promise(() => BetterAuthClient.admin.stopImpersonating()),
+            Effect.andThen((r) => BetterAuth.to_result(r)),
+            // NOTE: I saw the session.subscribe callback run
+            // But the /profile page didn't update.
+            // So that's a TODO, but for now, a hard reload works.
+            // BetterAuthClient.$store.notify("$sessionSignal");
+            Effect.tap((r) => r.ok && location.reload()),
+          ),
+        ),
       {
         confirm: "Are you sure you want to stop impersonating?",
-        toast: { success: "Stopped impersonation successfully." },
+        toast: { success: "Stopped impersonation" },
       },
     ),
 
   ban_user: (
-    user_id: string,
-    options: { expires_in?: number; reason?: string },
+    userId: string,
+    options: { banExpiresIn?: number; banReason?: string },
   ) =>
     Client.better_auth(
-      () =>
-        BetterAuthClient.admin.banUser({
-          userId: user_id,
-          banReason: options.reason,
-          banExpiresIn: options.expires_in,
-        }),
+      () => BetterAuthClient.admin.banUser({ userId, ...options }),
       {
         confirm: `Are you sure you want to ban this user ${
-          options.expires_in
-            ? `for ${Format.number(options.expires_in / TIME.DAY, { maximumFractionDigits: 0 })} days?`
+          options.banExpiresIn
+            ? `for ${Format.number(options.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
             : "indefinitely?"
         }`,
-        toast: { success: "User banned successfully." },
+        toast: { success: "User banned" },
       },
     ),
 
-  unban_user: (user_id: string) =>
-    Client.better_auth(
-      () => BetterAuthClient.admin.unbanUser({ userId: user_id }),
-      {
-        confirm: "Are you sure you want to unban this user?",
-        toast: { success: "User unbanned successfully." },
-      },
-    ),
+  unban_user: (userId: string) =>
+    Client.better_auth(() => BetterAuthClient.admin.unbanUser({ userId }), {
+      confirm: "Are you sure you want to unban this user?",
+      toast: { success: "User unbanned" },
+    }),
 
-  delete_user: (user_id: string) =>
-    Client.better_auth(
-      () => BetterAuthClient.admin.removeUser({ userId: user_id }),
-      {
-        confirm: "Are you sure you want to delete this user?",
-        toast: { success: "User deleted successfully" },
-      },
-    ),
+  delete_user: (userId: string) =>
+    Client.better_auth(() => BetterAuthClient.admin.removeUser({ userId }), {
+      confirm: "Are you sure you want to delete this user?",
+      toast: { success: "User deleted" },
+    }),
 };

@@ -6,7 +6,6 @@
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { any_loading, Loader } from "$lib/utils/loader";
 
   let {
     accounts = $bindable(),
@@ -14,25 +13,18 @@
     accounts: Awaited<ReturnType<typeof auth.api.listUserAccounts>>;
   } = $props();
 
-  const loader = Loader<`unlink_account:${IAuth.ProviderId}`>();
-
   const unlink_account = async (
-    provider_id: IAuth.ProviderId,
-    account_id?: string,
-  ) => {
-    loader.load(`unlink_account:${provider_id}`);
-
-    const res = await AccountsClient.unlink(provider_id, account_id);
-    if (res.ok) {
-      accounts = accounts.filter((account) => account.provider !== provider_id);
-    }
-
-    loader.reset();
-  };
+    providerId: IAuth.ProviderId,
+    accountId?: string,
+  ) =>
+    AccountsClient.unlink({ providerId, accountId }).then((res) => {
+      res.ok &&
+        (accounts = accounts.filter((acc) => acc.providerId !== providerId));
+    });
 
   let items = $state(
     accounts.map((acc) => {
-      const provider_id = acc.provider as IAuth.ProviderId;
+      const provider_id = acc.providerId as IAuth.ProviderId;
       const provider = AUTH.PROVIDERS.MAP[provider_id];
 
       return {
@@ -63,8 +55,6 @@
         variant="destructive"
         title="Unlink Account"
         icon="heroicons/link-slash"
-        disabled={any_loading($loader)}
-        loading={$loader[`unlink_account:${item.provider_id}`]}
         onclick={() => unlink_account(item.provider_id)}
       />
     </div>

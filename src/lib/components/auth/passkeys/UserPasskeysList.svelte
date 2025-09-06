@@ -59,7 +59,7 @@
           <EditPasskeyForm
             {passkey}
             on_success={(updated) => {
-              passkeys = Items.patch(passkeys, passkey.id, updated);
+              passkeys = Items.patch(passkeys, passkey.id, updated.passkey);
             }}
           />
         {/snippet}
