@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index";
   import { TanstackTable } from "$lib/utils/tanstack/table.util";

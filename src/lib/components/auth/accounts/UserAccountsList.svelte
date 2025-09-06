@@ -2,7 +2,7 @@
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
   import List from "$lib/components/daisyui/List.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";

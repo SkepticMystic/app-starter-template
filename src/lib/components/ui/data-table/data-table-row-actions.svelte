@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData extends Item">
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import type { MaybePromise } from "$lib/interfaces";

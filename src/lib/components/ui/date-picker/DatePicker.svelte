@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { buttonVariants } from "$lib/components/ui/button/index.js";
   import { Calendar } from "$lib/components/ui/calendar/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";

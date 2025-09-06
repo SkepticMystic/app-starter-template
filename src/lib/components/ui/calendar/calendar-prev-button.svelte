@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import {
     buttonVariants,
     type ButtonVariant,

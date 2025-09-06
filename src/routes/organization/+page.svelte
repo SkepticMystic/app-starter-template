@@ -3,7 +3,7 @@
   import InviteOrganizationMemberForm from "$lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
   import OrganizationInvitationsTable from "$lib/components/auth/organizations/OrganizationInvitationsTable.svelte";
   import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
 
   let { data } = $props();

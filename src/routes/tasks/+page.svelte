@@ -1,7 +1,7 @@
 <script lang="ts">
   import Loading from "$lib/components/ui/loading/Loading.svelte";
   import EditTaskForm from "$lib/components/form/task/EditTaskForm.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import DateRangePicker from "$lib/components/ui/date-picker/DateRangePicker.svelte";

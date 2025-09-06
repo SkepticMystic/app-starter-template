@@ -5,7 +5,7 @@
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
-  import Icon from "$lib/components/icons/Icon.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
