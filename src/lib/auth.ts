@@ -1,3 +1,4 @@
+import { dev } from "$app/environment";
 import { getRequestEvent } from "$app/server";
 import {
   BETTER_AUTH_SECRET,
@@ -27,6 +28,7 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { sveltekitCookies } from "better-auth/svelte-kit";
+import { Effect } from "effect";
 import { AccessControl } from "./auth/permissions";
 import { APP } from "./const/app";
 import { AUTH, type IAuth } from "./const/auth.const";
@@ -43,291 +45,279 @@ import {
   UserTable,
   VerificationTable,
 } from "./server/db/schema/auth.models";
-import { Email } from "./utils/email";
+import { EmailLive, EmailService, EmailTest } from "./services/email.service";
 import { Log } from "./utils/logger.util";
 
 // SECTION: betterAuth init
-export const auth = betterAuth({
-  appName: APP.NAME,
+export const auth = Effect.runSync(
+  Effect.gen(function* () {
+    const email = yield* EmailService;
 
-  // NOTE: Can't get this working...
-  // It seems like the behaviour is different when setting baseURL
-  // versus just using the BETTER_AUTH_URL env var
-  // baseURL: APP.URL,
+    return betterAuth({
+      appName: APP.NAME,
 
-  // .env is not explicitly loaded in prod, so we import it
-  // Rather than running dotenv, or something
-  secret: BETTER_AUTH_SECRET,
+      // NOTE: Can't get this working...
+      // It seems like the behaviour is different when setting baseURL
+      // versus just using the BETTER_AUTH_URL env var
+      // baseURL: APP.URL,
 
-  logger: {
-    level: "debug",
-    log: (level, message, ...args) => {
-      Log[level]({ args }, message);
-    },
-  },
+      // .env is not explicitly loaded in prod, so we import it
+      // Rather than running dotenv, or something
+      secret: BETTER_AUTH_SECRET,
 
-  telemetry: {
-    enabled: false,
-  },
-
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    debugLogs: false,
-
-    schema: {
-      user: UserTable,
-      account: AccountTable,
-      session: SessionTable,
-      verification: VerificationTable,
-      organization: OrganizationTable,
-      member: MemberTable,
-      invitation: InvitationTable,
-      passkey: PasskeyTable,
-    },
-  }),
-
-  session: {
-    storeSessionInDatabase: false,
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60, // Cache duration in seconds
-    },
-
-    additionalFields: {
-      // NOTE: These are set in the session create hook below
-      member_id: {
-        type: "string",
-        defaultValue: null,
-        fieldName: "member_id",
-        references: {
-          model: "member",
-          field: "id",
-          onDelete: "set null",
+      logger: {
+        level: "debug",
+        log: (level, message, ...args) => {
+          Log[level]({ args }, message);
         },
       },
-      // org_id: {
-      //   type: "string",
-      //   defaultValue: null,
-      //   fieldName: "org_id",
-      //   references: {
-      //     model: "organization",
-      //     field: "id",
-      //     onDelete: "set null",
-      //   },
-      // },
-    },
-  },
 
-  rateLimit: {
-    // NOTE: defaults to true in production, false in development
-    // enabled: true,
-    // NOTE: defaults to secondary if one is configured
-    // So no need for us to check for redis
-    // storage: redis ? "secondary-storage" : "memory",
-  },
+      telemetry: {
+        enabled: false,
+      },
 
-  databaseHooks: {
-    session: {
-      create: {
-        before: async (session, ctx) => {
-          if (!ctx) {
-            Log.error(
-              { ctx: "[auth.session.create.before]" },
-              "No ctx in hook callback",
-            );
-            return { data: session };
-          }
+      database: drizzleAdapter(db, {
+        provider: "pg",
+        debugLogs: false,
 
-          const data = await get_or_create_org_id(session, ctx);
+        schema: {
+          user: UserTable,
+          account: AccountTable,
+          session: SessionTable,
+          verification: VerificationTable,
+          organization: OrganizationTable,
+          member: MemberTable,
+          invitation: InvitationTable,
+          passkey: PasskeyTable,
+        },
+      }),
 
-          return {
-            data: {
-              ...session,
+      session: {
+        storeSessionInDatabase: false,
+        cookieCache: {
+          enabled: true,
+          maxAge: 5 * 60, // Cache duration in seconds
+        },
 
-              member_id: data?.member_id,
-              activeOrganizationId: data?.org_id,
+        additionalFields: {
+          // NOTE: These are set in the session create hook below
+          member_id: {
+            type: "string",
+            defaultValue: null,
+            fieldName: "member_id",
+            references: {
+              model: "member",
+              field: "id",
+              onDelete: "set null",
             },
-          };
+          },
+          // org_id: {
+          //   type: "string",
+          //   defaultValue: null,
+          //   fieldName: "org_id",
+          //   references: {
+          //     model: "organization",
+          //     field: "id",
+          //     onDelete: "set null",
+          //   },
+          // },
         },
       },
-    },
-  },
 
-  user: {
-    deleteUser: {
-      enabled: true,
-
-      // beforeDelete: async (user) => {
-      //   const orgs_blocking_delete =
-      //     await check_orgs_blocking_user_delete(user);
-
-      //   if (!orgs_blocking_delete.ok) {
-      //     throw new APIError(orgs_blocking_delete.error.status, {
-      //       message: orgs_blocking_delete.error.message,
-      //     });
-      //   }
-
-      //   // NOTE: Don't return anything, just proceed with deletion
-      // },
-
-      // afterDelete: async (user) => {
-      //   await cleanup_orgs_after_user_delete(user);
-      // },
-    },
-  },
-
-  account: {
-    accountLinking: {
-      enabled: true,
-      updateUserInfoOnLink: true,
-      // SOURCE: https://www.better-auth.com/docs/concepts/users-accounts#forced-linking
-      // NOTE: Links profile even if email isn't verified on provider side
-      trustedProviders: AUTH.PROVIDERS.IDS.filter(
-        (id) => AUTH.PROVIDERS.MAP[id].force_email_verified,
-      ),
-    },
-  },
-
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
-    revokeSessionsOnPasswordReset: true,
-
-    sendResetPassword: async ({ user, url }) => {
-      await Email.send(EMAIL.TEMPLATES["password-reset"]({ url, user }));
-    },
-  },
-
-  emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-
-    sendVerificationEmail: async ({ user, url }) => {
-      await Email.send(EMAIL.TEMPLATES["email-verification"]({ url, user }));
-    },
-  },
-
-  socialProviders: {
-    google:
-      GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
-        ? {
-            // Always prompt the user to select an account
-            prompt: "select_account",
-            clientId: GOOGLE_CLIENT_ID,
-            clientSecret: GOOGLE_CLIENT_SECRET,
-          }
-        : undefined,
-  },
-
-  plugins: [
-    admin({
-      ac: AccessControl.ac,
-      roles: AccessControl.roles,
-    }),
-
-    passkey({
-      rpName: APP.NAME,
-      rpID: new URL(APP.URL).hostname,
-    }),
-
-    haveIBeenPwned({
-      customPasswordCompromisedMessage:
-        "That password has been compromised in a data breach. Please choose a different one.",
-    }),
-
-    organization({
-      allowUserToCreateOrganization: false,
-      cancelPendingInvitationsOnReInvite: true,
-      requireEmailVerificationOnInvitation: true,
-
-      // schema: {
-      //   session: {
-      //     fields: {
-      //       activeOrganizationId: "org_id",
-      //     },
-      //   },
-      // },
-
-      // Doesn't seem to do anything?
-      // SOURCE: https://github.com/better-auth/better-auth/blob/eb691e213dbe44a3c177d10a2dfd2f39ace0bf98/packages/better-auth/src/plugins/organization/types.ts#L340
-      // autoCreateOrganizationOnSignUp: true,
-
-      sendInvitationEmail: async (data) => {
-        await Email.send(EMAIL.TEMPLATES["org-invite"](data));
+      rateLimit: {
+        // NOTE: defaults to true in production, false in development
+        // enabled: true,
+        // NOTE: defaults to secondary if one is configured
+        // So no need for us to check for redis
+        // storage: redis ? "secondary-storage" : "memory",
       },
-    }),
 
-    genericOAuth({
-      config: [
-        POCKETID_CLIENT_ID && POCKETID_CLIENT_SECRET && POCKETID_BASE_URL
-          ? ((): GenericOAuthConfig => {
-              const providerId = "pocket-id" satisfies IAuth.ProviderId;
+      databaseHooks: {
+        session: {
+          create: {
+            before: async (session, ctx) => {
+              if (!ctx) {
+                Log.error(
+                  { ctx: "[auth.session.create.before]" },
+                  "No ctx in hook callback",
+                );
+                return { data: session };
+              }
+
+              const data = await get_or_create_org_id(session, ctx);
 
               return {
-                providerId,
-                clientId: POCKETID_CLIENT_ID,
-                clientSecret: POCKETID_CLIENT_SECRET,
+                data: {
+                  ...session,
 
-                discoveryUrl:
-                  POCKETID_BASE_URL + "/.well-known/openid-configuration",
-                // ... other config options
-
-                mapProfileToUser: (profile: unknown) => {
-                  Log.info(profile, providerId + " profile");
-
-                  // NOTE: Typing profile directly in the callback arg gives a TS error, since better-auth expects Record<string, any>
-                  const typed = profile as IAuth.GenericOAuthProfile;
-
-                  const name = (
-                    typed.name ||
-                    (typed.given_name || "") +
-                      " " +
-                      (typed.family_name || "") ||
-                    ""
-                  )
-                    .trim()
-                    .replaceAll(/\s+/g, " ");
-
-                  return {
-                    name,
-                    email: typed.email,
-                    image: typed.picture,
-                    emailVerified:
-                      AUTH.PROVIDERS.MAP[providerId].force_email_verified ||
-                      typed.email_verified,
-                  };
+                  member_id: data?.member_id,
+                  activeOrganizationId: data?.org_id,
                 },
               };
-            })()
-          : null,
-      ].flatMap((cfg) => (cfg ? [cfg] : [])),
-    }),
-
-    // NOTE: Must be last, as it needs the request event
-    // SOURCE: https://www.better-auth.com/docs/integrations/svelte-kit#server-action-cookies
-    sveltekitCookies(getRequestEvent),
-  ],
-
-  // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
-  secondaryStorage: redis
-    ? {
-        get: async (key) => {
-          return redis!.get(key);
+            },
+          },
         },
+      },
 
-        set: async (key, value, ttl) => {
-          // if (ttl) await redis!.set(key, value, { EX: ttl });
-          // or for ioredis:
-          if (ttl) await redis!.set(key, value, "EX", ttl);
-          else await redis!.set(key, value);
-        },
+      user: {
+        deleteUser: { enabled: true },
+      },
 
-        delete: async (key) => {
-          await redis!.del(key);
+      account: {
+        accountLinking: {
+          enabled: true,
+          updateUserInfoOnLink: true,
+          // SOURCE: https://www.better-auth.com/docs/concepts/users-accounts#forced-linking
+          // NOTE: Links profile even if email isn't verified on provider side
+          trustedProviders: AUTH.PROVIDERS.IDS.filter(
+            (id) => AUTH.PROVIDERS.MAP[id].force_email_verified,
+          ),
         },
-      }
-    : undefined,
-});
+      },
+
+      emailAndPassword: {
+        enabled: true,
+        requireEmailVerification: true,
+        revokeSessionsOnPasswordReset: true,
+
+        sendResetPassword: ({ user, url }) =>
+          Effect.runPromise(
+            email.send(EMAIL.TEMPLATES["password-reset"]({ url, user })),
+          ),
+      },
+
+      emailVerification: {
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+
+        sendVerificationEmail: ({ user, url }) =>
+          Effect.runPromise(
+            email.send(EMAIL.TEMPLATES["email-verification"]({ url, user })),
+          ),
+      },
+
+      socialProviders: {
+        google:
+          GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+            ? {
+                // Always prompt the user to select an account
+                prompt: "select_account",
+                clientId: GOOGLE_CLIENT_ID,
+                clientSecret: GOOGLE_CLIENT_SECRET,
+              }
+            : undefined,
+      },
+
+      plugins: [
+        admin({
+          ac: AccessControl.ac,
+          roles: AccessControl.roles,
+        }),
+
+        passkey({
+          rpName: APP.NAME,
+          rpID: new URL(APP.URL).hostname,
+        }),
+
+        haveIBeenPwned({
+          customPasswordCompromisedMessage:
+            "That password has been compromised in a data breach. Please choose a different one.",
+        }),
+
+        organization({
+          allowUserToCreateOrganization: false,
+          cancelPendingInvitationsOnReInvite: true,
+          requireEmailVerificationOnInvitation: true,
+
+          // schema: {
+          //   session: {
+          //     fields: {
+          //       activeOrganizationId: "org_id",
+          //     },
+          //   },
+          // },
+
+          // Doesn't seem to do anything?
+          // SOURCE: https://github.com/better-auth/better-auth/blob/eb691e213dbe44a3c177d10a2dfd2f39ace0bf98/packages/better-auth/src/plugins/organization/types.ts#L340
+          // autoCreateOrganizationOnSignUp: true,
+
+          sendInvitationEmail: (data) =>
+            Effect.runPromise(email.send(EMAIL.TEMPLATES["org-invite"](data))),
+        }),
+
+        genericOAuth({
+          config: [
+            POCKETID_CLIENT_ID && POCKETID_CLIENT_SECRET && POCKETID_BASE_URL
+              ? ((): GenericOAuthConfig => {
+                  const providerId = "pocket-id" satisfies IAuth.ProviderId;
+
+                  return {
+                    providerId,
+                    clientId: POCKETID_CLIENT_ID,
+                    clientSecret: POCKETID_CLIENT_SECRET,
+
+                    discoveryUrl:
+                      POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                    // ... other config options
+
+                    mapProfileToUser: (profile: unknown) => {
+                      Log.info(profile, providerId + " profile");
+
+                      // NOTE: Typing profile directly in the callback arg gives a TS error, since better-auth expects Record<string, any>
+                      const typed = profile as IAuth.GenericOAuthProfile;
+
+                      const name = (
+                        typed.name ||
+                        (typed.given_name || "") +
+                          " " +
+                          (typed.family_name || "") ||
+                        ""
+                      )
+                        .trim()
+                        .replaceAll(/\s+/g, " ");
+
+                      return {
+                        name,
+                        email: typed.email,
+                        image: typed.picture,
+                        emailVerified:
+                          AUTH.PROVIDERS.MAP[providerId].force_email_verified ||
+                          typed.email_verified,
+                      };
+                    },
+                  };
+                })()
+              : null,
+          ].flatMap((cfg) => (cfg ? [cfg] : [])),
+        }),
+
+        // NOTE: Must be last, as it needs the request event
+        // SOURCE: https://www.better-auth.com/docs/integrations/svelte-kit#server-action-cookies
+        sveltekitCookies(getRequestEvent),
+      ],
+
+      // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
+      secondaryStorage: redis
+        ? {
+            get: async (key) => {
+              return redis!.get(key);
+            },
+
+            set: async (key, value, ttl) => {
+              // if (ttl) await redis!.set(key, value, { EX: ttl });
+              // or for ioredis:
+              if (ttl) await redis!.set(key, value, "EX", ttl);
+              else await redis!.set(key, value);
+            },
+
+            delete: async (key) => {
+              await redis!.del(key);
+            },
+          }
+        : undefined,
+    });
+  }).pipe(Effect.provideService(EmailService, dev ? EmailTest : EmailLive)),
+);
 
 // !SECTION
 
@@ -416,118 +406,3 @@ const get_or_create_org_id = async (
     member_id: new_member.id,
   };
 };
-
-// ====
-// NOTE: I used to check if the user was going to leave an ownerless org
-// But the owner _should_ be allowed to delete their account and org if they want to
-// ====
-
-// Cases:
-// - Just a member of some other org: delete member
-// - Owner of an org with other members: transfer ownership
-// - Owner of an org with no other members: delete member and org
-
-// const check_orgs_blocking_user_delete = async (
-//   user: User,
-// ): Promise<
-//   Result<
-//     undefined,
-//     {
-//       message: string;
-//       status: APIError["status"];
-//     }
-//   >
-// > => {
-//   const any_owner_member = await db.query.members.findFirst({
-//     columns: { id: true, organizationId: true },
-//     where: (m, { and, eq }) => and(eq(m.userId, user.id), eq(m.role, "owner")),
-//   });
-
-//   if (!any_owner_member) {
-//     Log.info({ userId: user.id }, "User is not an owner of any organization");
-
-//     // Not an owner of any org, let them delete
-//     return suc();
-//   }
-
-//   const other_org_members = await db.query.members.findMany({
-//     columns: { role: true },
-//     where: (m, { and, sql }) =>
-//       and(
-//         sql`${m.userId} != ${user.id}`,
-//         sql`${m.organizationId} = ${any_owner_member.organizationId}`,
-//       ),
-//   });
-
-//   if (
-//     // Is owner of an org with other members,
-//     other_org_members.length > 0 &&
-//     // but none are owners
-//     other_org_members.every((m) => m.role !== "owner")
-//   ) {
-//     return err({
-//       status: "BAD_REQUEST",
-//       message:
-//         "You must transfer ownership of your organization to another member before deleting your account.",
-//     });
-//   }
-
-//   Log.debug(
-//     { userId: user.id },
-//     "User is an owner of an organization with other owners or no other members",
-//   );
-
-//   return suc();
-// };
-
-// const cleanup_orgs_after_user_delete = async (user: User) => {
-//   const user_members = await db.query.members.findMany({
-//     columns: { organizationId: true },
-//     where: (m, { eq }) => eq(m.userId, user.id),
-//   });
-
-//   const org_ids = user_members.map((m) => m.organizationId);
-
-//   await Promise.allSettled([
-//     Email.send(EMAIL.TEMPLATES["user-deleted"]({ user })),
-
-//     // Now handled by cascades in the DB
-//     // Members.deleteMany({ userId: user.id }).lean(),
-
-//     // Cascade should handle this
-//     // Invitations.deleteMany({ status: "pending", inviterId: user.id }).lean(),
-
-//     // Delete orgs with no other members
-//     ...org_ids.map(async (org_id) => {
-//       // const other_org_member = await Members.findOne({
-//       //   userId: { $ne: user.id },
-//       //   organizationId: org_id,
-//       // }).lean();
-//       const other_org_member = await db.query.members.findFirst({
-//         where: (m, { and, sql }) =>
-//           and(
-//             sql`${m.userId} != ${user.id}`,
-//             sql`${m.organizationId} = ${org_id}`,
-//           ),
-//       });
-
-//       if (!other_org_member) {
-//         Log.info(
-//           { org_id, userId: user.id },
-//           "Deleting organization with no other members",
-//         );
-
-//         return db
-//           .delete(OrganizationTable)
-//           .where(eq(OrganizationTable.id, org_id));
-//       }
-
-//       Log.debug(
-//         { org_id, userId: user.id },
-//         "Not deleting organization with other members",
-//       );
-//     }),
-//   ]);
-// };
-
-// !SECTION

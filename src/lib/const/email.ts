@@ -1,8 +1,8 @@
+import type { SendEmailOptions } from "$lib/services/email.service";
 import { App } from "$lib/utils/app";
 import { Markdown } from "$lib/utils/markdown";
 import type { User } from "better-auth";
 import type { Invitation, Organization } from "better-auth/plugins";
-import type Mail from "nodemailer/lib/mailer";
 import { APP } from "./app";
 import { ROUTES } from "./routes.const";
 
@@ -21,7 +21,10 @@ const COMMON = {
 
 export const EMAIL = {
   TEMPLATES: {
-    "password-reset": (input: { url: string; user: User }): Mail.Options => {
+    "password-reset": (input: {
+      url: string;
+      user: User;
+    }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""}</p>
 
@@ -46,7 +49,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
     "email-verification": (input: {
       url: string;
       user: User;
-    }): Mail.Options => {
+    }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
 
@@ -72,7 +75,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       invitation: Invitation;
       organization: Organization;
       inviter: { user: User };
-    }): Mail.Options => {
+    }): SendEmailOptions => {
       const href = App.full_url(ROUTES.AUTH_ORGANIZATION_ACCEPT_INVITE, {
         invite_id: input.invitation.id,
       });
@@ -101,7 +104,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       };
     },
 
-    "user-deleted": (input: { user: User }): Mail.Options => {
+    "user-deleted": (input: { user: User }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
 

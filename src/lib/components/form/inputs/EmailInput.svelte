@@ -10,4 +10,11 @@
   } = $props();
 </script>
 
-<Input required type="email" autocomplete="email" {...rest} bind:value />
+<Input
+  required
+  type="email"
+  autocomplete="email"
+  placeholder="Email address"
+  {...rest}
+  bind:value
+/>

@@ -4,6 +4,7 @@ import { BetterAuthClient } from "$lib/auth-client";
 import type { IAccessControl } from "$lib/const/access_control.const";
 import { ROUTES } from "$lib/const/routes.const";
 import { App } from "$lib/utils/app";
+import { Log } from "$lib/utils/logger.util";
 import { Url } from "$lib/utils/urls";
 import { error, redirect } from "@sveltejs/kit";
 
@@ -64,4 +65,14 @@ export const get_session = async (options?: Options) => {
       org_id: session.session.activeOrganizationId,
     },
   };
+};
+
+export const safe_get_session = async (options?: Options) => {
+  try {
+    return await get_session(options);
+  } catch (e) {
+    Log.info(e, "safe_get_session error");
+
+    return null;
+  }
 };
