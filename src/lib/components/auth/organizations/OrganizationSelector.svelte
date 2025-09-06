@@ -1,7 +1,7 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import Labeled from "$lib/components/ui/label/Labeled.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import { organizations } from "$lib/stores/organizations.store";
   import { session } from "$lib/stores/session";
@@ -27,7 +27,7 @@
         label: `${org.name} (${org.slug})`,
       }))}
       bind:value={
-        () => $session.data?.session.activeOrganizationId!,
+        () => $session.data?.session.activeOrganizationId ?? undefined,
         (v) => OrganizationsClient.set_active(v)
       }
     />

@@ -6,16 +6,10 @@
   import Card from "$lib/components/ui/card/Card.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
-  import { AUTH, type IAuth } from "$lib/const/auth.const";
+  import { AUTH } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
-  import { Loader } from "$lib/utils/loader";
-  import type { PageProps } from "./$types";
 
-  let { data }: PageProps = $props();
-
-  const loader = Loader<
-    `signup:${IAuth.ProviderId}` | `signin:${IAuth.ProviderId}`
-  >();
+  let { data } = $props();
 </script>
 
 <Card class="mx-auto w-full max-w-xs" title="Signup for {APP.NAME}">

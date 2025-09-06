@@ -3,10 +3,17 @@ import { BetterAuth } from "$lib/utils/better-auth.util";
 import { Effect, pipe } from "effect";
 import { Client } from "./index.client";
 
-const set_active_inner = async (organizationId: string) =>
+const set_active_inner = (organizationId: string | undefined) =>
   Effect.runPromise(
     pipe(
-      Effect.promise(() =>
+      Effect.sync(() =>
+        organizationId
+          ? Effect.succeed(organizationId)
+          : Effect.fail({ message: "No organization ID provided." }),
+      ),
+
+      Effect.flatMap((e) => e),
+      Effect.andThen((organizationId) =>
         BetterAuthClient.organization.setActive({ organizationId }),
       ),
       Effect.andThen((r) => BetterAuth.to_result(r)),
@@ -15,7 +22,7 @@ const set_active_inner = async (organizationId: string) =>
   );
 
 export const OrganizationsClient = {
-  set_active: (organizationId: string) =>
+  set_active: (organizationId: string | undefined) =>
     Client.request(() => set_active_inner(organizationId), {
       toast: { success: "Active organization updated." },
     }),

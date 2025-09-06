@@ -36,10 +36,10 @@
     },
   });
 
-  const { form: form_data, message, enhance } = form;
+  const { form: form_data } = form;
 </script>
 
-<form class="space-y-4" method="POST" use:enhance>
+<form class="space-y-4" method="POST" use:form.enhance>
   <EmailFormField {form} bind:value={$form_data.email} />
 
   <FormField {form} name="password">
@@ -68,5 +68,5 @@
     Signin with {provider.name}
   </FormButton>
 
-  <FormMessage message={form.message} />
+  <FormMessage {form} />
 </form>
