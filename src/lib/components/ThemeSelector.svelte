@@ -2,7 +2,7 @@
   import { buttonVariants } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { resetMode, setMode } from "mode-watcher";
-  import Icon from "../icons/Icon.svelte";
+  import Icon from "./icons/Icon.svelte";
 </script>
 
 <DropdownMenu.Root>

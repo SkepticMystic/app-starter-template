@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import EditTaskForm from "$lib/components/form/task/EditTaskForm.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";

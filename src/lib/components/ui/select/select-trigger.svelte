@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import { cn, type WithoutChild } from "$lib/utils/shadcn.util.js";
   import { Select as SelectPrimitive } from "bits-ui";

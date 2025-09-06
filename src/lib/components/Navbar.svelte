@@ -9,8 +9,8 @@
   import { session, user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
   import type { ClassValue } from "svelte/elements";
-  import Icon from "../icons/Icon.svelte";
-  import Button from "../ui/button/button.svelte";
+  import Icon from "./icons/Icon.svelte";
+  import Button from "./ui/button/button.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
   interface Route {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import Labeled from "$lib/components/ui/label/Labeled.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import { organizations } from "$lib/stores/organizations.store";

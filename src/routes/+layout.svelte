@@ -6,8 +6,8 @@
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
-  import Loading from "$lib/components/daisyui/Loading.svelte";
-  import Navbar from "$lib/components/daisyui/Navbar.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
+  import Navbar from "$lib/components/Navbar.svelte";
   import Icon from "$lib/components/icons/Icon.svelte";
   import SEO from "$lib/components/SEO.svelte";
   import { TOAST, type IToast } from "$lib/const/toast.const";
