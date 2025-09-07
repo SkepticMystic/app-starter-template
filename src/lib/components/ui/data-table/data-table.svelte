@@ -178,8 +178,8 @@
           </ShadTable.Row>
         {:else}
           <ShadTable.Row>
-            <ShadTable.Cell colspan={columns.length} class="h-24 text-center">
-              No results.
+            <ShadTable.Cell colspan={columns.length} class="h-16 text-center">
+              No results
             </ShadTable.Cell>
           </ShadTable.Row>
         {/each}

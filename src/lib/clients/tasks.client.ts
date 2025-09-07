@@ -1,4 +1,4 @@
-import { create_task, get_tasks } from "$lib/remote/tasks.remote";
+import { create_task, get_tasks } from "$lib/remote/tasks/tasks.remote";
 import type { TaskSchema } from "$lib/schema/task.schema";
 import type { Task } from "$lib/server/db/schema/task.models";
 import type { Infer } from "sveltekit-superforms";

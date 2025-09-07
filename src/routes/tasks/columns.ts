@@ -2,7 +2,7 @@ import { Client } from "$lib/clients/index.client";
 import Time from "$lib/components/Time.svelte";
 import { renderComponent } from "$lib/components/ui/data-table";
 import { TASKS } from "$lib/const/task.const";
-import { delete_task, get_tasks } from "$lib/remote/tasks.remote";
+import { delete_task, get_tasks } from "$lib/remote/tasks/tasks.remote";
 import type { Task } from "$lib/server/db/schema/task.models";
 import { Items } from "$lib/utils/items.util";
 import { TanstackTable } from "$lib/utils/tanstack/table.util";
@@ -77,9 +77,7 @@ export const columns = TanstackTable.make_columns<TData>({
                 Items.remove(old, row.original.id),
               ),
             ),
-          {
-            toast: { optimistic: true, success: "Task deleted" },
-          },
+          { toast: { optimistic: true, success: "Task deleted" } },
         ),
     },
   ],

@@ -26,7 +26,7 @@
             ? "lucide/arrow-down"
             : sort_dir === "asc"
               ? "lucide/arrow-up"
-              : "lucide/arrow-up-down"}
+              : ""}
         />
       </Button>
     {/snippet}

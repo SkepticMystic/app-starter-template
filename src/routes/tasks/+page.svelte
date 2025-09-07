@@ -9,7 +9,7 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { TASKS } from "$lib/const/task.const";
-  import { get_tasks } from "$lib/remote/tasks.remote.js";
+  import { get_tasks } from "$lib/remote/tasks/tasks.remote.js";
   import type { DateRange } from "bits-ui";
   import { columns } from "./columns";
 
