@@ -6,20 +6,14 @@
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
-  import { any_loading, Loader } from "$lib/utils/loader";
   import { Url } from "$lib/utils/urls.js";
 
   let { data } = $props();
 
-  const loader = Loader<"accept_invite">();
   const redirect_uri = Url.strip_origin(page.url);
 
   const accept_invite = async () => {
-    if (!data.invitation) {
-      return;
-    }
-
-    loader.load("accept_invite");
+    if (!data.invitation) return;
 
     const res = await OrganizationsClient.accept_invitation(data.invitation.id);
     if (res.ok) {
@@ -27,8 +21,6 @@
         App.url(ROUTES.HOME, { toast: TOAST.IDS.ORG_INVITE_ACCEPTED }),
       );
     }
-
-    loader.reset();
   };
 </script>
 
@@ -44,12 +36,7 @@
       <strong>{data.organization.name}</strong>.
     </p>
 
-    <Button
-      onclick={accept_invite}
-      icon="heroicons/check-circle"
-      disabled={any_loading($loader)}
-      loading={$loader["accept_invite"]}
-    >
+    <Button onclick={accept_invite} icon="lucide/check-circle">
       Accept Invite
     </Button>
   {:else if data.prompt === "signup_login"}

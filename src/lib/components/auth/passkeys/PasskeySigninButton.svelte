@@ -50,6 +50,6 @@
   autocomplete="current-password webauthn"
 />
 
-<Button onclick={signin} icon="heroicons/finger-print">
+<Button onclick={signin} icon="lucide/fingerprint">
   Continue with Passkey
 </Button>

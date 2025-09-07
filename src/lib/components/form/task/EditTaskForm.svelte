@@ -94,5 +94,5 @@
 
   <FormButton {form} class="w-full" icon="lucide/plus">Create Task</FormButton>
 
-  <FormMessage message={form.message} />
+  <FormMessage {form} />
 </form>

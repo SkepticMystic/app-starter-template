@@ -5,10 +5,10 @@
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
@@ -76,7 +76,7 @@
         description="Change your account password"
       >
         {#snippet trigger()}
-          <Icon icon="heroicons/lock-closed" />
+          <Icon icon="lucide/lock" />
           Change Password
         {/snippet}
 
@@ -86,7 +86,7 @@
       </Dialog>
     {/if}
 
-    <Button variant="destructive" onclick={delete_user} icon="heroicons/trash">
+    <Button variant="destructive" onclick={delete_user} icon="lucide/trash">
       Delete user
     </Button>
   </div>

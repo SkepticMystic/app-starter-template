@@ -52,5 +52,3 @@
 - [ ] Add llm.txt n instructions.md, where its helpful
 - [ ] Try remove heroicons in favour of lucide
 - [ ] Try remove dependence on vercel adapter... try deploy serverful
-- [ ] tailwind/forms?
-- [ ] nodemailer is _huge_

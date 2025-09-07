@@ -45,11 +45,9 @@
     <form method="POST" class="flex flex-col gap-2" use:form.enhance>
       <EmailFormField {form} bind:value={$form_data.email} />
 
-      <FormButton {form} icon="heroicons/envelope">
-        Request password reset
-      </FormButton>
+      <FormButton {form} icon="lucide/mail">Request password reset</FormButton>
 
-      <FormMessage message={form.message} />
+      <FormMessage {form} />
     </form>
   {/snippet}
 </Card>

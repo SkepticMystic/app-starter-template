@@ -55,5 +55,5 @@
 
   <FormButton {form} icon="lucide/user-plus">Invite Member</FormButton>
 
-  <FormMessage message={form.message} />
+  <FormMessage {form} />
 </form>

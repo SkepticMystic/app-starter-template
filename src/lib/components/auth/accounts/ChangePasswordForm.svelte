@@ -61,9 +61,9 @@
     </FormControl>
   </FormField>
 
-  <FormButton {form} class="w-full" icon="heroicons/lock-closed">
+  <FormButton {form} class="w-full" icon="lucide/lock">
     Change Password
   </FormButton>
 
-  <FormMessage message={form.message} />
+  <FormMessage {form} />
 </form>

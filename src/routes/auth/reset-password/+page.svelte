@@ -60,7 +60,7 @@
       Reset Password
     </FormButton>
 
-    <FormMessage message={form.message} />
+    <FormMessage {form} />
   </form>
 {:else}
   <div class="alert alert-error">

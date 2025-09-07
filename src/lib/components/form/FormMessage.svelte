@@ -1,24 +1,13 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
   import type { FsSuperForm } from "formsnap";
-  import type { Writable } from "svelte/store";
 
-  let props:
-    | {
-        form: undefined;
-        message: Writable<App.Superforms.Message | undefined>;
-      }
-    | {
-        form: FsSuperForm<T, App.Superforms.Message>;
-        message: undefined;
-      } = $props();
+  let {
+    form,
+  }: {
+    form: FsSuperForm<T, App.Superforms.Message>;
+  } = $props();
 
-  if (!props.form && !props.message) {
-    throw new Error(
-      "FormMessage component requires either 'form' or 'message' prop.",
-    );
-  }
-
-  const message = props.form ? props.form.message : props.message;
+  const { message } = form;
 </script>
 
 {#if $message}

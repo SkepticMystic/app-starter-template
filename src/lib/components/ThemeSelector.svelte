@@ -10,12 +10,12 @@
     class={buttonVariants({ variant: "outline", size: "icon" })}
   >
     <Icon
-      icon="heroicons/sun"
+      icon="lucide/sun"
       class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:hidden dark:scale-0 dark:-rotate-90"
     />
 
     <Icon
-      icon="heroicons/moon"
+      icon="lucide/moon"
       class="hidden h-[1.2rem] w-[1.2rem] scale-0 rotate-90 !transition-all dark:inline-block dark:scale-100 dark:rotate-0"
     />
 

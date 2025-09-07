@@ -54,7 +54,7 @@
       <Button
         variant="destructive"
         title="Unlink Account"
-        icon="heroicons/link-slash"
+        icon="lucide/unlink"
         onclick={() => unlink_account(item.provider_id)}
       />
     </div>

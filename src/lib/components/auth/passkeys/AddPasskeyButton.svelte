@@ -15,4 +15,4 @@
     PasskeysClient.create().then((res) => res.ok && on_added?.());
 </script>
 
-<Button onclick={add_passkey} icon="heroicons/finger-print">Add Passkey</Button>
+<Button onclick={add_passkey} icon="lucide/fingerprint">Add Passkey</Button>

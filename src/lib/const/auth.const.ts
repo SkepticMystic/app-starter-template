@@ -21,7 +21,7 @@ const PROVIDER_MAP: Record<
 > = {
   credential: {
     name: "Email",
-    icon: "heroicons/envelope",
+    icon: "lucide/mail",
 
     is_oidc: false,
     is_social: false,

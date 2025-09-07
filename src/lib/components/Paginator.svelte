@@ -42,11 +42,11 @@
     variant="ghost"
     onclick={() => set_skip(0)}
     disabled={disabled || page === 0}
-    icon="heroicons/chevron-double-left"
+    icon="lucide/chevrons-left"
   />
 
   <Button
-    icon="heroicons/chevron-left"
+    icon="lucide/chevron-left"
     variant="ghost"
     title="Previous"
     disabled={disabled || page === 0}
@@ -65,7 +65,7 @@
   <Button
     title="Next"
     variant="ghost"
-    icon="heroicons/chevron-right"
+    icon="lucide/chevron-right"
     disabled={disabled || page === last_page || !has_more}
     onclick={() => set_skip(filters.skip + filters.limit)}
   />
@@ -74,7 +74,7 @@
     <Button
       title="Last"
       variant="ghost"
-      icon="heroicons/chevron-double-right"
+      icon="lucide/chevrons-right"
       onclick={() => set_skip(last_page * filters.limit)}
       disabled={disabled || page === last_page || !has_more}
     />

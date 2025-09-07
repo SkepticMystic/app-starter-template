@@ -47,7 +47,7 @@
     </FormControl>
   </FormField>
 
-  <FormButton {form} icon="heroicons/tag">Update passkey</FormButton>
+  <FormButton {form} icon="lucide/tag">Update passkey</FormButton>
 
-  <FormMessage message={form.message} />
+  <FormMessage {form} />
 </form>
