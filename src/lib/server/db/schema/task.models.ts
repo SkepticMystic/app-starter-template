@@ -1,4 +1,3 @@
-import { TASKS } from "../../../const/task.const";
 import {
   index,
   pgEnum,
@@ -8,6 +7,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { TASKS } from "../../../const/task.const";
 import { MemberTable, OrganizationTable, UserTable } from "./auth.models";
 import { Schema } from "./index.schema";
 
@@ -17,7 +17,7 @@ export const task_status_enum = pgEnum("task_status", TASKS.STATUS.IDS);
 export const TaskTable = pgTable(
   "task",
   {
-    id: uuid().primaryKey().defaultRandom(),
+    ...Schema.id(),
 
     title: varchar({ length: 255 }).notNull(),
     description: text(),
@@ -25,17 +25,17 @@ export const TaskTable = pgTable(
     due_date: timestamp({ mode: "date" }),
     status: task_status_enum().default("pending").notNull(),
 
-    org_id: varchar()
+    org_id: uuid()
       .notNull()
       .references(() => OrganizationTable.id, { onDelete: "cascade" }),
-    member_id: varchar()
+    member_id: uuid()
       .notNull()
       .references(() => MemberTable.id, { onDelete: "cascade" }),
-    user_id: varchar()
+    user_id: uuid()
       .notNull()
       .references(() => UserTable.id, { onDelete: "cascade" }),
 
-    assigned_member_id: varchar().references(() => MemberTable.id, {
+    assigned_member_id: uuid().references(() => MemberTable.id, {
       onDelete: "set null",
     }),
 

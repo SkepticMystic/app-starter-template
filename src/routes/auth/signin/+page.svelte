@@ -1,16 +1,21 @@
 <script lang="ts">
+  import { BetterAuthClient } from "$lib/auth-client.js";
   import CredentialSigninForm from "$lib/components/auth/authenticate/CredentialSigninForm.svelte";
   import GenericOAuthSigninButton from "$lib/components/auth/GenericOAuthSigninButton.svelte";
   import PasskeySigninButton from "$lib/components/auth/passkeys/PasskeySigninButton.svelte";
   import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
+  import Badge from "$lib/components/ui/badge/badge.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
-  import { AUTH } from "$lib/const/auth.const";
+  import { AUTH, type IAuth } from "$lib/const/auth.const";
   import { ROUTES } from "$lib/const/routes.const";
 
   let { data } = $props();
+
+  const last_method = BetterAuthClient.getLastUsedLoginMethod();
+  console.log("last_method", last_method);
 </script>
 
 <Card class="mx-auto w-full max-w-xs" title="Signin to {APP.NAME}">
@@ -37,6 +42,18 @@
 
         <PasskeySigninButton redirect_uri={data.search.redirect_uri} />
       </div>
+
+      {#if last_method}
+        {@const provider = AUTH.PROVIDERS.MAP[last_method as IAuth.ProviderId]}
+
+        {#if provider}
+          <div class="flex w-full justify-center">
+            <Badge variant="outline">
+              Last signed in with {provider.name}
+            </Badge>
+          </div>
+        {/if}
+      {/if}
 
       <Separator />
 

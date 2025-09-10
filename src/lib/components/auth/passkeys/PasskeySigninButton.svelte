@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import Button from "$lib/components/ui/button/button.svelte";
@@ -11,7 +12,7 @@
   let {
     redirect_uri,
   }: {
-    redirect_uri?: string;
+    redirect_uri?: ResolvedPathname;
   } = $props();
 
   const onSuccess = () => {

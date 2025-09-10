@@ -63,7 +63,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
     "@qwik.dev/partytown": "^0.11.2",
-    "better-auth": "^1.3.8",
+    "better-auth": "^1.3.9",
     "drizzle-orm": "^0.44.5",
     "effect": "^3.17.13",
     "emailjs": "^4.0.3",

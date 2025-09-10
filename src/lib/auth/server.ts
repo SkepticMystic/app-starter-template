@@ -5,7 +5,6 @@ import type { IAccessControl } from "$lib/const/access_control.const";
 import { ROUTES } from "$lib/const/routes.const";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
-import { Url } from "$lib/utils/urls";
 import { error, redirect } from "@sveltejs/kit";
 
 type Options = {
@@ -30,21 +29,19 @@ export const get_session = async (options?: Options) => {
     ...(options ?? {}),
   };
 
-  const redirect_uri = Url.strip_origin(new URL(event.url));
-
   const session = await auth.api.getSession({
     headers: event.request.headers,
   });
 
   if (!session) {
-    redirect(302, App.url(ROUTES.AUTH_SIGNIN, { redirect_uri }));
+    redirect(302, App.url(ROUTES.AUTH_SIGNIN));
   } else if (
     !session.session.member_id ||
     !session.session.activeOrganizationId
   ) {
     error(401, "Unauthorized");
   } else if (resolved.email_verified && !session.user.emailVerified) {
-    redirect(302, App.url(ROUTES.AUTH_VERIFY_EMAIL, { redirect_uri }));
+    redirect(302, App.url(ROUTES.AUTH_VERIFY_EMAIL));
   } else if (resolved.admin && session.user.role !== "admin") {
     error(403, "Forbidden");
   } else if (options?.permissions) {

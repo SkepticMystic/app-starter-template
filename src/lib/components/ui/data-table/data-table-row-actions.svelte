@@ -1,7 +1,7 @@
 <script lang="ts" generics="TData extends Item">
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import type { MaybePromise } from "$lib/interfaces";
   import type { Item } from "$lib/utils/items.util";
   import type { Row } from "@tanstack/table-core";
@@ -23,7 +23,9 @@
         icon?: ClassValue | ((row: Row<TData>) => ClassValue);
 
         disabled?: (row: Row<TData>) => boolean;
-        onselect: (row: Row<TData>) => MaybePromise<unknown>;
+
+        href?: (row: Row<TData>) => string;
+        onselect?: (row: Row<TData>) => MaybePromise<unknown>;
       } & Omit<DropdownMenuItemPropsWithoutHTML, "onSelect" | "disabled">);
 
   let {
@@ -41,20 +43,40 @@
   {#if action.kind === "separator"}
     <DropdownMenu.Separator />
   {:else if action.kind === "item"}
-    {@const { onselect, icon, title, disabled, kind: _kind, ...rest } = action}
+    {@const {
+      onselect,
+      icon,
+      title,
+      href,
+      disabled,
+      kind: _kind,
+      ...rest
+    } = action}
+
+    {#snippet item_children()}
+      <Icon icon={typeof icon === "function" ? icon(row) : icon} />
+
+      {typeof title === "function" ? title(row) : title}
+    {/snippet}
 
     <DropdownMenu.Item
       {...rest}
       disabled={disabled?.(row)}
       onSelect={async () => {
-        loading = true;
-        await onselect(row);
-        loading = false;
+        if (onselect) {
+          loading = true;
+          await onselect(row);
+          loading = false;
+        }
       }}
     >
-      <Icon icon={typeof icon === "function" ? icon(row) : icon} />
-
-      {typeof title === "function" ? title(row) : title}
+      {#if href}
+        <a href={href(row)} class="flex items-center gap-2">
+          {@render item_children()}
+        </a>
+      {:else}
+        {@render item_children()}
+      {/if}
     </DropdownMenu.Item>
   {:else if action.kind === "group"}
     <DropdownMenu.Group>
@@ -80,7 +102,7 @@
     {/snippet}
   </DropdownMenu.Trigger>
 
-  <DropdownMenu.Content>
+  <DropdownMenu.Content align="end">
     {#each actions as action}
       {@render action_snippet(action, row)}
     {/each}

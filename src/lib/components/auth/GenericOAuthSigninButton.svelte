@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
@@ -11,8 +12,8 @@
     provider_id,
     redirect_uri,
   }: {
-    redirect_uri?: string;
     provider_id: IAuth.ProviderId;
+    redirect_uri?: ResolvedPathname;
   } = $props();
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];

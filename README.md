@@ -29,6 +29,14 @@
 
    Create a `.env` file in the root directory and add the necessary environment variables. You can refer to the `.env.example` file for guidance.
 
+   Part of this step is setting up a new postgres db (I currently use neon). Create a development branch in the neon dashboard, and copy the connection string to your .env file as `DATABASE_URL`.
+
+   Then run the following command to create the necessary tables:
+
+   ```bash
+   npm run db push
+   ```
+
 4. Run the development server
 
    ```bash
@@ -49,6 +57,6 @@
 
 - [ ] runed.dev
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store
-- [ ] Add llm.txt n instructions.md, where its helpful
-- [ ] Try remove heroicons in favour of lucide
 - [ ] Try remove dependence on vercel adapter... try deploy serverful
+- [ ] Using devicons for _one_ icon... does it treeshake everything else?
+- [ ] Zero sync?

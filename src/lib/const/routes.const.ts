@@ -1,4 +1,4 @@
-import type { Pathname } from "$app/types";
+import type { RouteId } from "$app/types";
 
 export const ROUTES = {
   HOME: "/",
@@ -15,4 +15,4 @@ export const ROUTES = {
 
   PROFILE: "/profile",
   ORGANIZATION: "/organization",
-} satisfies Record<string, Pathname>;
+} satisfies Record<string, RouteId>;

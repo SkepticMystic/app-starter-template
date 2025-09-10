@@ -20,6 +20,7 @@ import {
   admin,
   genericOAuth,
   haveIBeenPwned,
+  lastLoginMethod,
   organization,
   type GenericOAuthConfig,
   type Member,
@@ -74,6 +75,14 @@ export const auth = Effect.runSync(
 
       telemetry: {
         enabled: false,
+      },
+
+      advanced: {
+        database: {
+          // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
+          // We want UUIDs everywhere, so that the image table can reference resource_id in a generic way
+          generateId: false,
+        },
       },
 
       database: drizzleAdapter(db, {
@@ -224,6 +233,23 @@ export const auth = Effect.runSync(
             "That password has been compromised in a data breach. Please choose a different one.",
         }),
 
+        lastLoginMethod({
+          customResolveMethod: (ctx) => {
+            // NOTE: The plugin uses different terminology to the rest of the lib...
+            if (
+              ctx.path === "/sign-in/email" ||
+              ctx.path === "/sign-up/email"
+            ) {
+              return "credential" satisfies IAuth.ProviderId;
+            } else {
+              // Return null to use default logic
+              return null;
+            }
+          },
+        }),
+
+        // TODO: Lots of new builtin org features
+        // I probably don't need to be doing so much manually, especially on invites and member roles
         organization({
           allowUserToCreateOrganization: false,
           cancelPendingInvitationsOnReInvite: true,
