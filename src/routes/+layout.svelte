@@ -112,22 +112,22 @@
  So, richColors for now -->
 <Toaster richColors theme={mode.current} closeButton={true} duration={10_000}>
   {#snippet loadingIcon()}
-    <Icon icon="lucide/loader-2" size="size-5" class="animate-spin" />
+    <Icon icon="lucide/loader-2" class="size-5 animate-spin" />
   {/snippet}
 
   {#snippet successIcon()}
-    <Icon icon="lucide/check" size="size-5" />
+    <Icon icon="lucide/check" class="size-5" />
   {/snippet}
 
   {#snippet errorIcon()}
-    <Icon icon="lucide/x" size="size-5" />
+    <Icon icon="lucide/x" class="size-5" />
   {/snippet}
 
   {#snippet infoIcon()}
-    <Icon icon="lucide/info" size="size-5" />
+    <Icon icon="lucide/info" class="size-5" />
   {/snippet}
 
   {#snippet warningIcon()}
-    <Icon icon="lucide/alert-triangle" size="size-5" />
+    <Icon icon="lucide/alert-triangle" class="size-5" />
   {/snippet}
 </Toaster>

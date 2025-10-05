@@ -28,40 +28,33 @@
     sorting: [{ id: "expiresAt", desc: true }],
     column_filters: [{ id: "status", value: ["pending"] }],
   }}
-  columns={TanstackTable.make_columns<Invitation>({
+  columns={TanstackTable.make_columns<Invitation>(({ accessor }) => ({
     columns: [
-      {
-        accessorKey: "email",
+      accessor("email", {
         meta: { label: "Email" },
-      },
-      {
-        accessorKey: "role",
+      }),
+      accessor("role", {
         meta: { label: "Role" },
 
-        cell: ({ row }) =>
-          ORGANIZATION.ROLES.MAP[row.original.role as IOrganization.RoleId]
-            .label,
-      },
-      {
-        accessorKey: "status",
+        cell: ({ getValue }) =>
+          ORGANIZATION.ROLES.MAP[getValue() as IOrganization.RoleId].label,
+      }),
+
+      accessor("status", {
         meta: { label: "Status" },
 
         filterFn: "arrIncludesSome",
 
-        cell: ({ row }) =>
-          ORGANIZATION.INVITATIONS.STATUSES.MAP[row.original.status].label,
-      },
+        cell: ({ getValue }) =>
+          ORGANIZATION.INVITATIONS.STATUSES.MAP[getValue()].label,
+      }),
 
-      {
-        accessorKey: "expiresAt",
+      accessor("expiresAt", {
         meta: { label: "Expiry date" },
 
-        cell: ({ row }) =>
-          renderComponent(Time, {
-            show: "datetime",
-            date: row.original.expiresAt,
-          }),
-      },
+        cell: ({ getValue }) =>
+          renderComponent(Time, { show: "datetime", date: getValue() }),
+      }),
     ],
 
     actions: [
@@ -84,7 +77,7 @@
         },
       },
     ],
-  })}
+  }))}
 >
   {#snippet filters(table)}
     <Labeled label="Statuses">

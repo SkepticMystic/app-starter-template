@@ -1,9 +1,8 @@
 <script lang="ts">
   import { Client } from "$lib/clients/index.client";
-  import FormControl from "$lib/components/form/controls/FormControl.svelte";
-  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
-  import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
@@ -38,19 +37,26 @@
 
 <form class="flex flex-col gap-3" method="POST" use:form.enhance>
   <div class="flex gap-3">
-    <EmailFormField {form} bind:value={$form_data.email} />
+    <FormFieldControl {form} name="email" label="Email">
+      {#snippet children({ props })}
+        <SuperformInput
+          {...props}
+          {form}
+          type="email"
+          autocomplete="email"
+        />
+      {/snippet}
+    </FormFieldControl>
 
-    <FormField {form} name="role">
-      <FormControl label="Role">
-        {#snippet children({ props })}
-          <SingleSelect
-            {...props}
-            options={ORGANIZATION.ROLES.OPTIONS}
-            bind:value={$form_data.role}
-          />
-        {/snippet}
-      </FormControl>
-    </FormField>
+    <FormFieldControl {form} name="role" label="Role">
+      {#snippet children({ props })}
+        <SingleSelect
+          {...props}
+          options={ORGANIZATION.ROLES.OPTIONS}
+          bind:value={$form_data.role}
+        />
+      {/snippet}
+    </FormFieldControl>
   </div>
 
   <FormButton {form} icon="lucide/user-plus">Invite Member</FormButton>

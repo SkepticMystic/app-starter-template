@@ -2,8 +2,6 @@
   import { TaskClient } from "$lib/clients/tasks.client";
   import DatePicker from "$lib/components/ui/date-picker/DatePicker.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import FormField from "$lib/components/ui/form/form-field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { TASKS } from "$lib/const/task.const";
@@ -12,8 +10,9 @@
   import { make_super_form } from "$lib/utils/form.util";
   import { type Infer, type SuperValidated } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
-  import FormControl from "../controls/FormControl.svelte";
+  import FormFieldControl from "../fields/FormFieldControl.svelte";
   import FormMessage from "../FormMessage.svelte";
+  import SuperformInput from "../inputs/SuperformInput.svelte";
 
   let {
     form_input,
@@ -38,59 +37,46 @@
 </script>
 
 <form class="flex flex-col gap-2" method="POST" use:form.enhance>
-  <FormField {form} name="title">
-    <FormControl label="Title">
-      {#snippet children({ props })}
-        <Input
-          {...props}
-          required
-          placeholder="Task title"
-          bind:value={$form_data.title}
-        />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <FormFieldControl {form} name="title" label="Title">
+    {#snippet children({ props })}
+      <SuperformInput {...props} {form} placeholder="Task title" />
+    {/snippet}
+  </FormFieldControl>
 
   <div class="flex gap-x-2">
-    <FormField {form} name="status" class="grow">
-      <FormControl label="Status">
-        {#snippet children({ props })}
-          <SingleSelect
-            {...props}
-            required
-            class="w-full"
-            placeholder="Select status"
-            options={TASKS.STATUS.OPTIONS}
-            bind:value={$form_data.status}
-          />
-        {/snippet}
-      </FormControl>
-    </FormField>
-
-    <FormField {form} name="due_date" class="grow">
-      <FormControl label="Due Date">
-        {#snippet children({ props })}
-          <DatePicker
-            {...props}
-            class="w-full"
-            bind:value={$form_data.due_date}
-          />
-        {/snippet}
-      </FormControl>
-    </FormField>
-  </div>
-
-  <FormField {form} name="description">
-    <FormControl label="Description">
+    <FormFieldControl {form} name="status" label="Status" class="grow">
       {#snippet children({ props })}
-        <Textarea
+        <SingleSelect
           {...props}
-          placeholder="Task description"
-          bind:value={$form_data.description}
+          required
+          class="w-full"
+          placeholder="Select status"
+          options={TASKS.STATUS.OPTIONS}
+          bind:value={$form_data.status}
         />
       {/snippet}
-    </FormControl>
-  </FormField>
+    </FormFieldControl>
+
+    <FormFieldControl {form} name="due_date" label="Due Date" class="grow">
+      {#snippet children({ props })}
+        <DatePicker
+          {...props}
+          class="w-full"
+          bind:value={$form_data.due_date}
+        />
+      {/snippet}
+    </FormFieldControl>
+  </div>
+
+  <FormFieldControl {form} name="description" label="Description">
+    {#snippet children({ props })}
+      <Textarea
+        {...props}
+        placeholder="Task description"
+        bind:value={$form_data.description}
+      />
+    {/snippet}
+  </FormFieldControl>
 
   <FormButton {form} class="w-full" icon="lucide/plus">Create Task</FormButton>
 

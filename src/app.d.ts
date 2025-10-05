@@ -1,11 +1,16 @@
 declare global {
   namespace App {
     interface PageData {
-      seo?: {
-        title: string;
-        desc?: string;
-        image_url?: string;
-      };
+      seo?: import("svelte-meta-tags").MetaTagsProps;
+      base_seo?: import("svelte-meta-tags").MetaTagsProps;
+    }
+
+    interface Error {
+      message: string;
+      status?: number;
+      // Comes from StandardSchema.Issue.path
+      path?: readonly (PropertyKey | { key: PropertyKey })[];
+      level?: "error" | "warning";
     }
 
     namespace Superforms {

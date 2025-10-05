@@ -1,10 +1,9 @@
 <script lang="ts">
   import { PasskeysClient } from "$lib/clients/passkeys.client";
-  import FormControl from "$lib/components/form/controls/FormControl.svelte";
-  import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import { AuthSchema } from "$lib/schema/auth.schema";
   import { make_super_form } from "$lib/utils/form.util";
   import type { Passkey } from "better-auth/plugins/passkey";
@@ -34,18 +33,14 @@
     submit: (data) => PasskeysClient.update(passkey.id, data),
   });
   form.validateForm({ update: true });
-
-  const { form: form_data } = form;
 </script>
 
 <form class="flex flex-col gap-2" method="POST" use:form.enhance>
-  <FormField {form} name="name">
-    <FormControl label="Name">
-      {#snippet children({ props })}
-        <Input {...props} bind:value={$form_data.name} />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <FormFieldControl {form} name="name" label="Name">
+    {#snippet children({ props })}
+      <SuperformInput {...props} {form} />
+    {/snippet}
+  </FormFieldControl>
 
   <FormButton {form} icon="lucide/tag">Update passkey</FormButton>
 

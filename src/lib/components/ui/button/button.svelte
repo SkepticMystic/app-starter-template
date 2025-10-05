@@ -1,6 +1,7 @@
 <script lang="ts" module>
-  import Loading from "$lib/components/ui/loading/Loading.svelte";
+  import type { ResolvedPathname } from "$app/types";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type {
     ClassValue,
@@ -17,6 +18,8 @@
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         destructive:
           "bg-destructive shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white",
+        warning:
+          "bg-warning shadow-xs hover:bg-warning/90 focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40 dark:bg-warning/60 text-white",
         outline:
           "bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border",
         secondary:
@@ -49,12 +52,15 @@
       // NOTE: Mine
       loading?: boolean;
       icon?: ClassValue;
+      href?: ResolvedPathname | ".";
     };
 </script>
 
 <script lang="ts">
+  import Anchor from "../anchor/Anchor.svelte";
+
   let {
-    class: className,
+    class: klass,
     variant = "default",
     size = "default",
     ref = $bindable(null),
@@ -74,29 +80,22 @@
 </script>
 
 {#if href}
-  <a
-    bind:this={ref}
+  <Anchor
+    {icon}
+    {href}
+    {loading}
+    {disabled}
+    {children}
+    class={cn("no-underline", buttonVariants({ variant, size }), klass)}
     data-slot="button"
-    class:loading
-    class={cn(buttonVariants({ variant, size }), className)}
-    href={disabled ? undefined : href}
-    aria-disabled={disabled || loading}
-    role={disabled || loading ? "link" : undefined}
-    tabindex={disabled || loading ? -1 : undefined}
+    bind:ref
     {...restProps}
-  >
-    <Loading {loading} />
-
-    {#if icon}
-      <Icon {icon} />
-    {/if}
-    {@render children?.()}
-  </a>
+  />
 {:else}
   <button
     {type}
     class:loading
-    class={cn(buttonVariants({ variant, size }), className)}
+    class={cn(buttonVariants({ variant, size }), klass)}
     data-slot="button"
     disabled={disabled || loading}
     bind:this={ref}

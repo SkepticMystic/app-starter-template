@@ -1,10 +1,9 @@
 <script lang="ts">
   import { AccountsClient } from "$lib/clients/accounts.client";
-  import FormControl from "$lib/components/form/controls/FormControl.svelte";
-  import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import { AuthSchema } from "$lib/schema/auth.schema";
   import { make_super_form } from "$lib/utils/form.util";
   import { defaults } from "sveltekit-superforms";
@@ -28,38 +27,30 @@
       submit: AccountsClient.change_password,
     },
   );
-
-  const { form: form_data } = form;
 </script>
 
 <form class="space-y-4" method="POST" use:form.enhance>
-  <FormField {form} name="current_password">
-    <FormControl label="Current Password">
-      {#snippet children({ props })}
-        <Input
-          {...props}
-          required
-          type="password"
-          autocomplete="current-password"
-          bind:value={$form_data.current_password}
-        />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <FormFieldControl {form} name="current_password" label="Current Password">
+    {#snippet children({ props })}
+      <SuperformInput
+        {...props}
+        {form}
+        type="password"
+        autocomplete="current-password"
+      />
+    {/snippet}
+  </FormFieldControl>
 
-  <FormField {form} name="new_password">
-    <FormControl label="New Password">
-      {#snippet children({ props })}
-        <Input
-          {...props}
-          required
-          type="password"
-          autocomplete="new-password"
-          bind:value={$form_data.new_password}
-        />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <FormFieldControl {form} name="new_password" label="New Password">
+    {#snippet children({ props })}
+      <SuperformInput
+        {...props}
+        {form}
+        type="password"
+        autocomplete="new-password"
+      />
+    {/snippet}
+  </FormFieldControl>
 
   <FormButton {form} class="w-full" icon="lucide/lock">
     Change Password

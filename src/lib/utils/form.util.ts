@@ -10,18 +10,7 @@ import {
 import { type ZodValidationSchema } from "sveltekit-superforms/adapters";
 import { err } from "./result.util";
 
-export type APIResult<D> = Result<
-  D,
-  /** Optionally pass a message to show at the bottom of the form (instead of in a FormFieldErrors)
-   * This can be used to pass non-validation-error messages, e.g. "Internal server error, please try again later."
-   */
-  | {
-      message: string;
-      /** Defaults to warning */
-      level?: "warning" | "error";
-    }
-  | undefined
->;
+export type APIResult<D> = Result<D, App.Error | undefined>;
 
 export function make_super_form<
   Schema extends ZodValidationSchema,
@@ -31,34 +20,27 @@ export function make_super_form<
 >(
   form: SuperValidated<Out, App.Superforms.Message, In>,
   {
-    delayMs,
     validators,
-    invalidateAll: invalidate,
 
     submit,
+    onSubmit,
 
     on_error,
     on_success,
 
-    onSubmit,
-    onResult,
     ...rest
   }: FormOptions<Out, App.Superforms.Message, In> & {
     submit: (data: Out) => Promise<APIResult<Data>>;
-
-    on_success?: (data: Data) => MaybePromise<void>;
-
-    on_error?: (
-      result: Extract<APIResult<Data>, { ok: false }>["error"],
-    ) => MaybePromise<void>;
+    on_success?: (data: Data) => MaybePromise<unknown>;
+    on_error?: (result: App.Error | undefined) => MaybePromise<unknown>;
   },
 ) {
   const pending = writable(false);
 
   const super_form = superForm(form, {
     validators,
+    delayMs: 500,
     dataType: "json",
-    delayMs: delayMs ?? 500,
     taintedMessage: "You have unsaved changes. Are you sure you want to leave?",
 
     ...rest,
@@ -70,32 +52,31 @@ export function make_super_form<
       // The submit function handles that for us
       event.cancel();
 
-      // Prevent remote submission if the client state isn't even valid
-      // SuperForms doesn't seem to do this by default
-      const validated = await super_form.validateForm({ update: true });
-      if (!validated.valid) {
-        pending.set(false);
-        return;
-      } else {
-        super_form.errors.set({});
-        super_form.message.set(undefined);
+      if (validators) {
+        // Prevent remote submission if the client state isn't valid
+        const validated = await super_form.validateForm({ update: true });
+        if (!validated.valid) {
+          pending.set(false);
+          return;
+        }
       }
 
       const result = await submit(get(super_form.form));
       console.log("submit result", result);
 
       if (result.ok) {
+        super_form.errors.set({});
         super_form.tainted.set(undefined);
 
         await on_success?.(result.data);
       } else {
-        // NOTE: Only show message if one was explicitly passed.
-        // Otherwise it's probably just a validation failure,
-        // which the client already knows about.
-        // (What I mean is, we could _build_ a message from form.errors)
-        if (result.error?.message) {
+        if (result.error?.path) {
+          super_form.errors.set(
+            { [result.error.path.join(".")]: [result.error.message] },
+            { force: true },
+          );
+        } else if (result.error?.message) {
           super_form.message.set(err(result.error.message));
-          super_form.errors.set({ _errors: [result.error.message] });
         }
 
         await on_error?.(result.error);

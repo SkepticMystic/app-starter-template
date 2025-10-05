@@ -112,24 +112,18 @@ export const auth = Effect.runSync(
           // NOTE: These are set in the session create hook below
           member_id: {
             type: "string",
+            input: false,
+            returned: true,
+            required: false,
             defaultValue: null,
-            fieldName: "member_id",
-            references: {
-              model: "member",
-              field: "id",
-              onDelete: "set null",
-            },
           },
-          // org_id: {
-          //   type: "string",
-          //   defaultValue: null,
-          //   fieldName: "org_id",
-          //   references: {
-          //     model: "organization",
-          //     field: "id",
-          //     onDelete: "set null",
-          //   },
-          // },
+          member_role: {
+            type: "string",
+            input: false,
+            returned: true,
+            required: false,
+            defaultValue: null,
+          },
         },
       },
 

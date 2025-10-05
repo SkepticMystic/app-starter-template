@@ -1,57 +1,42 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
-  import type {
-    HTMLInputAttributes,
-    HTMLInputTypeAttribute,
-  } from "svelte/elements";
-
-  type InputType = Exclude<HTMLInputTypeAttribute, "file">;
-
-  type Props = WithElementRef<
-    Omit<HTMLInputAttributes, "type"> &
-      (
-        | { type: "file"; files?: FileList }
-        | { type?: InputType; files?: undefined }
-      )
-  >;
+  import { cn } from "$lib/utils/shadcn.util.js";
+  import type { ComponentProps } from "svelte";
+  import Icon from "../icon/Icon.svelte";
+  import InputRoot from "./input-root.svelte";
 
   let {
+    icon,
     ref = $bindable(null),
     value = $bindable(),
-    type,
-    files = $bindable(),
-    class: className,
+    class: klass,
     ...restProps
-  }: Props = $props();
+  }: ComponentProps<typeof InputRoot> & {
+    icon?: string;
+  } = $props();
 </script>
 
-{#if type === "file"}
-  <input
-    bind:this={ref}
-    data-slot="input"
-    class={cn(
-      "flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 pt-1.5 text-sm font-medium shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-      "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-      "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-      className,
-    )}
-    type="file"
-    bind:files
+{#snippet input(snippet_class?: string)}
+  <InputRoot
+    bind:ref
     bind:value
+    class={cn(klass, snippet_class)}
     {...restProps}
   />
+{/snippet}
+
+{#if icon}
+  <div class="relative">
+    {@render input("peer pe-9")}
+
+    <!-- SOURCE: https://github.com/EpicAlbin03/shadcn-studio-svelte/blob/main/src/lib/components/shadcn-studio/input/input-15.svelte -->
+    <div
+      class="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground peer-disabled:opacity-50"
+    >
+      <Icon {icon} class="size-4" />
+
+      <span class="sr-only">{icon.split("/").at(-1)}</span>
+    </div>
+  </div>
 {:else}
-  <input
-    bind:this={ref}
-    data-slot="input"
-    class={cn(
-      "flex h-9 w-full min-w-0 rounded-md border border-input bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-      "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-      "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-      className,
-    )}
-    {type}
-    bind:value
-    {...restProps}
-  />
+  {@render input()}
 {/if}

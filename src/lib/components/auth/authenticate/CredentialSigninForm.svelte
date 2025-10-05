@@ -1,11 +1,9 @@
 <script lang="ts">
-  import FormControl from "$lib/components/form/controls/FormControl.svelte";
-  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
-  import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const.js";
   import { AuthSchema } from "$lib/schema/auth.schema";
   import {
@@ -40,29 +38,33 @@
 </script>
 
 <form class="space-y-4" method="POST" use:form.enhance>
-  <EmailFormField {form} bind:value={$form_data.email} />
+  <FormFieldControl {form} name="email" label="Email">
+    {#snippet children({ props })}
+      <SuperformInput
+        {...props}
+        {form}
+        type="email"
+        autocomplete="email"
+      />
+    {/snippet}
+  </FormFieldControl>
 
-  <FormField {form} name="password">
-    <FormControl label="Password">
-      {#snippet children({ props })}
-        <Input
-          {...props}
-          required
-          type="password"
-          autocomplete="current-password"
-          bind:value={$form_data.password}
-        />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <FormFieldControl {form} name="password" label="Password">
+    {#snippet children({ props })}
+      <SuperformInput
+        {...props}
+        {form}
+        type="password"
+        autocomplete="current-password"
+      />
+    {/snippet}
+  </FormFieldControl>
 
-  <FormField {form} name="remember">
-    <FormControl horizontal label="Remember me">
-      {#snippet children({ props })}
-        <Checkbox {...props} bind:checked={$form_data.remember} />
-      {/snippet}
-    </FormControl>
-  </FormField>
+  <FormFieldControl {form} name="remember" horizontal label="Remember me">
+    {#snippet children({ props })}
+      <Checkbox {...props} bind:checked={$form_data.remember} />
+    {/snippet}
+  </FormFieldControl>
 
   <FormButton {form} class="w-full" icon={provider.icon}>
     Signin with {provider.name}

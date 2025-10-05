@@ -11,51 +11,33 @@ import type { DateRange } from "bits-ui";
 
 type TData = Task;
 
-export const columns = TanstackTable.make_columns<TData>({
+export const columns = TanstackTable.make_columns<TData>(({ accessor }) => ({
   columns: [
-    {
-      accessorKey: "status",
+    accessor("status", {
       meta: { label: "Status" },
 
       filterFn: "arrIncludesSome",
 
-      cell: ({ row }) =>
-        TASKS.STATUS.MAP[row.original.status]?.label || "Unknown",
-    },
-    {
-      accessorKey: "title",
+      cell: ({ getValue }) => TASKS.STATUS.MAP[getValue()]?.label || "Unknown",
+    }),
+
+    accessor("title", {
       meta: { label: "Title" },
-    },
-    {
-      accessorKey: "due_date",
+    }),
+
+    accessor("due_date", {
       meta: { label: "Due date" },
 
-      // SOURCE: https://tanstack.com/table/latest/docs/guide/column-filtering#custom-filter-functions
-      filterFn: (row, column_id, filter: DateRange | undefined) => {
-        if (!filter || !filter.start || !filter.end) return true;
+      filterFn: TanstackTable.filter_fns.date_range,
 
-        const due_date = row.getValue<Task["due_date"]>(column_id);
-        if (!due_date) return false;
-
-        return (
-          due_date >= filter.start.toDate(getLocalTimeZone()) &&
-          due_date <= filter.end.toDate(getLocalTimeZone())
-        );
-      },
-
-      cell: ({ row }) =>
-        renderComponent(Time, {
-          show: "datetime",
-          date: row.original.due_date,
-        }),
-    },
-    {
-      accessorKey: "createdAt",
+      cell: ({ getValue }) =>
+        renderComponent(Time, { show: "datetime", date: getValue() }),
+    }),
+    accessor("createdAt", {
       meta: { label: "Created" },
 
-      cell: ({ row }) =>
-        renderComponent(Time, { date: row.original.createdAt }),
-    },
+      cell: ({ getValue }) => renderComponent(Time, { date: getValue() }),
+    }),
   ],
 
   actions: [
@@ -81,4 +63,4 @@ export const columns = TanstackTable.make_columns<TData>({
         ),
     },
   ],
-});
+}));

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { UserClient } from "$lib/clients/user.client";
-  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
@@ -27,7 +28,16 @@
 >
   {#snippet content()}
     <form class="flex flex-col gap-2" method="POST" use:form.enhance>
-      <EmailFormField {form} bind:value={$form_data.email} />
+      <FormFieldControl {form} name="email" label="Email">
+        {#snippet children({ props })}
+          <SuperformInput
+            {...props}
+            {form}
+            type="email"
+            autocomplete="email"
+          />
+        {/snippet}
+      </FormFieldControl>
 
       <FormButton {form} icon="lucide/mail">
         Resend verification email

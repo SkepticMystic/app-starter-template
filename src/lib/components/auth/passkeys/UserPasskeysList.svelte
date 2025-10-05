@@ -27,7 +27,7 @@
 
 <List {items}>
   {#snippet row(passkey)}
-    <Icon icon="lucide/fingerprint" size="size-7" />
+    <Icon icon="lucide/fingerprint" class="size-7" />
 
     <div>
       <p class="text-lg">

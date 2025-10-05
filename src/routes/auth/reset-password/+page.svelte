@@ -1,11 +1,10 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client.js";
-  import FormControl from "$lib/components/form/controls/FormControl.svelte";
-  import FormField from "$lib/components/form/fields/FormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
@@ -36,25 +35,20 @@
       });
     },
   });
-
-  const { form: form_data } = form;
 </script>
 
 {#if data.search.token}
   <form class="flex flex-col gap-3" method="POST" use:form.enhance>
-    <FormField {form} name="new_password">
-      <FormControl label="Password">
-        {#snippet children({ props })}
-          <Input
-            {...props}
-            required
-            type="password"
-            autocomplete="new-password"
-            bind:value={$form_data.new_password}
-          />
-        {/snippet}
-      </FormControl>
-    </FormField>
+    <FormFieldControl {form} name="new_password" label="Password">
+      {#snippet children({ props })}
+        <SuperformInput
+          {...props}
+          {form}
+          type="password"
+          autocomplete="new-password"
+        />
+      {/snippet}
+    </FormFieldControl>
 
     <FormButton {form} class="w-full" icon="lucide/key">
       Reset Password

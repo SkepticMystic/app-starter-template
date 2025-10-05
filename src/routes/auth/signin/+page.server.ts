@@ -4,18 +4,22 @@ import { TOAST } from "$lib/const/toast.const.js";
 import { AuthSchema } from "$lib/schema/auth.schema.js";
 import { Parsers } from "$lib/schema/parsers.js";
 import { App } from "$lib/utils/app.js";
+import { err } from "$lib/utils/result.util.js";
 import { redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth/api";
 import { message, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import z from "zod";
 import type { PageServerLoad } from "./$types.js";
-import { err } from "$lib/utils/result.util.js";
 
 export const load = (async ({ url }) => {
   const search = Parsers.url(
     url,
-    z.object({ redirect_uri: z.string() }).partial(),
+    z
+      .object({
+        redirect_uri: z.string().brand("ResolvedPathname"),
+      })
+      .partial(),
   );
 
   const form_input = await superValidate(zod4(AuthSchema.signin_form));
@@ -30,7 +34,9 @@ export const actions = {
   default: async ({ request, url }) => {
     const search = Parsers.url(
       url,
-      z.object({ redirect_uri: z.string() }).partial(),
+      z
+        .object({ redirect_uri: z.string().brand("ResolvedPathname") })
+        .partial(),
     );
 
     const form = await superValidate(request, zod4(AuthSchema.signin_form));

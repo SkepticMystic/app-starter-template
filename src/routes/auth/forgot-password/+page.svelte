@@ -1,8 +1,9 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
-  import EmailFormField from "$lib/components/form/fields/EmailFormField.svelte";
+  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
   import FormMessage from "$lib/components/form/FormMessage.svelte";
+  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import { ROUTES } from "$lib/const/routes.const";
@@ -32,8 +33,6 @@
         },
       ),
   });
-
-  const { form: form_data } = form;
 </script>
 
 <Card
@@ -43,7 +42,11 @@
 >
   {#snippet content()}
     <form method="POST" class="flex flex-col gap-2" use:form.enhance>
-      <EmailFormField {form} bind:value={$form_data.email} />
+      <FormFieldControl {form} name="email" label="Email">
+        {#snippet children({ props })}
+          <SuperformInput {...props} {form} type="email" autocomplete="email" />
+        {/snippet}
+      </FormFieldControl>
 
       <FormButton {form} icon="lucide/mail">Request password reset</FormButton>
 
