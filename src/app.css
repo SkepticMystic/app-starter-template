@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
 @plugin "@iconify/tailwind4" {
   prefixes: mdi, lucide;
