@@ -6,10 +6,9 @@
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
-  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import Navbar from "$lib/components/Navbar.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import SEO from "$lib/components/SEO.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
@@ -24,13 +23,10 @@
 
   let { children }: Props = $props();
 
-  let loading = $state(true);
-
   session.subscribe(($session) => {
     if ($session.isRefetching || $session.isPending) {
       return;
     } else {
-      loading = false;
       console.log("$session loaded", $session.data);
 
       if (browser && umami && $session.data?.user) {
@@ -101,9 +97,7 @@
 </header>
 
 <main class="mx-auto my-6 max-w-5xl px-2 sm:px-3 md:px-5">
-  <Loading {loading}>
-    {@render children?.()}
-  </Loading>
+  {@render children?.()}
 </main>
 
 <!-- NOTE: I struggled to get shad semantic classes working to style the toasts

@@ -9,19 +9,17 @@ import type {
   ColumnFiltersState,
   ColumnHelper,
   FilterFn,
+  PaginationState,
   Row,
   RowData,
+  RowSelectionState,
+  SortingState,
+  VisibilityState,
 } from "@tanstack/table-core";
-import {
-  createColumnHelper,
-  type PaginationState,
-  type RowSelectionState,
-  type SortingState,
-  type VisibilityState,
-} from "@tanstack/table-core";
+import { createColumnHelper } from "@tanstack/table-core";
 import type { DateRange } from "bits-ui";
-import type { Item } from "../items.util";
 import type { ComponentProps } from "svelte";
+import type { Item } from "../items.util";
 
 const get_column_label = <TData>(column: Column<TData>) =>
   column.columnDef.meta?.label ?? column.id;
@@ -79,7 +77,7 @@ const make_columns = <TData extends Item>(
       // Enable HeaderDropdown by default, unless both of its purposes are explicitly disabled
       if (col.enableSorting !== false && col.enableHiding !== false) {
         col.header = ({ column }) =>
-          renderComponent(DataTableColumnHeaderDropdownMenu, { column });
+          renderComponent(DataTableColumnHeaderDropdownMenu<TData>, { column });
       }
 
       return col;
@@ -95,7 +93,7 @@ const make_columns = <TData extends Item>(
         enableSorting: false,
 
         cell: ({ row }) =>
-          renderComponent(DataTableRowActions, {
+          renderComponent(DataTableRowActions<TData>, {
             row,
             actions: input.actions!,
           }),
