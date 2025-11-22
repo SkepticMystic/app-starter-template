@@ -1,6 +1,7 @@
 import { includeIgnoreFile } from "@eslint/compat";
 import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
+import oxlint from "eslint-plugin-oxlint";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
@@ -54,4 +55,5 @@ export default ts.config(
       },
     },
   },
+  ...oxlint.configs["flat/recommended"], // oxlint should be the last one
 );

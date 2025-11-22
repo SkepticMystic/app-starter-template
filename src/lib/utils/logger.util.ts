@@ -35,7 +35,7 @@ export const Log = pino({
     },
   },
 
-  transport: dev
+  transport: false
     ? {
         target: "pino-pretty",
         options: {

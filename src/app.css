@@ -184,26 +184,15 @@ h4 {
   @apply scroll-m-20 text-xl font-semibold tracking-tight;
 }
 
-blockquote {
-  @apply text-muted-foreground border-l-2 pl-4;
-}
-
-dl > div {
-  @apply flex items-center gap-x-2;
-}
-
-dt {
-  @apply font-semibold;
-}
-dt::after {
-  content: ": ";
-}
-
-/* NOTE: In Anchor.svelte and Button.svelte, we add the .loading class to the button when loading starts 
+/* NOTE: In Anchor.svelte and Button.svelte, we add the .loading class to the button when loading starts
   This triggers the Loading.svelte component to show the spinner icon
   We hide all other icons except the first one (the spinner) when loading
 */
 a.loading > .icon:not(:first-child),
 button.loading > .icon:not(:first-child) {
   display: none !important;
+}
+
+@view-transition {
+  navigation: auto;
 }
