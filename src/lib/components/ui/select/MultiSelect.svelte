@@ -1,6 +1,11 @@
-<script lang="ts" generics="V extends string">
-  import * as Select from "$lib/components/ui/select/index.js";
-  import type { SelectRootProps } from "bits-ui";
+<script
+  lang="ts"
+  generics="V extends string"
+>
+  import { Select as SelectPrimitive, type SelectRootProps } from "bits-ui";
+  import SelectContent from "./select-content.svelte";
+  import SelectItem from "./select-item.svelte";
+  import SelectTrigger from "./select-trigger.svelte";
 
   type Option = { value: V; label: string };
 
@@ -25,7 +30,7 @@
   );
 </script>
 
-<Select.Root
+<SelectPrimitive.Root
   {...rest_props}
   loop
   {value}
@@ -38,15 +43,21 @@
     on_value_change?.(value);
   }}
 >
-  <Select.Trigger {loading} class="w-fit max-w-sm">
+  <SelectTrigger
+    {loading}
+    class="w-fit max-w-sm"
+  >
     {selected.length === options.length
       ? "All selected"
       : selected.map((option) => option.label).join(", ") || placeholder}
-  </Select.Trigger>
+  </SelectTrigger>
 
-  <Select.Content>
+  <SelectContent>
     {#each options as option (option.value)}
-      <Select.Item value={option.value} label={option.label} />
+      <SelectItem
+        value={option.value}
+        label={option.label}
+      />
     {/each}
-  </Select.Content>
-</Select.Root>
+  </SelectContent>
+</SelectPrimitive.Root>

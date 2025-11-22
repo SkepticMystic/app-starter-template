@@ -1,34 +1,35 @@
 <script lang="ts">
   import { cn } from "$lib/utils/shadcn.util";
-  import type { ClassValue } from "svelte/elements";
+  import type { ClassValue, HTMLAttributes } from "svelte/elements";
 
   let {
     icon,
     label,
-    title,
     bg = false,
     class: klass = "",
-  }: {
+    ...rest
+  }: HTMLAttributes<SVGElement> & {
     bg?: boolean;
     label?: string;
-    title?: string;
-    icon?: ClassValue;
     class?: ClassValue;
+    icon?: string | null;
   } = $props();
 </script>
 
-{#if icon}
-  {#snippet inner()}
-    <span {title} class={cn(bg ? "icon-bg" : "icon", icon, "size-4", klass)}
-    ></span>
-  {/snippet}
+{#snippet icon_snippet()}
+  <svg
+    class={cn(bg ? "icon-bg" : "icon", icon, "size-4", klass)}
+    {...rest}
+  ></svg>
+{/snippet}
 
-  {#if label}
-    <span class="flex items-center gap-1.5">
-      {@render inner()}
-      {label}
-    </span>
-  {:else}
-    {@render inner()}
-  {/if}
+{#if icon && label}
+  <span class="flex items-center gap-1.5">
+    {@render icon_snippet()}
+    {label}
+  </span>
+{:else if icon}
+  {@render icon_snippet()}
+{:else if label}
+  {label}
 {/if}

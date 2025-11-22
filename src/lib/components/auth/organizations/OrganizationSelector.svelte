@@ -2,13 +2,16 @@
   import { OrganizationsClient } from "$lib/clients/organizations.client";
   import Labeled from "$lib/components/ui/label/Labeled.svelte";
   import Loading from "$lib/components/ui/loading/Loading.svelte";
-  import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
+  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { organizations } from "$lib/stores/organizations.store";
   import { session } from "$lib/stores/session";
 </script>
 
 {#if $organizations.isPending}
-  <Loading loading title="Fetching organizations..." />
+  <Loading
+    loading
+    title="Fetching organizations..."
+  />
 {:else if !$organizations.data}
   <p>No organizations found.</p>
 {:else if $organizations.data.length === 0}
@@ -21,7 +24,7 @@
   </p>
 {:else}
   <Labeled label="Switch active organization">
-    <SingleSelect
+    <NativeSelect
       options={$organizations.data.map((org) => ({
         value: org.id,
         label: `${org.name} (${org.slug})`,

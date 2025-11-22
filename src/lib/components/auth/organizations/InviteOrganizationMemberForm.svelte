@@ -4,7 +4,7 @@
   import FormMessage from "$lib/components/form/FormMessage.svelte";
   import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
+  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
   import { create_invitation } from "$lib/remote/auth/organization.remote";
   import { AuthSchema } from "$lib/schema/auth.schema";
@@ -35,9 +35,17 @@
   const { form: form_data } = form;
 </script>
 
-<form class="flex flex-col gap-3" method="POST" use:form.enhance>
+<form
+  class="flex flex-col gap-3"
+  method="POST"
+  use:form.enhance
+>
   <div class="flex gap-3">
-    <FormFieldControl {form} name="email" label="Email">
+    <FormFieldControl
+      {form}
+      name="email"
+      label="Email"
+    >
       {#snippet children({ props })}
         <SuperformInput
           {...props}
@@ -48,9 +56,13 @@
       {/snippet}
     </FormFieldControl>
 
-    <FormFieldControl {form} name="role" label="Role">
+    <FormFieldControl
+      {form}
+      name="role"
+      label="Role"
+    >
       {#snippet children({ props })}
-        <SingleSelect
+        <NativeSelect
           {...props}
           options={ORGANIZATION.ROLES.OPTIONS}
           bind:value={$form_data.role}
@@ -59,7 +71,10 @@
     </FormFieldControl>
   </div>
 
-  <FormButton {form} icon="lucide/user-plus">Invite Member</FormButton>
+  <FormButton
+    {form}
+    icon="lucide/user-plus">Invite Member</FormButton
+  >
 
   <FormMessage {form} />
 </form>

@@ -4,7 +4,7 @@
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
-  import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
+  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import {
     ACCESS_CONTROL,
     type IAccessControl,
@@ -67,7 +67,7 @@
           meta: { label: "Role" },
 
           cell: ({ row, getValue }) =>
-            renderComponent(SingleSelect, {
+            renderComponent(NativeSelect, {
               value: getValue(),
               options: ACCESS_CONTROL.ROLES.OPTIONS,
               on_value_select: (value) =>

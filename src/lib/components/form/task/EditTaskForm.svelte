@@ -2,7 +2,7 @@
   import { TaskClient } from "$lib/clients/tasks.client";
   import DatePicker from "$lib/components/ui/date-picker/DatePicker.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import SingleSelect from "$lib/components/ui/select/SingleSelect.svelte";
+  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { TASKS } from "$lib/const/task.const";
   import { TaskSchema } from "$lib/schema/task.schema";
@@ -36,17 +36,34 @@
   const { form: form_data } = form;
 </script>
 
-<form class="flex flex-col gap-2" method="POST" use:form.enhance>
-  <FormFieldControl {form} name="title" label="Title">
+<form
+  class="flex flex-col gap-2"
+  method="POST"
+  use:form.enhance
+>
+  <FormFieldControl
+    {form}
+    name="title"
+    label="Title"
+  >
     {#snippet children({ props })}
-      <SuperformInput {...props} {form} placeholder="Task title" />
+      <SuperformInput
+        {...props}
+        {form}
+        placeholder="Task title"
+      />
     {/snippet}
   </FormFieldControl>
 
   <div class="flex gap-x-2">
-    <FormFieldControl {form} name="status" label="Status" class="grow">
+    <FormFieldControl
+      {form}
+      name="status"
+      label="Status"
+      class="grow"
+    >
       {#snippet children({ props })}
-        <SingleSelect
+        <NativeSelect
           {...props}
           required
           class="w-full"
@@ -57,7 +74,12 @@
       {/snippet}
     </FormFieldControl>
 
-    <FormFieldControl {form} name="due_date" label="Due Date" class="grow">
+    <FormFieldControl
+      {form}
+      name="due_date"
+      label="Due Date"
+      class="grow"
+    >
       {#snippet children({ props })}
         <DatePicker
           {...props}
@@ -68,7 +90,11 @@
     </FormFieldControl>
   </div>
 
-  <FormFieldControl {form} name="description" label="Description">
+  <FormFieldControl
+    {form}
+    name="description"
+    label="Description"
+  >
     {#snippet children({ props })}
       <Textarea
         {...props}
@@ -78,7 +104,11 @@
     {/snippet}
   </FormFieldControl>
 
-  <FormButton {form} class="w-full" icon="lucide/plus">Create Task</FormButton>
+  <FormButton
+    {form}
+    class="w-full"
+    icon="lucide/plus">Create Task</FormButton
+  >
 
   <FormMessage {form} />
 </form>
