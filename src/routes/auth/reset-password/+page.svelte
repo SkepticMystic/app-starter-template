@@ -5,7 +5,6 @@
   import FormMessage from "$lib/components/form/FormMessage.svelte";
   import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
   import { make_super_form } from "$lib/utils/form.util.js";
@@ -30,7 +29,7 @@
       ),
 
     on_success: () => {
-      location.href = App.url(ROUTES.AUTH_SIGNIN, {
+      location.href = App.url("/auth/signin", {
         toast: TOAST.IDS.PASSWORD_RESET,
       });
     },

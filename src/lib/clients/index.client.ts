@@ -1,29 +1,13 @@
 import { goto } from "$app/navigation";
-import { ROUTES } from "$lib/const/routes.const";
+import { resolve } from "$app/paths";
 import { session } from "$lib/stores/session";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import type { APIResult } from "$lib/utils/form.util";
 import { err } from "$lib/utils/result.util";
 import { Toast, type ToastPromiseOptions } from "$lib/utils/toast/toast.util";
-import { Effect, pipe, Schedule } from "effect";
 import { HTTPError } from "ky";
 import { toast } from "svelte-sonner";
 import { get } from "svelte/store";
-
-const effect_request = async <D>(cb: () => Promise<APIResult<D>>) =>
-  Effect.runPromise(
-    pipe(
-      Effect.tryPromise({
-        try: () => cb(),
-        catch: (error) => {
-          console.error("Failed to create task:", error);
-          throw error;
-        },
-      }),
-      Effect.timeout("10 seconds"),
-      Effect.retry({ times: 3, schedule: Schedule.exponential(1_000) }),
-    ),
-  );
 
 // Run a cb, and catch any errors into a Result with a level
 const inner_request = async <D>(
@@ -62,7 +46,12 @@ const request = async <D>(
   if (options?.validate_session !== false && !get(session).data?.session) {
     toast.warning(
       "Your session has expired. Please signin again to continue.",
-      { action: { label: "Sign in", onClick: () => goto(ROUTES.AUTH_SIGNIN) } },
+      {
+        action: {
+          label: "Sign in",
+          onClick: () => goto(resolve("/auth/signin")),
+        },
+      },
     );
 
     // Don't return a message or level, as we've already shown a toast

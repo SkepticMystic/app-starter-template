@@ -1,7 +1,3 @@
-import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
-import { renderComponent } from "$lib/components/ui/data-table";
-import DataTableColumnHeaderDropdownMenu from "$lib/components/ui/data-table/data-table-column-header-dropdown-menu.svelte";
-import DataTableRowActions from "$lib/components/ui/data-table/data-table-row-actions.svelte";
 import { getLocalTimeZone } from "@internationalized/date";
 import type {
   Column,
@@ -18,7 +14,6 @@ import type {
 } from "@tanstack/table-core";
 import { createColumnHelper } from "@tanstack/table-core";
 import type { DateRange } from "bits-ui";
-import type { ComponentProps } from "svelte";
 import type { Item } from "../items.util";
 
 const get_column_label = <TData>(column: Column<TData>) =>
@@ -29,79 +24,11 @@ const make_columns = <TData extends Item>(
     // NOTE: Specifically _don't_ wrap the helper
     // If we want to add more fields to utils, just `& { fields: ... }` them
     utils: ColumnHelper<TData>,
-  ) => {
-    selectable?: boolean;
-    columns: ColumnDef<TData>[];
-    actions?: ComponentProps<DataTableRowActions<TData>>["actions"];
-  },
+  ) => ColumnDef<TData>[],
 ) => {
-  const columns: ColumnDef<TData>[] = [];
   const col_helper = createColumnHelper<TData>();
 
-  const input = cb(col_helper);
-
-  if (input.selectable !== false) {
-    columns.push(
-      col_helper.display({
-        id: "select",
-
-        enableHiding: false,
-        enableSorting: false,
-
-        header: ({ table }) =>
-          renderComponent(Checkbox, {
-            "aria-label": "Select all",
-
-            checked: table.getIsAllPageRowsSelected(),
-            indeterminate:
-              table.getIsSomePageRowsSelected() &&
-              !table.getIsAllPageRowsSelected(),
-
-            onCheckedChange: (value) =>
-              table.toggleAllPageRowsSelected(!!value),
-          }),
-
-        cell: ({ row }) =>
-          renderComponent(Checkbox, {
-            "aria-label": "Select row",
-
-            checked: row.getIsSelected(),
-            onCheckedChange: (value) => row.toggleSelected(!!value),
-          }),
-      }),
-    );
-  }
-
-  columns.push(
-    ...input.columns.map((col) => {
-      // Enable HeaderDropdown by default, unless both of its purposes are explicitly disabled
-      if (col.enableSorting !== false && col.enableHiding !== false) {
-        col.header = ({ column }) =>
-          renderComponent(DataTableColumnHeaderDropdownMenu<TData>, { column });
-      }
-
-      return col;
-    }),
-  );
-
-  if (input.actions) {
-    columns.push(
-      col_helper.display({
-        id: "actions",
-
-        enableHiding: false,
-        enableSorting: false,
-
-        cell: ({ row }) =>
-          renderComponent(DataTableRowActions<TData>, {
-            row,
-            actions: input.actions!,
-          }),
-      }),
-    );
-  }
-
-  return columns;
+  return cb(col_helper);
 };
 
 const filter_fns = {

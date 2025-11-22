@@ -2,11 +2,15 @@
   lang="ts"
   generics="TData"
 >
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { TanstackTable } from "$lib/utils/tanstack/table.util";
   import type { Column } from "@tanstack/table-core";
+  import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
+  import DropdownMenuCheckboxItem from "../dropdown-menu/dropdown-menu-checkbox-item.svelte";
+  import DropdownMenuContent from "../dropdown-menu/dropdown-menu-content.svelte";
+  import DropdownMenuSeparator from "../dropdown-menu/dropdown-menu-separator.svelte";
+  import DropdownMenuTrigger from "../dropdown-menu/dropdown-menu-trigger.svelte";
 
   let {
     column,
@@ -18,14 +22,16 @@
   const label = TanstackTable.get_column_label(column);
 </script>
 
-<DropdownMenu.Root>
-  <DropdownMenu.Trigger>
+<DropdownMenuPrimitive.Root>
+  <DropdownMenuTrigger>
     {#snippet child({ props })}
       <Button
         {...props}
         variant="ghost"
-        class="-ml-4"
+        class="-ml-2"
       >
+        <Icon icon={column.getIsGrouped() ? "lucide/group" : undefined} />
+
         {label}
 
         <Icon
@@ -37,38 +43,49 @@
         />
       </Button>
     {/snippet}
-  </DropdownMenu.Trigger>
+  </DropdownMenuTrigger>
 
-  <DropdownMenu.Content align="end">
+  <DropdownMenuContent align="end">
     {#if column.getCanSort()}
-      <DropdownMenu.CheckboxItem
+      <DropdownMenuCheckboxItem
         bind:checked={
           () => sort_dir === "asc",
           (sort_asc) => column.toggleSorting(!sort_asc)
         }
       >
         Sort asc
-      </DropdownMenu.CheckboxItem>
+      </DropdownMenuCheckboxItem>
 
-      <DropdownMenu.CheckboxItem
+      <DropdownMenuCheckboxItem
         bind:checked={
           () => sort_dir === "desc",
           (sort_desc) => column.toggleSorting(sort_desc)
         }
       >
         Sort desc
-      </DropdownMenu.CheckboxItem>
+      </DropdownMenuCheckboxItem>
 
-      <DropdownMenu.Separator />
+      <DropdownMenuSeparator />
+    {/if}
+
+    <!-- NOTE: We still do a null chain because the type: boolean is a lie... it can be undefined -->
+    {#if column.columnDef.enableGrouping === true}
+      <DropdownMenuCheckboxItem
+        bind:checked={
+          () => column.getIsGrouped() ?? false, () => column.toggleGrouping()
+        }
+      >
+        Group by
+      </DropdownMenuCheckboxItem>
     {/if}
 
     {#if column.getCanHide()}
-      <DropdownMenu.CheckboxItem
+      <DropdownMenuCheckboxItem
         class="capitalize"
         bind:checked={() => false, () => column.toggleVisibility(false)}
       >
         Hide column
-      </DropdownMenu.CheckboxItem>
+      </DropdownMenuCheckboxItem>
     {/if}
-  </DropdownMenu.Content>
-</DropdownMenu.Root>
+  </DropdownMenuContent>
+</DropdownMenuPrimitive.Root>

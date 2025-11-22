@@ -1,5 +1,3 @@
-import type { ClassValue } from "svelte/elements";
-
 const PROVIDER_IDS = [
   // NOTE: Passkeys aren't providers rn, as they are tied to an existing account
   // "passkey",
@@ -12,7 +10,7 @@ const PROVIDER_MAP: Record<
   IAuth.ProviderId,
   {
     name: string;
-    icon: ClassValue;
+    icon: string;
 
     is_oidc: boolean;
     is_social: boolean;

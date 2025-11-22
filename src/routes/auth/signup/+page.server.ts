@@ -1,5 +1,4 @@
 import { auth } from "$lib/auth.js";
-import { ROUTES } from "$lib/const/routes.const.js";
 import { TOAST } from "$lib/const/toast.const.js";
 import { AuthSchema } from "$lib/schema/auth.schema.js";
 import { Parsers } from "$lib/schema/parsers.js";
@@ -51,7 +50,7 @@ export const actions = {
 
           callbackURL:
             search.redirect_uri ??
-            App.url(ROUTES.HOME, { toast: TOAST.IDS.EMAIL_VERIFIED }),
+            App.url("/", { toast: TOAST.IDS.EMAIL_VERIFIED }),
         },
       });
     } catch (error) {
@@ -66,7 +65,7 @@ export const actions = {
 
     redirect(
       303,
-      App.url(ROUTES.AUTH_VERIFY_EMAIL, { toast: TOAST.IDS.SIGNED_UP }),
+      App.url("/auth/verify-email", { toast: TOAST.IDS.SIGNED_UP }),
     );
   },
 };

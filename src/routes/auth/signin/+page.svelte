@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { BetterAuthClient } from "$lib/auth-client.js";
   import CredentialSigninForm from "$lib/components/auth/authenticate/CredentialSigninForm.svelte";
   import GenericOAuthSigninButton from "$lib/components/auth/GenericOAuthSigninButton.svelte";
@@ -10,7 +11,6 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { APP } from "$lib/const/app";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { ROUTES } from "$lib/const/routes.const";
 
   let { data } = $props();
 
@@ -67,7 +67,7 @@
           <Button
             size="sm"
             variant="link"
-            href={ROUTES.AUTH_FORGOT_PASSWORD}
+            href={resolve("/auth/forgot-password")}
           >
             Forgot password?
           </Button>
@@ -77,7 +77,7 @@
           <Button
             size="sm"
             variant="link"
-            href={ROUTES.AUTH_SIGNUP}
+            href={resolve("/auth/signup")}
           >
             Don't have an account? Sign up
           </Button>

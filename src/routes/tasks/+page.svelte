@@ -1,16 +1,18 @@
 <script lang="ts">
-  import Loading from "$lib/components/ui/loading/Loading.svelte";
+  import { Client } from "$lib/clients/index.client";
   import EditTaskForm from "$lib/components/form/task/EditTaskForm.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import DateRangePicker from "$lib/components/ui/date-picker/DateRangePicker.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Loading from "$lib/components/ui/loading/Loading.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { TASKS } from "$lib/const/task.const";
-  import { get_tasks } from "$lib/remote/tasks/tasks.remote.js";
-  import type { DateRange } from "bits-ui";
+  import { delete_task, get_tasks } from "$lib/remote/tasks/tasks.remote.js";
+  import { Items } from "$lib/utils/items.util";
+  import { DateRange } from "bits-ui";
   import { columns } from "./columns";
 
   let { data } = $props();
@@ -49,9 +51,33 @@
     <DataTable
       {columns}
       data={tasks}
-      states={{ sorting: [{ id: "createdAt", desc: true }] }}
+      states={{
+        sorting: [{ id: "createdAt", desc: true }],
+      }}
+      actions={(row) => [
+        {
+          title: "Copy task ID",
+          icon: "lucide/copy",
+
+          onselect: () => navigator.clipboard.writeText(row.id),
+        },
+        {
+          title: "Delete task",
+          icon: "lucide/trash-2",
+          onselect: () =>
+            Client.request(
+              () =>
+                delete_task(row.id).updates(
+                  get_tasks({}).withOverride((old) =>
+                    Items.remove(old, row.id),
+                  ),
+                ),
+              { toast: { optimistic: true, success: "Task deleted" } },
+            ),
+        },
+      ]}
     >
-      {#snippet filters(table)}
+      {#snippet header(table)}
         <div class="flex gap-1.5">
           <Input
             class="max-w-sm"

@@ -4,7 +4,6 @@ import { Markdown } from "$lib/utils/markdown";
 import type { User } from "better-auth";
 import type { Invitation, Organization } from "better-auth/plugins";
 import { APP } from "./app";
-import { ROUTES } from "./routes.const";
 
 const HTML_SIGNATURE = `
 <p>
@@ -76,7 +75,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       organization: Organization;
       inviter: { user: User };
     }): SendEmailOptions => {
-      const href = App.full_url(ROUTES.AUTH_ORGANIZATION_ACCEPT_INVITE, {
+      const href = App.full_url("/auth/organization/accept-invite", {
         invite_id: input.invitation.id,
       });
 

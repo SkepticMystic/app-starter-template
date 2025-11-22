@@ -3,7 +3,6 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
   import Button from "../ui/button/button.svelte";
@@ -25,7 +24,7 @@
           disableRedirect: false,
           providerId: provider_id,
           scopes: ["openid", "profile", "email"],
-          callbackURL: App.url(redirect_uri ?? ROUTES.HOME, {
+          callbackURL: App.url(redirect_uri ?? "/", {
             toast: TOAST.IDS.SIGNED_IN,
           }),
         }),

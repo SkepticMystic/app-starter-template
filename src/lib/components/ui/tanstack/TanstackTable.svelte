@@ -1,6 +1,6 @@
 <script
   lang="ts"
-  generics="TData extends Item, TValue"
+  generics="TData extends Item"
 >
   import { createSvelteTable } from "$lib/components/ui/data-table/index.js";
   import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.types";
@@ -8,9 +8,11 @@
   import type { Table } from "@tanstack/table-core";
   import {
     getCoreRowModel,
+    getExpandedRowModel,
     getFacetedRowModel,
     getFacetedUniqueValues,
     getFilteredRowModel,
+    getGroupedRowModel,
     getPaginationRowModel,
     getSortedRowModel,
   } from "@tanstack/table-core";
@@ -30,28 +32,36 @@
     faceting,
     states = {},
     children,
-  }: TanstackTableInput<TData, TValue> & {
+  }: TanstackTableInput<TData> & {
     children: Snippet<[Table<TData>]>;
   } = $props();
+
+  // TODO(svelte5): Could possibly use a PersistedState on the whole table state
+  // Use page.url.pathname as the key
 
   let sorting = $state(
     states.sorting === false ? undefined : (states.sorting ?? []),
   );
-  let selection = $state(
-    states.selection === false ? undefined : (states.selection ?? {}),
-  );
+  let selection = $state(states.selection);
+
   let visibility = $state(
     states.visibility === false ? undefined : (states.visibility ?? {}),
   );
 
+  let column_filters = $state(
+    states.column_filters === false ? undefined : (states.column_filters ?? []),
+  );
+
+  let grouping = $state(!states.grouping ? undefined : states.grouping);
+  let expanded = $state(!states.expanded ? undefined : states.expanded);
+
   let pagination = $state(
     states.pagination === false
       ? undefined
-      : (states.pagination ?? { pageIndex: 0, pageSize: 10 }),
-  );
-
-  let column_filters = $state(
-    states.column_filters === false ? undefined : (states.column_filters ?? []),
+      : (states.pagination ?? {
+          pageIndex: 0,
+          pageSize: 20,
+        }),
   );
 
   const table = createSvelteTable({
@@ -74,7 +84,12 @@
     getFilteredRowModel:
       states.column_filters === false ? undefined : getFilteredRowModel(),
 
+    getGroupedRowModel: !states.grouping ? undefined : getGroupedRowModel(),
+
+    getExpandedRowModel: !states.expanded ? undefined : getExpandedRowModel(),
+
     getFacetedRowModel: faceting === true ? getFacetedRowModel() : undefined,
+
     getFacetedUniqueValues:
       faceting === true ? getFacetedUniqueValues() : undefined,
 
@@ -94,6 +109,14 @@
       get columnVisibility() {
         return visibility;
       },
+
+      get grouping() {
+        return grouping;
+      },
+
+      get expanded() {
+        return expanded;
+      },
     },
 
     onSortingChange:
@@ -112,16 +135,40 @@
         ? undefined
         : (updater) => (pagination = resolve_updater(updater, pagination!)),
 
-    onRowSelectionChange:
-      states.selection === false
-        ? undefined
-        : (updater) => (selection = resolve_updater(updater, selection!)),
+    onRowSelectionChange: states.selection
+      ? (updater) => (selection = resolve_updater(updater, selection!))
+      : undefined,
 
     onColumnVisibilityChange:
       states.visibility === false
         ? undefined
         : (updater) => (visibility = resolve_updater(updater, visibility!)),
+
+    onGroupingChange: !states.grouping
+      ? undefined
+      : (updater) => {
+          grouping = resolve_updater(updater, grouping!);
+
+          // NOTE: A little jank...
+          // When grouping by some column, we hide the other groupable columns
+          // cause they usually don't have a meaningful aggregation
+          if (grouping?.length) {
+            table.getAllColumns().forEach((column) => {
+              if (grouping?.includes(column.id)) return;
+
+              column.toggleVisibility(column.columnDef.enableGrouping !== true);
+            });
+          } else {
+            table.resetColumnVisibility();
+          }
+        },
+
+    onExpandedChange: !states.expanded
+      ? undefined
+      : (updater) => (expanded = resolve_updater(updater, expanded!)),
   });
+
+  $inspect(table);
 </script>
 
 {@render children(table)}

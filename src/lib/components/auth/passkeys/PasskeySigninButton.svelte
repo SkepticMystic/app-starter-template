@@ -4,7 +4,6 @@
   import { Client } from "$lib/clients/index.client";
   import Button from "$lib/components/ui/button/button.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
-  import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
   import { onMount } from "svelte";
@@ -16,7 +15,7 @@
   } = $props();
 
   const onSuccess = () => {
-    location.href = App.url(redirect_uri ?? ROUTES.HOME, {
+    location.href = App.url(redirect_uri ?? "/", {
       toast: TOAST.IDS.SIGNED_IN,
     });
   };

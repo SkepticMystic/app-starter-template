@@ -1,25 +1,21 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/state";
+  import { resolve } from "$app/paths";
   import { OrganizationsClient } from "$lib/clients/organizations.client.js";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { ROUTES } from "$lib/const/routes.const.js";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
-  import { Url } from "$lib/utils/urls.js";
 
   let { data } = $props();
 
-  const redirect_uri = Url.strip_origin(page.url);
+  const redirect_uri = resolve("/auth/organization/accept-invite");
 
   const accept_invite = async () => {
     if (!data.invitation) return;
 
     const res = await OrganizationsClient.accept_invitation(data.invitation.id);
     if (res.ok) {
-      await goto(
-        App.url(ROUTES.HOME, { toast: TOAST.IDS.ORG_INVITE_ACCEPTED }),
-      );
+      await goto(App.url("/", { toast: TOAST.IDS.ORG_INVITE_ACCEPTED }));
     }
   };
 </script>
@@ -48,13 +44,13 @@
     <div class="flex gap-2">
       <a
         class="btn btn-primary"
-        href={App.url(ROUTES.AUTH_SIGNIN, { redirect_uri })}
+        href={App.url("/auth/signin", { redirect_uri })}
       >
         Login
       </a>
       <a
         class="btn btn-secondary"
-        href={App.url(ROUTES.AUTH_SIGNUP, { redirect_uri })}
+        href={App.url("/auth/signup", { redirect_uri })}
       >
         Signup
       </a>
@@ -68,13 +64,13 @@
     <div class="flex gap-2">
       <a
         class="btn btn-primary"
-        href={App.url(ROUTES.AUTH_SIGNIN, { redirect_uri })}
+        href={App.url("/auth/signin", { redirect_uri })}
       >
         Login
       </a>
       <a
         class="btn btn-secondary"
-        href={App.url(ROUTES.AUTH_SIGNUP, { redirect_uri })}
+        href={App.url("/auth/signup", { redirect_uri })}
       >
         Signup
       </a>
@@ -84,7 +80,7 @@
 
     <a
       class="btn btn-primary"
-      href={ROUTES.ORGANIZATION}
+      href={resolve("/organization")}
     >
       View Organization
     </a>

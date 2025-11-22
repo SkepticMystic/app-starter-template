@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
@@ -6,7 +7,6 @@
   import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import { ROUTES } from "$lib/const/routes.const";
   import { make_super_form } from "$lib/utils/form.util";
   import { defaults } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
@@ -25,7 +25,7 @@
         () =>
           BetterAuthClient.requestPasswordReset({
             ...data,
-            redirectTo: ROUTES.AUTH_RESET_PASSWORD,
+            redirectTo: resolve("/auth/reset-password"),
           }),
         {
           validate_session: false,

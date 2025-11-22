@@ -1,5 +1,5 @@
+import type { ResolvedPathname } from "$app/types";
 import { BetterAuthClient } from "$lib/auth-client";
-import { ROUTES } from "$lib/const/routes.const";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { err } from "$lib/utils/result.util";
 import { Client } from "./index.client";
@@ -8,9 +8,9 @@ export const UserClient = {
   send_verification_email: (
     email: string | undefined,
     options: {
-      callbackURL?: string;
+      callbackURL?: ResolvedPathname;
     } = {
-      callbackURL: ROUTES.HOME,
+      callbackURL: "/",
     },
   ) =>
     Client.request(

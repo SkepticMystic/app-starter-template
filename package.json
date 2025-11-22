@@ -32,7 +32,6 @@
     "@iconify-json/mdi": "^1.2.3",
     "@iconify/tailwind4": "^1.1.0",
     "@internationalized/date": "^3.10.0",
-    "@lucide/svelte": "^0.542.0",
     "@prettier/plugin-oxc": "^0.0.5",
     "@sveltejs/adapter-vercel": "^6.1.2",
     "@sveltejs/kit": "^2.49.0",

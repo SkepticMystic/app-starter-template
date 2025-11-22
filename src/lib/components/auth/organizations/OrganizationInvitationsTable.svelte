@@ -28,58 +28,52 @@
     sorting: [{ id: "expiresAt", desc: true }],
     column_filters: [{ id: "status", value: ["pending"] }],
   }}
-  columns={TanstackTable.make_columns<Invitation>(({ accessor }) => ({
-    columns: [
-      accessor("email", {
-        meta: { label: "Email" },
-      }),
-      accessor("role", {
-        meta: { label: "Role" },
+  actions={(row) => [
+    {
+      icon: "lucide/x",
+      title: "Cancel invitation",
 
-        cell: ({ getValue }) =>
-          ORGANIZATION.ROLES.MAP[getValue() as IOrganization.RoleId].label,
-      }),
+      disabled: row.original.status !== "pending",
 
-      accessor("status", {
-        meta: { label: "Status" },
+      onselect: async () => {
+        const res = await OrganizationsClient.cancel_invitation(row.id);
 
-        filterFn: "arrIncludesSome",
-
-        cell: ({ getValue }) =>
-          ORGANIZATION.INVITATIONS.STATUSES.MAP[getValue()].label,
-      }),
-
-      accessor("expiresAt", {
-        meta: { label: "Expiry date" },
-
-        cell: ({ getValue }) =>
-          renderComponent(Time, { show: "datetime", date: getValue() }),
-      }),
-    ],
-
-    actions: [
-      {
-        kind: "item",
-        icon: "lucide/x",
-        title: "Cancel invitation",
-
-        disabled: (row) => row.original.status !== "pending",
-
-        onselect: async (row) => {
-          const res = await OrganizationsClient.cancel_invitation(
-            row.original.id,
-          );
-
-          if (res.ok) {
-            invitations = Items.patch(invitations, row.original.id, res.data);
-            on_delete?.(res.data);
-          }
-        },
+        if (res.ok) {
+          invitations = Items.patch(invitations, row.id, res.data);
+          on_delete?.(res.data);
+        }
       },
-    ],
-  }))}
+    },
+  ]}
+  columns={TanstackTable.make_columns<Invitation>(({ accessor }) => [
+    accessor("email", {
+      meta: { label: "Email" },
+    }),
+    accessor("role", {
+      meta: { label: "Role" },
+
+      cell: ({ getValue }) =>
+        ORGANIZATION.ROLES.MAP[getValue() as IOrganization.RoleId].label,
+    }),
+
+    accessor("status", {
+      meta: { label: "Status" },
+
+      filterFn: "arrIncludesSome",
+
+      cell: ({ getValue }) =>
+        ORGANIZATION.INVITATIONS.STATUSES.MAP[getValue()].label,
+    }),
+
+    accessor("expiresAt", {
+      meta: { label: "Expiry date" },
+
+      cell: ({ getValue }) =>
+        renderComponent(Time, { show: "datetime", date: getValue() }),
+    }),
+  ])}
 >
-  {#snippet filters(table)}
+  {#snippet header(table)}
     <Labeled label="Statuses">
       <MultiSelect
         options={ORGANIZATION.INVITATIONS.STATUSES.OPTIONS}

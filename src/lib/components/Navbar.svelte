@@ -1,10 +1,10 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { AdminClient } from "$lib/clients/admin.client";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app";
-  import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { session, user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
@@ -15,7 +15,7 @@
   interface Route {
     side: "center" | "right";
     label: string;
-    href: string;
+    href: ResolvedPathname;
     icon: string;
     /** Only show if user is authenticated */
     authed: boolean;
@@ -26,21 +26,21 @@
     {
       side: "right",
       label: "Team",
-      href: ROUTES.ORGANIZATION,
+      href: "/organization",
       icon: "lucide/users",
       authed: true,
     },
     {
       side: "right",
       label: "Profile",
-      href: ROUTES.PROFILE,
+      href: "/profile",
       icon: "lucide/user",
       authed: true,
     },
     {
       side: "right",
       label: "Admin",
-      href: ROUTES.ADMIN,
+      href: "/admin",
       icon: "lucide/shield-check",
       authed: true,
       admin: true,
@@ -48,14 +48,14 @@
     {
       side: "right",
       label: "Sign in",
-      href: ROUTES.AUTH_SIGNIN,
+      href: "/auth/signin",
       icon: "lucide/log-in",
       authed: false,
     },
     {
       side: "right",
       label: "Sign up",
-      href: ROUTES.AUTH_SIGNUP,
+      href: "/auth/signup",
       icon: "lucide/user-plus",
       authed: false,
     },
@@ -77,7 +77,7 @@
     BetterAuthClient.signOut({
       fetchOptions: {
         onSuccess: () =>
-          goto(App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.SIGNED_OUT })),
+          goto(App.url("/auth/signin", { toast: TOAST.IDS.SIGNED_OUT })),
         onError: (error) => {
           console.error("Error signing out:", error);
           location.reload();

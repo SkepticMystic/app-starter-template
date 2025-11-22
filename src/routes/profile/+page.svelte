@@ -10,7 +10,6 @@
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
-  import { ROUTES } from "$lib/const/routes.const";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
 
@@ -20,9 +19,7 @@
   const delete_user = async () => {
     const res = await UserClient.delete();
     if (res.ok) {
-      await goto(
-        App.url(ROUTES.AUTH_SIGNIN, { toast: TOAST.IDS.USER_DELETED }),
-      );
+      await goto(App.url("/auth/signin", { toast: TOAST.IDS.USER_DELETED }));
     }
   };
 </script>
@@ -52,7 +49,7 @@
       <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
       <AddPasskeyButton
         on_added={() => {
-          location.href = App.url(ROUTES.PROFILE, {
+          location.href = App.url("/profile", {
             toast: TOAST.IDS.PASSKEY_ADDED,
           });
         }}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
-  import Icon from "../icon/Icon.svelte";
+  import Spinner from "../spinner/spinner.svelte";
 
   interface Props {
     title?: string;
@@ -10,25 +10,11 @@
     children?: Snippet;
   }
 
-  let { title, loading, class: klass = "", children }: Props = $props();
+  let { loading, children, ...props }: Props = $props();
 </script>
 
-{#snippet icon()}
-  <Icon
-    icon="lucide/loader-2"
-    class="animate-spin {klass}"
-  />
-{/snippet}
-
 {#if loading}
-  {#if title}
-    <span class="flex items-center gap-2">
-      {@render icon()}
-      <span>{title}</span>
-    </span>
-  {:else}
-    {@render icon()}
-  {/if}
+  <Spinner {...props} />
 {:else}
   {@render children?.()}
 {/if}

@@ -1,5 +1,4 @@
 import { auth } from "$lib/auth.js";
-import { ROUTES } from "$lib/const/routes.const.js";
 import { TOAST } from "$lib/const/toast.const.js";
 import { AuthSchema } from "$lib/schema/auth.schema.js";
 import { Parsers } from "$lib/schema/parsers.js";
@@ -67,7 +66,7 @@ export const actions = {
 
     redirect(
       303,
-      App.url(search.redirect_uri ?? ROUTES.HOME, {
+      App.url(search.redirect_uri ?? "/", {
         toast: TOAST.IDS.SIGNED_IN,
       }),
     );
