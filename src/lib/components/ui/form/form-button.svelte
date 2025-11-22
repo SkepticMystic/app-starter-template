@@ -1,4 +1,7 @@
-<script lang="ts" generics="T extends Record<string, unknown>, M">
+<script
+  lang="ts"
+  generics="T extends Record<string, unknown>, M"
+>
   import {
     Root as Button,
     type ButtonProps,

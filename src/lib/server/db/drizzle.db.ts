@@ -4,8 +4,6 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as AuthModels from "./schema/auth.models";
 import * as TaskModel from "./schema/task.models";
 
-if (!DATABASE_URL) throw new Error("DATABASE_URL is not set");
-
 const client = neon(DATABASE_URL);
 
 const {

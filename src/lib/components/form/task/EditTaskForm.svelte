@@ -1,7 +1,7 @@
 <script lang="ts">
   import { TaskClient } from "$lib/clients/tasks.client";
-  import DatePicker from "$lib/components/ui/date-picker/DatePicker.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { TASKS } from "$lib/const/task.const";
@@ -81,10 +81,14 @@
       class="grow"
     >
       {#snippet children({ props })}
-        <DatePicker
+        <Input
           {...props}
+          type="date"
           class="w-full"
-          bind:value={$form_data.due_date}
+          bind:value={
+            () => $form_data.due_date?.toISOString().split("T")[0],
+            (v) => ($form_data.due_date = v ? new Date(v) : undefined)
+          }
         />
       {/snippet}
     </FormFieldControl>

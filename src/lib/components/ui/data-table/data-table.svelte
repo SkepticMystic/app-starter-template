@@ -1,4 +1,7 @@
-<script lang="ts" generics="TData extends Item,TValue">
+<script
+  lang="ts"
+  generics="TData extends Item,TValue"
+>
   import Button from "$lib/components/ui/button/button.svelte";
   import { FlexRender } from "$lib/components/ui/data-table/index.js";
   import * as ShadTable from "$lib/components/ui/table/index.js";

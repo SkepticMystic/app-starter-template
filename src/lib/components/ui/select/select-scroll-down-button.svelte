@@ -16,5 +16,8 @@
   class={cn("flex cursor-default items-center justify-center py-1", className)}
   {...restProps}
 >
-  <Icon icon="lucide/chevron-down" class="size-4" />
+  <Icon
+    icon="lucide/chevron-down"
+    class="size-4"
+  />
 </SelectPrimitive.ScrollDownButton>

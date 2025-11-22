@@ -1,8 +1,14 @@
-<script lang="ts" module>
+<script
+  lang="ts"
+  module
+>
   type T = Record<string, unknown>;
 </script>
 
-<script lang="ts" generics="T extends Record<string, unknown>">
+<script
+  lang="ts"
+  generics="T extends Record<string, unknown>"
+>
   import Input from "$lib/components/ui/input/input.svelte";
   import type { FsSuperForm } from "formsnap";
   import { untrack, type ComponentProps } from "svelte";
@@ -37,4 +43,9 @@
 </script>
 
 <!-- NOTE: Default required to $constraints, but allow ...rest to override -->
-<Input required={$constraints?.required} {...rest} {name} bind:value={$value} />
+<Input
+  required={$constraints?.required}
+  {...rest}
+  {name}
+  bind:value={$value}
+/>

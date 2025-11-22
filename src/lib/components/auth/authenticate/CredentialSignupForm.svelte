@@ -37,20 +37,45 @@
   const { form: form_data } = form;
 </script>
 
-<form class="space-y-4" method="POST" use:form.enhance>
-  <FormFieldControl {form} name="name" label="Name">
+<form
+  class="space-y-4"
+  method="POST"
+  use:form.enhance
+>
+  <FormFieldControl
+    {form}
+    name="name"
+    label="Name"
+  >
     {#snippet children({ props })}
-      <SuperformInput {...props} {form} autocomplete="name" />
+      <SuperformInput
+        {...props}
+        {form}
+        autocomplete="name"
+      />
     {/snippet}
   </FormFieldControl>
 
-  <FormFieldControl {form} name="email" label="Email">
+  <FormFieldControl
+    {form}
+    name="email"
+    label="Email"
+  >
     {#snippet children({ props })}
-      <SuperformInput {...props} {form} type="email" autocomplete="email" />
+      <SuperformInput
+        {...props}
+        {form}
+        type="email"
+        autocomplete="email"
+      />
     {/snippet}
   </FormFieldControl>
 
-  <FormFieldControl {form} name="password" label="Password">
+  <FormFieldControl
+    {form}
+    name="password"
+    label="Password"
+  >
     {#snippet children({ props })}
       <SuperformInput
         {...props}
@@ -61,13 +86,25 @@
     {/snippet}
   </FormFieldControl>
 
-  <FormFieldControl {form} name="remember" horizontal label="Remember me">
+  <FormFieldControl
+    {form}
+    name="remember"
+    horizontal
+    label="Remember me"
+  >
     {#snippet children({ props })}
-      <Checkbox {...props} bind:checked={$form_data.remember} />
+      <Checkbox
+        {...props}
+        bind:checked={$form_data.remember}
+      />
     {/snippet}
   </FormFieldControl>
 
-  <FormButton {form} class="w-full" icon={provider.icon}>
+  <FormButton
+    {form}
+    class="w-full"
+    icon={provider.icon}
+  >
     Signup with {provider.name}
   </FormButton>
 

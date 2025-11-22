@@ -1,4 +1,7 @@
-<script lang="ts" generics="TData">
+<script
+  lang="ts"
+  generics="TData"
+>
   import Button from "$lib/components/ui/button/button.svelte";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index";
   import { TanstackTable } from "$lib/utils/tanstack/table.util";
@@ -14,7 +17,11 @@
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
     {#snippet child({ props })}
-      <Button {...props} variant="outline" icon="lucide/settings-2">
+      <Button
+        {...props}
+        variant="outline"
+        icon="lucide/settings-2"
+      >
         View
       </Button>
     {/snippet}

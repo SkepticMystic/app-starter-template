@@ -32,6 +32,9 @@
     );
 </script>
 
-<Button onclick={signin} icon={provider.icon}>
+<Button
+  onclick={signin}
+  icon={provider.icon}
+>
   Continue with {provider.name}
 </Button>

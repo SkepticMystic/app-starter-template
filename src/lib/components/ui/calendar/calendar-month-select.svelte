@@ -24,7 +24,11 @@
     {...restProps}
   >
     {#snippet child({ props, monthItems, selectedMonthItem })}
-      <select {...props} {value} {onchange}>
+      <select
+        {...props}
+        {value}
+        {onchange}
+      >
         {#each monthItems as monthItem (monthItem.value)}
           <option
             value={monthItem.value}
@@ -44,7 +48,10 @@
         {monthItems.find((item) => item.value === value)?.label ||
           selectedMonthItem.label}
 
-        <Icon icon="lucide/chevron-down" class="size-4" />
+        <Icon
+          icon="lucide/chevron-down"
+          class="size-4"
+        />
       </span>
     {/snippet}
   </CalendarPrimitive.MonthSelect>

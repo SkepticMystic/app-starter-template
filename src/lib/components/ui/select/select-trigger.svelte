@@ -29,7 +29,13 @@
 >
   {@render children?.()}
 
-  <Loading {loading} class="size-4 opacity-50">
-    <Icon icon="lucide/chevron-down" class="size-4 opacity-50" />
+  <Loading
+    {loading}
+    class="size-4 opacity-50"
+  >
+    <Icon
+      icon="lucide/chevron-down"
+      class="size-4 opacity-50"
+    />
   </Loading>
 </SelectPrimitive.Trigger>

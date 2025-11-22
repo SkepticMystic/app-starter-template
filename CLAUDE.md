@@ -9,22 +9,27 @@ SvelteKit-based application starter template with TypeScript, TailwindCSS, Bette
 ## Development Commands
 
 ### Package Manager
+
 This project uses **pnpm** (v10.23.0) as the package manager. Always use `pnpm` commands instead of `npm`.
 
 ### Core Commands
+
 - `pnpm install` - Install dependencies
 - `pnpm dev` - Start development server (port 5173)
 - `pnpm build` - Build for production
 - `pnpm preview` - Preview production build
 
 ### Type Checking & Linting
+
 - `pnpm check` - Run svelte-check for type checking
 - `pnpm check:watch` - Run svelte-check in watch mode
 - `pnpm lint` - Run oxlint (type-aware), eslint, and prettier checks
 - `pnpm format` - Format code with prettier
 
 ### Database Commands
+
 Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) that invokes drizzle-kit:
+
 - `pnpm db:push` - Push schema changes to database (development)
 - `pnpm db:generate` - Generate migrations (production env)
 - `pnpm db:check` - Check migration status (production env)
@@ -32,11 +37,13 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - `pnpm db:studio` - Open Drizzle Studio
 
 ### Other Tools
+
 - `pnpm knip` - Find unused files, dependencies, and exports
 
 ## Architecture
 
 ### Directory Structure
+
 - `src/lib/` - Core application logic
   - `auth/` - Authentication configuration and permissions (Better-Auth setup)
   - `clients/` - Client-side API wrappers
@@ -57,6 +64,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - `static/` - Static assets
 
 ### Authentication Architecture
+
 - **Better-Auth** integration with custom configuration in `src/lib/auth.ts`
 - Uses **Effect** library for dependency injection (email service)
 - Split between client (`auth-client.ts`) and server (`auth/server.ts`)
@@ -71,6 +79,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - **Permissions** managed through `src/lib/auth/permissions.ts` with AccessControl
 
 ### Database Architecture
+
 - **Drizzle ORM** with PostgreSQL (Neon)
 - Schema files use `*.models.ts` naming convention
 - All tables use UUID primary keys (custom ID generation, not BetterAuth's nanoid)
@@ -82,6 +91,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - Redis configured as secondary storage for Better-Auth (rate limiting, caching)
 
 ### SvelteKit Configuration
+
 - **Experimental features enabled**:
   - `remoteFunctions: true` - Server functions callable from client
   - `async: true` - Async components in Svelte 5
@@ -89,16 +99,19 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - Build command includes database migration: `vite build && pnpm db migrate`
 
 ### State Management
+
 - Svelte 5 runes for reactive state
 - Stores in `src/lib/stores/` for shared state (organizations, session)
 - Better-Auth client provides session management
 
 ### Form Handling
+
 - **sveltekit-superforms** for type-safe form handling
 - **formsnap** for form components
 - Zod schemas for validation in `src/lib/schema/`
 
 ### Email Service
+
 - Abstracted through Effect service pattern
 - Test/Live implementations for dev/prod
 - Used for verification emails, password resets, and organization invites
@@ -106,13 +119,16 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 ## Linting Configuration
 
 ### Oxlint
+
 Primary linter with type-aware checking configured in `.oxlintrc.json`:
+
 - TypeScript and Unicorn plugins enabled
 - Correctness category disabled (relies on TypeScript compiler)
 - Strict unused variable rules with `_` prefix for intentionally unused vars
 - Special rules for Svelte files (no-inner-declarations, no-self-assign disabled)
 
 ### ESLint
+
 Secondary linter in `eslint.config.js` - runs after oxlint in the lint pipeline.
 
 ## Environment Setup

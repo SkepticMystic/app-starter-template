@@ -35,8 +35,14 @@
   };
 </script>
 
-<Dialog.Root {...rest_props} {open}>
-  <Dialog.Trigger {title} class={buttonVariants({ variant, size })}>
+<Dialog.Root
+  {...rest_props}
+  {open}
+>
+  <Dialog.Trigger
+    {title}
+    class={buttonVariants({ variant, size })}
+  >
     {@render trigger?.()}
   </Dialog.Trigger>
 

@@ -16,6 +16,9 @@
 </script>
 
 <Avatar.Root {...rest}>
-  <Avatar.Image {src} {alt} />
+  <Avatar.Image
+    {src}
+    {alt}
+  />
   <Avatar.Fallback>{fallback}</Avatar.Fallback>
 </Avatar.Root>

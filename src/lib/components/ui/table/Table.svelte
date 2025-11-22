@@ -1,4 +1,7 @@
-<script lang="ts" generics="T extends Record<string, unknown>">
+<script
+  lang="ts"
+  generics="T extends Record<string, unknown>"
+>
   import * as Table from "$lib/components/ui/table/index.js";
   import type { Item } from "$lib/utils/items.util";
   import type { Snippet } from "svelte";

@@ -1,9 +1,8 @@
+import { resolve } from "$app/paths";
 import { getRequestEvent } from "$app/server";
 import { auth } from "$lib/auth";
 import { BetterAuthClient } from "$lib/auth-client";
 import type { IAccessControl } from "$lib/const/access_control.const";
-import { ROUTES } from "$lib/const/routes.const";
-import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { error, redirect } from "@sveltejs/kit";
 
@@ -34,14 +33,14 @@ export const get_session = async (options?: Options) => {
   });
 
   if (!session) {
-    redirect(302, App.url(ROUTES.AUTH_SIGNIN));
+    redirect(302, resolve("/auth/signin"));
   } else if (
     !session.session.member_id ||
     !session.session.activeOrganizationId
   ) {
     error(401, "Unauthorized");
   } else if (resolved.email_verified && !session.user.emailVerified) {
-    redirect(302, App.url(ROUTES.AUTH_VERIFY_EMAIL));
+    redirect(302, resolve("/auth/verify-email"));
   } else if (resolved.admin && session.user.role !== "admin") {
     error(403, "Forbidden");
   } else if (options?.permissions) {

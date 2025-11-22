@@ -19,7 +19,10 @@
   <ul class="my-3 list-inside list-disc">
     {#each routes as route (route.href)}
       <li>
-        <a class="link link-primary" href={route.href}>
+        <a
+          class="link link-primary"
+          href={route.href}
+        >
           {route.label}
         </a>
 
@@ -27,7 +30,10 @@
           <ul class="list-inside list-disc pl-5">
             {#each route.routes as subroute (subroute.href)}
               <li>
-                <a class="link link-primary" href={subroute.href}>
+                <a
+                  class="link link-primary"
+                  href={subroute.href}
+                >
                   {subroute.label}
                 </a>
               </li>

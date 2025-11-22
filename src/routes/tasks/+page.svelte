@@ -22,20 +22,29 @@
   <div class="flex items-center justify-between">
     <h1>Tasks</h1>
 
-    <Dialog title="New Task" description="Create a new task">
+    <Dialog
+      title="New Task"
+      description="Create a new task"
+    >
       {#snippet trigger()}
         <Icon icon="lucide/plus" />
         New task
       {/snippet}
 
       {#snippet content({ close })}
-        <EditTaskForm form_input={data.form_input} on_success={() => close()} />
+        <EditTaskForm
+          form_input={data.form_input}
+          on_success={() => close()}
+        />
       {/snippet}
     </Dialog>
   </div>
 
   {#await tasks_query}
-    <Loading loading title="Fetching tasks..." />
+    <Loading
+      loading
+      title="Fetching tasks..."
+    />
   {:then tasks}
     <DataTable
       {columns}
@@ -87,7 +96,10 @@
       {/snippet}
     </DataTable>
   {:catch error}
-    <p class="text-warning" {@attach () => console.error(error)}>
+    <p
+      class="text-warning"
+      {@attach () => console.error(error)}
+    >
       Error loading tasks
     </p>
   {/await}

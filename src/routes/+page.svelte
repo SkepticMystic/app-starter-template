@@ -8,7 +8,13 @@
 
   <div class="my-14 flex flex-wrap gap-2">
     <Button href="/tasks">Tasks</Button>
-    <Button href="/profile" variant="secondary">Profile</Button>
-    <Button href="/organization" variant="outline">Team</Button>
+    <Button
+      href="/profile"
+      variant="secondary">Profile</Button
+    >
+    <Button
+      href="/organization"
+      variant="outline">Team</Button
+    >
   </div>
 </div>

@@ -12,7 +12,10 @@
   let { data } = $props();
 </script>
 
-<Card class="mx-auto w-full max-w-xs" title="Signup for {APP.NAME}">
+<Card
+  class="mx-auto w-full max-w-xs"
+  title="Signup for {APP.NAME}"
+>
   {#snippet content()}
     <div class="space-y-5">
       <div class="flex flex-col gap-2">
@@ -41,7 +44,11 @@
 
       <ul>
         <li>
-          <Button size="sm" variant="link" href={ROUTES.AUTH_SIGNIN}>
+          <Button
+            size="sm"
+            variant="link"
+            href={ROUTES.AUTH_SIGNIN}
+          >
             Sign in instead
           </Button>
         </li>

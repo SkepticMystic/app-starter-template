@@ -18,7 +18,11 @@
 <Control {...control_props}>
   {#snippet children({ props })}
     {#if label}
-      <LabelWrapper is_form {label} {horizontal}>
+      <LabelWrapper
+        is_form
+        {label}
+        {horizontal}
+      >
         {@render input_children?.({ props })}
       </LabelWrapper>
     {:else}

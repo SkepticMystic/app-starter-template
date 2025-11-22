@@ -18,7 +18,10 @@
   console.log("last_method", last_method);
 </script>
 
-<Card class="mx-auto w-full max-w-xs" title="Signin to {APP.NAME}">
+<Card
+  class="mx-auto w-full max-w-xs"
+  title="Signin to {APP.NAME}"
+>
   {#snippet content()}
     <div class="space-y-5">
       <div class="flex flex-col gap-2">
@@ -61,13 +64,21 @@
 
       <ul>
         <li>
-          <Button size="sm" variant="link" href={ROUTES.AUTH_FORGOT_PASSWORD}>
+          <Button
+            size="sm"
+            variant="link"
+            href={ROUTES.AUTH_FORGOT_PASSWORD}
+          >
             Forgot password?
           </Button>
         </li>
 
         <li>
-          <Button size="sm" variant="link" href={ROUTES.AUTH_SIGNUP}>
+          <Button
+            size="sm"
+            variant="link"
+            href={ROUTES.AUTH_SIGNUP}
+          >
             Don't have an account? Sign up
           </Button>
         </li>

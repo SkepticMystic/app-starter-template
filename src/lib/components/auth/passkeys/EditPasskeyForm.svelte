@@ -35,14 +35,28 @@
   form.validateForm({ update: true });
 </script>
 
-<form class="flex flex-col gap-2" method="POST" use:form.enhance>
-  <FormFieldControl {form} name="name" label="Name">
+<form
+  class="flex flex-col gap-2"
+  method="POST"
+  use:form.enhance
+>
+  <FormFieldControl
+    {form}
+    name="name"
+    label="Name"
+  >
     {#snippet children({ props })}
-      <SuperformInput {...props} {form} />
+      <SuperformInput
+        {...props}
+        {form}
+      />
     {/snippet}
   </FormFieldControl>
 
-  <FormButton {form} icon="lucide/tag">Update passkey</FormButton>
+  <FormButton
+    {form}
+    icon="lucide/tag">Update passkey</FormButton
+  >
 
   <FormMessage {form} />
 </form>

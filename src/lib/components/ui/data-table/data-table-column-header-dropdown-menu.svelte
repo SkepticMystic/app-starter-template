@@ -1,4 +1,7 @@
-<script lang="ts" generics="TData">
+<script
+  lang="ts"
+  generics="TData"
+>
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index";
@@ -18,7 +21,11 @@
 <DropdownMenu.Root>
   <DropdownMenu.Trigger>
     {#snippet child({ props })}
-      <Button {...props} variant="ghost" class="-ml-4">
+      <Button
+        {...props}
+        variant="ghost"
+        class="-ml-4"
+      >
         {label}
 
         <Icon

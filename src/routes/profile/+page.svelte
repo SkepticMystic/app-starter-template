@@ -32,7 +32,10 @@
     <h1>Profile</h1>
 
     <div class="flex items-center gap-3">
-      <UserAvatar class="size-14" user={data.user} />
+      <UserAvatar
+        class="size-14"
+        user={data.user}
+      />
 
       <div class="flex flex-col">
         {#if data.user.name}
@@ -86,7 +89,11 @@
       </Dialog>
     {/if}
 
-    <Button variant="destructive" onclick={delete_user} icon="lucide/trash">
+    <Button
+      variant="destructive"
+      onclick={delete_user}
+      icon="lucide/trash"
+    >
       Delete user
     </Button>
   </div>

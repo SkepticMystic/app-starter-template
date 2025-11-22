@@ -25,9 +25,17 @@
     ComponentProps<typeof FormControl> = $props();
 </script>
 
-<FormField {form} {name} {description}>
+<FormField
+  {form}
+  {name}
+  {description}
+>
   {#snippet children(props)}
-    <FormControl {...props} {label} {horizontal}>
+    <FormControl
+      {...props}
+      {label}
+      {horizontal}
+    >
       {#snippet children({ props })}
         {@render input?.({ props })}
       {/snippet}

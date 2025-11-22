@@ -1,4 +1,7 @@
-<script lang="ts" generics="TData extends Item">
+<script
+  lang="ts"
+  generics="TData extends Item"
+>
   import { Button } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -71,7 +74,10 @@
       }}
     >
       {#if href}
-        <a href={href(row)} class="flex items-center gap-2">
+        <a
+          href={href(row)}
+          class="flex items-center gap-2"
+        >
           {@render item_children()}
         </a>
       {:else}

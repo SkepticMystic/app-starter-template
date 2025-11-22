@@ -25,11 +25,18 @@
 </script>
 
 {#if resolved}
-  <time {title} class={klass} datetime={resolved.toISOString()}>
+  <time
+    {title}
+    class={klass}
+    datetime={resolved.toISOString()}
+  >
     {format(resolved)}
   </time>
 {:else}
-  <span {title} class={klass}>
+  <span
+    {title}
+    class={klass}
+  >
     {fallback ?? format(resolved)}
   </span>
 {/if}

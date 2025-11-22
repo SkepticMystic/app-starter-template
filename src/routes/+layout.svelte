@@ -82,10 +82,10 @@
     <script
       defer
       type="text/partytown"
+      data-do-not-track="true"
+      data-tag={dev ? "dev" : "prod"}
       src="{PUBLIC_UMAMI_BASE_URL}/script.js"
       data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
-      data-tag={dev ? "dev" : "prod"}
-      data-do-not-track="true"
     ></script>
   {/if}
 </svelte:head>

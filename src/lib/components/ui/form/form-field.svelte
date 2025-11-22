@@ -22,7 +22,10 @@
     WithoutChildren<WithElementRef<HTMLAttributes<HTMLDivElement>>> = $props();
 </script>
 
-<FormPrimitive.Field {form} {name}>
+<FormPrimitive.Field
+  {form}
+  {name}
+>
   {#snippet children({ constraints, errors, tainted, value })}
     <div
       bind:this={ref}

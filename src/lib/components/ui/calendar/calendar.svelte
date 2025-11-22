@@ -96,7 +96,10 @@ get along, so we shut typescript up by casting `value` to `never`.
               {#each month.weeks as weekDates (weekDates)}
                 <Calendar.GridRow class="mt-2 w-full">
                   {#each weekDates as date (date)}
-                    <Calendar.Cell {date} month={month.value}>
+                    <Calendar.Cell
+                      {date}
+                      month={month.value}
+                    >
                       {#if day}
                         {@render day({
                           day: date,

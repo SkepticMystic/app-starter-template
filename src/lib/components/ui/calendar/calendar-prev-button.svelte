@@ -19,7 +19,10 @@
 </script>
 
 {#snippet Fallback()}
-  <Icon icon="lucide/chevron-left" class="size-4" />
+  <Icon
+    icon="lucide/chevron-left"
+    class="size-4"
+  />
 {/snippet}
 
 <CalendarPrimitive.PrevButton

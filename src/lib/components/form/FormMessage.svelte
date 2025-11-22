@@ -1,4 +1,7 @@
-<script lang="ts" generics="T extends Record<string, unknown>">
+<script
+  lang="ts"
+  generics="T extends Record<string, unknown>"
+>
   import type { FsSuperForm } from "formsnap";
 
   let {

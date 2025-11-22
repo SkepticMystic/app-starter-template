@@ -27,8 +27,16 @@
   description="A verification link has been sent to your email address. Please check your inbox and click the link to verify your email."
 >
   {#snippet content()}
-    <form class="flex flex-col gap-2" method="POST" use:form.enhance>
-      <FormFieldControl {form} name="email" label="Email">
+    <form
+      class="flex flex-col gap-2"
+      method="POST"
+      use:form.enhance
+    >
+      <FormFieldControl
+        {form}
+        name="email"
+        label="Email"
+      >
         {#snippet children({ props })}
           <SuperformInput
             {...props}
@@ -39,7 +47,10 @@
         {/snippet}
       </FormFieldControl>
 
-      <FormButton {form} icon="lucide/mail">
+      <FormButton
+        {form}
+        icon="lucide/mail"
+      >
         Resend verification email
       </FormButton>
 

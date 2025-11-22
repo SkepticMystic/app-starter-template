@@ -5,4 +5,7 @@
     $props();
 </script>
 
-<SelectPrimitive.Group data-slot="select-group" {...restProps} />
+<SelectPrimitive.Group
+  data-slot="select-group"
+  {...restProps}
+/>

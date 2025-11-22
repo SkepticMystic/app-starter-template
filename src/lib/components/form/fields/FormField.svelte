@@ -19,7 +19,11 @@
   } = $props();
 </script>
 
-<Field {form} {name} class={klass}>
+<Field
+  {form}
+  {name}
+  class={klass}
+>
   {#snippet children(control_props)}
     {@render control_children?.(control_props)}
 

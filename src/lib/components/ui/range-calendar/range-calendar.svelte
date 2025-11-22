@@ -92,7 +92,10 @@
               {#each month.weeks as weekDates (weekDates)}
                 <RangeCalendar.GridRow class="mt-2 w-full">
                   {#each weekDates as date (date)}
-                    <RangeCalendar.Cell {date} month={month.value}>
+                    <RangeCalendar.Cell
+                      {date}
+                      month={month.value}
+                    >
                       {#if day}
                         {@render day({
                           day: date,

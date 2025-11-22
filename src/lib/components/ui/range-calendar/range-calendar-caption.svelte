@@ -61,7 +61,11 @@
 {/snippet}
 
 {#snippet YearSelect()}
-  <RangeCalendarYearSelect {years} {yearFormat} value={month.year} />
+  <RangeCalendarYearSelect
+    {years}
+    {yearFormat}
+    value={month.year}
+  />
 {/snippet}
 
 {#if captionLayout === "dropdown"}

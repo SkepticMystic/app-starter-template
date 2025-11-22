@@ -29,8 +29,16 @@
   );
 </script>
 
-<form class="space-y-4" method="POST" use:form.enhance>
-  <FormFieldControl {form} name="current_password" label="Current Password">
+<form
+  class="space-y-4"
+  method="POST"
+  use:form.enhance
+>
+  <FormFieldControl
+    {form}
+    name="current_password"
+    label="Current Password"
+  >
     {#snippet children({ props })}
       <SuperformInput
         {...props}
@@ -41,7 +49,11 @@
     {/snippet}
   </FormFieldControl>
 
-  <FormFieldControl {form} name="new_password" label="New Password">
+  <FormFieldControl
+    {form}
+    name="new_password"
+    label="New Password"
+  >
     {#snippet children({ props })}
       <SuperformInput
         {...props}
@@ -52,7 +64,11 @@
     {/snippet}
   </FormFieldControl>
 
-  <FormButton {form} class="w-full" icon="lucide/lock">
+  <FormButton
+    {form}
+    class="w-full"
+    icon="lucide/lock"
+  >
     Change Password
   </FormButton>
 

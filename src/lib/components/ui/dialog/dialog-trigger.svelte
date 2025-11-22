@@ -5,4 +5,8 @@
     $props();
 </script>
 
-<DialogPrimitive.Trigger bind:ref data-slot="dialog-trigger" {...restProps} />
+<DialogPrimitive.Trigger
+  bind:ref
+  data-slot="dialog-trigger"
+  {...restProps}
+/>

@@ -18,8 +18,16 @@
   } = $props();
 </script>
 
-<FormField {...field} name="email">
+<FormField
+  {...field}
+  name="email"
+>
   {#snippet children(props)}
-    <EmailFormControl {...props} {...control} {input} bind:value />
+    <EmailFormControl
+      {...props}
+      {...control}
+      {input}
+      bind:value
+    />
   {/snippet}
 </FormField>

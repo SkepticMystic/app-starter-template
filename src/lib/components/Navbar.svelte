@@ -8,16 +8,15 @@
   import { TOAST } from "$lib/const/toast.const";
   import { session, user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
-  import type { ClassValue } from "svelte/elements";
-  import Icon from "./ui/icon/Icon.svelte";
-  import Button from "./ui/button/button.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
+  import Button from "./ui/button/button.svelte";
+  import Icon from "./ui/icon/Icon.svelte";
 
   interface Route {
     side: "center" | "right";
     label: string;
     href: string;
-    icon: ClassValue;
+    icon: string;
     /** Only show if user is authenticated */
     authed: boolean;
     admin?: boolean;
@@ -91,7 +90,11 @@
   class="bg-base-100 mx-auto flex h-16 max-w-5xl items-center justify-between"
 >
   <div>
-    <Button href="/" size="lg" variant="link">
+    <Button
+      href="/"
+      size="lg"
+      variant="link"
+    >
       {APP.NAME}
     </Button>
   </div>
@@ -102,7 +105,11 @@
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
         {#snippet child({ props })}
-          <Button {...props} variant="outline" icon="lucide/menu"></Button>
+          <Button
+            {...props}
+            variant="outline"
+            icon="lucide/menu"
+          ></Button>
         {/snippet}
       </DropdownMenu.Trigger>
 

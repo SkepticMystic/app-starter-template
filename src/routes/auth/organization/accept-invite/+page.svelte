@@ -36,7 +36,10 @@
       <strong>{data.organization.name}</strong>.
     </p>
 
-    <Button onclick={accept_invite} icon="lucide/check-circle">
+    <Button
+      onclick={accept_invite}
+      icon="lucide/check-circle"
+    >
       Accept Invite
     </Button>
   {:else if data.prompt === "signup_login"}
@@ -79,7 +82,10 @@
   {:else if data.prompt === "already_member"}
     <p class="">You are already a member of the organization.</p>
 
-    <a class="btn btn-primary" href={ROUTES.ORGANIZATION}>
+    <a
+      class="btn btn-primary"
+      href={ROUTES.ORGANIZATION}
+    >
       View Organization
     </a>
   {:else if data.prompt === "invite_not_pending"}

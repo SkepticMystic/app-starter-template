@@ -14,7 +14,10 @@
 </script>
 
 {#snippet icon()}
-  <Icon icon="lucide/loader-2" class="animate-spin {klass}" />
+  <Icon
+    icon="lucide/loader-2"
+    class="animate-spin {klass}"
+  />
 {/snippet}
 
 {#if loading}

@@ -1,4 +1,7 @@
-<script lang="ts" generics="T extends Record<string, unknown>">
+<script
+  lang="ts"
+  generics="T extends Record<string, unknown>"
+>
   import type { Item } from "$lib/utils/items.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
@@ -16,7 +19,10 @@
   } = $props();
 </script>
 
-<ul class="{klass} bg-base-100 rounded-md border shadow" role="list">
+<ul
+  class="{klass} bg-base-100 rounded-md border shadow"
+  role="list"
+>
   {@render header?.()}
 
   {#each items as item, i (item.id)}

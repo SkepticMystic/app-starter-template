@@ -1,4 +1,7 @@
-<script lang="ts" module>
+<script
+  lang="ts"
+  module
+>
   import type { ResolvedPathname } from "$app/types";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Loading from "$lib/components/ui/loading/Loading.svelte";

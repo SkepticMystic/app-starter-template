@@ -38,8 +38,16 @@
 </script>
 
 {#if data.search.token}
-  <form class="flex flex-col gap-3" method="POST" use:form.enhance>
-    <FormFieldControl {form} name="new_password" label="Password">
+  <form
+    class="flex flex-col gap-3"
+    method="POST"
+    use:form.enhance
+  >
+    <FormFieldControl
+      {form}
+      name="new_password"
+      label="Password"
+    >
       {#snippet children({ props })}
         <SuperformInput
           {...props}
@@ -50,7 +58,11 @@
       {/snippet}
     </FormFieldControl>
 
-    <FormButton {form} class="w-full" icon="lucide/key">
+    <FormButton
+      {form}
+      class="w-full"
+      icon="lucide/key"
+    >
       Reset Password
     </FormButton>
 

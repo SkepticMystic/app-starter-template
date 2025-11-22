@@ -26,5 +26,8 @@
 >
   {@render children?.()}
 
-  <Icon icon="lucide/chevron-right" class="ml-auto size-4" />
+  <Icon
+    icon="lucide/chevron-right"
+    class="ml-auto size-4"
+  />
 </DropdownMenuPrimitive.SubTrigger>

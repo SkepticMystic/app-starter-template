@@ -32,7 +32,10 @@
       class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"
     >
       {#if indeterminate}
-        <Icon icon="lucide/minus" class="size-4" />
+        <Icon
+          icon="lucide/minus"
+          class="size-4"
+        />
       {:else}
         <Icon
           icon="lucide/check"

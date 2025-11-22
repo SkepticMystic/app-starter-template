@@ -1,4 +1,7 @@
-<script lang="ts" module>
+<script
+  lang="ts"
+  module
+>
   import { type VariantProps, tv } from "tailwind-variants";
 
   export const badgeVariants = tv({

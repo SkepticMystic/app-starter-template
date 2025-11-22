@@ -18,7 +18,11 @@
   } = $props();
 </script>
 
-<FormElementField {form} {name} class={klass}>
+<FormElementField
+  {form}
+  {name}
+  class={klass}
+>
   {#snippet children(control_props)}
     {@render control_children?.(control_props)}
 

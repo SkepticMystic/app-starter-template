@@ -32,7 +32,10 @@
     <div
       class="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground peer-disabled:opacity-50"
     >
-      <Icon {icon} class="size-4" />
+      <Icon
+        {icon}
+        class="size-4"
+      />
 
       <span class="sr-only">{icon.split("/").at(-1)}</span>
     </div>

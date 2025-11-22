@@ -27,14 +27,20 @@
 
 <List {items}>
   {#snippet row(passkey)}
-    <Icon icon="lucide/fingerprint" class="size-7" />
+    <Icon
+      icon="lucide/fingerprint"
+      class="size-7"
+    />
 
     <div>
       <p class="text-lg">
         {passkey.name || "Unnamed Passkey"}
       </p>
       <p class="text-xs font-semibold uppercase opacity-60">
-        Connected on <Time date={passkey.createdAt} show="date" />
+        Connected on <Time
+          date={passkey.createdAt}
+          show="date"
+        />
       </p>
     </div>
 

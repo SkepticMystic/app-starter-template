@@ -45,7 +45,10 @@
       {/if}
     </Popover.Trigger>
 
-    <Popover.Content class="w-auto p-0" align="start">
+    <Popover.Content
+      class="w-auto p-0"
+      align="start"
+    >
       <RangeCalendar
         bind:value
         numberOfMonths={2}

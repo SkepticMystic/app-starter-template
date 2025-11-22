@@ -30,10 +30,10 @@ export const get_invitations = query(
 
       columns: {
         id: true,
-        status: true,
-        email: true,
-        expiresAt: true,
         role: true,
+        email: true,
+        status: true,
+        expiresAt: true,
         createdAt: true,
       },
     });

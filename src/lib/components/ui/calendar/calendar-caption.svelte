@@ -61,7 +61,11 @@
 {/snippet}
 
 {#snippet YearSelect()}
-  <CalendarYearSelect {years} {yearFormat} value={month.year} />
+  <CalendarYearSelect
+    {years}
+    {yearFormat}
+    value={month.year}
+  />
 {/snippet}
 
 {#if captionLayout === "dropdown"}

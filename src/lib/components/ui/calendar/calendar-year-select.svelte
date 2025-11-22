@@ -23,7 +23,10 @@
     {...restProps}
   >
     {#snippet child({ props, yearItems, selectedYearItem })}
-      <select {...props} {value}>
+      <select
+        {...props}
+        {value}
+      >
         {#each yearItems as yearItem (yearItem.value)}
           <option
             value={yearItem.value}
@@ -43,7 +46,10 @@
         {yearItems.find((item) => item.value === value)?.label ||
           selectedYearItem.label}
 
-        <Icon icon="lucide/chevron-down" class="size-4" />
+        <Icon
+          icon="lucide/chevron-down"
+          class="size-4"
+        />
       </span>
     {/snippet}
   </CalendarPrimitive.YearSelect>
