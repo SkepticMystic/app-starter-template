@@ -3,8 +3,8 @@ import {
   genericOAuthClient,
   lastLoginMethodClient,
   organizationClient,
-  passkeyClient,
 } from "better-auth/client/plugins";
+import { passkeyClient } from "@better-auth/passkey/client";
 import { createAuthClient } from "better-auth/svelte";
 import { AccessControl } from "./auth/permissions";
 

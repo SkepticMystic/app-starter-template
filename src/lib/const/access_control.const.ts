@@ -16,5 +16,5 @@ export const ACCESS_CONTROL = {
 };
 
 export declare namespace IAccessControl {
-  type RoleId = (typeof ROLE_IDS)[number];
+  export type RoleId = (typeof ROLE_IDS)[number];
 }

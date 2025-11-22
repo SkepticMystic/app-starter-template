@@ -29,8 +29,8 @@
     } else {
       console.log("$session loaded", $session.data);
 
-      if (browser && umami && $session.data?.user) {
-        umami.identify($session.data.user.id, {
+      if (browser && window.umami && $session.data?.user) {
+        window.umami.identify($session.data.user.id, {
           name: $session.data.user.name,
           email: $session.data.user.email,
           session_id: $session.data.session.id,
@@ -75,7 +75,7 @@
 
   <SEO />
 
-  <!-- Svelte says to use %sveltekit.env.[NAME]% 
+  <!-- Svelte says to use %sveltekit.env.[NAME]%
        But at this point, there's enough js stuff that I think this is fine
        SOURCE: https://svelte.dev/docs/kit/project-structure#Project-files-tsconfig.json -->
   {#if PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID}
@@ -102,7 +102,7 @@
 
 <!-- NOTE: I struggled to get shad semantic classes working to style the toasts
  It's possible to apply them, but only when toastOptions.unstyled: true
- And then ALL other styles are removed... 
+ And then ALL other styles are removed...
  So, richColors for now -->
 <Toaster richColors theme={mode.current} closeButton={true} duration={10_000}>
   {#snippet loadingIcon()}

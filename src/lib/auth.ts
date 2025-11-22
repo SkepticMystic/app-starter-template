@@ -27,7 +27,7 @@ import {
   type Organization,
   type OrganizationInput,
 } from "better-auth/plugins";
-import { passkey } from "better-auth/plugins/passkey";
+import { passkey } from "@better-auth/passkey";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { Effect } from "effect";
 import { AccessControl } from "./auth/permissions";
@@ -75,6 +75,10 @@ export const auth = Effect.runSync(
 
       telemetry: {
         enabled: false,
+      },
+
+      experimental: {
+        joins: true,
       },
 
       advanced: {

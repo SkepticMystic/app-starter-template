@@ -38,7 +38,7 @@ export const create_task = command(
   async (data): Promise<APIResult<Task>> => {
     const [{ session }, form] = await Promise.all([
       get_session(),
-      superValidate(data as any, zod4(TaskSchema.create)),
+      superValidate(data, zod4(TaskSchema.create)),
     ]);
     console.log("create_task.form", form);
 

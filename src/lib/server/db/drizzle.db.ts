@@ -1,7 +1,14 @@
 import { DATABASE_URL } from "$env/static/private";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import {
+import * as AuthModels from "./schema/auth.models";
+import * as TaskModel from "./schema/task.models";
+
+if (!DATABASE_URL) throw new Error("DATABASE_URL is not set");
+
+const client = neon(DATABASE_URL);
+
+const {
   AccountTable,
   InvitationTable,
   MemberTable,
@@ -10,12 +17,10 @@ import {
   SessionTable,
   UserTable,
   VerificationTable,
-} from "./schema/auth.models";
-import { TaskTable } from "./schema/task.models";
+  ...auth_rest
+} = AuthModels;
 
-if (!DATABASE_URL) throw new Error("DATABASE_URL is not set");
-
-const client = neon(DATABASE_URL);
+const { TaskTable, ...task_rest } = TaskModel;
 
 export const db = drizzle(client, {
   casing: "snake_case",
@@ -29,7 +34,10 @@ export const db = drizzle(client, {
     member: MemberTable,
     invitation: InvitationTable,
     passkey: PasskeyTable,
+    ...auth_rest,
 
+    // Task
     task: TaskTable,
+    ...task_rest,
   },
 });

@@ -2,9 +2,9 @@
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
   import List from "$lib/components/daisyui/List.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
 
   let {
@@ -18,8 +18,9 @@
     accountId?: string,
   ) =>
     AccountsClient.unlink({ providerId, accountId }).then((res) => {
-      res.ok &&
-        (accounts = accounts.filter((acc) => acc.providerId !== providerId));
+      if (res.ok) {
+        accounts = accounts.filter((acc) => acc.providerId !== providerId);
+      }
     });
 
   let items = $state(
@@ -39,14 +40,20 @@
 
 <List {items}>
   {#snippet row(item)}
-    <Icon icon={item.icon} size="size-7" />
+    <Icon
+      icon={item.icon}
+      size="size-7"
+    />
 
     <div class="grow">
       <p class="text-lg">
         {item.name}
       </p>
       <p class="text-xs font-semibold uppercase opacity-60">
-        Connected on <Time date={item.createdAt} show="datetime" />
+        Connected on <Time
+          date={item.createdAt}
+          show="datetime"
+        />
       </p>
     </div>
 

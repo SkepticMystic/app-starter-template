@@ -6,8 +6,6 @@ import { delete_task, get_tasks } from "$lib/remote/tasks/tasks.remote";
 import type { Task } from "$lib/server/db/schema/task.models";
 import { Items } from "$lib/utils/items.util";
 import { TanstackTable } from "$lib/utils/tanstack/table.util";
-import { getLocalTimeZone } from "@internationalized/date";
-import type { DateRange } from "bits-ui";
 
 type TData = Task;
 
