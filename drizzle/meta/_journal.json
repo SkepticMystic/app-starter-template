@@ -50,6 +50,13 @@
       "when": 1757145455110,
       "tag": "0006_chemical_vapor",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1763792778880,
+      "tag": "0007_workable_lyja",
+      "breakpoints": true
     }
   ]
 }
