@@ -7,7 +7,7 @@ export const load = (async ({ params }) => {
   const [session, task] = await Promise.all([
     get_session(),
     db.query.task.findFirst({
-      where: (task, { eq }) => eq(task.id, params.task_id),
+      where: (task, { eq }) => eq(task.id, params.id),
     }),
   ]);
 

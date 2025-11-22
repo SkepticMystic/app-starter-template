@@ -36,39 +36,45 @@
   });
 </script>
 
-{#if data.search.token}
-  <form
-    class="flex flex-col gap-3"
-    method="POST"
-    use:form.enhance
-  >
-    <FormFieldControl
-      {form}
-      name="new_password"
-      label="Password"
-    >
-      {#snippet children({ props })}
-        <SuperformInput
-          {...props}
-          {form}
-          type="password"
-          autocomplete="new-password"
-        />
-      {/snippet}
-    </FormFieldControl>
+<article>
+  <header>
+    <h1>Reset Password</h1>
+  </header>
 
-    <FormButton
-      {form}
-      class="w-full"
-      icon="lucide/key"
+  {#if data.search.token}
+    <form
+      class="flex flex-col gap-3"
+      method="POST"
+      use:form.enhance
     >
-      Reset Password
-    </FormButton>
+      <FormFieldControl
+        {form}
+        name="new_password"
+        label="Password"
+      >
+        {#snippet children({ props })}
+          <SuperformInput
+            {...props}
+            {form}
+            type="password"
+            autocomplete="new-password"
+          />
+        {/snippet}
+      </FormFieldControl>
 
-    <FormMessage {form} />
-  </form>
-{:else}
-  <div class="alert alert-error">
-    <span>Invalid or missing reset token ({data.search.error ?? ""})</span>
-  </div>
-{/if}
+      <FormButton
+        {form}
+        class="w-full"
+        icon="lucide/key"
+      >
+        Reset Password
+      </FormButton>
+
+      <FormMessage {form} />
+    </form>
+  {:else}
+    <div class="alert alert-error">
+      <span>Invalid or missing reset token ({data.search.error ?? ""})</span>
+    </div>
+  {/if}
+</article>

@@ -35,38 +35,40 @@
   });
 </script>
 
-<Card
-  title="Forgot your password?"
-  description="Enter your email to reset it"
-  class="mx-auto w-full max-w-xs"
->
-  {#snippet content()}
-    <form
-      method="POST"
-      class="flex flex-col gap-2"
-      use:form.enhance
-    >
-      <FormFieldControl
-        {form}
-        name="email"
-        label="Email"
+<article>
+  <Card
+    title="Forgot your password?"
+    description="Enter your email to reset it"
+    class="mx-auto w-full max-w-xs"
+  >
+    {#snippet content()}
+      <form
+        method="POST"
+        class="flex flex-col gap-2"
+        use:form.enhance
       >
-        {#snippet children({ props })}
-          <SuperformInput
-            {...props}
-            {form}
-            type="email"
-            autocomplete="email"
-          />
-        {/snippet}
-      </FormFieldControl>
+        <FormFieldControl
+          {form}
+          name="email"
+          label="Email"
+        >
+          {#snippet children({ props })}
+            <SuperformInput
+              {...props}
+              {form}
+              type="email"
+              autocomplete="email"
+            />
+          {/snippet}
+        </FormFieldControl>
 
-      <FormButton
-        {form}
-        icon="lucide/mail">Request password reset</FormButton
-      >
+        <FormButton
+          {form}
+          icon="lucide/mail">Request password reset</FormButton
+        >
 
-      <FormMessage {form} />
-    </form>
-  {/snippet}
-</Card>
+        <FormMessage {form} />
+      </form>
+    {/snippet}
+  </Card>
+</article>

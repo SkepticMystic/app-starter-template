@@ -1,6 +1,5 @@
 import { command, query } from "$app/server";
 import { get_session } from "$lib/auth/server";
-import { TASKS } from "$lib/const/task.const";
 import { TaskSchema } from "$lib/schema/task.schema";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskTable, type Task } from "$lib/server/db/schema/task.models";
@@ -11,27 +10,17 @@ import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import z from "zod";
 
-export const get_tasks = query(
-  z.object({
-    status: z.enum(TASKS.STATUS.IDS).optional(),
-  }),
-  async (input) => {
-    // TODO: Calling redirect in a remote function seems to break svelte
-    const session = await get_session();
+export const get_all_tasks_remote = query(async () => {
+  const session = await get_session();
 
-    const tasks = await db.query.task.findMany({
-      where: (task, { eq, and }) =>
-        and(
-          eq(task.org_id, session.session.org_id),
-          input.status ? eq(task.status, input.status) : undefined,
-        ),
+  const tasks = await db.query.task.findMany({
+    where: (task, { eq, and }) => and(eq(task.org_id, session.session.org_id)),
 
-      orderBy: (task, { desc }) => [desc(task.createdAt)],
-    });
+    orderBy: (task, { desc }) => [desc(task.createdAt)],
+  });
 
-    return tasks;
-  },
-);
+  return tasks;
+});
 
 export const create_task = command(
   "unchecked",

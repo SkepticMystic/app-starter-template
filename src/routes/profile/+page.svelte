@@ -24,26 +24,26 @@
   };
 </script>
 
-<div class="space-y-9">
-  <div class="space-y-3">
+<article>
+  <header>
     <h1>Profile</h1>
+  </header>
 
-    <div class="flex items-center gap-3">
-      <UserAvatar
-        class="size-14"
-        user={data.user}
-      />
+  <section>
+    <UserAvatar
+      class="size-14"
+      user={data.user}
+    />
 
-      <div class="flex flex-col">
-        {#if data.user.name}
-          <strong>{data.user.name}</strong>
-        {/if}
-        {data.user.email}
-      </div>
+    <div class="flex flex-col">
+      {#if data.user.name}
+        <strong>{data.user.name}</strong>
+      {/if}
+      {data.user.email}
     </div>
-  </div>
+  </section>
 
-  <div class="space-y-3">
+  <section>
     <div class="flex items-center gap-3">
       <h2>Passkeys</h2>
       <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
@@ -55,21 +55,22 @@
         }}
       />
     </div>
+
     {#if passkeys.length}
       <UserPasskeysList bind:passkeys />
     {:else}
       <p>No passkeys added yet.</p>
     {/if}
-  </div>
+  </section>
 
-  <div class="space-y-3">
+  <section>
     <h2>Accounts</h2>
     <UserAccountsList bind:accounts />
-  </div>
+  </section>
 
   <Separator />
 
-  <div class="flex gap-2">
+  <section class="flex gap-2">
     {#if accounts.find((acc) => acc.providerId === "credential")}
       <Dialog
         title="Change Password"
@@ -93,5 +94,5 @@
     >
       Delete user
     </Button>
-  </div>
-</div>
+  </section>
+</article>

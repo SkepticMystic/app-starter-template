@@ -13,10 +13,12 @@
   ];
 </script>
 
-<div class="my-card">
-  <h2>Admin</h2>
+<article>
+  <header>
+    <h1>Admin</h1>
+  </header>
 
-  <ul class="my-3 list-inside list-disc">
+  <ul class="list-inside list-disc">
     {#each routes as route (route.href)}
       <li>
         <a
@@ -43,4 +45,4 @@
       </li>
     {/each}
   </ul>
-</div>
+</article>

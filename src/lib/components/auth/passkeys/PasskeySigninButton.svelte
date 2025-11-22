@@ -3,7 +3,6 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import { TOAST } from "$lib/const/toast.const";
   import { App } from "$lib/utils/app";
   import { onMount } from "svelte";
@@ -37,13 +36,13 @@
   });
 </script>
 
-<Input
+<input
   type="text"
   name="name"
   class="hidden"
   autocomplete="username webauthn"
 />
-<Input
+<input
   class="hidden"
   type="password"
   name="password"
@@ -51,6 +50,7 @@
 />
 
 <Button
+  class="w-full"
   onclick={signin}
   icon="lucide/fingerprint"
 >

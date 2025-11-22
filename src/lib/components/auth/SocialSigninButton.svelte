@@ -32,6 +32,7 @@
 </script>
 
 <Button
+  class="w-full"
   onclick={signin}
   icon={provider.icon}
 >

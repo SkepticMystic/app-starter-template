@@ -1,63 +1,75 @@
 <script lang="ts">
+  import type { MaybePromise } from "$lib/interfaces";
+  import type { Snippet } from "svelte";
+  import ButtonGroup from "./ui/button-group/button-group.svelte";
   import Button from "./ui/button/button.svelte";
 
-  interface Props {
-    filters: { skip: number; limit: number };
+  // const LIMIT_VALUES = [10, 20, 50, 100, 500] as const;
 
-    disabled?: boolean;
-    has_more?: boolean;
+  interface Props {
+    skip: number | undefined;
+    /** Items per page */
+    limit: number | undefined;
     /** Total number of items to paginate, or null if not known */
     total?: number | null;
+    has_more?: boolean;
+    disabled?: boolean;
+    onchange?: (skip: number, limit: number) => MaybePromise<unknown>;
 
-    onchange?: (filters: { skip: number; limit: number }) => void;
+    children?: Snippet;
   }
 
   let {
-    onchange,
+    skip = $bindable(),
+    limit = $bindable(),
     total = null,
     has_more = true,
     disabled = false,
-    filters = $bindable(),
+    onchange,
+    children,
   }: Props = $props();
+
+  skip ??= 0;
+  limit ??= 20;
 
   const set_skip = (target: number) => {
     if (target < 0 || (total !== null && target >= total)) {
       return;
     }
 
-    filters.skip = target;
+    skip = target;
 
-    onchange?.(filters);
+    onchange?.(skip, limit!);
   };
 
-  let page = $derived(Math.floor(filters.skip / filters.limit));
-
+  let page = $derived(Math.floor(skip / limit));
   /** The highest page index (zero-based) */
-  let last_page = $derived(total ? Math.ceil(total / filters.limit) - 1 : null);
+  let last_page = $derived(total ? Math.ceil(total / limit) - 1 : null);
 </script>
 
-<div class="my-card join flex w-fit p-1.5">
-  <Button
+<ButtonGroup class="rounded-lg! border border-border">
+  <!-- <Button
     title="First"
-    variant="ghost"
-    onclick={() => set_skip(0)}
     disabled={disabled || page === 0}
+    variant="ghost"
     icon="lucide/chevrons-left"
-  />
+    onclick={() => set_skip(0)}
+  ></Button> -->
 
   <Button
-    icon="lucide/chevron-left"
-    variant="ghost"
     title="Previous"
     disabled={disabled || page === 0}
-    onclick={() => set_skip(filters.skip - filters.limit)}
-  />
+    variant="ghost"
+    icon="lucide/chevron-left"
+    onclick={() => set_skip(skip! - limit!)}
+  ></Button>
 
   <Button
     {disabled}
-    title="Refresh"
+    title="Reset"
     variant="ghost"
-    onclick={() => set_skip(filters.skip)}
+    class="font-bold"
+    onclick={() => set_skip(0)}
   >
     {page + 1}{last_page !== null ? " / " + (last_page + 1) : ""}
   </Button>
@@ -67,27 +79,31 @@
     variant="ghost"
     icon="lucide/chevron-right"
     disabled={disabled || page === last_page || !has_more}
-    onclick={() => set_skip(filters.skip + filters.limit)}
-  />
+    onclick={() => set_skip(skip! + limit!)}
+  ></Button>
 
+  <!--
   {#if last_page !== null}
     <Button
       title="Last"
+      disabled={disabled || page === last_page || !has_more}
       variant="ghost"
       icon="lucide/chevrons-right"
-      onclick={() => set_skip(last_page * filters.limit)}
-      disabled={disabled || page === last_page || !has_more}
-    />
-  {/if}
+      onclick={() => set_skip(last_page * limit!)}
+    ></Button>
+  {/if} -->
 
-  <select
-    title="Items per page"
-    class="join-item"
-    bind:value={filters.limit}
-    onchange={() => set_skip(0)}
+  <!-- <ButtonGroupSeparator />
+
+  <NativeSelect
+    {disabled}
+    class="w-fit border-0 pr-7"
+    bind:value={limit}
   >
-    {#each [10, 20, 50, 100, 500, 1000, 5000] as value (value)}
-      <option {value}>{value}</option>
+    {#each LIMIT_VALUES as value (value)}
+      <NativeSelectOption {value}>{value}</NativeSelectOption>
     {/each}
-  </select>
-</div>
+  </NativeSelect> -->
+
+  {@render children?.()}
+</ButtonGroup>

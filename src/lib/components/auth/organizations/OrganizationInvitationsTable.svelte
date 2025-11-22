@@ -31,6 +31,7 @@
   actions={(row) => [
     {
       icon: "lucide/x",
+      variant: "destructive",
       title: "Cancel invitation",
 
       disabled: row.original.status !== "pending",

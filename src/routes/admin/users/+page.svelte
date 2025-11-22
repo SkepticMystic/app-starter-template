@@ -43,64 +43,72 @@
   };
 </script>
 
-<DataTable
-  data={users}
-  actions={(row) => [
-    {
-      icon: "lucide/user-circle",
-      title: "Impersonate user",
-      onselect: () => impersonate_user(row.id),
-    },
-    { kind: "separator" },
-    {
-      title: row.original.banned ? "Unban user" : "Ban user",
-      icon: row.original.banned ? "lucide/check-circle-2" : "lucide/ban",
-      onselect: () =>
-        row.original.banned
-          ? AdminClient.unban_user(row.id)
-          : AdminClient.ban_user(row.id, {}),
-    },
-    {
-      icon: "lucide/x",
-      title: "Delete user",
-      onselect: () => delete_user(row.id),
-    },
-  ]}
-  columns={TanstackTable.make_columns<(typeof users)[number]>(
-    ({ accessor, display }) => [
-      display({
-        id: "avatar",
-        enableHiding: false,
-        enableSorting: false,
+<article>
+  <header>
+    <h1>Users</h1>
+  </header>
 
-        cell: ({ row }) => renderComponent(UserAvatar, { user: row.original }),
-      }),
-      accessor("name", {
-        meta: { label: "Name" },
-      }),
-      accessor("email", {
-        meta: { label: "Email" },
-      }),
-      accessor("role", {
-        meta: { label: "Role" },
+  <DataTable
+    data={users}
+    actions={(row) => [
+      {
+        icon: "lucide/user-circle",
+        title: "Impersonate user",
+        onselect: () => impersonate_user(row.id),
+      },
+      { kind: "separator" },
+      {
+        title: row.original.banned ? "Unban user" : "Ban user",
+        icon: row.original.banned ? "lucide/check-circle-2" : "lucide/ban",
+        onselect: () =>
+          row.original.banned
+            ? AdminClient.unban_user(row.id)
+            : AdminClient.ban_user(row.id, {}),
+      },
+      {
+        icon: "lucide/x",
+        title: "Delete user",
+        variant: "destructive",
+        onselect: () => delete_user(row.id),
+      },
+    ]}
+    columns={TanstackTable.make_columns<(typeof users)[number]>(
+      ({ accessor, display }) => [
+        display({
+          id: "avatar",
+          enableHiding: false,
+          enableSorting: false,
 
-        cell: ({ row, getValue }) =>
-          renderComponent(NativeSelect, {
-            value: getValue(),
-            options: ACCESS_CONTROL.ROLES.OPTIONS,
-            on_value_select: (value) =>
-              update_user_role({
-                userId: row.id,
-                role: value as IAccessControl.RoleId,
-              }),
-          }),
-      }),
+          cell: ({ row }) =>
+            renderComponent(UserAvatar, { user: row.original }),
+        }),
+        accessor("name", {
+          meta: { label: "Name" },
+        }),
+        accessor("email", {
+          meta: { label: "Email" },
+        }),
+        accessor("role", {
+          meta: { label: "Role" },
 
-      accessor("createdAt", {
-        meta: { label: "Join date" },
+          cell: ({ row, getValue }) =>
+            renderComponent(NativeSelect, {
+              value: getValue(),
+              options: ACCESS_CONTROL.ROLES.OPTIONS,
+              on_value_select: (value) =>
+                update_user_role({
+                  userId: row.id,
+                  role: value as IAccessControl.RoleId,
+                }),
+            }),
+        }),
 
-        cell: ({ getValue }) => renderComponent(Time, { date: getValue() }),
-      }),
-    ],
-  )}
-></DataTable>
+        accessor("createdAt", {
+          meta: { label: "Join date" },
+
+          cell: ({ getValue }) => renderComponent(Time, { date: getValue() }),
+        }),
+      ],
+    )}
+  ></DataTable>
+</article>

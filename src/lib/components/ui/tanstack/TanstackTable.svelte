@@ -167,8 +167,6 @@
       ? undefined
       : (updater) => (expanded = resolve_updater(updater, expanded!)),
   });
-
-  $inspect(table);
 </script>
 
 {@render children(table)}

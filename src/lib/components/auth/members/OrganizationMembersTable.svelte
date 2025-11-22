@@ -47,6 +47,7 @@
     {
       icon: "lucide/x",
       title: "Remove member",
+      variant: "destructive",
       onselect: () => remove_member(row.id),
     },
   ]}

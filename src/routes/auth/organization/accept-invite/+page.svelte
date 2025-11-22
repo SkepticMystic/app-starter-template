@@ -20,8 +20,10 @@
   };
 </script>
 
-<div class="space-y-3">
-  <h2>Accept Invitation</h2>
+<article>
+  <header>
+    <h1>Accept Invitation</h1>
+  </header>
 
   {#if data.prompt === "accept_invite"}
     <p>
@@ -102,4 +104,4 @@
   {:else}
     <p class="text-error">Invalid prompt type.</p>
   {/if}
-</div>
+</article>

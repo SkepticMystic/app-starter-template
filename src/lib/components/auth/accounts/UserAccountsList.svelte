@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { auth } from "$lib/auth";
   import { AccountsClient } from "$lib/clients/accounts.client";
-  import List from "$lib/components/daisyui/List.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Item from "$lib/components/ui/item/Item.svelte";
+  import ItemList from "$lib/components/ui/item/ItemList.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
 
   let {
@@ -38,32 +38,27 @@
   );
 </script>
 
-<List {items}>
-  {#snippet row(item)}
-    <Icon
+<ItemList {items}>
+  {#snippet item(item)}
+    <Item
       icon={item.icon}
-      size="size-7"
-    />
-
-    <div class="grow">
-      <p class="text-lg">
-        {item.name}
-      </p>
-      <p class="text-xs font-semibold uppercase opacity-60">
+      title={item.name}
+    >
+      {#snippet description()}
         Connected on <Time
           date={item.createdAt}
           show="datetime"
         />
-      </p>
-    </div>
+      {/snippet}
 
-    <div class="flex gap-0.5">
-      <Button
-        variant="destructive"
-        title="Unlink Account"
-        icon="lucide/unlink"
-        onclick={() => unlink_account(item.provider_id)}
-      />
-    </div>
+      {#snippet actions()}
+        <Button
+          variant="destructive"
+          title="Unlink Account"
+          icon="lucide/unlink"
+          onclick={() => unlink_account(item.provider_id)}
+        />
+      {/snippet}
+    </Item>
   {/snippet}
-</List>
+</ItemList>

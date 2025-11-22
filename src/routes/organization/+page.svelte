@@ -3,25 +3,28 @@
   import InviteOrganizationMemberForm from "$lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
   import OrganizationInvitationsTable from "$lib/components/auth/organizations/OrganizationInvitationsTable.svelte";
   import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
+  import Icon from "$lib/components/ui/icon/Icon.svelte";
 
   let { data } = $props();
   let { invitations, members } = $state(data);
 </script>
 
-<div class="flex flex-col gap-7">
-  <div class="space-y-3">
+<article>
+  <header>
     <h1>Organization</h1>
-    <OrganizationSelector />
-  </div>
+  </header>
 
-  <div class="space-y-3">
+  <section>
+    <OrganizationSelector />
+  </section>
+
+  <section>
     <h2>Members</h2>
     <OrganizationMembersList bind:members />
-  </div>
+  </section>
 
-  <div class="space-y-3">
+  <section>
     <div class="flex items-center justify-between">
       <h2>Invites</h2>
 
@@ -51,5 +54,5 @@
           (invitations = invitations.filter((i) => i.id !== invitation.id))}
       />
     {/if}
-  </div>
-</div>
+  </section>
+</article>

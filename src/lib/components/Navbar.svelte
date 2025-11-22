@@ -9,6 +9,7 @@
   import { session, user } from "$lib/stores/session";
   import { App } from "$lib/utils/app";
   import ThemeSelector from "./ThemeSelector.svelte";
+  import ButtonGroup from "./ui/button-group/button-group.svelte";
   import Button from "./ui/button/button.svelte";
   import Icon from "./ui/icon/Icon.svelte";
 
@@ -86,10 +87,8 @@
     });
 </script>
 
-<nav
-  class="bg-base-100 mx-auto flex h-16 max-w-5xl items-center justify-between"
->
-  <div>
+<nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-3">
+  <ButtonGroup>
     <Button
       href="/"
       size="lg"
@@ -97,54 +96,58 @@
     >
       {APP.NAME}
     </Button>
-  </div>
+  </ButtonGroup>
 
-  <div class="mr-3 flex gap-1">
-    <ThemeSelector />
+  <ButtonGroup>
+    <ButtonGroup>
+      <ThemeSelector />
+    </ButtonGroup>
 
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger>
-        {#snippet child({ props })}
-          <Button
-            {...props}
-            variant="outline"
-            icon="lucide/menu"
-          ></Button>
-        {/snippet}
-      </DropdownMenu.Trigger>
+    <ButtonGroup>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger>
+          {#snippet child({ props })}
+            <Button
+              {...props}
+              variant="outline"
+              icon="lucide/menu"
+            ></Button>
+          {/snippet}
+        </DropdownMenu.Trigger>
 
-      <DropdownMenu.Content align="end">
-        <DropdownMenu.Group>
-          <DropdownMenu.Label>My Account</DropdownMenu.Label>
+        <DropdownMenu.Content align="end">
+          <DropdownMenu.Group>
+            <DropdownMenu.Label>My Account</DropdownMenu.Label>
 
-          <DropdownMenu.Separator />
+            <DropdownMenu.Separator />
 
-          {#each routes as r (r.href)}
-            {#if show_route($user, r)}
-              <DropdownMenu.Item onSelect={() => goto(r.href)}>
-                <Icon icon={r.icon} />
-                {r.label}
+            {#each routes as r (r.href)}
+              {#if show_route($user, r)}
+                <DropdownMenu.Item onSelect={() => goto(r.href)}>
+                  <Icon icon={r.icon} />
+                  {r.label}
+                </DropdownMenu.Item>
+              {/if}
+            {/each}
+
+            {#if $user}
+              <DropdownMenu.Item onSelect={signout}>
+                <Icon icon="lucide/log-out" />
+                Sign out
               </DropdownMenu.Item>
             {/if}
-          {/each}
 
-          {#if $user}
-            <DropdownMenu.Item onSelect={signout}>
-              <Icon icon="lucide/log-out" />
-              Sign out
-            </DropdownMenu.Item>
-          {/if}
-
-          {#if $session.data?.session.impersonatedBy}
-            <DropdownMenu.Item
-              onSelect={() => AdminClient.stop_impersonating()}
-            >
-              <Icon icon="lucide/stop-circle" />
-              Stop impersonating
-            </DropdownMenu.Item>
-          {/if}
-        </DropdownMenu.Group>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
-  </div>
+            {#if $session.data?.session.impersonatedBy}
+              <DropdownMenu.Item
+                onSelect={() => AdminClient.stop_impersonating()}
+              >
+                <Icon icon="lucide/stop-circle" />
+                Stop impersonating
+              </DropdownMenu.Item>
+            {/if}
+          </DropdownMenu.Group>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    </ButtonGroup>
+  </ButtonGroup>
 </nav>

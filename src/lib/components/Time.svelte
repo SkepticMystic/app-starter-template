@@ -26,9 +26,9 @@
 
 {#if resolved}
   <time
-    {title}
     class={klass}
     datetime={resolved.toISOString()}
+    title={title ?? resolved.toISOString()}
   >
     {format(resolved)}
   </time>
