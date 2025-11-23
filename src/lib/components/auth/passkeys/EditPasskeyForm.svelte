@@ -5,8 +5,8 @@
   import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
   import FormButton from "$lib/components/ui/form/form-button.svelte";
   import { AuthSchema } from "$lib/schema/auth.schema";
+  import type { Passkey } from "$lib/server/db/schema/auth.models";
   import { make_super_form } from "$lib/utils/form.util";
-  import type { Passkey } from "better-auth/plugins/passkey";
   import { defaults } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
 

@@ -9,9 +9,9 @@
     type IOrganization,
     ORGANIZATION,
   } from "$lib/const/organization.const";
+  import type { Invitation } from "$lib/server/db/schema/auth.models";
   import { Items } from "$lib/utils/items.util";
   import { TanstackTable } from "$lib/utils/tanstack/table.util";
-  import type { Invitation } from "better-auth/plugins";
 
   let {
     on_delete,

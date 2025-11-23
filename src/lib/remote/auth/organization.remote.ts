@@ -7,7 +7,7 @@ import { db } from "$lib/server/db/drizzle.db";
 import type { APIResult } from "$lib/utils/form.util";
 import { err, suc } from "$lib/utils/result.util";
 import { APIError } from "better-auth/api";
-import type { Invitation } from "better-auth/plugins";
+import type { Invitation } from "$lib/server/db/schema/auth.models";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import z from "zod";

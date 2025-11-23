@@ -1,8 +1,12 @@
 import { auth } from "$lib/auth";
 import { Parsers } from "$lib/schema/parsers";
 import { error } from "@sveltejs/kit";
-import type { User } from "better-auth";
-import type { Invitation, Member, Organization } from "better-auth/plugins";
+import type {
+  User,
+  Invitation,
+  Member,
+  Organization,
+} from "$lib/server/db/schema/auth.models";
 import z from "zod";
 import type { PageServerLoad } from "./$types";
 

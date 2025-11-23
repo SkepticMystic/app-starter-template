@@ -8,12 +8,7 @@ import {
   POCKETID_CLIENT_ID,
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
-import {
-  betterAuth,
-  type GenericEndpointContext,
-  type Session,
-  type User,
-} from "better-auth";
+import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { generateRandomString } from "better-auth/crypto";
 import {
@@ -45,6 +40,8 @@ import {
   SessionTable,
   UserTable,
   VerificationTable,
+  type User,
+  type Session,
 } from "./server/db/schema/auth.models";
 import { EmailLive, EmailService, EmailTest } from "./services/email.service";
 import { Log } from "./utils/logger.util";
@@ -347,7 +344,7 @@ export const auth = Effect.runSync(
 
 // SECTION: Helper functions
 const get_or_create_org_id = async (
-  session: Session,
+  session: Pick<Session, "userId">,
   ctx: GenericEndpointContext,
 ): Promise<{
   org_id: string;

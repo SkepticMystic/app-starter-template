@@ -1,8 +1,11 @@
 import type { SendEmailOptions } from "$lib/services/email.service";
 import { App } from "$lib/utils/app";
 import { Markdown } from "$lib/utils/markdown";
-import type { User } from "better-auth";
-import type { Invitation, Organization } from "better-auth/plugins";
+import type {
+  User,
+  Invitation,
+  Organization,
+} from "$lib/server/db/schema/auth.models";
 import { APP } from "./app";
 
 const HTML_SIGNATURE = `
@@ -22,7 +25,7 @@ export const EMAIL = {
   TEMPLATES: {
     "password-reset": (input: {
       url: string;
-      user: User;
+      user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""}</p>
@@ -47,7 +50,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
 
     "email-verification": (input: {
       url: string;
-      user: User;
+      user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
@@ -71,9 +74,9 @@ ${COMMON.SIGNATURE.HTML}`.trim();
     },
 
     "org-invite": (input: {
-      invitation: Invitation;
-      organization: Organization;
-      inviter: { user: User };
+      organization: Pick<Organization, "name">;
+      invitation: Pick<Invitation, "id" | "email">;
+      inviter: { user: Pick<User, "email" | "name"> };
     }): SendEmailOptions => {
       const href = App.full_url("/auth/organization/accept-invite", {
         invite_id: input.invitation.id,
@@ -103,7 +106,9 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       };
     },
 
-    "user-deleted": (input: { user: User }): SendEmailOptions => {
+    "user-deleted": (input: {
+      user: Pick<User, "email" | "name">;
+    }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
 

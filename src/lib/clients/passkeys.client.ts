@@ -1,8 +1,8 @@
 import { BetterAuthClient } from "$lib/auth-client";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { err, suc } from "$lib/utils/result.util";
-import type { Passkey } from "better-auth/plugins/passkey";
 import { Client } from "./index.client";
+import type { Passkey } from "$lib/server/db/schema/auth.models";
 
 export const PasskeysClient = {
   create: (name?: string) =>

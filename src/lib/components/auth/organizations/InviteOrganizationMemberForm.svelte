@@ -8,9 +8,9 @@
   import { ORGANIZATION } from "$lib/const/organization.const";
   import { create_invitation } from "$lib/remote/auth/organization.remote";
   import { AuthSchema } from "$lib/schema/auth.schema";
+  import type { Invitation } from "$lib/server/db/schema/auth.models";
   import { make_super_form } from "$lib/utils/form.util";
-  import type { Invitation } from "better-auth/plugins";
-  import { type Infer, type SuperValidated } from "sveltekit-superforms";
+  import type { Infer, SuperValidated } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
 
   let {
