@@ -21,11 +21,13 @@
     validators,
 
     submit: (form_data) =>
-      Client.better_auth(() =>
-        BetterAuthClient.resetPassword({
-          token: data.search.token,
-          newPassword: form_data.new_password,
-        }),
+      Client.better_auth(
+        () =>
+          BetterAuthClient.resetPassword({
+            token: data.search.token,
+            newPassword: form_data.new_password,
+          }),
+        { validate_session: false },
       ),
 
     on_success: () => {

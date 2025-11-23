@@ -1,14 +1,7 @@
-import {
-  EMAIL_FROM,
-  SMTP_HOST,
-  SMTP_PASSWORD,
-  SMTP_PORT,
-  SMTP_USERNAME,
-} from "$env/static/private";
+import { EMAIL_FROM, RESEND_API_KEY } from "$env/static/private";
 import { Log } from "$lib/utils/logger.util";
 import { Context, Effect } from "effect";
-import { SMTPClient } from "emailjs";
-import z from "zod";
+import { Resend } from "resend";
 
 // NOTE: Copied from nodemailer Mail.Options
 export type SendEmailOptions = {
@@ -21,7 +14,7 @@ export type SendEmailOptions = {
   /** The plaintext version of the message */
   text?: string;
   /** The HTML version of the message */
-  html?: string;
+  html: string;
 };
 
 export class EmailService extends Context.Tag("EmailService")<
@@ -33,47 +26,24 @@ export class EmailService extends Context.Tag("EmailService")<
   }
 >() {}
 
-const config = z
-  .object({
-    SMTP_HOST: z.string(),
-    SMTP_USERNAME: z.string(),
-    SMTP_PASSWORD: z.string(),
-    SMTP_PORT: z.coerce.number().default(465),
-  })
-  .parse({ SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD, SMTP_PORT });
-
-const client = new SMTPClient({
-  port: config.SMTP_PORT,
-  host: config.SMTP_HOST,
-  user: config.SMTP_USERNAME,
-  password: config.SMTP_PASSWORD,
-  ssl: config.SMTP_PORT === 465,
-});
-
-const of_emailjs: Context.Tag.Service<EmailService> = {
+const resend = new Resend(RESEND_API_KEY);
+const of_resend: Context.Tag.Service<EmailService> = {
   send: (input) =>
-    Effect.gen(function* () {
-      // Doesn't seem to work... docs say it loads from env by default, but this get never works
-      //   const EMAIL_FROM = yield* Config.string("EMAIL_FROM").pipe(Effect.orDie);
+    Effect.tryPromise({
+      try: () =>
+        resend.emails.send({
+          to: input.to,
+          subject: input.subject,
+          from: input.from ?? EMAIL_FROM,
 
-      return Effect.tryPromise({
-        try: () =>
-          client.sendAsync({
-            to: input.to,
-            subject: input.subject,
-            from: input.from ?? EMAIL_FROM,
+          text: input.text,
+          html: input.html,
+        }),
 
-            text: input.text ?? null,
-            attachment: input.html
-              ? [{ data: input.html, alternative: true }]
-              : undefined,
-          }),
-
-        catch: (error) => {
-          console.error("Failed to send email:", error);
-          return { message: "Failed to send email" };
-        },
-      });
+      catch: (error) => {
+        console.error("Failed to send email:", error);
+        return { message: "Failed to send email" };
+      },
     }),
 };
 
@@ -81,5 +51,5 @@ const of_console_log: Context.Tag.Service<EmailService> = {
   send: (input) => Effect.sync(() => Log.info(input, "Sending email:")),
 };
 
-export const EmailLive = EmailService.of(of_emailjs);
+export const EmailLive = EmailService.of(of_resend);
 export const EmailTest = EmailService.of(of_console_log);
