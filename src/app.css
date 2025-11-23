@@ -221,8 +221,8 @@ h4 {
   This triggers the Loading.svelte component to show the spinner icon
   We hide all other icons except the first one (the spinner) when loading
 */
-a.loading > .icon:not(:first-child),
-button.loading > .icon:not(:first-child) {
+a.btn-loading > .icon:not(:first-child),
+button.btn-loading > .icon:not(:first-child) {
   display: none !important;
 }
 

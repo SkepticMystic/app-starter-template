@@ -1,38 +1,12 @@
 <script lang="ts">
-  import { resolve } from "$app/paths";
-  import { BetterAuthClient } from "$lib/auth-client";
-  import { Client } from "$lib/clients/index.client";
-  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
-  import FormMessage from "$lib/components/form/FormMessage.svelte";
-  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
-  import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import { make_super_form } from "$lib/utils/form.util";
-  import { defaults } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
-  import { z } from "zod/mini";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
+  import { request_password_reset_remote } from "$lib/remote/auth/user.remote";
+  import { toast } from "svelte-sonner";
 
-  const validators = zod4Client(
-    z.object({ email: z.email("Please enter a valid email address.") }),
-  );
-
-  const form = make_super_form(defaults({ email: "" }, validators), {
-    SPA: true,
-    validators,
-
-    submit: (data) =>
-      Client.better_auth(
-        () =>
-          BetterAuthClient.requestPasswordReset({
-            ...data,
-            redirectTo: resolve("/auth/reset-password"),
-          }),
-        {
-          validate_session: false,
-          toast: { success: "Password reset email sent" },
-        },
-      ),
-  });
+  const form = request_password_reset_remote;
 </script>
 
 <article>
@@ -43,31 +17,41 @@
   >
     {#snippet content()}
       <form
-        method="POST"
-        class="flex flex-col gap-2"
-        use:form.enhance
+        class="space-y-3"
+        {...form.enhance(async ({ submit }) => {
+          await submit();
+
+          const res = request_password_reset_remote.result;
+          if (res?.ok) {
+            toast.success(res.data.message);
+          } else if (res?.error.message) {
+            toast.error(res.error.message);
+          }
+        })}
       >
-        <FormFieldControl
-          {form}
-          name="email"
+        <Field
           label="Email"
+          field={form.fields.email}
         >
-          {#snippet children({ props })}
-            <SuperformInput
+          {#snippet input({ props, field })}
+            <Input
               {...props}
-              {form}
-              type="email"
+              {...field?.as("email")}
+              required
+              autofocus
               autocomplete="email"
             />
           {/snippet}
-        </FormFieldControl>
+        </Field>
 
-        <FormButton
-          {form}
-          icon="lucide/mail">Request password reset</FormButton
+        <Button
+          type="submit"
+          class="w-full"
+          icon="lucide/mail"
+          loading={form.pending > 0}
         >
-
-        <FormMessage {form} />
+          Request password reset
+        </Button>
       </form>
     {/snippet}
   </Card>

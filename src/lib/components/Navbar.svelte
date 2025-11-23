@@ -111,6 +111,7 @@
               {...props}
               variant="outline"
               icon="lucide/menu"
+              title="Open menu"
             ></Button>
           {/snippet}
         </DropdownMenu.Trigger>

@@ -10,3 +10,8 @@ export const suc = <D = undefined>(d?: D): Suc<D> => {
   if (d) res["data"] = d;
   return res;
 };
+
+export const Result = {
+  err,
+  suc,
+};

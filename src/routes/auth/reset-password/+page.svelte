@@ -1,41 +1,15 @@
 <script lang="ts">
-  import { BetterAuthClient } from "$lib/auth-client";
-  import { Client } from "$lib/clients/index.client.js";
-  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
-  import FormMessage from "$lib/components/form/FormMessage.svelte";
-  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
-  import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { TOAST } from "$lib/const/toast.const.js";
+  import { reset_password_remote } from "$lib/remote/auth/user.remote";
   import { App } from "$lib/utils/app.js";
-  import { make_super_form } from "$lib/utils/form.util.js";
-  import { defaults } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
-  import { z } from "zod/mini";
+  import { toast } from "svelte-sonner";
 
   let { data } = $props();
 
-  const validators = zod4Client(z.object({ new_password: z.string() }));
-
-  const form = make_super_form(defaults({ new_password: "" }, validators), {
-    SPA: true,
-    validators,
-
-    submit: (form_data) =>
-      Client.better_auth(
-        () =>
-          BetterAuthClient.resetPassword({
-            token: data.search.token,
-            newPassword: form_data.new_password,
-          }),
-        { validate_session: false },
-      ),
-
-    on_success: () => {
-      location.href = App.url("/auth/signin", {
-        toast: TOAST.IDS.PASSWORD_RESET,
-      });
-    },
-  });
+  const form = reset_password_remote;
 </script>
 
 <article>
@@ -45,34 +19,45 @@
 
   {#if data.search.token}
     <form
-      class="flex flex-col gap-3"
-      method="POST"
-      use:form.enhance
+      class="space-y-3"
+      {...form.enhance(async ({ submit }) => {
+        await submit();
+
+        const res = form.result;
+        if (res?.ok) {
+          toast.success("Password reset successfully");
+          location.href = App.url("/auth/signin", {
+            toast: TOAST.IDS.PASSWORD_RESET,
+          });
+        } else if (res?.error) {
+          toast.error(res.error.message);
+        }
+      })}
     >
-      <FormFieldControl
-        {form}
-        name="new_password"
-        label="Password"
+      <input {...form.fields.token.as("hidden", data.search.token)} />
+
+      <Field
+        label="New password"
+        field={form.fields.new_password}
       >
-        {#snippet children({ props })}
-          <SuperformInput
+        {#snippet input({ props, field })}
+          <Input
             {...props}
-            {form}
-            type="password"
+            {...field?.as("password")}
+            required
             autocomplete="new-password"
           />
         {/snippet}
-      </FormFieldControl>
+      </Field>
 
-      <FormButton
-        {form}
+      <Button
+        type="submit"
         class="w-full"
         icon="lucide/key"
+        loading={form.pending > 0}
       >
         Reset Password
-      </FormButton>
-
-      <FormMessage {form} />
+      </Button>
     </form>
   {:else}
     <div class="alert alert-error">
