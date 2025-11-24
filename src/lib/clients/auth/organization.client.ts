@@ -1,7 +1,7 @@
 import { BetterAuthClient } from "$lib/auth-client";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { Effect, pipe } from "effect";
-import { Client } from "./index.client";
+import { Client } from "../index.client";
 
 const set_active_inner = (organizationId: string | undefined) =>
   Effect.runPromise(
@@ -21,7 +21,7 @@ const set_active_inner = (organizationId: string | undefined) =>
     ),
   );
 
-export const OrganizationsClient = {
+export const OrganizationClient = {
   set_active: (organizationId: string | undefined) =>
     Client.request(() => set_active_inner(organizationId), {
       toast: { success: "Active organization updated." },

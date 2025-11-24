@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AdminClient } from "$lib/clients/admin.client.js";
+  import { AdminClient } from "$lib/clients/auth/admin.client.js";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { OrganizationsClient } from "$lib/clients/organizations.client";
+  import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Loading from "$lib/components/ui/loading/Loading.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
@@ -33,7 +33,7 @@
         }))}
         bind:value={
           () => $session.data?.session.activeOrganizationId ?? undefined,
-          (v) => OrganizationsClient.set_active(v)
+          (v) => OrganizationClient.set_active(v)
         }
       />
     {/snippet}

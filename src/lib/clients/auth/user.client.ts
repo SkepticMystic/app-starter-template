@@ -2,7 +2,7 @@ import type { ResolvedPathname } from "$app/types";
 import { BetterAuthClient } from "$lib/auth-client";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { err } from "$lib/utils/result.util";
-import { Client } from "./index.client";
+import { Client } from "../index.client";
 
 export const UserClient = {
   send_verification_email: (

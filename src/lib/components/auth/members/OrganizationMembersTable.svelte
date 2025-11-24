@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { MembersClient } from "$lib/clients/members.client";
+  import { MemberClient } from "$lib/clients/auth/member.client";
   import Time from "$lib/components/Time.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
@@ -24,7 +24,7 @@
       return;
     }
 
-    return await MembersClient.update_member_role(member.id, role_id);
+    return await MemberClient.update_role(member.id, role_id);
   };
 
   const column = createColumnHelper<TData>();
@@ -75,7 +75,7 @@
       icon: "lucide/x",
       title: "Remove member",
       variant: "destructive",
-      onselect: () => MembersClient.remove_member(row.id),
+      onselect: () => MemberClient.remove(row.id),
     },
   ]}
 ></DataTable>

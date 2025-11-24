@@ -7,7 +7,7 @@ import { TIME } from "$lib/const/time";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { Format } from "$lib/utils/format.util";
 import { Effect, pipe } from "effect";
-import { Client } from "./index.client";
+import { Client } from "../index.client";
 
 export const AdminClient = {
   update_user_role: (input: { userId: string; role: IAccessControl.RoleId }) =>

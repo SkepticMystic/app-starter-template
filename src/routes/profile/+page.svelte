@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { UserClient } from "$lib/clients/user.client";
+  import { UserClient } from "$lib/clients/auth/user.client";
   import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";

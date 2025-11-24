@@ -1,6 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { Client } from "$lib/clients/index.client";
+  import { TaskClient } from "$lib/clients/tasks.client";
   import TaskForm from "$lib/components/form/task/TaskForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
@@ -14,10 +14,8 @@
   import { TASKS } from "$lib/const/task.const";
   import {
     create_task_remote,
-    delete_task_remote,
     get_all_tasks_remote,
   } from "$lib/remote/tasks/tasks.remote";
-  import { Items } from "$lib/utils/items.util";
   import {
     CellHelpers,
     TanstackTable,
@@ -120,16 +118,7 @@
         title: "Delete task",
         icon: "lucide/trash-2",
         variant: "destructive",
-        onselect: () =>
-          Client.request(
-            () =>
-              delete_task_remote(row.id).updates(
-                get_all_tasks_remote().withOverride((old) =>
-                  Items.remove(old, row.id),
-                ),
-              ),
-            { toast: { optimistic: true, success: "Task deleted" } },
-          ),
+        onselect: () => TaskClient.delete(row.id),
       },
     ]}
   >

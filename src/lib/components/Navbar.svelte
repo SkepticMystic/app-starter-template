@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
-  import { AdminClient } from "$lib/clients/admin.client";
+  import { AdminClient } from "$lib/clients/auth/admin.client";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app";
   import { TOAST } from "$lib/const/toast.const";

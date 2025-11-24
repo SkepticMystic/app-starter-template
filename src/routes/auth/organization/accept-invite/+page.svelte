@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import { InvitationClient } from "$lib/clients/invitation.client.js";
+  import { InvitationClient } from "$lib/clients/auth/invitation.client.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AccountsClient } from "$lib/clients/accounts.client";
+  import { AccountClient } from "$lib/clients/auth/account.client";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Item from "$lib/components/ui/item/Item.svelte";
@@ -44,7 +44,7 @@
           title="Unlink Account"
           icon="lucide/unlink"
           onclick={() =>
-            AccountsClient.unlink({
+            AccountClient.unlink({
               accountId: item.accountId,
               providerId: item.provider_id,
             })}

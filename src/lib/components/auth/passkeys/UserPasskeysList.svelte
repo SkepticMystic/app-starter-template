@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PasskeysClient } from "$lib/clients/passkeys.client";
+  import { PasskeyClient } from "$lib/clients/auth/passkey.client";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
@@ -52,7 +52,7 @@
           icon="lucide/x"
           variant="destructive"
           title="Delete Passkey"
-          onclick={() => PasskeysClient.delete(passkey.id)}
+          onclick={() => PasskeyClient.delete(passkey.id)}
         />
       {/snippet}
     </Item>

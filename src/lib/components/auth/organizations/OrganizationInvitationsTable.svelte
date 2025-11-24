@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { InvitationClient } from "$lib/clients/invitation.client";
+  import { InvitationClient } from "$lib/clients/auth/invitation.client";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";

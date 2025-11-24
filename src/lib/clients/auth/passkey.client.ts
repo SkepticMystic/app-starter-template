@@ -4,9 +4,9 @@ import {
   get_all_passkeys_remote,
 } from "$lib/remote/auth/passkey.remote";
 import { err, result, suc } from "$lib/utils/result.util";
-import { Client } from "./index.client";
+import { Client } from "../index.client";
 
-export const PasskeysClient = {
+export const PasskeyClient = {
   create: (name?: string) =>
     Client.request(
       async () => {

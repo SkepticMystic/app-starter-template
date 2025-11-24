@@ -9,10 +9,10 @@ import {
 } from "$lib/remote/auth/member.remote";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { err } from "$lib/utils/result.util";
-import { Client } from "./index.client";
+import { Client } from "../index.client";
 
-export const MembersClient = {
-  update_member_role: (memberId: string, role: IOrganization.RoleId) =>
+export const MemberClient = {
+  update_role: (memberId: string, role: IOrganization.RoleId) =>
     Client.request(
       async () => {
         const members_res = await BetterAuth.to_result(
@@ -56,7 +56,7 @@ export const MembersClient = {
   // - Member B tried to remove Owner A
   // - The error says: "You cannot leave the organization as the only owner"
   // - But it should be a permission error, since B is not an owner
-  remove_member: (input: Parameters<typeof remove_member_remote>[0]) =>
+  remove: (input: Parameters<typeof remove_member_remote>[0]) =>
     Client.request(
       () =>
         remove_member_remote(input).updates(

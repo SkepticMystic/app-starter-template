@@ -4,7 +4,7 @@ import {
   get_all_invitations_remote,
 } from "$lib/remote/auth/invitation.remote";
 import { BetterAuth } from "$lib/utils/better-auth.util";
-import { Client } from "./index.client";
+import { Client } from "../index.client";
 
 export const InvitationClient = {
   accept: (invitationId: string) =>

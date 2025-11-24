@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PasskeysClient } from "$lib/clients/passkeys.client";
+  import { PasskeyClient } from "$lib/clients/auth/passkey.client";
   import Button from "$lib/components/ui/button/button.svelte";
   import type { MaybePromise } from "$lib/interfaces";
 
@@ -12,7 +12,7 @@
   } = $props();
 
   const add_passkey = () =>
-    PasskeysClient.create().then((res) => res.ok && on_added?.());
+    PasskeyClient.create().then((res) => res.ok && on_added?.());
 </script>
 
 <Button
