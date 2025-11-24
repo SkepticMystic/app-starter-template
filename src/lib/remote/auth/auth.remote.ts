@@ -12,6 +12,7 @@ export const signin_credentials_remote = form(
     email: z.email("Please enter a valid email address"),
     password: z.string(), // NOTE: Better-auth will do validation, so no need to do it here
     remember: z.boolean().default(false),
+    redirect_uri: z.string().default("/"),
   }),
   async (input) => {
     try {
@@ -34,7 +35,7 @@ export const signin_credentials_remote = form(
       }
     }
 
-    redirect(302, resolve("/"));
+    redirect(302, input.redirect_uri);
   },
 );
 

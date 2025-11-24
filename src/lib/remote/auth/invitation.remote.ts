@@ -5,6 +5,7 @@ import { ORGANIZATION } from "$lib/const/organization.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
+import { invalid } from "@sveltejs/kit";
 import { APIError } from "better-auth/api";
 import z from "zod";
 
@@ -35,7 +36,7 @@ export const create_invitation_remote = form(
     email: z.email("Please enter a valid email address"),
     role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
   }),
-  async (input) => {
+  async (input, issue) => {
     try {
       const data = await auth.api.createInvitation({
         body: input,
@@ -46,6 +47,12 @@ export const create_invitation_remote = form(
     } catch (error) {
       if (error instanceof APIError) {
         Log.info(error, "create_invitation_remote.error better-auth");
+
+        if (
+          error.body?.code === "USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION"
+        ) {
+          invalid(issue.email(error.body.message ?? "Invalid email address"));
+        }
 
         return result.err({ message: error.message });
       } else {

@@ -34,6 +34,8 @@
     }
   })}
 >
+  <input {...form.fields.redirect_uri.as("hidden", redirect_uri)} />
+
   <Field
     label="Email"
     field={form.fields.email}

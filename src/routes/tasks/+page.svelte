@@ -97,6 +97,16 @@
     }}
     actions={(row) => [
       {
+        title: "View task",
+        icon: "lucide/eye",
+        href: resolve("/tasks/[id]", row),
+      },
+      {
+        title: "Edit task",
+        icon: "lucide/pencil",
+        href: resolve("/tasks/[id]/edit", row),
+      },
+      {
         title: "Copy task ID",
         icon: "lucide/copy",
 

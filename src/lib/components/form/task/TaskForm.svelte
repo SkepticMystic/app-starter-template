@@ -32,7 +32,7 @@
 
 <form
   class="space-y-3"
-  {...props.form.enhance(async ({ submit, data }) => {
+  {...props.form.enhance(async ({ submit }) => {
     await submit();
 
     const res = props.form.result;
@@ -46,7 +46,8 @@
   })}
 >
   <!-- TODO: This only works if I've already set the id outside
- But if I've done that already, do I still need this hidden input? -->
+ But if I've done that already, do I still need this hidden input?
+ Turns out, yes, you do -->
   {#if props.kind === "update"}
     <input
       {...props.form.fields.id.as("hidden", props.form.fields.id.value())}
@@ -94,7 +95,7 @@
       {#snippet input({ props, field })}
         <Input
           {...props}
-          {...field?.as("date")}
+          {...field?.as("datetime-local")}
           class="w-full"
         />
       {/snippet}

@@ -1,42 +1,30 @@
 import { auth } from "$lib/auth";
-import { Parsers } from "$lib/schema/parsers";
+import { db } from "$lib/server/db/drizzle.db";
 import { error } from "@sveltejs/kit";
-import type {
-  User,
-  Invitation,
-  Member,
-  Organization,
-} from "$lib/server/db/schema/auth.models";
-import z from "zod";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ request, url }) => {
-  const search = Parsers.url(
-    url,
-    z.object({ invite_id: z.string().min(1, "Invite ID is required") }),
-  );
-
-  const ctx = await auth.$context;
+  const search = {
+    invite_id: url.searchParams.get("invite_id"),
+  };
+  if (!search.invite_id) {
+    error(400, "Missing invite ID");
+  }
 
   const [session, invitation] = await Promise.all([
     auth.api.getSession({ headers: request.headers }),
 
-    ctx.adapter.findOne<
-      Pick<
-        Invitation,
-        "id" | "email" | "organizationId" | "inviterId" | "expiresAt" | "status"
-      >
-    >({
-      model: "invitation",
-      where: [{ field: "id", value: search.invite_id }],
-      select: [
-        "id",
-        "email",
-        "organizationId",
-        "inviterId",
-        "expiresAt",
-        "status",
-      ],
+    db.query.invitation.findFirst({
+      where: (invitation, { eq }) => eq(invitation.id, search.invite_id!),
+
+      columns: {
+        id: true,
+        email: true,
+        status: true,
+        expiresAt: true,
+        inviterId: true,
+        organizationId: true,
+      },
     }),
   ]);
 
@@ -77,41 +65,27 @@ export const load: PageServerLoad = async ({ request, url }) => {
   }
 
   const [organization, inviter, member] = await Promise.all([
-    ctx.adapter.findOne<Pick<Organization, "name">>({
-      model: "organization",
-      select: ["name"],
-      where: [
-        {
-          field: "id",
-          value: invitation.organizationId,
-        },
-      ],
+    db.query.organization.findFirst({
+      columns: { name: true },
+
+      where: (organization, { eq }) =>
+        eq(organization.id, invitation.organizationId),
     }),
 
-    ctx.adapter.findOne<Pick<User, "name" | "email">>({
-      model: "user",
-      select: ["name", "email"],
-      where: [
-        {
-          field: "id",
-          value: invitation.inviterId,
-        },
-      ],
+    db.query.user.findFirst({
+      columns: { name: true, email: true },
+
+      where: (user, { eq }) => eq(user.id, invitation.inviterId),
     }),
 
-    ctx.adapter.findOne<Pick<Member, "id">>({
-      model: "member",
-      select: ["id"],
-      where: [
-        {
-          field: "userId",
-          value: session.user.id,
-        },
-        {
-          field: "organizationId",
-          value: invitation.organizationId,
-        },
-      ],
+    db.query.member.findFirst({
+      columns: { id: true },
+
+      where: (member, { and, eq }) =>
+        and(
+          eq(member.userId, session.user.id),
+          eq(member.organizationId, invitation.organizationId),
+        ),
     }),
   ]);
 

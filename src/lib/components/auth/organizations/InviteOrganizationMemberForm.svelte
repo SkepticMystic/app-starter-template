@@ -18,22 +18,29 @@
   } = $props();
 
   const form = create_invitation_remote;
+
+  form.fields.role.set("member");
 </script>
 
 <form
   class="space-y-3"
-  {...form.enhance(async ({ submit, data }) => {
-    await submit().updates(
-      get_all_invitations_remote().withOverride((cur) => [
-        { ...data, status: "pending" } as (typeof cur)[number],
-        ...cur,
-      ]),
-    );
+  {...form.enhance(async (e) => {
+    await e
+      .submit()
+      .updates(
+        get_all_invitations_remote().withOverride((cur) => [
+          { ...e.data, status: "pending" } as (typeof cur)[number],
+          ...cur,
+        ]),
+      );
 
     const res = form.result;
     if (res?.ok) {
       toast.success("Invitation sent");
       on_success?.(res.data);
+      e.form.reset();
+    } else if (res?.error) {
+      toast.error(res.error.message);
     }
   })}
 >
