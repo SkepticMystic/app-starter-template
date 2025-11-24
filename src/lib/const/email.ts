@@ -1,11 +1,7 @@
+import type { Invitation, Organization, User } from "$lib/server/db/schema/auth.models";
 import type { SendEmailOptions } from "$lib/services/email.service";
 import { App } from "$lib/utils/app";
 import { Markdown } from "$lib/utils/markdown";
-import type {
-  User,
-  Invitation,
-  Organization,
-} from "$lib/server/db/schema/auth.models";
 import { APP } from "./app";
 
 const HTML_SIGNATURE = `
@@ -106,9 +102,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       };
     },
 
-    "user-deleted": (input: {
-      user: Pick<User, "email" | "name">;
-    }): SendEmailOptions => {
+    "user-deleted": (input: { user: Pick<User, "email" | "name"> }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
 

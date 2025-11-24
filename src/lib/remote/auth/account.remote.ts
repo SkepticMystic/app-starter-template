@@ -1,7 +1,7 @@
 import { command, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/auth";
 import { get_session } from "$lib/auth/server";
-import { AUTH, type IAuth } from "$lib/const/auth.const";
+import { AUTH } from "$lib/const/auth.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
@@ -16,7 +16,7 @@ export const get_account_by_provider_id_remote = query.batch(
     const accounts = await db.query.account.findMany({
       where: (account, { and, eq, inArray }) =>
         and(
-          eq(account.userId, session.user.id),
+          eq(account.userId, session.user.id), //
           inArray(account.providerId, provider_ids),
         ),
     });
@@ -43,8 +43,8 @@ export const get_all_accounts_remote = query(async () => {
 
 export const unlink_account_remote = command(
   z.object({
-    providerId: z.string(),
     accountId: z.string().optional(),
+    providerId: z.enum(AUTH.PROVIDERS.IDS),
   }),
   async (input) => {
     try {
@@ -57,9 +57,7 @@ export const unlink_account_remote = command(
       });
 
       if (res.status) {
-        get_account_by_provider_id_remote(
-          input.providerId as IAuth.ProviderId,
-        ).set(undefined);
+        get_account_by_provider_id_remote(input.providerId).set(undefined);
 
         return result.suc({ message: "Account unlinked successfully" });
       } else {
@@ -67,7 +65,7 @@ export const unlink_account_remote = command(
       }
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error, "unlink_account_remote.error better-auth");
+        Log.info(error.body, "unlink_account_remote.error better-auth");
 
         return result.err({ message: error.message });
       } else {

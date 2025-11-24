@@ -2,7 +2,6 @@ const TOAST_IDS = {
   SIGNED_UP: "signed-up",
   SIGNED_IN: "signed-in",
   SIGNED_OUT: "signed-out",
-  USER_DELETED: "user-deleted",
   PASSKEY_ADDED: "passkey-added",
   EMAIL_VERIFIED: "email-verified",
   PASSWORD_RESET: "password-reset",
@@ -42,11 +41,6 @@ export const TOAST = {
     SIGNED_OUT: {
       type: "info",
       message: "Signed out",
-    },
-
-    USER_DELETED: {
-      type: "success",
-      message: "User deleted successfully",
     },
 
     PASSKEY_ADDED: {

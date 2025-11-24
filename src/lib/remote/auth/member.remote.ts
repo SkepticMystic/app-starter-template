@@ -35,12 +35,10 @@ export const remove_member_remote = command(
         headers: getRequestEvent().request.headers,
       });
 
-      return res
-        ? result.suc()
-        : result.err({ message: "Failed to remove member" });
+      return res ? result.suc() : result.err({ message: "Failed to remove member" });
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error, "remove_member_remote.error better-auth");
+        Log.info(error.body, "remove_member_remote.error better-auth");
 
         return result.err({ message: error.message });
       } else {

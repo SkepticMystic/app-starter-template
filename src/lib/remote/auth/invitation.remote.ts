@@ -13,8 +13,7 @@ export const get_all_invitations_remote = query(async () => {
   const session = await get_session();
 
   const invitations = await db.query.invitation.findMany({
-    where: (invitation, { eq }) =>
-      eq(invitation.organizationId, session.session.org_id),
+    where: (invitation, { eq }) => eq(invitation.organizationId, session.session.org_id),
 
     orderBy: (invitation, { desc }) => [desc(invitation.createdAt)],
 
@@ -46,26 +45,27 @@ export const create_invitation_remote = form(
       return result.suc(data);
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error, "create_invitation_remote.error better-auth");
+        Log.info(error.body, "create_invitation_remote.error better-auth");
 
         if (
+          error.body?.code === "USER_IS_ALREADY_A_MEMBER_OF_THIS_ORGANIZATION" ||
           error.body?.code === "USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION"
         ) {
-          invalid(issue.email(error.body.message ?? "Invalid email address"));
+          invalid(issue.email(error.message));
         }
 
         return result.err({ message: error.message });
       } else {
         Log.error(error, "create_invitation_remote.error unknown");
 
-        return result.err({ message: "Failed to create invitation" });
+        return result.err({ message: "Internal server error" });
       }
     }
   },
 );
 
 export const cancel_invitation_remote = command(
-  z.uuid(),
+  z.uuid(), //
   async (invitation_id) => {
     try {
       const res = await auth.api.cancelInvitation({
@@ -73,18 +73,16 @@ export const cancel_invitation_remote = command(
         headers: getRequestEvent().request.headers,
       });
 
-      return res
-        ? result.suc()
-        : result.err({ message: "Failed to cancel invitation" });
+      return res ? result.suc() : result.err({ message: "Failed to cancel invitation" });
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error, "cancel_invitation_remote.error better-auth");
+        Log.info(error.body, "cancel_invitation_remote.error better-auth");
 
         return result.err({ message: error.message });
       } else {
         Log.error(error, "cancel_invitation_remote.error unknown");
 
-        return result.err({ message: "Failed to cancel invitation" });
+        return result.err({ message: "Internal server error" });
       }
     }
   },

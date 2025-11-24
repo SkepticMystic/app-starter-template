@@ -20,6 +20,9 @@
   const form = create_invitation_remote;
 
   form.fields.role.set("member");
+  $effect(() => {
+    form.fields.role.set("member");
+  });
 </script>
 
 <form
@@ -44,35 +47,33 @@
     }
   })}
 >
-  <div class="flex gap-3">
-    <Field
-      label="Email"
-      field={form.fields.email}
-    >
-      {#snippet input({ props, field })}
-        <Input
-          {...props}
-          {...field?.as("email")}
-          required
-          autofocus
-          autocomplete="email"
-        />
-      {/snippet}
-    </Field>
+  <Field
+    label="Email"
+    field={form.fields.email}
+  >
+    {#snippet input({ props, field })}
+      <Input
+        {...props}
+        {...field?.as("email")}
+        required
+        autofocus
+        autocomplete="email"
+      />
+    {/snippet}
+  </Field>
 
-    <Field
-      label="Role"
-      field={form.fields.role}
-    >
-      {#snippet input({ props, field })}
-        <NativeSelect
-          {...props}
-          {...field?.as("select")}
-          options={ORGANIZATION.ROLES.OPTIONS}
-        />
-      {/snippet}
-    </Field>
-  </div>
+  <Field
+    label="Role"
+    field={form.fields.role}
+  >
+    {#snippet input({ props, field })}
+      <NativeSelect
+        {...props}
+        {...field?.as("select")}
+        options={ORGANIZATION.ROLES.OPTIONS}
+      />
+    {/snippet}
+  </Field>
 
   <Button
     type="submit"

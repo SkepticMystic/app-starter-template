@@ -1,26 +1,36 @@
-import { form } from "$app/server";
+import { form, getRequestEvent } from "$app/server";
 import { auth } from "$lib/auth";
+import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
+import { invalid } from "@sveltejs/kit";
+import { APIError } from "better-auth";
 import z from "zod";
 
 export const request_password_reset_remote = form(
-  z.object({
-    email: z.email("Please enter a valid email address"),
-  }),
+  z.object({ email: z.email("Please enter a valid email address") }),
   async (input) => {
     try {
       const res = await auth.api.requestPasswordReset({
-        body: { email: input.email },
+        body: {
+          email: input.email,
+          redirectTo: App.url("/auth/reset-password"), // NOTE: Don't use `resolve`, since it outputs a path relative to the current file
+        },
       });
 
       return res.status
         ? result.suc({ message: res.message }) // 'If this email exists in our system, check your email for the reset link'
         : result.err({ message: "Failed to request password reset" });
     } catch (error) {
-      Log.error(error, "request_password_reset_remote.error");
+      if (error instanceof APIError) {
+        Log.info(error.body, "request_password_reset_remote.error better-auth");
 
-      return result.err({ message: "Internal server error" });
+        return result.err({ message: error.message });
+      } else {
+        Log.error(error, "request_password_reset_remote.error unknown");
+
+        return result.err({ message: "Internal server error" });
+      }
     }
   },
 );
@@ -30,7 +40,7 @@ export const reset_password_remote = form(
     token: z.string(),
     new_password: z.string(),
   }),
-  async (input) => {
+  async (input, issue) => {
     try {
       const res = await auth.api.resetPassword({
         body: {
@@ -41,30 +51,50 @@ export const reset_password_remote = form(
 
       return res.status ? result.suc() : result.err();
     } catch (error) {
-      Log.error(error, "reset_password_remote.error");
+      if (error instanceof APIError) {
+        Log.info(error.body, "reset_password_remote.error better-auth");
 
-      return result.err({ message: "Internal server error" });
+        if (
+          error.body?.code === "PASSWORD_TOO_SHORT" ||
+          error.body?.code === "PASSWORD_COMPROMISED"
+        ) {
+          invalid(issue.new_password(error.message));
+        }
+
+        return result.err({ message: error.message });
+      } else {
+        Log.error(error, "reset_password_remote.error unknown");
+
+        return result.err({ message: "Internal server error" });
+      }
     }
   },
 );
 
 export const send_verification_email_remote = form(
-  z.object({
-    email: z.email("Please enter a valid email address"),
-  }),
+  z.object({ email: z.email("Please enter a valid email address") }),
   async (input) => {
     try {
       const res = await auth.api.sendVerificationEmail({
-        body: { email: input.email, callbackURL: "/" },
+        body: {
+          callbackURL: "/",
+          email: input.email,
+        },
       });
 
       return res.status
         ? result.suc({ message: "Verification email sent" })
         : result.err({ message: "Failed to send verification email" });
     } catch (error) {
-      Log.error(error, "send_verification_email_remote.error");
+      if (error instanceof APIError) {
+        Log.info(error.body, "send_verification_email_remote.error better-auth");
 
-      return result.err({ message: "Internal server error" });
+        return result.err({ message: error.message });
+      } else {
+        Log.error(error, "send_verification_email_remote.error unknown");
+
+        return result.err({ message: "Internal server error" });
+      }
     }
   },
 );
@@ -74,9 +104,10 @@ export const change_password_remote = form(
     current_password: z.string(),
     new_password: z.string(),
   }),
-  async (input) => {
+  async (input, issue) => {
     try {
       const res = await auth.api.changePassword({
+        headers: getRequestEvent().request.headers,
         body: {
           revokeOtherSessions: true,
           newPassword: input.new_password,
@@ -90,9 +121,24 @@ export const change_password_remote = form(
       return result.suc({ message: "Password changed successfully" });
       // : Result.err({ message: "Failed to change password" });
     } catch (error) {
-      Log.error(error, "change_password_remote.error");
+      if (error instanceof APIError) {
+        Log.info(error.body, "change_password_remote.error better-auth");
 
-      return result.err({ message: "Internal server error" });
+        if (error.body?.code === "INVALID_PASSWORD") {
+          invalid(issue.current_password(error.message));
+        } else if (
+          error.body?.code === "PASSWORD_TOO_SHORT" ||
+          error.body?.code === "PASSWORD_COMPROMISED"
+        ) {
+          invalid(issue.new_password(error.message));
+        }
+
+        return result.err({ message: error.message });
+      } else {
+        Log.error(error, "change_password_remote.error unknown");
+
+        return result.err({ message: "Internal server error" });
+      }
     }
   },
 );

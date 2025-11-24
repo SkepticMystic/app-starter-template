@@ -33,7 +33,7 @@ export const get_all_passkeys_remote = query(async () => {
 });
 
 export const get_passkey_by_id_remote = query.batch(
-  z.uuid(),
+  z.uuid(), //
   async (passkey_ids) => {
     const session = await get_session();
 
@@ -41,7 +41,7 @@ export const get_passkey_by_id_remote = query.batch(
       const passkeys = await db.query.passkey.findMany({
         where: (passkey, { and, eq, inArray }) =>
           and(
-            eq(passkey.userId, session.user.id),
+            eq(passkey.userId, session.user.id), //
             inArray(passkey.id, passkey_ids),
           ),
 
@@ -88,7 +88,7 @@ export const rename_passkey_remote = form(
       return result.suc({ passkey: res.passkey });
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error, "rename_passkey_remote.error better-auth");
+        Log.info(error.body, "rename_passkey_remote.error better-auth");
 
         return result.err({ message: error.message });
       } else {

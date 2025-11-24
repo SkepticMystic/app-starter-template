@@ -3,7 +3,7 @@ import { form } from "$app/server";
 import { auth } from "$lib/auth";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { redirect } from "@sveltejs/kit";
+import { invalid, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -25,7 +25,7 @@ export const signin_credentials_remote = form(
       });
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error, "signin_remote.error better-auth");
+        Log.info(error.body, "signin_remote.error better-auth");
 
         return result.err({ message: error.message });
       } else {
@@ -50,7 +50,7 @@ export const signup_credentials_remote = form(
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/"),
   }),
-  async (input) => {
+  async (input, issue) => {
     try {
       await auth.api.signUpEmail({
         body: {
@@ -63,6 +63,14 @@ export const signup_credentials_remote = form(
       });
     } catch (error) {
       if (error instanceof APIError) {
+        Log.info(error.body, "signup_remote.error better-auth");
+
+        if (error.body?.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+          invalid(issue.email(error.message));
+        } else if (error.body?.code === "PASSWORD_COMPROMISED") {
+          invalid(issue.password(error.message));
+        }
+
         return result.err({ message: error.message });
       } else {
         Log.error(error, "signup_remote.error");

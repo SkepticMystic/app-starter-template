@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
   import { UserClient } from "$lib/clients/auth/user.client";
   import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
@@ -23,7 +24,7 @@
   const delete_user = async () => {
     const res = await UserClient.delete();
     if (res.ok) {
-      await goto(App.url("/auth/signin", { toast: TOAST.IDS.USER_DELETED }));
+      await goto(resolve("/auth/signin"));
     }
   };
 </script>
