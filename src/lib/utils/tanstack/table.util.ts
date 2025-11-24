@@ -1,9 +1,10 @@
+import Time from "$lib/components/Time.svelte";
+import { renderComponent } from "$lib/components/ui/data-table";
 import { getLocalTimeZone } from "@internationalized/date";
 import type {
   Column,
   ColumnDef,
   ColumnFiltersState,
-  ColumnHelper,
   FilterFn,
   PaginationState,
   Row,
@@ -12,24 +13,12 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/table-core";
-import { createColumnHelper } from "@tanstack/table-core";
 import type { DateRange } from "bits-ui";
+import type { ComponentProps } from "svelte";
 import type { Item } from "../items.util";
 
 const get_column_label = <TData>(column: Column<TData>) =>
   column.columnDef.meta?.label ?? column.id;
-
-const make_columns = <TData extends Item>(
-  cb: (
-    // NOTE: Specifically _don't_ wrap the helper
-    // If we want to add more fields to utils, just `& { fields: ... }` them
-    utils: ColumnHelper<TData>,
-  ) => ColumnDef<TData>[],
-) => {
-  const col_helper = createColumnHelper<TData>();
-
-  return cb(col_helper);
-};
 
 const filter_fns = {
   // SOURCE: https://tanstack.com/table/latest/docs/guide/column-filtering#custom-filter-functions
@@ -65,8 +54,19 @@ export type SvelteTableInput<TData extends Item, TValue> = {
   };
 };
 
+export const CellHelpers = {
+  time: (
+    cell: { getValue: () => ComponentProps<typeof Time>["date"] },
+    props?: Omit<ComponentProps<typeof Time>, "date">,
+  ) => renderComponent(Time, { date: cell.getValue(), ...props }),
+
+  label: <T extends string>(
+    cell: { getValue: () => T },
+    map: Record<T, { label: string }>,
+  ) => map[cell.getValue()]?.label ?? cell.getValue(),
+};
+
 export const TanstackTable = {
   filter_fns,
-  make_columns,
   get_column_label,
 };

@@ -1,5 +1,4 @@
 import type { MaybePromise } from "$lib/interfaces";
-import type { APIResult } from "./form.util";
 import { err, suc } from "./result.util";
 
 export type BetterAuthResult<D> =
@@ -22,7 +21,7 @@ export const BetterAuth = {
   to_result: async <D>(
     res: MaybePromise<BetterAuthResult<D>>,
     options?: { fallback?: string },
-  ): Promise<APIResult<D>> => {
+  ): Promise<App.Result<D>> => {
     const awaited = res instanceof Promise ? await res : res;
 
     if (awaited.data) {

@@ -13,12 +13,7 @@ declare global {
       level?: "error" | "warning";
     }
 
-    namespace Superforms {
-      type Message = import("$lib/interfaces/index").Result<
-        string | undefined,
-        string | undefined
-      >;
-    }
+    type Result<D> = import("$lib/interfaces").Result<D, App.Error>;
   }
 }
 

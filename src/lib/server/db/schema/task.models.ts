@@ -7,6 +7,8 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import z from "zod";
 import { TASKS } from "../../../const/task.const";
 import { MemberTable, OrganizationTable, UserTable } from "./auth.models";
 import { Schema } from "./index.schema";
@@ -49,6 +51,35 @@ export const TaskTable = pgTable(
   ],
 );
 
-// Export type for use in application
 export type Task = typeof TaskTable.$inferSelect;
-export type NewTask = typeof TaskTable.$inferInsert;
+
+const pick = {
+  title: true,
+  status: true,
+  due_date: true,
+  description: true,
+  assigned_member_id: true,
+} satisfies Partial<Record<keyof Task, true>>;
+
+const refinements = {
+  description: z.string().optional(),
+  assigned_member_id: z.uuid().optional(),
+  due_date: z
+    .union([
+      z.literal("").transform((_) => undefined),
+      z.coerce.date<string>("Invalid date"),
+    ])
+    .optional(),
+};
+
+export const TaskSchema = {
+  insert: createInsertSchema(TaskTable, refinements).pick(pick),
+  update: createUpdateSchema(TaskTable, refinements)
+    .pick(pick)
+    .extend({ id: z.uuid() }),
+};
+
+export type TaskSchema = {
+  insert: z.input<typeof TaskSchema.insert>;
+  update: z.input<typeof TaskSchema.update>;
+};

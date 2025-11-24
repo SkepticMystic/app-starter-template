@@ -1,112 +1,100 @@
 <script lang="ts">
-  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
-  import FormMessage from "$lib/components/form/FormMessage.svelte";
-  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
+  import type { ResolvedPathname } from "$app/types";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
-  import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { AuthSchema } from "$lib/schema/auth.schema";
-  import {
-    superForm,
-    type Infer,
-    type SuperValidated,
-  } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
+  import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
+  import { toast } from "svelte-sonner";
 
   let {
-    form_input,
+    redirect_uri,
   }: {
-    form_input: SuperValidated<Infer<typeof AuthSchema.signup_form>>;
+    redirect_uri: ResolvedPathname;
   } = $props();
 
   const provider_id = "credential" satisfies IAuth.ProviderId;
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  const form = superForm(form_input, {
-    delayMs: 500,
-    timeoutMs: 8_000,
-    validators: zod4Client(AuthSchema.signin_form),
-
-    onResult: ({ result }) => {
-      if (result.type === "redirect") {
-        location.href = result.location;
-      }
-    },
-  });
-
-  const { form: form_data } = form;
+  const form = signup_credentials_remote;
 </script>
 
 <form
-  class="space-y-4"
-  method="POST"
-  use:form.enhance
+  class="space-y-3"
+  {...form.enhance(async ({ submit }) => {
+    await submit();
+
+    const res = form.result;
+    if (res?.error) {
+      toast.error(res.error.message);
+    }
+  })}
 >
-  <FormFieldControl
-    {form}
-    name="name"
+  <Field
     label="Name"
+    field={form.fields.name}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
+        {...field?.as("text")}
+        required
         autocomplete="name"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormFieldControl
-    {form}
-    name="email"
+  <Field
     label="Email"
+    field={form.fields.email}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
-        type="email"
+        {...field?.as("email")}
+        required
         autocomplete="email"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormFieldControl
-    {form}
-    name="password"
+  <Field
     label="Password"
+    field={form.fields.password}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
-        type="password"
+        {...field?.as("password")}
+        required
         autocomplete="new-password"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormFieldControl
-    {form}
-    name="remember"
-    horizontal
+  <Field
     label="Remember me"
+    orientation="horizontal"
+    field={form.fields.remember}
   >
-    {#snippet children({ props })}
+    {#snippet input({ props, field })}
       <Checkbox
         {...props}
-        bind:checked={$form_data.remember}
+        {...field?.as("checkbox")}
+        type="button"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormButton
-    {form}
+  <input {...form.fields.redirect_uri.as("hidden", redirect_uri)} />
+
+  <Button
+    type="submit"
     class="w-full"
     icon={provider.icon}
+    loading={form.pending > 0}
   >
     Signup with {provider.name}
-  </FormButton>
-
-  <FormMessage {form} />
+  </Button>
 </form>

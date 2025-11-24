@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { AccountsClient } from "$lib/clients/accounts.client";
-  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
-  import FormMessage from "$lib/components/form/FormMessage.svelte";
-  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
-  import FormButton from "$lib/components/ui/form/form-button.svelte";
-  import { AuthSchema } from "$lib/schema/auth.schema";
-  import { make_super_form } from "$lib/utils/form.util";
-  import { defaults } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
+  import { change_password_remote } from "$lib/remote/auth/user.remote";
+  import { toast } from "svelte-sonner";
 
   let {
     on_success,
@@ -15,62 +11,57 @@
     on_success?: () => void;
   } = $props();
 
-  const validators = zod4Client(AuthSchema.change_password_form);
-  const form = make_super_form(
-    defaults({ new_password: "", current_password: "" }, validators),
-    {
-      SPA: true,
-      validators,
-      timeoutMs: 8_000,
-
-      on_success,
-      submit: AccountsClient.change_password,
-    },
-  );
+  const form = change_password_remote;
 </script>
 
 <form
-  class="space-y-4"
-  method="POST"
-  use:form.enhance
+  class="space-y-3"
+  {...form.enhance(async ({ submit }) => {
+    await submit();
+
+    const res = form.result;
+    if (res?.ok) {
+      toast.success(res.data.message);
+      on_success?.();
+    } else if (res?.error) {
+      toast.error(res.error.message);
+    }
+  })}
 >
-  <FormFieldControl
-    {form}
-    name="current_password"
-    label="Current Password"
+  <Field
+    label="Current password"
+    field={form.fields.current_password}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
-        type="password"
+        {...field?.as("password")}
+        required
         autocomplete="current-password"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormFieldControl
-    {form}
-    name="new_password"
-    label="New Password"
+  <Field
+    label="New password"
+    field={form.fields.new_password}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
-        type="password"
+        {...field?.as("password")}
+        required
         autocomplete="new-password"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormButton
-    {form}
+  <Button
+    type="submit"
     class="w-full"
-    icon="lucide/lock"
+    icon="lucide/lock-open"
+    loading={form.pending > 0}
   >
     Change Password
-  </FormButton>
-
-  <FormMessage {form} />
+  </Button>
 </form>

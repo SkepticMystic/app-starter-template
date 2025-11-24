@@ -1,6 +1,6 @@
 <script lang="ts">
   import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Labeled from "$lib/components/ui/label/Labeled.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
   import Loading from "$lib/components/ui/loading/Loading.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { organizations } from "$lib/stores/organizations.store";
@@ -23,16 +23,19 @@
     <strong>Organization</strong>: {org.name} ({org.slug})
   </p>
 {:else}
-  <Labeled label="Switch active organization">
-    <NativeSelect
-      options={$organizations.data.map((org) => ({
-        value: org.id,
-        label: `${org.name} (${org.slug})`,
-      }))}
-      bind:value={
-        () => $session.data?.session.activeOrganizationId ?? undefined,
-        (v) => OrganizationsClient.set_active(v)
-      }
-    />
-  </Labeled>
+  <Field label="Switch active organization">
+    {#snippet input({ props })}
+      <NativeSelect
+        {...props}
+        options={$organizations.data!.map((org) => ({
+          value: org.id,
+          label: `${org.name} (${org.slug})`,
+        }))}
+        bind:value={
+          () => $session.data?.session.activeOrganizationId ?? undefined,
+          (v) => OrganizationsClient.set_active(v)
+        }
+      />
+    {/snippet}
+  </Field>
 {/if}

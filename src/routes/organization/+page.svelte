@@ -5,9 +5,6 @@
   import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-
-  let { data } = $props();
-  let { invitations, members } = $state(data);
 </script>
 
 <article>
@@ -21,7 +18,7 @@
 
   <section>
     <h2>Members</h2>
-    <OrganizationMembersList bind:members />
+    <OrganizationMembersList />
   </section>
 
   <section>
@@ -38,21 +35,11 @@
         {/snippet}
 
         {#snippet content({ close })}
-          <InviteOrganizationMemberForm
-            form_input={data.member_invite_form_input}
-            on_success={(invitation) =>
-              invitations.unshift(invitation) && close()}
-          />
+          <InviteOrganizationMemberForm on_success={() => close()} />
         {/snippet}
       </Dialog>
     </div>
 
-    {#if invitations.length}
-      <OrganizationInvitationsTable
-        {invitations}
-        on_delete={(invitation) =>
-          (invitations = invitations.filter((i) => i.id !== invitation.id))}
-      />
-    {/if}
+    <OrganizationInvitationsTable />
   </section>
 </article>

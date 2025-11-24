@@ -1,98 +1,91 @@
 <script lang="ts">
-  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
-  import FormMessage from "$lib/components/form/FormMessage.svelte";
-  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
+  import type { ResolvedPathname } from "$app/types";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
-  import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const.js";
-  import { AuthSchema } from "$lib/schema/auth.schema";
-  import {
-    superForm,
-    type Infer,
-    type SuperValidated,
-  } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
+  import { signin_credentials_remote } from "$lib/remote/auth/auth.remote";
+  import { toast } from "svelte-sonner";
 
   let {
-    form_input,
+    redirect_uri,
   }: {
-    form_input: SuperValidated<Infer<typeof AuthSchema.signin_form>>;
+    redirect_uri: ResolvedPathname;
   } = $props();
 
   const provider_id = "credential" satisfies IAuth.ProviderId;
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  const form = superForm(form_input, {
-    delayMs: 500,
-    timeoutMs: 8_000,
-    validators: zod4Client(AuthSchema.signin_form),
-
-    onResult: ({ result }) => {
-      if (result.type === "redirect") {
-        location.href = result.location;
-      }
-    },
-  });
-
-  const { form: form_data } = form;
+  const form = signin_credentials_remote;
 </script>
 
 <form
-  class="space-y-4"
-  method="POST"
-  use:form.enhance
+  class="space-y-3"
+  {...form.enhance(async ({ submit }) => {
+    await submit();
+
+    const res = form.result;
+    console.log("signin_credentials_remote.result", res);
+    if (res?.ok) {
+      toast.success("Signed in successfully");
+    } else if (res?.error) {
+      toast.error(res.error.message);
+    }
+  })}
 >
-  <FormFieldControl
-    {form}
-    name="email"
+  <Field
     label="Email"
+    field={form.fields.email}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
-        type="email"
+        {...field?.as("email")}
+        required
         autocomplete="email"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormFieldControl
-    {form}
-    name="password"
+  <Field
     label="Password"
+    field={form.fields.password}
   >
-    {#snippet children({ props })}
-      <SuperformInput
+    {#snippet input({ props, field })}
+      <Input
         {...props}
-        {form}
-        type="password"
+        {...field?.as("password")}
+        required
         autocomplete="current-password"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormFieldControl
-    {form}
-    name="remember"
-    horizontal
+  <Field
     label="Remember me"
+    orientation="horizontal"
+    field={form.fields.remember}
   >
-    {#snippet children({ props })}
+    {#snippet input({ props, field })}
+      <!-- NOTE: We have to do this weird type thing...
+     - If I use a Checkbox without the type attr (and let field.as('checkbox') add its type), we get a TS error and bad form behvaiour (submitting the form just checks this box)
+     - If I use an Input, no TS errors, but a runtime svelte error about binding to value instead of checked
+     - A regular <input /> works, but no styling -->
       <Checkbox
         {...props}
-        bind:checked={$form_data.remember}
+        {...field?.as("checkbox")}
+        type="button"
       />
     {/snippet}
-  </FormFieldControl>
+  </Field>
 
-  <FormButton
-    {form}
+  <Button
+    type="submit"
     class="w-full"
     icon={provider.icon}
+    loading={form.pending > 0}
   >
     Signin with {provider.name}
-  </FormButton>
-
-  <FormMessage {form} />
+  </Button>
 </form>

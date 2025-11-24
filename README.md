@@ -55,8 +55,8 @@
 
 ## TODOs
 
-- [ ] runed.dev
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store
-- [ ] Try remove dependence on vercel adapter... try deploy serverful
-- [ ] Using devicons for _one_ icon... does it treeshake everything else?
 - [ ] Zero sync?
+- [ ] Ensure zod is bundled into the client
+- [ ] ~~superforms~~
+- [ ] That nice +error.svelte page from dripcel-front

@@ -68,7 +68,7 @@
 
       <Separator />
 
-      <CredentialSigninForm form_input={data.form_input} />
+      <CredentialSigninForm redirect_uri={data.search.redirect_uri} />
 
       <ButtonGroup orientation="vertical">
         <ButtonGroup>

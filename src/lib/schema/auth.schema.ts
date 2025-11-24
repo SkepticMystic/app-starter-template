@@ -1,4 +1,3 @@
-import { ORGANIZATION } from "$lib/const/organization.const";
 import z from "zod";
 
 export const AuthSchema = {
@@ -22,21 +21,4 @@ export const AuthSchema = {
     current_password: z.string(),
     new_password: z.string(),
   }),
-
-  Org: {
-    member_invite_form: z.object({
-      email: z.email("Invalid email address"),
-      role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
-    }),
-  },
-
-  Passkey: {
-    update: z.object({
-      name: z
-        .string()
-        .min(1, "Passkey name cannot be empty")
-        .max(100, "Passkey name must be at most 100 characters")
-        .optional(),
-    }),
-  },
 };

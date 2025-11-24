@@ -9,7 +9,7 @@
   }: AvatarRootProps & { user: Pick<User, "name" | "email" | "image"> } =
     $props();
 
-  const label = user.name ?? user.email;
+  const label = user.name || user.email;
 </script>
 
 <Avatar
@@ -17,5 +17,5 @@
   title={label}
   src={user.image}
   alt="{label} avatar"
-  fallback={label.at(0) ?? "?"}
+  fallback={label.at(0) || "?"}
 />

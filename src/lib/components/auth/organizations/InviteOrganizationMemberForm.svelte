@@ -1,80 +1,78 @@
 <script lang="ts">
-  import { Client } from "$lib/clients/index.client";
-  import FormFieldControl from "$lib/components/form/fields/FormFieldControl.svelte";
-  import FormMessage from "$lib/components/form/FormMessage.svelte";
-  import SuperformInput from "$lib/components/form/inputs/SuperformInput.svelte";
-  import FormButton from "$lib/components/ui/form/form-button.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { ORGANIZATION } from "$lib/const/organization.const";
-  import { create_invitation } from "$lib/remote/auth/organization.remote";
-  import { AuthSchema } from "$lib/schema/auth.schema";
-  import type { Invitation } from "$lib/server/db/schema/auth.models";
-  import { make_super_form } from "$lib/utils/form.util";
-  import type { Infer, SuperValidated } from "sveltekit-superforms";
-  import { zod4Client } from "sveltekit-superforms/adapters";
+  import type { ResultData } from "$lib/interfaces";
+  import {
+    create_invitation_remote,
+    get_all_invitations_remote,
+  } from "$lib/remote/auth/invitation.remote";
+  import { toast } from "svelte-sonner";
 
   let {
     on_success,
-    form_input,
   }: {
-    on_success?: (data: Invitation) => void;
-    form_input: SuperValidated<Infer<typeof AuthSchema.Org.member_invite_form>>;
+    on_success?: (data: ResultData<NonNullable<typeof form.result>>) => void;
   } = $props();
 
-  const form = make_super_form(form_input, {
-    timeoutMs: 16_000,
-    validators: zod4Client(AuthSchema.Org.member_invite_form),
-
-    on_success,
-    submit: (data) =>
-      Client.request(() => create_invitation(data), {
-        toast: { loading: "Inviting member...", success: "Member invited!" },
-      }),
-  });
-
-  const { form: form_data } = form;
+  const form = create_invitation_remote;
 </script>
 
 <form
-  class="flex flex-col gap-3"
-  method="POST"
-  use:form.enhance
+  class="space-y-3"
+  {...form.enhance(async ({ submit, data }) => {
+    await submit().updates(
+      get_all_invitations_remote().withOverride((cur) => [
+        { ...data, status: "pending" } as (typeof cur)[number],
+        ...cur,
+      ]),
+    );
+
+    const res = form.result;
+    if (res?.ok) {
+      toast.success("Invitation sent");
+      on_success?.(res.data);
+    }
+  })}
 >
   <div class="flex gap-3">
-    <FormFieldControl
-      {form}
-      name="email"
+    <Field
       label="Email"
+      field={form.fields.email}
     >
-      {#snippet children({ props })}
-        <SuperformInput
+      {#snippet input({ props, field })}
+        <Input
           {...props}
-          {form}
-          type="email"
+          {...field?.as("email")}
+          required
+          autofocus
           autocomplete="email"
         />
       {/snippet}
-    </FormFieldControl>
+    </Field>
 
-    <FormFieldControl
-      {form}
-      name="role"
+    <Field
       label="Role"
+      field={form.fields.role}
     >
-      {#snippet children({ props })}
+      {#snippet input({ props, field })}
         <NativeSelect
           {...props}
+          {...field?.as("select")}
           options={ORGANIZATION.ROLES.OPTIONS}
-          bind:value={$form_data.role}
         />
       {/snippet}
-    </FormFieldControl>
+    </Field>
   </div>
 
-  <FormButton
-    {form}
-    icon="lucide/user-plus">Invite Member</FormButton
+  <Button
+    type="submit"
+    class="w-full"
+    icon="lucide/mail"
+    loading={form.pending > 0}
   >
-
-  <FormMessage {form} />
+    Invite member
+  </Button>
 </form>

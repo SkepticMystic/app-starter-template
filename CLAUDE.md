@@ -104,12 +104,6 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - Stores in `src/lib/stores/` for shared state (organizations, session)
 - Better-Auth client provides session management
 
-### Form Handling
-
-- **sveltekit-superforms** for type-safe form handling
-- **formsnap** for form components
-- Zod schemas for validation in `src/lib/schema/`
-
 ### Email Service
 
 - Abstracted through Effect service pattern

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { AdminClient } from "$lib/clients/admin.client.js";
-  import Time from "$lib/components/Time.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
@@ -12,7 +11,8 @@
   import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
   import { Items } from "$lib/utils/items.util.js";
-  import { TanstackTable } from "$lib/utils/tanstack/table.util.js";
+  import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
+  import { createColumnHelper } from "@tanstack/table-core";
 
   let { data } = $props();
   let users = $state(data.users);
@@ -41,6 +41,43 @@
       users = Items.remove(users, user_id);
     }
   };
+
+  const column = createColumnHelper<(typeof users)[number]>();
+
+  const columns = [
+    column.display({
+      id: "avatar",
+      enableHiding: false,
+      enableSorting: false,
+
+      cell: ({ row }) => renderComponent(UserAvatar, { user: row.original }),
+    }),
+
+    column.accessor("name", {
+      meta: { label: "Name" },
+    }),
+
+    column.accessor("email", {
+      meta: { label: "Email" },
+    }),
+
+    column.accessor("role", {
+      meta: { label: "Role" },
+
+      cell: ({ row, getValue }) =>
+        renderComponent(NativeSelect<IAccessControl.RoleId>, {
+          value: getValue(),
+          options: ACCESS_CONTROL.ROLES.OPTIONS,
+          on_value_select: (role) => update_user_role({ role, userId: row.id }),
+        }),
+    }),
+
+    column.accessor("createdAt", {
+      meta: { label: "Join date" },
+
+      cell: CellHelpers.time,
+    }),
+  ];
 </script>
 
 <article>
@@ -49,6 +86,7 @@
   </header>
 
   <DataTable
+    {columns}
     data={users}
     actions={(row) => [
       {
@@ -72,43 +110,5 @@
         onselect: () => delete_user(row.id),
       },
     ]}
-    columns={TanstackTable.make_columns<(typeof users)[number]>(
-      ({ accessor, display }) => [
-        display({
-          id: "avatar",
-          enableHiding: false,
-          enableSorting: false,
-
-          cell: ({ row }) =>
-            renderComponent(UserAvatar, { user: row.original }),
-        }),
-        accessor("name", {
-          meta: { label: "Name" },
-        }),
-        accessor("email", {
-          meta: { label: "Email" },
-        }),
-        accessor("role", {
-          meta: { label: "Role" },
-
-          cell: ({ row, getValue }) =>
-            renderComponent(NativeSelect, {
-              value: getValue(),
-              options: ACCESS_CONTROL.ROLES.OPTIONS,
-              on_value_select: (value) =>
-                update_user_role({
-                  userId: row.id,
-                  role: value as IAccessControl.RoleId,
-                }),
-            }),
-        }),
-
-        accessor("createdAt", {
-          meta: { label: "Join date" },
-
-          cell: ({ getValue }) => renderComponent(Time, { date: getValue() }),
-        }),
-      ],
-    )}
   ></DataTable>
 </article>

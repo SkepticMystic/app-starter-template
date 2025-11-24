@@ -12,7 +12,7 @@
     redirect_uri,
   }: {
     provider_id: IAuth.ProviderId;
-    redirect_uri?: ResolvedPathname;
+    redirect_uri: ResolvedPathname;
   } = $props();
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];
@@ -23,9 +23,7 @@
         BetterAuthClient.signIn.social({
           provider: provider_id,
           disableRedirect: false,
-          callbackURL: App.url(redirect_uri ?? "/", {
-            toast: TOAST.IDS.SIGNED_IN,
-          }),
+          callbackURL: App.url(redirect_uri, { toast: TOAST.IDS.SIGNED_IN }),
         }),
       { validate_session: false },
     );

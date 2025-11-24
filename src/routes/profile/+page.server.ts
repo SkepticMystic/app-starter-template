@@ -1,18 +1,10 @@
-import { auth } from "$lib/auth";
 import { get_session } from "$lib/auth/server";
 import type { PageServerLoad } from "./$types";
 
-export const load = (async ({ request }) => {
-  const [session, passkeys, accounts] = await Promise.all([
-    get_session(),
-
-    auth.api.listPasskeys({ headers: request.headers }),
-    auth.api.listUserAccounts({ headers: request.headers }),
-  ]);
+export const load = (async () => {
+  const session = await get_session();
 
   return {
-    accounts,
-    passkeys,
     user: session.user,
   };
 }) satisfies PageServerLoad;

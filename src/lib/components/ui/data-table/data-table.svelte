@@ -209,7 +209,11 @@
               </TableRow>
             {:else}
               <TableRow>
-                <TableCell colspan={table.options.columns.length}>
+                <TableCell
+                  colspan={table.options.columns.length +
+                    (states?.selection ? 1 : 0) +
+                    (input.actions ? 1 : 0)}
+                >
                   <Empty
                     {loading}
                     title="No results"

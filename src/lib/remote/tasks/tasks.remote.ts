@@ -1,20 +1,16 @@
-import { command, query } from "$app/server";
+import { command, form, query } from "$app/server";
 import { get_session } from "$lib/auth/server";
-import { TaskSchema } from "$lib/schema/task.schema";
 import { db } from "$lib/server/db/drizzle.db";
-import { TaskTable, type Task } from "$lib/server/db/schema/task.models";
-import type { APIResult } from "$lib/utils/form.util";
+import { TaskSchema, TaskTable } from "$lib/server/db/schema/task.models";
 import { err, suc } from "$lib/utils/result.util";
 import { and, eq } from "drizzle-orm";
-import { superValidate } from "sveltekit-superforms";
-import { zod4 } from "sveltekit-superforms/adapters";
 import z from "zod";
 
 export const get_all_tasks_remote = query(async () => {
-  const session = await get_session();
+  const { session } = await get_session();
 
   const tasks = await db.query.task.findMany({
-    where: (task, { eq, and }) => and(eq(task.org_id, session.session.org_id)),
+    where: (task, { eq, and }) => and(eq(task.org_id, session.org_id)),
 
     orderBy: (task, { desc }) => [desc(task.createdAt)],
   });
@@ -22,24 +18,16 @@ export const get_all_tasks_remote = query(async () => {
   return tasks;
 });
 
-export const create_task = command(
-  "unchecked",
-  async (data): Promise<APIResult<Task>> => {
-    const [{ session }, form] = await Promise.all([
-      get_session(),
-      superValidate(data, zod4(TaskSchema.create)),
-    ]);
-    console.log("create_task.form", form);
-
-    if (!form.valid) {
-      return err();
-    }
+export const create_task_remote = form(
+  TaskSchema.insert, //
+  async (input) => {
+    const { session } = await get_session();
 
     try {
       const [task] = await db
         .insert(TaskTable)
         .values({
-          ...form.data,
+          ...input,
 
           org_id: session.org_id,
           user_id: session.userId,
@@ -56,9 +44,34 @@ export const create_task = command(
   },
 );
 
-export const delete_task = command(
-  z.string().min(1),
-  async (task_id): Promise<APIResult<undefined>> => {
+export const update_task_remote = form(
+  TaskSchema.update, //
+  async (input) => {
+    const { session } = await get_session();
+
+    try {
+      const [task] = await db
+        .update(TaskTable)
+        .set(input)
+        .where(
+          and(
+            eq(TaskTable.id, input.id), //
+            eq(TaskTable.org_id, session.org_id),
+          ),
+        )
+        .returning();
+
+      return suc(task);
+    } catch (error) {
+      console.error("update_task.error", error);
+      return err({ message: "Failed to update task" });
+    }
+  },
+);
+
+export const delete_task_remote = command(
+  z.uuid(), //
+  async (task_id) => {
     const { session } = await get_session();
 
     try {

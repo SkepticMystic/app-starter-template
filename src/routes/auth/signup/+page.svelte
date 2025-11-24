@@ -40,7 +40,7 @@
 
       <Separator />
 
-      <CredentialSignupForm form_input={data.form_input} />
+      <CredentialSignupForm redirect_uri={data.search.redirect_uri} />
 
       <ul>
         <li>

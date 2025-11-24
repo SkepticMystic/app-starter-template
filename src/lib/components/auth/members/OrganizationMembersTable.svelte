@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { auth } from "$lib/auth";
   import { MembersClient } from "$lib/clients/members.client";
   import Time from "$lib/components/Time.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
@@ -10,82 +9,73 @@
     ORGANIZATION,
     type IOrganization,
   } from "$lib/const/organization.const";
-  import { Items } from "$lib/utils/items.util";
-  import { TanstackTable } from "$lib/utils/tanstack/table.util";
+  import { get_all_members_remote } from "$lib/remote/auth/member.remote";
+  import { createColumnHelper } from "@tanstack/table-core";
 
-  let {
-    members = $bindable(),
-  }: {
-    members: Awaited<ReturnType<typeof auth.api.listMembers>>["members"];
-  } = $props();
+  const members = get_all_members_remote();
+
+  type TData = NonNullable<typeof members.current>[number];
 
   const update_member_role = async (
-    member: (typeof members)[number],
+    member: TData,
     role_id: IOrganization.RoleId,
   ) => {
     if (!role_id || role_id === member.role) {
       return;
     }
 
-    const res = await MembersClient.update_member_role(member.id, role_id);
-    if (res.ok) {
-      members = Items.patch(members, member.id, { role: role_id });
-    }
+    return await MembersClient.update_member_role(member.id, role_id);
   };
 
-  const remove_member = async (member_id: string) => {
-    const res = await MembersClient.remove_member(member_id);
-    if (res.ok) {
-      members = Items.remove(members, member_id);
-    }
-  };
+  const column = createColumnHelper<TData>();
+
+  const columns = [
+    column.display({
+      id: "avatar",
+      enableHiding: false,
+      enableSorting: false,
+
+      cell: ({ row }) =>
+        renderComponent(UserAvatar, { user: row.original.user }),
+    }),
+
+    column.accessor("user.name", {
+      meta: { label: "Name" },
+    }),
+
+    column.accessor("user.email", {
+      meta: { label: "Email" },
+    }),
+    column.accessor("role", {
+      meta: { label: "Role" },
+
+      cell: ({ getValue, row }) =>
+        renderComponent(NativeSelect, {
+          value: getValue(),
+          options: ORGANIZATION.ROLES.OPTIONS,
+          on_value_select: (value) =>
+            update_member_role(row.original, value as IOrganization.RoleId),
+        }),
+    }),
+
+    column.accessor("createdAt", {
+      meta: { label: "Join date" },
+
+      cell: ({ getValue }) => renderComponent(Time, { date: getValue() }),
+    }),
+  ];
 </script>
 
 <DataTable
-  data={members}
+  {columns}
+  loading={members.loading}
+  data={members.current ?? []}
   actions={(row) => [
     {
       icon: "lucide/x",
       title: "Remove member",
       variant: "destructive",
-      onselect: () => remove_member(row.id),
+      onselect: () => MembersClient.remove_member(row.id),
     },
   ]}
-  columns={TanstackTable.make_columns<(typeof members)[number]>(
-    ({ accessor, display }) => [
-      display({
-        id: "avatar",
-        enableHiding: false,
-        enableSorting: false,
-
-        cell: ({ row }) =>
-          renderComponent(UserAvatar, { user: row.original.user }),
-      }),
-
-      accessor("user.name", {
-        meta: { label: "Name" },
-      }),
-
-      accessor("user.email", {
-        meta: { label: "Email" },
-      }),
-      accessor("role", {
-        meta: { label: "Role" },
-
-        cell: ({ getValue, row }) =>
-          renderComponent(NativeSelect, {
-            value: getValue(),
-            options: ORGANIZATION.ROLES.OPTIONS,
-            on_value_select: (value) =>
-              update_member_role(row.original, value as IOrganization.RoleId),
-          }),
-      }),
-
-      accessor("createdAt", {
-        meta: { label: "Join date" },
-
-        cell: ({ getValue }) => renderComponent(Time, { date: getValue() }),
-      }),
-    ],
-  )}
 ></DataTable>

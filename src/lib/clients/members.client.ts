@@ -3,6 +3,10 @@ import {
   ORGANIZATION,
   type IOrganization,
 } from "$lib/const/organization.const";
+import {
+  get_all_members_remote,
+  remove_member_remote,
+} from "$lib/remote/auth/member.remote";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { err } from "$lib/utils/result.util";
 import { Client } from "./index.client";
@@ -31,9 +35,15 @@ export const MembersClient = {
           return err({ message: "Organization must have at least one owner." });
         }
 
-        return BetterAuth.to_result(
+        const update_res = await BetterAuth.to_result(
           BetterAuthClient.organization.updateMemberRole({ role, memberId }),
         );
+
+        if (update_res.ok) {
+          await get_all_members_remote().refresh();
+        }
+
+        return update_res;
       },
       {
         confirm: `Are you sure you want to update this member's role to ${ORGANIZATION.ROLES.MAP[role].label}?`,
@@ -46,11 +56,16 @@ export const MembersClient = {
   // - Member B tried to remove Owner A
   // - The error says: "You cannot leave the organization as the only owner"
   // - But it should be a permission error, since B is not an owner
-  remove_member: (memberIdOrEmail: string) =>
-    Client.better_auth(
-      () => BetterAuthClient.organization.removeMember({ memberIdOrEmail }),
+  remove_member: (input: Parameters<typeof remove_member_remote>[0]) =>
+    Client.request(
+      () =>
+        remove_member_remote(input).updates(
+          get_all_members_remote().withOverride((members) =>
+            members.filter((m) => m.id !== input),
+          ),
+        ),
       {
-        confirm: `Are you sure you want to remove this member?`,
+        confirm: "Are you sure you want to remove this member?",
         toast: { success: "Member removed successfully." },
       },
     ),

@@ -1,6 +1,6 @@
 <script
   lang="ts"
-  generics="T"
+  generics="V"
 >
   import type { MaybePromise, SelectOption } from "$lib/interfaces";
   import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
@@ -17,8 +17,9 @@
     on_value_select,
     ...restProps
   }: WithElementRef<HTMLSelectAttributes> & {
-    options?: SelectOption<T>[];
-    on_value_select?: (value: T) => MaybePromise<unknown>;
+    value?: V;
+    options?: SelectOption<V>[];
+    on_value_select?: (value: V) => MaybePromise<unknown>;
   } = $props();
 </script>
 

@@ -10,13 +10,11 @@
   let {
     redirect_uri,
   }: {
-    redirect_uri?: ResolvedPathname;
+    redirect_uri: ResolvedPathname;
   } = $props();
 
   const onSuccess = () => {
-    location.href = App.url(redirect_uri ?? "/", {
-      toast: TOAST.IDS.SIGNED_IN,
-    });
+    location.href = App.url(redirect_uri, { toast: TOAST.IDS.SIGNED_IN });
   };
 
   const signin = () =>

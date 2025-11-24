@@ -7,6 +7,7 @@
   import type { RemoteFormField, RemoteFormFieldValue } from "@sveltejs/kit";
   import { boolAttr } from "runed";
   import type { Snippet } from "svelte";
+  import type { ClassValue } from "svelte/elements";
   import FieldContent from "./field-content.svelte";
   import FieldDescription from "./field-description.svelte";
   import FieldError from "./field-error.svelte";
@@ -18,9 +19,11 @@
     field,
     description,
     orientation,
+    class: klass,
     input,
   }: {
     label: string;
+    class?: ClassValue;
     field?: RemoteFormField<V>;
     description?: MaybeSnippet;
     orientation?: FieldOrientation;
@@ -41,6 +44,7 @@
 
 <FieldRoot
   {orientation}
+  class={klass}
   data-invalid={boolAttr(issue)}
 >
   <FieldContent>

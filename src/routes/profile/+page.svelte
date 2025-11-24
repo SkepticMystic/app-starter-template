@@ -11,10 +11,14 @@
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { TOAST } from "$lib/const/toast.const";
-  import { App } from "$lib/utils/app";
+  import { get_account_by_provider_id_remote } from "$lib/remote/auth/account.remote.js";
+  import { App } from "$lib/utils/app.js";
 
   let { data } = $props();
-  let { passkeys, accounts } = $state(data);
+
+  let has_credential_account = $derived(
+    get_account_by_provider_id_remote("credential").current,
+  );
 
   const delete_user = async () => {
     const res = await UserClient.delete();
@@ -56,22 +60,18 @@
       />
     </div>
 
-    {#if passkeys.length}
-      <UserPasskeysList bind:passkeys />
-    {:else}
-      <p>No passkeys added yet.</p>
-    {/if}
+    <UserPasskeysList />
   </section>
 
   <section>
     <h2>Accounts</h2>
-    <UserAccountsList bind:accounts />
+    <UserAccountsList />
   </section>
 
   <Separator />
 
   <section class="flex gap-2">
-    {#if accounts.find((acc) => acc.providerId === "credential")}
+    {#if has_credential_account}
       <Dialog
         title="Change Password"
         description="Change your account password"

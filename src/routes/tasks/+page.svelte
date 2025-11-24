@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { Client } from "$lib/clients/index.client";
-  import EditTaskForm from "$lib/components/form/task/EditTaskForm.svelte";
+  import TaskForm from "$lib/components/form/task/TaskForm.svelte";
+  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
+  import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
   import DateRangePicker from "$lib/components/ui/date-picker/DateRangePicker.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -10,17 +13,56 @@
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { TASKS } from "$lib/const/task.const";
   import {
-    delete_task,
+    create_task_remote,
+    delete_task_remote,
     get_all_tasks_remote,
-  } from "$lib/remote/tasks/tasks.remote.js";
+  } from "$lib/remote/tasks/tasks.remote";
   import { Items } from "$lib/utils/items.util";
+  import {
+    CellHelpers,
+    TanstackTable,
+  } from "$lib/utils/tanstack/table.util.js";
+  import { createColumnHelper } from "@tanstack/table-core";
   import type { DateRange } from "bits-ui";
   import { toast } from "svelte-sonner";
-  import { columns } from "./columns";
-
-  let { data } = $props();
 
   const tasks = get_all_tasks_remote();
+
+  const column =
+    createColumnHelper<NonNullable<typeof tasks.current>[number]>();
+
+  const columns = [
+    column.accessor("title", {
+      meta: { label: "Title" },
+
+      cell: ({ row }) =>
+        renderComponent(Anchor, {
+          content: row.original.title,
+          href: resolve("/tasks/[id]", row),
+        }),
+    }),
+
+    column.accessor("status", {
+      meta: { label: "Status" },
+      filterFn: "arrIncludesSome",
+
+      cell: (c) => CellHelpers.label(c, TASKS.STATUS.MAP),
+    }),
+
+    column.accessor("due_date", {
+      meta: { label: "Due date" },
+
+      filterFn: TanstackTable.filter_fns.date_range,
+
+      cell: (c) => CellHelpers.time(c, { show: "datetime" }),
+    }),
+
+    column.accessor("createdAt", {
+      meta: { label: "Created" },
+
+      cell: CellHelpers.time,
+    }),
+  ];
 </script>
 
 <article>
@@ -37,9 +79,10 @@
       {/snippet}
 
       {#snippet content({ close })}
-        <EditTaskForm
-          form_input={data.form_input}
-          on_success={() => close()}
+        <TaskForm
+          kind="create"
+          form={create_task_remote}
+          on_success={close}
         />
       {/snippet}
     </Dialog>
@@ -70,7 +113,7 @@
         onselect: () =>
           Client.request(
             () =>
-              delete_task(row.id).updates(
+              delete_task_remote(row.id).updates(
                 get_all_tasks_remote().withOverride((old) =>
                   Items.remove(old, row.id),
                 ),

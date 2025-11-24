@@ -1,75 +1,60 @@
 <script lang="ts">
-  import type { auth } from "$lib/auth";
   import { PasskeysClient } from "$lib/clients/passkeys.client";
-  import List from "$lib/components/daisyui/List.svelte";
   import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { Items } from "$lib/utils/items.util";
+  import Item from "$lib/components/ui/item/Item.svelte";
+  import ItemList from "$lib/components/ui/item/ItemList.svelte";
+  import { get_all_passkeys_remote } from "$lib/remote/auth/passkey.remote";
+  import { result } from "$lib/utils/result.util";
   import EditPasskeyForm from "./EditPasskeyForm.svelte";
 
-  let {
-    passkeys = $bindable(),
-  }: {
-    passkeys: Awaited<ReturnType<typeof auth.api.listPasskeys>>;
-  } = $props();
-
-  const delete_passkey = async (passkey_id: string) => {
-    const res = await PasskeysClient.delete(passkey_id);
-    if (res.ok) {
-      passkeys = Items.remove(passkeys, passkey_id);
-    }
-  };
-
-  let items = $derived(passkeys);
+  const passkeys = get_all_passkeys_remote();
 </script>
 
-<List {items}>
-  {#snippet row(passkey)}
-    <Icon
+<ItemList
+  items={result.unwrap_or(passkeys.current ?? result.suc([]), [])}
+  empty={{
+    icon: "lucide/fingerprint",
+    title: "No Passkeys",
+    description: "Add a passkey to your account to use it here",
+  }}
+>
+  {#snippet item(passkey)}
+    <Item
       icon="lucide/fingerprint"
-      class="size-7"
-    />
-
-    <div>
-      <p class="text-lg">
-        {passkey.name || "Unnamed Passkey"}
-      </p>
-      <p class="text-xs font-semibold uppercase opacity-60">
+      title={passkey.name || "Unnamed Passkey"}
+    >
+      {#snippet description()}
         Connected on <Time
           date={passkey.createdAt}
           show="date"
         />
-      </p>
-    </div>
+      {/snippet}
 
-    <div class="flex gap-0.5">
-      <Dialog
-        size="icon"
-        title="Edit Passkey"
-        description="Update your passkey"
-      >
-        {#snippet trigger()}
-          <Icon icon="lucide/pencil" />
-        {/snippet}
+      {#snippet actions()}
+        <Dialog
+          size="icon"
+          title="Edit Passkey"
+          description="Update your passkey"
+        >
+          {#snippet trigger()}
+            <Icon icon="lucide/pencil" />
+          {/snippet}
 
-        {#snippet content()}
-          <EditPasskeyForm
-            {passkey}
-            on_success={(updated) => {
-              passkeys = Items.patch(passkeys, passkey.id, updated.passkey);
-            }}
-          />
-        {/snippet}
-      </Dialog>
+          {#snippet content()}
+            <EditPasskeyForm {passkey} />
+          {/snippet}
+        </Dialog>
 
-      <Button
-        icon="lucide/x"
-        variant="destructive"
-        title="Delete Passkey"
-        onclick={() => delete_passkey(passkey.id)}
-      />
-    </div>
+        <Button
+          icon="lucide/x"
+          variant="destructive"
+          title="Delete Passkey"
+          onclick={() => PasskeysClient.delete(passkey.id)}
+        />
+      {/snippet}
+    </Item>
   {/snippet}
-</List>
+</ItemList>

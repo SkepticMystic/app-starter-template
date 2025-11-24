@@ -1,40 +1,18 @@
 import {
-  create_task,
+  delete_task_remote,
   get_all_tasks_remote,
 } from "$lib/remote/tasks/tasks.remote";
-import type { TaskSchema } from "$lib/schema/task.schema";
-import type { Task } from "$lib/server/db/schema/task.models";
-import type { Infer } from "sveltekit-superforms";
+import { Items } from "$lib/utils/items.util";
 import { Client } from "./index.client";
 
 export const TaskClient = {
-  // effect_create: (task: NewTask) =>
-  //   Effect.runPromise(
-  //     pipe(
-  //       Effect.tryPromise({
-  //         try: () => create_task(task),
-  //         catch: (error) => {
-  //           console.error("Failed to create task:", error);
-  //           throw error;
-  //         },
-  //       }),
-  //       Effect.timeout("1 second"),
-  //       Effect.retry({ times: 3, schedule: Schedule.exponential(1_000) }),
-  //       Effect.tap((e) => Effect.log("tap", e)),
-  //     ),
-  //   ).catch((error) => {
-  //     console.error("All attempts to create task failed:", error);
-  //     throw error;
-  //   }),
-
-  create: (task: Infer<typeof TaskSchema.create>) =>
+  delete: (input: Parameters<typeof delete_task_remote>[0]) =>
     Client.request(
       () =>
-        create_task(task).updates(
-          get_all_tasks_remote().withOverride((tasks) => [
-            { ...task, createdAt: new Date() } as Task,
-            ...tasks,
-          ]),
+        delete_task_remote(input).updates(
+          get_all_tasks_remote().withOverride((tasks) =>
+            Items.remove(tasks, input),
+          ),
         ),
       { toast: { optimistic: true, success: "Task created" } },
     ),

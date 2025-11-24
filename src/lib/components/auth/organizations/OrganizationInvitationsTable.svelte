@@ -1,88 +1,81 @@
 <script lang="ts">
-  import { OrganizationsClient } from "$lib/clients/organizations.client";
-  import Time from "$lib/components/Time.svelte";
-  import { renderComponent } from "$lib/components/ui/data-table";
+  import { InvitationClient } from "$lib/clients/invitation.client";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import Labeled from "$lib/components/ui/label/Labeled.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
-  import {
-    type IOrganization,
-    ORGANIZATION,
-  } from "$lib/const/organization.const";
-  import type { Invitation } from "$lib/server/db/schema/auth.models";
-  import { Items } from "$lib/utils/items.util";
-  import { TanstackTable } from "$lib/utils/tanstack/table.util";
+  import { ORGANIZATION } from "$lib/const/organization.const";
+  import { get_all_invitations_remote } from "$lib/remote/auth/invitation.remote";
+  import { CellHelpers } from "$lib/utils/tanstack/table.util";
+  import { createColumnHelper } from "@tanstack/table-core";
 
-  let {
-    on_delete,
-    invitations,
-  }: {
-    invitations: Invitation[];
-    on_delete?: (invitation: Invitation) => void;
-  } = $props();
+  const invitations = get_all_invitations_remote();
+
+  const column =
+    createColumnHelper<NonNullable<typeof invitations.current>[number]>();
+
+  const columns = [
+    column.accessor("email", {
+      meta: { label: "Email" },
+    }),
+    column.accessor("role", {
+      meta: { label: "Role" },
+
+      cell: (c) => CellHelpers.label(c, ORGANIZATION.ROLES.MAP),
+    }),
+
+    column.accessor("status", {
+      meta: { label: "Status" },
+
+      filterFn: "arrIncludesSome",
+
+      cell: (c) => CellHelpers.label(c, ORGANIZATION.INVITATIONS.STATUSES.MAP),
+    }),
+
+    column.accessor("expiresAt", {
+      meta: { label: "Expiry date" },
+
+      cell: (c) => CellHelpers.time(c, { show: "datetime" }),
+    }),
+  ];
 </script>
 
 <DataTable
-  data={invitations}
+  {columns}
+  loading={invitations.loading}
+  data={invitations.current ?? []}
   states={{
     sorting: [{ id: "expiresAt", desc: true }],
     column_filters: [{ id: "status", value: ["pending"] }],
+  }}
+  empty={{
+    icon: "lucide/mail",
+    title: "No invitations",
+    description: "Invite a new member to your organization",
   }}
   actions={(row) => [
     {
       icon: "lucide/x",
       variant: "destructive",
       title: "Cancel invitation",
-
       disabled: row.original.status !== "pending",
 
-      onselect: async () => {
-        const res = await OrganizationsClient.cancel_invitation(row.id);
-
-        if (res.ok) {
-          invitations = Items.patch(invitations, row.id, res.data);
-          on_delete?.(res.data);
-        }
-      },
+      onselect: () => InvitationClient.cancel(row.id),
     },
   ]}
-  columns={TanstackTable.make_columns<Invitation>(({ accessor }) => [
-    accessor("email", {
-      meta: { label: "Email" },
-    }),
-    accessor("role", {
-      meta: { label: "Role" },
-
-      cell: ({ getValue }) =>
-        ORGANIZATION.ROLES.MAP[getValue() as IOrganization.RoleId].label,
-    }),
-
-    accessor("status", {
-      meta: { label: "Status" },
-
-      filterFn: "arrIncludesSome",
-
-      cell: ({ getValue }) =>
-        ORGANIZATION.INVITATIONS.STATUSES.MAP[getValue()].label,
-    }),
-
-    accessor("expiresAt", {
-      meta: { label: "Expiry date" },
-
-      cell: ({ getValue }) =>
-        renderComponent(Time, { show: "datetime", date: getValue() }),
-    }),
-  ])}
 >
   {#snippet header(table)}
-    <Labeled label="Statuses">
-      <MultiSelect
-        options={ORGANIZATION.INVITATIONS.STATUSES.OPTIONS}
-        bind:value={
-          () => (table.getColumn("status")?.getFilterValue() as string[]) ?? [],
-          (v) => table.getColumn("status")?.setFilterValue(v)
-        }
-      />
-    </Labeled>
+    <Field label="Statuses">
+      {#snippet input({ props })}
+        <MultiSelect
+          {...props}
+          options={ORGANIZATION.INVITATIONS.STATUSES.OPTIONS}
+          bind:value={
+            () =>
+              (table.getColumn("status")?.getFilterValue() as string[]) ?? [],
+            (v) => table.getColumn("status")?.setFilterValue(v)
+          }
+        />
+      {/snippet}
+    </Field>
   {/snippet}
 </DataTable>

@@ -3,9 +3,14 @@ export type Err<E> = { ok: false; error: E };
 
 export type Result<D = undefined, E = undefined> = Suc<D> | Err<E>;
 
+export type ResultData<R extends Result<unknown, unknown>> = Extract<
+  R,
+  { ok: true }
+>["data"];
+
 export type MaybePromise<T> = T | Promise<T>;
 
-export type SelectOption<V = string, D = undefined> = D extends undefined
+export type SelectOption<V, D = undefined> = D extends undefined
   ? {
       value: V;
       label: string;
