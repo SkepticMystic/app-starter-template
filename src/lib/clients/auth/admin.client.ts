@@ -1,12 +1,7 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import {
-  ACCESS_CONTROL,
-  type IAccessControl,
-} from "$lib/const/access_control.const";
+import { ACCESS_CONTROL, type IAccessControl } from "$lib/const/access_control.const";
 import { TIME } from "$lib/const/time";
-import { BetterAuth } from "$lib/utils/better-auth.util";
 import { Format } from "$lib/utils/format.util";
-import { Effect, pipe } from "effect";
 import { Client } from "../index.client";
 
 export const AdminClient = {
@@ -23,40 +18,20 @@ export const AdminClient = {
     ),
 
   stop_impersonating: () =>
-    Client.request(
-      () =>
-        Effect.runPromise(
-          pipe(
-            Effect.promise(() => BetterAuthClient.admin.stopImpersonating()),
-            Effect.andThen((r) => BetterAuth.to_result(r)),
-            // NOTE: I saw the session.subscribe callback run
-            // But the /profile page didn't update.
-            // So that's a TODO, but for now, a hard reload works.
-            // BetterAuthClient.$store.notify("$sessionSignal");
-            Effect.tap((r) => r.ok && location.reload()),
-          ),
-        ),
-      {
-        confirm: "Are you sure you want to stop impersonating?",
-        toast: { success: "Stopped impersonation" },
-      },
-    ),
+    Client.better_auth(() => BetterAuthClient.admin.stopImpersonating(), {
+      confirm: "Are you sure you want to stop impersonating?",
+      toast: { success: "Stopped impersonation" },
+    }),
 
-  ban_user: (
-    userId: string,
-    options: { banExpiresIn?: number; banReason?: string },
-  ) =>
-    Client.better_auth(
-      () => BetterAuthClient.admin.banUser({ userId, ...options }),
-      {
-        confirm: `Are you sure you want to ban this user ${
-          options.banExpiresIn
-            ? `for ${Format.number(options.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
-            : "indefinitely?"
-        }`,
-        toast: { success: "User banned" },
-      },
-    ),
+  ban_user: (userId: string, options: { banExpiresIn?: number; banReason?: string }) =>
+    Client.better_auth(() => BetterAuthClient.admin.banUser({ userId, ...options }), {
+      confirm: `Are you sure you want to ban this user ${
+        options.banExpiresIn
+          ? `for ${Format.number(options.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
+          : "indefinitely?"
+      }`,
+      toast: { success: "User banned" },
+    }),
 
   unban_user: (userId: string) =>
     Client.better_auth(() => BetterAuthClient.admin.unbanUser({ userId }), {
