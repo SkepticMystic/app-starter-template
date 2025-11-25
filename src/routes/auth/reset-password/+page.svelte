@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
   import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
-  import { TOAST } from "$lib/const/toast.const.js";
   import { reset_password_remote } from "$lib/remote/auth/user.remote";
-  import { App } from "$lib/utils/app.js";
   import { toast } from "svelte-sonner";
 
   let { data } = $props();
@@ -26,9 +26,7 @@
         const res = form.result;
         if (res?.ok) {
           toast.success("Password reset successfully");
-          location.href = App.url("/auth/signin", {
-            toast: TOAST.IDS.PASSWORD_RESET,
-          });
+          await goto(resolve("/auth/signin"));
         } else if (res?.error) {
           toast.error(res.error.message);
         }

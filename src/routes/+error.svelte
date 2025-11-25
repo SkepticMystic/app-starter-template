@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import Alert from "$lib/components/ui/alert/Alert.svelte";
@@ -7,7 +6,7 @@
   import Icon from "$lib/components/ui/icon/Icon.svelte";
 </script>
 
-<div class="mx-auto flex h-svh max-w-sm items-center">
+<div class="mx-auto flex h-3/4 max-w-sm items-center">
   {#if page?.error}
     <div class="flex flex-col gap-2">
       <Alert
@@ -35,9 +34,9 @@
           Go Home
         </Button>
         <Button
+          href="."
           class="grow"
           variant="outline"
-          href={resolve(".")}
         >
           Go Back
         </Button>

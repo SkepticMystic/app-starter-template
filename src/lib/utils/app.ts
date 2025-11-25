@@ -1,6 +1,5 @@
 import type { ResolvedPathname } from "$app/types";
 import { APP } from "$lib/const/app";
-import type { IToast } from "$lib/const/toast.const";
 import type { PartiallyTypedObject } from "$lib/interfaces";
 import { Url } from "./urls";
 
@@ -17,7 +16,6 @@ export const App = {
     search?:
       | URLSearchParams
       | (PartiallyTypedObject<{
-          toast?: IToast.Id;
           redirect_uri?: ResolvedPathname;
         }> & {
           [key: string]: unknown;

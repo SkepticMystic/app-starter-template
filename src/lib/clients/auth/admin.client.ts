@@ -17,7 +17,7 @@ export const AdminClient = {
   impersonate_user: (userId: string) =>
     Client.better_auth(
       () => BetterAuthClient.admin.impersonateUser({ userId }),
-      // NOTE: Show toast after redirect in ?toast param
+      { toast: { success: "Impersonating user" } },
     ),
 
   stop_impersonating: () =>

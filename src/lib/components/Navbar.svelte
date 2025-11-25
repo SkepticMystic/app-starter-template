@@ -1,13 +1,13 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
   import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { AdminClient } from "$lib/clients/auth/admin.client";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app";
-  import { TOAST } from "$lib/const/toast.const";
   import { session, user } from "$lib/stores/session";
-  import { App } from "$lib/utils/app";
+  import { toast } from "svelte-sonner";
   import ThemeSelector from "./ThemeSelector.svelte";
   import ButtonGroup from "./ui/button-group/button-group.svelte";
   import Button from "./ui/button/button.svelte";
@@ -77,8 +77,10 @@
   const signout = () =>
     BetterAuthClient.signOut({
       fetchOptions: {
-        onSuccess: () =>
-          goto(App.url("/auth/signin", { toast: TOAST.IDS.SIGNED_OUT })),
+        onSuccess: () => {
+          toast.info("You have been signed out.");
+          return goto(resolve("/auth/signin"));
+        },
         onError: (error) => {
           console.error("Error signing out:", error);
           location.reload();
@@ -124,7 +126,7 @@
 
             {#each routes as r (r.href)}
               {#if show_route($user, r)}
-                <DropdownMenu.Item onSelect={() => goto(r.href)}>
+                <DropdownMenu.Item onSelect={() => goto(resolve(r.href))}>
                   <Icon icon={r.icon} />
                   {r.label}
                 </DropdownMenu.Item>

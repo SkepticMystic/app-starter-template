@@ -1,7 +1,5 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
-  import { afterNavigate } from "$app/navigation";
-  import { page } from "$app/state";
   import {
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID,
@@ -9,12 +7,11 @@
   import Navbar from "$lib/components/Navbar.svelte";
   import SEO from "$lib/components/SEO.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { TOAST, type IToast } from "$lib/const/toast.const";
   import { session } from "$lib/stores/session";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { mode, ModeWatcher } from "mode-watcher";
-  import { onMount, type Snippet } from "svelte";
-  import { toast, Toaster } from "svelte-sonner";
+  import { type Snippet } from "svelte";
+  import { Toaster } from "svelte-sonner";
   import "../app.css";
 
   interface Props {
@@ -40,28 +37,6 @@
       }
     }
   });
-
-  const handle_toast_flash_query = () => {
-    const toast_id = page.url.searchParams.get("toast") as IToast.Id | null;
-
-    if (toast_id) {
-      // Remove the toast param from the URL after showing the toast
-      // so it doesn't show again on page refresh
-      page.url.searchParams.delete("toast");
-
-      const toast_key = TOAST.IDS_REVERSED[toast_id];
-      if (!toast_key) return;
-
-      const input = TOAST.MAP[toast_key];
-      toast[input.type](input.message);
-    }
-  };
-
-  // NOTE: We have to check in both cases...
-  // - If we `goto` a route with a ?toast, then afterNavigate is called
-  // - If we visit from an external link - or `location.href =` - with a ?toast, then onMount is called
-  onMount(() => handle_toast_flash_query());
-  afterNavigate(() => handle_toast_flash_query());
 </script>
 
 <svelte:head>
@@ -104,24 +79,44 @@
  It's possible to apply them, but only when toastOptions.unstyled: true
  And then ALL other styles are removed...
  So, richColors for now -->
-<Toaster richColors theme={mode.current} closeButton={true} duration={10_000}>
+<Toaster
+  richColors
+  theme={mode.current}
+  closeButton={true}
+  duration={10_000}
+>
   {#snippet loadingIcon()}
-    <Icon icon="lucide/loader-2" class="size-5 animate-spin" />
+    <Icon
+      icon="lucide/loader-2"
+      class="size-5 animate-spin"
+    />
   {/snippet}
 
   {#snippet successIcon()}
-    <Icon icon="lucide/check" class="size-5" />
+    <Icon
+      icon="lucide/check"
+      class="size-5"
+    />
   {/snippet}
 
   {#snippet errorIcon()}
-    <Icon icon="lucide/x" class="size-5" />
+    <Icon
+      icon="lucide/x"
+      class="size-5"
+    />
   {/snippet}
 
   {#snippet infoIcon()}
-    <Icon icon="lucide/info" class="size-5" />
+    <Icon
+      icon="lucide/info"
+      class="size-5"
+    />
   {/snippet}
 
   {#snippet warningIcon()}
-    <Icon icon="lucide/alert-triangle" class="size-5" />
+    <Icon
+      icon="lucide/alert-triangle"
+      class="size-5"
+    />
   {/snippet}
 </Toaster>

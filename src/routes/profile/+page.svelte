@@ -1,17 +1,15 @@
 <script lang="ts">
+  import { PasskeyClient } from "$lib/clients/auth/passkey.client.js";
   import { UserClient } from "$lib/clients/auth/user.client";
   import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
-  import AddPasskeyButton from "$lib/components/auth/passkeys/AddPasskeyButton.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
-  import { TOAST } from "$lib/const/toast.const";
   import { get_account_by_provider_id_remote } from "$lib/remote/auth/account.remote.js";
-  import { App } from "$lib/utils/app.js";
 
   let { data } = $props();
 
@@ -40,16 +38,15 @@
   </section>
 
   <section>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center justify-between gap-3">
       <h2>Passkeys</h2>
-      <!-- NOTE: Not even invalidateAll seems to get the new key loaded... -->
-      <AddPasskeyButton
-        on_added={() => {
-          location.href = App.url("/profile", {
-            toast: TOAST.IDS.PASSKEY_ADDED,
-          });
-        }}
-      />
+
+      <Button
+        icon="lucide/fingerprint"
+        onclick={() => PasskeyClient.create()}
+      >
+        Add Passkey
+      </Button>
     </div>
 
     <UserPasskeysList />

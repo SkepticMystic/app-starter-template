@@ -3,8 +3,6 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { TOAST } from "$lib/const/toast.const";
-  import { App } from "$lib/utils/app";
   import { onMount } from "svelte";
 
   let {
@@ -14,7 +12,7 @@
   } = $props();
 
   const onSuccess = () => {
-    location.href = App.url(redirect_uri, { toast: TOAST.IDS.SIGNED_IN });
+    location.href = redirect_uri;
   };
 
   const signin = () =>

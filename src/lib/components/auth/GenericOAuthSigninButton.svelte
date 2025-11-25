@@ -3,8 +3,6 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
   import { AUTH, type IAuth } from "$lib/const/auth.const";
-  import { TOAST } from "$lib/const/toast.const";
-  import { App } from "$lib/utils/app";
   import Button from "../ui/button/button.svelte";
 
   let {
@@ -23,8 +21,8 @@
         BetterAuthClient.signIn.oauth2({
           disableRedirect: false,
           providerId: provider_id,
+          callbackURL: redirect_uri,
           scopes: ["openid", "profile", "email"],
-          callbackURL: App.url(redirect_uri, { toast: TOAST.IDS.SIGNED_IN }),
         }),
       { validate_session: false },
     );

@@ -5,7 +5,7 @@
   import Icon from "$lib/components/ui/icon/Icon.svelte";
 </script>
 
-<div class="mx-auto flex h-svh max-w-sm items-center">
+<div class="mx-auto flex h-3/4 max-w-sm items-center">
   <div class="flex flex-col gap-2">
     <Alert>
       {#snippet title()}

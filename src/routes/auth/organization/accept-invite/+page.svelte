@@ -2,8 +2,8 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { InvitationClient } from "$lib/clients/auth/invitation.client.js";
+  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { TOAST } from "$lib/const/toast.const.js";
   import { App } from "$lib/utils/app.js";
 
   let { data } = $props();
@@ -15,7 +15,7 @@
 
     const res = await InvitationClient.accept(data.invitation.id);
     if (res.ok) {
-      await goto(App.url("/", { toast: TOAST.IDS.ORG_INVITE_ACCEPTED }));
+      await goto(resolve("/"));
     }
   };
 </script>
@@ -44,18 +44,13 @@
     <p>Please login or signup to accept the invitation.</p>
 
     <div class="flex gap-2">
-      <a
-        class="btn btn-primary"
-        href={App.url("/auth/signin", { redirect_uri })}
-      >
-        Login
-      </a>
-      <a
+      <Anchor href={App.url("/auth/signin", { redirect_uri })}>Login</Anchor>
+      <Anchor
         class="btn btn-secondary"
         href={App.url("/auth/signup", { redirect_uri })}
       >
         Signup
-      </a>
+      </Anchor>
     </div>
   {:else if data.prompt === "wrong_account"}
     <p>
@@ -64,28 +59,18 @@
     </p>
 
     <div class="flex gap-2">
-      <a
-        class="btn btn-primary"
-        href={App.url("/auth/signin", { redirect_uri })}
-      >
-        Login
-      </a>
-      <a
+      <Anchor href={App.url("/auth/signin", { redirect_uri })}>Login</Anchor>
+      <Anchor
         class="btn btn-secondary"
         href={App.url("/auth/signup", { redirect_uri })}
       >
         Signup
-      </a>
+      </Anchor>
     </div>
   {:else if data.prompt === "already_member"}
     <p class="">You are already a member of the organization.</p>
 
-    <a
-      class="btn btn-primary"
-      href={resolve("/organization")}
-    >
-      View Organization
-    </a>
+    <Anchor href={resolve("/organization")}>View Organization</Anchor>
   {:else if data.prompt === "invite_not_pending"}
     <p class="text-error">
       The invitation is no longer pending. Please contact the inviter for more

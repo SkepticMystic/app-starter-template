@@ -13,7 +13,7 @@ export const InvitationClient = {
         BetterAuth.to_result(
           BetterAuthClient.organization.acceptInvitation({ invitationId }),
         ),
-      { toast: { success: "Invitation accepted successfully." } },
+      { toast: { success: "Invitation accepted" } },
     ),
 
   cancel: (invitation_id: string) =>

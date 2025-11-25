@@ -8,8 +8,6 @@
     ACCESS_CONTROL,
     type IAccessControl,
   } from "$lib/const/access_control.const";
-  import { TOAST } from "$lib/const/toast.const.js";
-  import { App } from "$lib/utils/app.js";
   import { Items } from "$lib/utils/items.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
@@ -23,15 +21,6 @@
     const res = await AdminClient.update_user_role(input);
     if (res.ok) {
       users = Items.patch(users, input.userId, { role: input.role });
-    }
-  };
-
-  const impersonate_user = async (user_id: string) => {
-    const res = await AdminClient.impersonate_user(user_id);
-    if (res.ok) {
-      location.href = App.url("/profile", {
-        toast: TOAST.IDS.ADMIN_IMPERSONATING_USER,
-      });
     }
   };
 
@@ -106,7 +95,7 @@
       {
         icon: "lucide/user-circle",
         title: "Impersonate user",
-        onselect: () => impersonate_user(row.id),
+        onselect: () => AdminClient.impersonate_user(row.id),
       },
       { kind: "separator" },
       {
