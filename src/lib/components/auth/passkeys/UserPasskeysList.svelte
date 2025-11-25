@@ -1,8 +1,8 @@
 <script lang="ts">
   import { PasskeyClient } from "$lib/clients/auth/passkey.client";
-  import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
+  import Time from "$lib/components/ui/elements/Time.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Item from "$lib/components/ui/item/Item.svelte";
   import ItemList from "$lib/components/ui/item/ItemList.svelte";

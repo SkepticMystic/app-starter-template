@@ -1,9 +1,9 @@
 <script lang="ts">
   import { MemberClient } from "$lib/clients/auth/member.client";
-  import Time from "$lib/components/Time.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
+  import Time from "$lib/components/ui/elements/Time.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import {
     ORGANIZATION,

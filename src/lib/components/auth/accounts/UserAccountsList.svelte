@@ -1,7 +1,7 @@
 <script lang="ts">
   import { AccountClient } from "$lib/clients/auth/account.client";
-  import Time from "$lib/components/Time.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Time from "$lib/components/ui/elements/Time.svelte";
   import Item from "$lib/components/ui/item/Item.svelte";
   import ItemList from "$lib/components/ui/item/ItemList.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth.const";

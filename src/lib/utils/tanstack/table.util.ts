@@ -1,4 +1,4 @@
-import Time from "$lib/components/Time.svelte";
+import Time from "$lib/components/ui/elements/Time.svelte";
 import { renderComponent } from "$lib/components/ui/data-table";
 import { getLocalTimeZone } from "@internationalized/date";
 import type { Column, FilterFn, Row, RowData } from "@tanstack/table-core";

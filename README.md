@@ -3,7 +3,7 @@
 ## Features
 
 - SvelteKit, TypeScript
-- Tailwind, DaisyUI
+- shadcn-svelte
 - ESLint, Prettier
 - Better-Auth
 - Drizzle, Redis
@@ -57,6 +57,4 @@
 
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store
 - [ ] Zero sync?
-- [ ] That nice +error.svelte page from dripcel-front
-- [ ] Alot of the `toast` ids in params can just be regular `toast` calls, since they don't clear on navigate. Therefore, we can use `resolve` instead of `App.url`
 - [ ] Proper site.manifest and favicons. Use animal-shelter as an example

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
   import {
-      PUBLIC_UMAMI_BASE_URL,
-      PUBLIC_UMAMI_WEBSITE_ID,
+    PUBLIC_UMAMI_BASE_URL,
+    PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
   import Navbar from "$lib/components/Navbar.svelte";
   import SEO from "$lib/components/SEO.svelte";
@@ -56,6 +56,7 @@
   {#if PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID}
     <script
       defer
+      async
       type="text/partytown"
       data-do-not-track="true"
       data-tag={dev ? "dev" : "prod"}
@@ -67,13 +68,15 @@
 
 <ModeWatcher />
 
-<header>
-  <Navbar />
-</header>
+<div class="flex min-h-screen flex-col">
+  <header>
+    <Navbar />
+  </header>
 
-<main class="mx-auto my-6 max-w-5xl px-2 sm:px-3 md:px-5">
-  {@render children?.()}
-</main>
+  <main class="mx-auto mt-1 mb-12 w-full max-w-4xl grow px-2 sm:px-3 md:px-5">
+    {@render children?.()}
+  </main>
+</div>
 
 <!-- NOTE: I struggled to get shad semantic classes working to style the toasts
  It's possible to apply them, but only when toastOptions.unstyled: true
