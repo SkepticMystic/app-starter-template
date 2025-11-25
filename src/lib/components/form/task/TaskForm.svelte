@@ -45,7 +45,7 @@
     }
   })}
 >
-  <!-- TODO: This only works if I've already set the id outside
+  <!-- NOTE: This only works if I've already set the id outside
  But if I've done that already, do I still need this hidden input?
  Turns out, yes, you do -->
   {#if props.kind === "update"}

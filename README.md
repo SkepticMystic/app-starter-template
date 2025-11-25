@@ -57,6 +57,5 @@
 
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store
 - [ ] Zero sync?
-- [ ] Ensure zod is bundled into the client
-- [ ] ~~superforms~~
+- [ ] Ensure zod isn't bundled into the client
 - [ ] That nice +error.svelte page from dripcel-front
