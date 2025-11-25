@@ -3,13 +3,17 @@ import { Client } from "../index.client";
 
 export const OrganizationClient = {
   set_active: (organizationId: string | undefined) =>
-    Client.better_auth(() => BetterAuthClient.organization.setActive({ organizationId }), {
-      toast: { success: "Active organization updated." },
-    }),
+    Client.better_auth(
+      () => BetterAuthClient.organization.setActive({ organizationId }),
+      { toast: { success: "Active organization updated." } },
+    ),
 
   delete: (organizationId: string) =>
-    Client.better_auth(() => BetterAuthClient.organization.delete({ organizationId }), {
-      confirm: "Are you sure you want to delete this organization?",
-      toast: { success: "Organization deleted successfully." },
-    }),
+    Client.better_auth(
+      () => BetterAuthClient.organization.delete({ organizationId }),
+      {
+        confirm: "Are you sure you want to delete this organization?",
+        toast: { success: "Organization deleted successfully." },
+      },
+    ),
 };
