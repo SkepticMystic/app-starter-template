@@ -7,6 +7,14 @@ const config = {
 
     experimental: {
       remoteFunctions: true,
+
+      tracing: {
+        server: true,
+      },
+
+      instrumentation: {
+        server: true,
+      },
     },
   },
 
