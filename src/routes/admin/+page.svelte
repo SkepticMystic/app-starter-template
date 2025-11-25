@@ -1,14 +1,22 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
+  import type { Pathname } from "$app/types";
+  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
+
   type Route = {
-    href: string;
     label: string;
     routes?: Route[];
+    href: Pathname;
   };
 
   const routes: Route[] = [
     {
       label: "Users",
       href: "/admin/users",
+    },
+    {
+      label: "Organizations",
+      href: "/admin/organizations",
     },
   ];
 </script>
@@ -21,23 +29,17 @@
   <ul class="list-inside list-disc">
     {#each routes as route (route.href)}
       <li>
-        <a
-          class="link link-primary"
-          href={route.href}
-        >
+        <Anchor href={resolve(route.href)}>
           {route.label}
-        </a>
+        </Anchor>
 
         {#if route.routes?.length}
           <ul class="list-inside list-disc pl-5">
             {#each route.routes as subroute (subroute.href)}
               <li>
-                <a
-                  class="link link-primary"
-                  href={subroute.href}
-                >
+                <Anchor href={resolve(subroute.href)}>
                   {subroute.label}
-                </a>
+                </Anchor>
               </li>
             {/each}
           </ul>

@@ -1,5 +1,8 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import { ACCESS_CONTROL, type IAccessControl } from "$lib/const/access_control.const";
+import {
+  ACCESS_CONTROL,
+  type IAccessControl,
+} from "$lib/const/access_control.const";
 import { TIME } from "$lib/const/time";
 import { Format } from "$lib/utils/format.util";
 import { Client } from "../index.client";
@@ -21,17 +24,27 @@ export const AdminClient = {
     Client.better_auth(() => BetterAuthClient.admin.stopImpersonating(), {
       confirm: "Are you sure you want to stop impersonating?",
       toast: { success: "Stopped impersonation" },
+    }).then((r) => {
+      if (r.ok) {
+        window.location.reload();
+      }
     }),
 
-  ban_user: (userId: string, options: { banExpiresIn?: number; banReason?: string }) =>
-    Client.better_auth(() => BetterAuthClient.admin.banUser({ userId, ...options }), {
-      confirm: `Are you sure you want to ban this user ${
-        options.banExpiresIn
-          ? `for ${Format.number(options.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
-          : "indefinitely?"
-      }`,
-      toast: { success: "User banned" },
-    }),
+  ban_user: (
+    userId: string,
+    options: { banExpiresIn?: number; banReason?: string },
+  ) =>
+    Client.better_auth(
+      () => BetterAuthClient.admin.banUser({ userId, ...options }),
+      {
+        confirm: `Are you sure you want to ban this user ${
+          options.banExpiresIn
+            ? `for ${Format.number(options.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
+            : "indefinitely?"
+        }`,
+        toast: { success: "User banned" },
+      },
+    ),
 
   unban_user: (userId: string) =>
     Client.better_auth(() => BetterAuthClient.admin.unbanUser({ userId }), {

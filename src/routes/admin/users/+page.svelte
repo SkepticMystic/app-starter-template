@@ -42,6 +42,20 @@
     }
   };
 
+  const ban_user = async (user_id: string) => {
+    const res = await AdminClient.ban_user(user_id, {});
+    if (res.ok) {
+      users = Items.patch(users, user_id, res.data.user);
+    }
+  };
+
+  const unban_user = async (user_id: string) => {
+    const res = await AdminClient.unban_user(user_id);
+    if (res.ok) {
+      users = Items.patch(users, user_id, res.data.user);
+    }
+  };
+
   const column = createColumnHelper<(typeof users)[number]>();
 
   const columns = [
@@ -99,9 +113,7 @@
         title: row.original.banned ? "Unban user" : "Ban user",
         icon: row.original.banned ? "lucide/check-circle-2" : "lucide/ban",
         onselect: () =>
-          row.original.banned
-            ? AdminClient.unban_user(row.id)
-            : AdminClient.ban_user(row.id, {}),
+          row.original.banned ? unban_user(row.id) : ban_user(row.id),
       },
       {
         icon: "lucide/x",
