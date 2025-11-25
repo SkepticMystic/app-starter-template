@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { resolve } from "$app/paths";
   import { UserClient } from "$lib/clients/auth/user.client";
   import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
@@ -20,13 +18,6 @@
   let has_credential_account = $derived(
     get_account_by_provider_id_remote("credential").current,
   );
-
-  const delete_user = async () => {
-    const res = await UserClient.delete();
-    if (res.ok) {
-      await goto(resolve("/auth/signin"));
-    }
-  };
 </script>
 
 <article>
@@ -89,11 +80,11 @@
     {/if}
 
     <Button
-      variant="destructive"
-      onclick={delete_user}
       icon="lucide/trash"
+      variant="destructive"
+      onclick={UserClient.request_deletion}
     >
-      Delete user
+      Delete my account
     </Button>
   </section>
 </article>

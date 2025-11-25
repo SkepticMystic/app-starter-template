@@ -107,6 +107,8 @@ export const auth = Effect.runSync(
         cookieCache: {
           enabled: true,
           maxAge: 5 * 60, // Cache duration in seconds
+
+          refreshCache: true,
         },
 
         additionalFields: {
@@ -164,7 +166,15 @@ export const auth = Effect.runSync(
       },
 
       user: {
-        deleteUser: { enabled: true },
+        deleteUser: {
+          enabled: true,
+          sendDeleteAccountVerification: async ({ user, url }) =>
+            Effect.runPromise(
+              email.send(
+                EMAIL.TEMPLATES["delete-account-verification"]({ url, user }),
+              ),
+            ),
+        },
       },
 
       account: {

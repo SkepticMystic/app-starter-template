@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deployed on Vercel.
 
+**Tech Stack**: Node 22, pnpm 10.23.0, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Effect (service DI), Resend (email), Pino (logging)
+
 ## Development Commands
 
 ### Package Manager
@@ -93,10 +95,25 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 ### SvelteKit Configuration
 
 - **Experimental features enabled**:
-  - `remoteFunctions: true` - Server functions callable from client
+  - `remoteFunctions: true` - Server functions callable from client (see Remote Functions pattern below)
   - `async: true` - Async components in Svelte 5
 - Vercel adapter for deployment
 - Build command includes database migration: `vite build && pnpm db migrate`
+
+### Remote Functions Pattern
+
+Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to call server code from client:
+
+- Use `form()` from `$app/server` to create type-safe forms
+- Use `query()` from `$app/server` to create type-safe queries
+- Use `command()` from `$app/server` to create type-safe commands
+- First argument: Zod schema for validation
+- Second argument: async handler function with validated input
+- `form` Handler receives `issue` parameter for field-specific validation errors
+- Use `invalid(issue.fieldName(message))` to return field-specific errors
+- Use `result.err({ message })` for general errors
+- Use `redirect()` to navigate after successful operations
+- Example: `src/lib/remote/auth/auth.remote.ts`
 
 ### State Management
 
@@ -104,11 +121,20 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - Stores in `src/lib/stores/` for shared state (organizations, session)
 - Better-Auth client provides session management
 
-### Email Service
+### Service Pattern
 
-- Abstracted through Effect service pattern
-- Test/Live implementations for dev/prod
-- Used for verification emails, password resets, and organization invites
+- **Email Service** (`src/lib/services/email.service.ts`):
+  - Define service interface using `Context.Tag`
+  - Implement `EmailLive` (Resend) and `EmailTest` (console log) versions
+  - Inject at runtime: `Effect.provideService(EmailService, dev ? EmailTest : EmailLive)`
+  - Used in auth configuration for verification emails, password resets, org invites
+
+### Logging
+
+- Custom logging utility using **Pino** (`src/lib/utils/logger.util`)
+- Configured with pretty-printing in development
+- Use `Log.info()`, `Log.error()`, `Log.debug()`, etc. throughout codebase
+- Log level controlled by `LOG_LEVEL` environment variable
 
 ## Linting Configuration
 
@@ -127,15 +153,47 @@ Secondary linter in `eslint.config.js` - runs after oxlint in the lint pipeline.
 
 ## Environment Setup
 
-1. Create `.env` file based on `.env.example`
-2. Set up PostgreSQL database (Neon recommended) with development branch
-3. Add `DATABASE_URL` to `.env`
-4. Run `pnpm db:push` to create tables
-5. Configure auth provider credentials as needed (Google, Pocket ID)
+1. Ensure **Node 22** is installed (required by package.json engines)
+2. Install **pnpm 10.23.0** (specified in package.json packageManager)
+3. Create `.env` file based on `.env.example`
+4. Set up PostgreSQL database (Neon recommended) with development branch
+5. Add `DATABASE_URL` to `.env`
+6. Optional: Configure Redis with `REDIS_URL` (for Better-Auth rate limiting and caching)
+7. Run `pnpm install` to install dependencies
+8. Run `pnpm db:push` to create tables
+9. Configure auth provider credentials as needed (Google, Pocket ID)
+10. Configure email service (Resend) with `RESEND_API_KEY` and `EMAIL_FROM`
 
 ## Deployment (Vercel)
 
 1. Connect repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Edit build command to: `vite build && pnpm db migrate`
-4. Deploy
+2. Set environment variables in Vercel dashboard (see `.env.example`)
+3. Create `.env.production` for production database URL (used by `pnpm db:generate` and `pnpm db:check`)
+4. Edit build command to: `vite build && pnpm db:migrate`
+5. Deploy
+
+## Key Patterns and Conventions
+
+### Code Organization
+
+- **Naming conventions**:
+  - Database schema files: `*.models.ts`
+  - Remote functions: `*.remote.ts`
+  - Services: `*.service.ts`
+  - Utilities: `*.util.ts`
+- **Import aliases**: Use `$lib`, `$app`, `$env` SvelteKit aliases
+- **TypeScript namespaces**: Preferred for organizing related types (e.g., `IAuth.ProviderId`)
+
+### Database Patterns
+
+- All tables use UUID primary keys via `Schema.id()` from `index.schema.ts`
+- Timestamps use `Schema.timestamps` helper (createdAt, updatedAt)
+- Database columns in `snake_case`, TypeScript in `camelCase` (Drizzle handles conversion)
+- Never use BetterAuth's nanoid generation; custom UUID generation is configured
+
+### Error Handling
+
+- Use `result.err({ message })` utility for consistent error responses
+- Log errors with context: `Log.error(error, "context_identifier")`
+- Better-Auth API errors are instances of `APIError` with `body.code` for error types
+- Custom error codes defined in `$lib/auth-client` as `$ERROR_CODES`

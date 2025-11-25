@@ -29,11 +29,9 @@ export const EMAIL = {
     }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""}</p>
-
 <p>
   Click <a href="${input.url}">here</a> to reset your ${APP.NAME} password.
 </p>
-
 <p>
   If you did not request this, you can safely ignore this email.
 </p>
@@ -54,11 +52,9 @@ ${COMMON.SIGNATURE.HTML}`.trim();
     }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
-
 <p>
   Click <a href="${input.url}">here</a> to verify your ${APP.NAME} account.
 </p>
-
 <p>
   If you did not request this, you can safely ignore this email.
 </p>
@@ -84,14 +80,12 @@ ${COMMON.SIGNATURE.HTML}`.trim();
 
       const html = `
 <p>Hi,</p>
-
 <p>
   You have been invited by <strong>${input.inviter.user.email}</strong> to join the organization <strong>${input.organization.name}</strong>.
 </p>
 <p>
   Click <a href="${href}">here</a> to accept the invitation.
 </p>
-
 <p>
   If you did not request this, you can safely ignore this email.
 </p>
@@ -111,11 +105,9 @@ ${COMMON.SIGNATURE.HTML}`.trim();
     }): SendEmailOptions => {
       const html = `
 <p>Hi ${input.user.name ?? ""},</p>
-
 <p>
   This is to confirm that your account associated with this email address has been successfully deleted from ${APP.NAME}.
 </p>
-
 <p>
   If you did not request this, please contact our support team immediately.
 </p>
@@ -127,6 +119,32 @@ ${COMMON.SIGNATURE.HTML}`.trim();
         to: input.user.email,
         text: Markdown.from_html(html),
         subject: `Your ${APP.NAME} account has been deleted`,
+      };
+    },
+
+    "delete-account-verification": (input: {
+      user: Pick<User, "email" | "name">;
+      url: string;
+    }): SendEmailOptions => {
+      const html = `
+<p>Hi ${input.user.name ?? ""},</p>
+<p>
+  We've received a request to delete your account associated with this email address from ${APP.NAME}.
+</p>
+<p>
+  Please click <a href="${input.url}">here</a> to confirm the deletion.
+</p>
+<p>
+  If you did not request this, please contact our support team immediately.
+</p>
+
+${COMMON.SIGNATURE.HTML}`.trim();
+
+      return {
+        html,
+        to: input.user.email,
+        text: Markdown.from_html(html),
+        subject: `Confirm Account Deletion for ${APP.NAME}`,
       };
     },
   },
