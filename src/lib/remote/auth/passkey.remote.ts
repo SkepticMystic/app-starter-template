@@ -77,6 +77,7 @@ export const rename_passkey_remote = form(
     try {
       const res = await auth.api.updatePasskey({
         body: { id: input.id, name: input.name },
+        headers: getRequestEvent().request.headers,
       });
 
       get_passkey_by_id_remote(res.passkey.id).set({

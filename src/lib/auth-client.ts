@@ -20,3 +20,5 @@ export const BetterAuthClient = createAuthClient({
     }),
   ],
 });
+
+export const $ERROR_CODES = BetterAuthClient.$ERROR_CODES;

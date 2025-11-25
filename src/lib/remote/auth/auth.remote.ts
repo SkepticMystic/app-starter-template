@@ -1,6 +1,7 @@
 import { resolve } from "$app/paths";
-import { form } from "$app/server";
+import { form, getRequestEvent } from "$app/server";
 import { auth } from "$lib/auth";
+import { $ERROR_CODES } from "$lib/auth-client";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { invalid, redirect } from "@sveltejs/kit";
@@ -22,6 +23,7 @@ export const signin_credentials_remote = form(
           password: input.password,
           rememberMe: input.remember,
         },
+        headers: getRequestEvent().request.headers,
       });
     } catch (error) {
       if (error instanceof APIError) {
@@ -60,14 +62,22 @@ export const signup_credentials_remote = form(
           rememberMe: input.remember,
           callbackURL: input.redirect_uri,
         },
+        headers: getRequestEvent().request.headers,
       });
     } catch (error) {
       if (error instanceof APIError) {
         Log.info(error.body, "signup_remote.error better-auth");
 
-        if (error.body?.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+        if (
+          error.body?.code ===
+          $ERROR_CODES.USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
+        ) {
           invalid(issue.email(error.message));
-        } else if (error.body?.code === "PASSWORD_COMPROMISED") {
+        } else if (
+          error.body?.code === "PASSWORD_COMPROMISED" ||
+          error.body?.code === $ERROR_CODES.PASSWORD_TOO_LONG ||
+          error.body?.code === $ERROR_CODES.PASSWORD_TOO_SHORT
+        ) {
           invalid(issue.password(error.message));
         }
 
