@@ -11,7 +11,7 @@
   const accounts = get_all_accounts_remote();
 
   let items = $derived(
-    result.unwrap_or(accounts.current ?? result.suc([]), []).map((acc) => {
+    result.unwrap_or(accounts.current, []).map((acc) => {
       const provider_id = acc.providerId as IAuth.ProviderId;
       const provider = AUTH.PROVIDERS.MAP[provider_id];
 
@@ -25,7 +25,15 @@
   );
 </script>
 
-<ItemList {items}>
+<ItemList
+  {items}
+  empty={{
+    loading: accounts.loading,
+    icon: "lucide/user-plus",
+    title: "No accounts linked",
+    description: "Link an account to get started.",
+  }}
+>
   {#snippet item(item)}
     <Item
       icon={item.icon}

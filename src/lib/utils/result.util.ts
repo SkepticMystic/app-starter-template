@@ -15,13 +15,9 @@ export const result = {
   err,
   suc,
 
-  unwrap_or: <D, E>(res: Result<D, E>, d: D) => (res.ok ? res.data : d),
+  unwrap_or: <D, E>(res: Result<D, E> | undefined, d: D) => (res?.ok ? res.data : d),
 
-  pipe: <D1, E, D2>(
-    r: Result<D1, E>,
-    s: (d: D1) => D2,
-    e?: (e: E) => E,
-  ): Result<D2, E> => {
+  pipe: <D1, E, D2>(r: Result<D1, E>, s: (d: D1) => D2, e?: (e: E) => E): Result<D2, E> => {
     if (r.ok) {
       return suc(s(r.data));
     } else {

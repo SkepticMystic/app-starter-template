@@ -1,5 +1,5 @@
 import { form, getRequestEvent } from "$app/server";
-import { auth } from "$lib/auth";
+import { auth, BA_ERROR_CODES } from "$lib/auth";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
@@ -57,9 +57,9 @@ export const reset_password_remote = form(
         Log.info(error.body, "reset_password_remote.error better-auth");
 
         if (
-          error.body?.code === auth.$ERROR_CODES.PASSWORD_TOO_LONG ||
-          error.body?.code === auth.$ERROR_CODES.PASSWORD_TOO_SHORT ||
-          error.body?.code === auth.$ERROR_CODES.PASSWORD_COMPROMISED
+          error.body?.code === BA_ERROR_CODES.PASSWORD_TOO_LONG ||
+          error.body?.code === BA_ERROR_CODES.PASSWORD_TOO_SHORT ||
+          error.body?.code === BA_ERROR_CODES.PASSWORD_COMPROMISED
         ) {
           invalid(issue.new_password(error.message));
         }
@@ -91,10 +91,7 @@ export const send_verification_email_remote = form(
         : result.err({ message: "Failed to send verification email" });
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(
-          error.body,
-          "send_verification_email_remote.error better-auth",
-        );
+        Log.info(error.body, "send_verification_email_remote.error better-auth");
 
         return result.err({ message: error.message });
       } else {
@@ -131,12 +128,12 @@ export const change_password_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "change_password_remote.error better-auth");
 
-        if (error.body?.code === auth.$ERROR_CODES.INVALID_PASSWORD) {
+        if (error.body?.code === BA_ERROR_CODES.INVALID_PASSWORD) {
           invalid(issue.current_password(error.message));
         } else if (
-          error.body?.code === auth.$ERROR_CODES.PASSWORD_TOO_LONG ||
-          error.body?.code === auth.$ERROR_CODES.PASSWORD_TOO_SHORT ||
-          error.body?.code === auth.$ERROR_CODES.PASSWORD_COMPROMISED
+          error.body?.code === BA_ERROR_CODES.PASSWORD_TOO_LONG ||
+          error.body?.code === BA_ERROR_CODES.PASSWORD_TOO_SHORT ||
+          error.body?.code === BA_ERROR_CODES.PASSWORD_COMPROMISED
         ) {
           invalid(issue.new_password(error.message));
         }

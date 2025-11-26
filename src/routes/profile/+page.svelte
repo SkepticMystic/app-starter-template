@@ -23,19 +23,28 @@
     <h1>Profile</h1>
   </header>
 
-  <section>
+  <section class="flex items-center gap-3">
     <UserAvatar
       class="size-14"
       user={data.user}
     />
 
-    <div class="flex flex-col">
+    <div>
       {#if data.user.name}
-        <strong>{data.user.name}</strong>
+        <p>
+          <strong>{data.user.name}</strong>
+        </p>
       {/if}
-      {data.user.email}
+      <p>{data.user.email}</p>
     </div>
   </section>
+
+  <section>
+    <h2>Accounts</h2>
+    <UserAccountsList />
+  </section>
+
+  <Separator />
 
   <section>
     <div class="flex items-center justify-between gap-3">
@@ -50,11 +59,6 @@
     </div>
 
     <UserPasskeysList />
-  </section>
-
-  <section>
-    <h2>Accounts</h2>
-    <UserAccountsList />
   </section>
 
   <Separator />

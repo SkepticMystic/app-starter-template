@@ -14,8 +14,9 @@
 </script>
 
 <ItemList
-  items={result.unwrap_or(passkeys.current ?? result.suc([]), [])}
+  items={result.unwrap_or(passkeys.current, [])}
   empty={{
+    loading: passkeys.loading,
     icon: "lucide/fingerprint",
     title: "No Passkeys",
     description: "Add a passkey to your account to use it here",
