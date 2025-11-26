@@ -50,11 +50,10 @@
       meta: { label: "Role" },
 
       cell: ({ getValue, row }) =>
-        renderComponent(NativeSelect, {
+        renderComponent(NativeSelect<IOrganization.RoleId>, {
           value: getValue(),
           options: ORGANIZATION.ROLES.OPTIONS,
-          on_value_select: (value) =>
-            update_member_role(row.original, value as IOrganization.RoleId),
+          on_value_select: (value) => update_member_role(row.original, value),
         }),
     }),
 

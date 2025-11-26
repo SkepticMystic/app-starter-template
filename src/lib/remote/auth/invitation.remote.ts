@@ -1,6 +1,5 @@
 import { command, form, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/auth";
-import { $ERROR_CODES } from "$lib/auth-client";
 import { get_session } from "$lib/auth/server";
 import { ORGANIZATION } from "$lib/const/organization.const";
 import { db } from "$lib/server/db/drizzle.db";
@@ -51,9 +50,9 @@ export const create_invitation_remote = form(
 
         if (
           error.body?.code ===
-            $ERROR_CODES.USER_IS_ALREADY_A_MEMBER_OF_THIS_ORGANIZATION ||
+            auth.$ERROR_CODES.USER_IS_ALREADY_A_MEMBER_OF_THIS_ORGANIZATION ||
           error.body?.code ===
-            $ERROR_CODES.USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION
+            auth.$ERROR_CODES.USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION
         ) {
           invalid(issue.email(error.message));
         }

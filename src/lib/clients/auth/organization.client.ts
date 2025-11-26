@@ -1,6 +1,7 @@
 import { BetterAuthClient } from "$lib/auth-client";
 import { Client } from "../index.client";
 
+// TODO: Implement org.leave()
 export const OrganizationClient = {
   set_active: (organizationId: string | undefined) =>
     Client.better_auth(

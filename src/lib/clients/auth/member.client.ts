@@ -15,6 +15,8 @@ export const MemberClient = {
   update_role: (memberId: string, role: IOrganization.RoleId) =>
     Client.request(
       async () => {
+        // TODO: Check if better-auth enforces these checks internally
+        // so we can remove this code
         const members_res = await BetterAuth.to_result(
           BetterAuthClient.organization.listMembers(),
         );

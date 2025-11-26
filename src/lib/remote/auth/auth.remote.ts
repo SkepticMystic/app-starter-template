@@ -1,7 +1,6 @@
 import { resolve } from "$app/paths";
 import { form, getRequestEvent } from "$app/server";
 import { auth } from "$lib/auth";
-import { $ERROR_CODES } from "$lib/auth-client";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { invalid, redirect } from "@sveltejs/kit";
@@ -70,13 +69,13 @@ export const signup_credentials_remote = form(
 
         if (
           error.body?.code ===
-          $ERROR_CODES.USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
+          auth.$ERROR_CODES.USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
         ) {
           invalid(issue.email(error.message));
         } else if (
           error.body?.code === "PASSWORD_COMPROMISED" ||
-          error.body?.code === $ERROR_CODES.PASSWORD_TOO_LONG ||
-          error.body?.code === $ERROR_CODES.PASSWORD_TOO_SHORT
+          error.body?.code === auth.$ERROR_CODES.PASSWORD_TOO_LONG ||
+          error.body?.code === auth.$ERROR_CODES.PASSWORD_TOO_SHORT
         ) {
           invalid(issue.password(error.message));
         }
