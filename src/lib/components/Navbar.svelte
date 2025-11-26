@@ -5,7 +5,7 @@
   import { BetterAuthClient } from "$lib/auth-client";
   import { AdminClient } from "$lib/clients/auth/admin.client";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-  import { APP } from "$lib/const/app";
+  import { APP } from "$lib/const/app.const";
   import { session, user } from "$lib/stores/session";
   import { toast } from "svelte-sonner";
   import ThemeSelector from "./ThemeSelector.svelte";

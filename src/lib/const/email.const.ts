@@ -6,7 +6,7 @@ import type {
 import type { SendEmailOptions } from "$lib/services/email.service";
 import { App } from "$lib/utils/app";
 import { Markdown } from "$lib/utils/markdown";
-import { APP } from "./app";
+import { APP } from "./app.const";
 
 const HTML_SIGNATURE = `
 <p>

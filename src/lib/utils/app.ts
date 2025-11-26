@@ -1,5 +1,5 @@
 import type { ResolvedPathname } from "$app/types";
-import { APP } from "$lib/const/app";
+import { APP } from "$lib/const/app.const";
 import type { PartiallyTypedObject } from "$lib/interfaces";
 import { Url } from "./urls";
 

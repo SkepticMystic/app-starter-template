@@ -11,9 +11,9 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { ACCESS_CONTROL } from "../../../const/access_control.const";
-import { AUTH } from "../../../const/auth.const";
-import { ORGANIZATION } from "../../../const/organization.const";
+import { ACCESS_CONTROL } from "../../../const/auth/access_control.const";
+import { AUTH } from "../../../const/auth/auth.const";
+import { ORGANIZATION } from "../../../const/auth/organization.const";
 import { Schema } from "./index.schema";
 
 export const user_role_enum = pgEnum("user_role", ACCESS_CONTROL.ROLES.IDS);

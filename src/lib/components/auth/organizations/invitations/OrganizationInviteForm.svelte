@@ -3,12 +3,12 @@
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import { ORGANIZATION } from "$lib/const/organization.const";
+  import { ORGANIZATION } from "$lib/const/auth/organization.const";
   import type { ResultData } from "$lib/interfaces";
   import {
     create_invitation_remote,
     get_all_invitations_remote,
-  } from "$lib/remote/auth/invitation.remote";
+  } from "$lib/remote/auth/organization/invitation.remote";
   import { toast } from "svelte-sonner";
 
   let {

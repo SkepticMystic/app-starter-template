@@ -2,10 +2,15 @@
   lang="ts"
   generics="T extends Record<string, unknown>"
 >
-  import * as Table from "$lib/components/ui/table/index.js";
   import type { Item } from "$lib/utils/items.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
+  import TableBody from "./table-body.svelte";
+  import TableCaption from "./table-caption.svelte";
+  import TableFooter from "./table-footer.svelte";
+  import TableHeader from "./table-header.svelte";
+  import TableRoot from "./table-root.svelte";
+  import TableRow from "./table-row.svelte";
 
   let {
     row,
@@ -24,32 +29,32 @@
   } = $props();
 </script>
 
-<Table.Root class={klass}>
+<TableRoot class={klass}>
   {#if caption}
-    <Table.Caption>
+    <TableCaption>
       {@render caption()}
-    </Table.Caption>
+    </TableCaption>
   {/if}
 
-  <Table.Header>
-    <Table.Row>
+  <TableHeader>
+    <TableRow>
       {@render header()}
-    </Table.Row>
-  </Table.Header>
+    </TableRow>
+  </TableHeader>
 
-  <Table.Body>
+  <TableBody>
     {#each data as item, i (item.id)}
-      <Table.Row>
+      <TableRow>
         {@render row(item, i)}
-      </Table.Row>
+      </TableRow>
     {/each}
-  </Table.Body>
+  </TableBody>
 
   {#if footer}
-    <Table.Footer>
-      <Table.Row>
+    <TableFooter>
+      <TableRow>
         {@render footer()}
-      </Table.Row>
-    </Table.Footer>
+      </TableRow>
+    </TableFooter>
   {/if}
-</Table.Root>
+</TableRoot>

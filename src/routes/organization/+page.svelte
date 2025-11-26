@@ -1,7 +1,7 @@
 <script lang="ts">
-  import OrganizationMembersList from "$lib/components/auth/members/OrganizationMembersTable.svelte";
-  import InviteOrganizationMemberForm from "$lib/components/auth/organizations/InviteOrganizationMemberForm.svelte";
-  import OrganizationInvitationsTable from "$lib/components/auth/organizations/OrganizationInvitationsTable.svelte";
+  import OrganizationInvitationsTable from "$lib/components/auth/organizations/invitations/OrganizationInvitationsTable.svelte";
+  import OrganizationInviteForm from "$lib/components/auth/organizations/invitations/OrganizationInviteForm.svelte";
+  import OrganizationMembersTable from "$lib/components/auth/organizations/members/OrganizationMembersTable.svelte";
   import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -18,7 +18,7 @@
 
   <section>
     <h2>Members</h2>
-    <OrganizationMembersList />
+    <OrganizationMembersTable />
   </section>
 
   <section>
@@ -35,7 +35,7 @@
         {/snippet}
 
         {#snippet content({ close })}
-          <InviteOrganizationMemberForm on_success={() => close()} />
+          <OrganizationInviteForm on_success={() => close()} />
         {/snippet}
       </Dialog>
     </div>

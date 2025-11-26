@@ -2,8 +2,8 @@ import { BetterAuthClient } from "$lib/auth-client";
 import {
   ACCESS_CONTROL,
   type IAccessControl,
-} from "$lib/const/access_control.const";
-import { TIME } from "$lib/const/time";
+} from "$lib/const/auth/access_control.const";
+import { TIME } from "$lib/const/time.const";
 import { Format } from "$lib/utils/format.util";
 import { Client } from "../index.client";
 

@@ -1,15 +1,12 @@
 <script lang="ts">
-  import { MemberClient } from "$lib/clients/auth/member.client";
+  import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Time from "$lib/components/ui/elements/Time.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import {
-    ORGANIZATION,
-    type IOrganization,
-  } from "$lib/const/organization.const";
-  import { get_all_members_remote } from "$lib/remote/auth/member.remote";
+  import { ORGANIZATION, type IOrganization } from "$lib/const/auth/organization.const";
+  import { get_all_members_remote } from "$lib/remote/auth/organization/member.remote";
   import { createColumnHelper } from "@tanstack/table-core";
 
   const members = get_all_members_remote();
@@ -24,7 +21,7 @@
       return;
     }
 
-    return await MemberClient.update_role(member.id, role_id);
+    return await OrganizationClient.member.update_role(member.id, role_id);
   };
 
   const column = createColumnHelper<TData>();
@@ -74,7 +71,7 @@
       icon: "lucide/x",
       title: "Remove member",
       variant: "destructive",
-      onselect: () => MemberClient.remove(row.id),
+      onselect: () => OrganizationClient.member.remove(row.id),
     },
   ]}
 ></DataTable>

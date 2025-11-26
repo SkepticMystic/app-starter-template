@@ -7,7 +7,7 @@
   import {
     ACCESS_CONTROL,
     type IAccessControl,
-  } from "$lib/const/access_control.const";
+  } from "$lib/const/auth/access_control.const";
   import { Items } from "$lib/utils/items.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";

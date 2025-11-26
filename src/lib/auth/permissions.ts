@@ -1,4 +1,4 @@
-import type { IAccessControl } from "$lib/const/access_control.const";
+import type { IAccessControl } from "$lib/const/auth/access_control.const";
 import { createAccessControl } from "better-auth/plugins/access";
 import {
   adminAc,

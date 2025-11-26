@@ -26,9 +26,9 @@ import { passkey } from "@better-auth/passkey";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { Effect } from "effect";
 import { AccessControl } from "./auth/permissions";
-import { APP } from "./const/app";
-import { AUTH, type IAuth } from "./const/auth.const";
-import { EMAIL } from "./const/email";
+import { APP } from "./const/app.const";
+import { AUTH, type IAuth } from "./const/auth/auth.const";
+import { EMAIL } from "./const/email.const";
 import { db } from "./server/db/drizzle.db";
 import { redis } from "./server/db/redis.db";
 import {
@@ -45,6 +45,7 @@ import {
 } from "./server/db/schema/auth.models";
 import { EmailLive, EmailService, EmailTest } from "./services/email.service";
 import { Log } from "./utils/logger.util";
+import type { GenericEndpointContext } from "better-auth";
 
 // SECTION: betterAuth init
 export const auth = Effect.runSync(

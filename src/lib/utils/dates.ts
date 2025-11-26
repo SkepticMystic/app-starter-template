@@ -1,4 +1,4 @@
-import { TIME } from "$lib/const/time";
+import { TIME } from "$lib/const/time.const";
 
 const add_ms = (ms: number, dt = new Date()) => new Date(dt.getTime() + ms);
 const add_days = (days: number, dt = new Date()) => add_ms(days * TIME.DAY, dt);

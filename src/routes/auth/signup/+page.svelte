@@ -6,8 +6,8 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
-  import { APP } from "$lib/const/app";
-  import { AUTH } from "$lib/const/auth.const";
+  import { APP } from "$lib/const/app.const";
+  import { AUTH } from "$lib/const/auth/auth.const";
 
   let { data } = $props();
 </script>

@@ -1,4 +1,4 @@
-import { APP } from "$lib/const/app";
+import { APP } from "$lib/const/app.const";
 import type { LayoutLoad } from "./$types";
 
 export const load = (({ url }) => {

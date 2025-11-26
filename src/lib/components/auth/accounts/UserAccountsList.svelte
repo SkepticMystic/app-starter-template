@@ -4,7 +4,7 @@
   import Time from "$lib/components/ui/elements/Time.svelte";
   import Item from "$lib/components/ui/item/Item.svelte";
   import ItemList from "$lib/components/ui/item/ItemList.svelte";
-  import { AUTH, type IAuth } from "$lib/const/auth.const";
+  import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
   import { get_all_accounts_remote } from "$lib/remote/auth/account.remote";
   import { result } from "$lib/utils/result.util";
 

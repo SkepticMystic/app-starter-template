@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { InvitationClient } from "$lib/clients/auth/invitation.client";
+  import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
-  import { ORGANIZATION } from "$lib/const/organization.const";
-  import { get_all_invitations_remote } from "$lib/remote/auth/invitation.remote";
+  import { ORGANIZATION } from "$lib/const/auth/organization.const";
+  import { get_all_invitations_remote } from "$lib/remote/auth/organization/invitation.remote";
   import { CellHelpers } from "$lib/utils/tanstack/table.util";
   import { createColumnHelper } from "@tanstack/table-core";
 
@@ -59,7 +59,7 @@
       title: "Cancel invitation",
       disabled: row.original.status !== "pending",
 
-      onselect: () => InvitationClient.cancel(row.id),
+      onselect: () => OrganizationClient.invitation.cancel(row.id),
     },
   ]}
 >

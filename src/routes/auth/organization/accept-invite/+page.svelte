@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import { InvitationClient } from "$lib/clients/auth/invitation.client.js";
+  import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { App } from "$lib/utils/app.js";
@@ -13,7 +13,7 @@
   const accept_invite = async () => {
     if (!data.invitation) return;
 
-    const res = await InvitationClient.accept(data.invitation.id);
+    const res = await OrganizationClient.invitation.accept(data.invitation.id);
     if (res.ok) {
       await goto(resolve("/"));
     }
