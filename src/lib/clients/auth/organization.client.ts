@@ -14,13 +14,35 @@ import {
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
+import { session } from "$lib/stores/session";
 
-// TODO: Implement org.leave()
 export const OrganizationClient = {
   set_active: (organizationId: string | undefined) =>
     Client.better_auth(
       () => BetterAuthClient.organization.setActive({ organizationId }),
       { toast: { success: "Active organization updated." } },
+    ),
+
+  leave: (/** Fallbacks to active org_id */ org_id?: string) =>
+    Client.request(
+      async () => {
+        const organizationId =
+          org_id ?? session.get().data?.session.activeOrganizationId;
+
+        if (!organizationId) {
+          return result.err({ message: "Organization ID is required" });
+        }
+
+        const res = await BetterAuthClient.organization.leave({
+          organizationId,
+        });
+
+        return BetterAuth.to_result(res);
+      },
+      {
+        confirm: "Are you sure you want to leave this organization?",
+        toast: { success: "Left organization successfully." },
+      },
     ),
 
   delete: (organizationId: string) =>
@@ -61,30 +83,6 @@ export const OrganizationClient = {
     update_role: (memberId: string, role: IOrganization.RoleId) =>
       Client.request(
         async () => {
-          // TODO: Check if better-auth enforces these checks internally
-          // so we can remove this code
-          const members_res = await BetterAuth.to_result(
-            BetterAuthClient.organization.listMembers(),
-          );
-          if (!members_res.ok) return members_res;
-
-          const target_member = members_res.data.members.find(
-            (m) => m.id === memberId,
-          );
-          if (!target_member) {
-            return result.err({ message: "Member not found" });
-          } else if (
-            role !== "owner" &&
-            target_member.role === "owner" &&
-            !members_res.data.members.some(
-              (m) => m.id !== memberId && m.role === "owner",
-            )
-          ) {
-            return result.err({
-              message: "Organization must have at least one owner.",
-            });
-          }
-
           const update_res = await BetterAuth.to_result(
             BetterAuthClient.organization.updateMemberRole({ role, memberId }),
           );

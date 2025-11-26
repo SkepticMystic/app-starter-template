@@ -58,6 +58,3 @@
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store
 - [ ] Zero sync?
 - [ ] Proper site.manifest and favicons: https://realfavicongenerator.net
-- [ ] Various org _related_ things can be detatched from the "organization" prefix:
-  - OrganizationInvitationsTable can just be InvitationsTable
-  - ORGANIZATIONS.INVITATIONS.STATUSES can just be INVITIATIONS.STATUSES
