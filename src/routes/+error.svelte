@@ -6,7 +6,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { user } from "$lib/stores/session.store";
-  import { showReportDialog } from "@sentry/sveltekit";
+  import * as Sentry from "@sentry/sveltekit";
 </script>
 
 <div class="mx-auto max-w-sm">
@@ -57,7 +57,7 @@
             variant="outline"
             icon="lucide/bug"
             onclick={() =>
-              showReportDialog({
+              Sentry.showReportDialog({
                 user: $user
                   ? { name: $user.name, email: $user.email }
                   : undefined,
