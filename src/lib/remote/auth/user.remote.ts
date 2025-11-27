@@ -3,6 +3,7 @@ import { auth, BA_ERROR_CODES } from "$lib/auth";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
+import { captureException } from "@sentry/sveltekit";
 import { invalid } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
@@ -29,6 +30,8 @@ export const request_password_reset_remote = form(
         return result.err({ message: error.message });
       } else {
         Log.error(error, "request_password_reset_remote.error unknown");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }
@@ -68,6 +71,8 @@ export const reset_password_remote = form(
       } else {
         Log.error(error, "reset_password_remote.error unknown");
 
+        captureException(error);
+
         return result.err({ message: "Internal server error" });
       }
     }
@@ -96,6 +101,8 @@ export const send_verification_email_remote = form(
         return result.err({ message: error.message });
       } else {
         Log.error(error, "send_verification_email_remote.error unknown");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }
@@ -141,6 +148,8 @@ export const change_password_remote = form(
         return result.err({ message: error.message });
       } else {
         Log.error(error, "change_password_remote.error unknown");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }

@@ -11,9 +11,11 @@
   const redirect_uri = resolve("/auth/organization/accept-invite");
 
   const accept_invite = async () => {
-    if (!data.invitation) return;
+    if (!data.search.invite_id) return;
 
-    const res = await OrganizationClient.invitation.accept(data.invitation.id);
+    const res = await OrganizationClient.invitation.accept(
+      data.search.invite_id,
+    );
     if (res.ok) {
       await goto(resolve("/"));
     }

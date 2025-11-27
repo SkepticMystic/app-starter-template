@@ -1,5 +1,6 @@
 import { EMAIL_FROM, RESEND_API_KEY } from "$env/static/private";
 import { Log } from "$lib/utils/logger.util";
+import { captureException } from "@sentry/sveltekit";
 import { Context, Effect } from "effect";
 import { Resend } from "resend";
 
@@ -20,9 +21,7 @@ export type SendEmailOptions = {
 export class EmailService extends Context.Tag("EmailService")<
   EmailService,
   {
-    readonly send: (
-      input: SendEmailOptions,
-    ) => Effect.Effect<void, { message: string }>;
+    readonly send: (input: SendEmailOptions) => Effect.Effect<void, { message: string }>;
   }
 >() {}
 
@@ -41,7 +40,10 @@ const of_resend: Context.Tag.Service<EmailService> = {
         }),
 
       catch: (error) => {
-        console.error("Failed to send email:", error);
+        Log.error(error, "EmailService.send.error");
+
+        captureException(error);
+
         return { message: "Failed to send email" };
       },
     }),

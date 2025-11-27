@@ -3,6 +3,7 @@ import { form, getRequestEvent } from "$app/server";
 import { auth, BA_ERROR_CODES } from "$lib/auth";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
+import { captureException } from "@sentry/sveltekit";
 import { invalid, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
@@ -31,6 +32,8 @@ export const signin_credentials_remote = form(
         return result.err({ message: error.message });
       } else {
         Log.error(error, "signin_remote.error unknown");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }
@@ -79,7 +82,9 @@ export const signup_credentials_remote = form(
 
         return result.err({ message: error.message });
       } else {
-        Log.error(error, "signup_remote.error");
+        Log.error(error, "signup_remote.error unknown");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }

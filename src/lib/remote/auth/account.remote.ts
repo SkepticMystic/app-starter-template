@@ -5,6 +5,7 @@ import { AUTH } from "$lib/const/auth/auth.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
+import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -36,6 +37,8 @@ export const get_all_accounts_remote = query(async () => {
     return result.suc(accounts);
   } catch (error) {
     Log.error(error, "get_all_accounts_remote.error");
+
+    captureException(error);
 
     return result.err({ message: "Failed to get accounts" });
   }
@@ -70,6 +73,8 @@ export const unlink_account_remote = command(
         return result.err({ message: error.message });
       } else {
         Log.error(error, "unlink_account_remote.error");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }

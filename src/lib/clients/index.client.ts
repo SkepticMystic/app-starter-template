@@ -4,6 +4,7 @@ import { session } from "$lib/stores/session.store";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import { err } from "$lib/utils/result.util";
 import { Toast, type ToastPromiseOptions } from "$lib/utils/toast/toast.util";
+import { captureException } from "@sentry/sveltekit";
 import { HTTPError } from "ky";
 import { toast } from "svelte-sonner";
 import { get } from "svelte/store";
@@ -22,6 +23,8 @@ const inner_request = async <D>(cb: () => Promise<App.Result<D>>): Promise<App.R
 
       return err({ level: "error", message });
     } else {
+      captureException(error);
+
       return err({ level: "error", message: "An unknown error occurred" });
     }
   }

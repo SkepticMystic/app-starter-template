@@ -2,7 +2,9 @@ import { command, form, query } from "$app/server";
 import { get_session } from "$lib/auth/server";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskSchema, TaskTable } from "$lib/server/db/schema/task.models";
+import { Log } from "$lib/utils/logger.util";
 import { err, suc } from "$lib/utils/result.util";
+import { captureException } from "@sentry/sveltekit";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 
@@ -37,7 +39,9 @@ export const create_task_remote = form(
 
       return suc(task);
     } catch (error) {
-      console.error("create_task.error", error);
+      Log.error(error, "create_task.error");
+
+      captureException(error);
 
       return err({ message: "Failed to create task" });
     }
@@ -63,7 +67,10 @@ export const update_task_remote = form(
 
       return suc(task);
     } catch (error) {
-      console.error("update_task.error", error);
+      Log.error(error, "update_task.error");
+
+      captureException(error);
+
       return err({ message: "Failed to update task" });
     }
   },
@@ -78,7 +85,10 @@ export const delete_task_remote = command(
       const result = await db
         .delete(TaskTable)
         .where(
-          and(eq(TaskTable.id, task_id), eq(TaskTable.org_id, session.org_id)),
+          and(
+            eq(TaskTable.id, task_id), //
+            eq(TaskTable.org_id, session.org_id),
+          ),
         )
         .execute();
 
@@ -87,8 +97,11 @@ export const delete_task_remote = command(
       }
 
       return suc();
-    } catch (e) {
-      console.error("delete_task.error", e);
+    } catch (error) {
+      Log.error(error, "delete_task.error");
+
+      captureException(error);
+
       return err({ message: "Failed to delete task" });
     }
   },

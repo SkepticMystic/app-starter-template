@@ -2,6 +2,7 @@ import { command, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/auth";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
+import { captureException } from "@sentry/sveltekit";
 import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
@@ -21,6 +22,8 @@ export const get_all_members_remote = query(async () => {
     } else {
       Log.error(err, "get_all_members_remote.error unknown");
 
+      captureException(err);
+
       error(500, { message: "Internal server error" });
     }
   }
@@ -35,9 +38,7 @@ export const remove_member_remote = command(
         headers: getRequestEvent().request.headers,
       });
 
-      return res
-        ? result.suc()
-        : result.err({ message: "Failed to remove member" });
+      return res ? result.suc() : result.err({ message: "Failed to remove member" });
     } catch (error) {
       if (error instanceof APIError) {
         Log.info(error.body, "remove_member_remote.error better-auth");
@@ -45,6 +46,8 @@ export const remove_member_remote = command(
         return result.err({ message: error.message });
       } else {
         Log.error(error, "remove_member_remote.error unknown");
+
+        captureException(error);
 
         return result.err({ message: "Internal server error" });
       }
