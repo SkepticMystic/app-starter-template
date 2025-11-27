@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { dev } from "$app/environment";
   import { PasskeyClient } from "$lib/clients/auth/passkey.client.js";
   import { UserClient } from "$lib/clients/auth/user.client";
   import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
@@ -36,6 +37,9 @@
         </p>
       {/if}
       <p>{data.user.email}</p>
+      {#if dev}
+        <code>{data.user.id}</code>
+      {/if}
     </div>
   </section>
 

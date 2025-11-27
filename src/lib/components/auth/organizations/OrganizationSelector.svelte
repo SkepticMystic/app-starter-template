@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { BetterAuthClient } from "$lib/auth-client";
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Loading from "$lib/components/ui/loading/Loading.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import { organizations } from "$lib/stores/organizations.store";
-  import { session } from "$lib/stores/session";
+  import { session } from "$lib/stores/session.store";
+
+  const organizations = BetterAuthClient.useListOrganizations();
 </script>
 
 {#if $organizations.isPending}

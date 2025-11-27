@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -10,7 +11,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 import { ACCESS_CONTROL } from "../../../const/auth/access_control.const";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
@@ -157,19 +157,12 @@ export const OrganizationTable = pgTable("organization", {
 export type Organization = typeof OrganizationTable.$inferSelect;
 export type InsertOrganization = typeof OrganizationTable.$inferInsert;
 
-export const organization_relations = relations(
-  OrganizationTable,
-  ({ many }) => ({
-    members: many(MemberTable),
-    invitations: many(InvitationTable),
-  }),
-);
+export const organization_relations = relations(OrganizationTable, ({ many }) => ({
+  members: many(MemberTable),
+  invitations: many(InvitationTable),
+}));
 
-export const member_role_enum = pgEnum("member_role", [
-  "owner",
-  "admin",
-  "member",
-]);
+export const member_role_enum = pgEnum("member_role", ORGANIZATION.ROLES.IDS);
 
 export const MemberTable = pgTable(
   "member",

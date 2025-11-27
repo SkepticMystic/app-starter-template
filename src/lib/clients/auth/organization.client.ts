@@ -1,8 +1,5 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import {
-  ORGANIZATION,
-  type IOrganization,
-} from "$lib/const/auth/organization.const";
+import { ORGANIZATION, type IOrganization } from "$lib/const/auth/organization.const";
 import {
   cancel_invitation_remote,
   get_all_invitations_remote,
@@ -11,23 +8,21 @@ import {
   get_all_members_remote,
   remove_member_remote,
 } from "$lib/remote/auth/organization/member.remote";
+import { session } from "$lib/stores/session.store";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
-import { session } from "$lib/stores/session";
 
 export const OrganizationClient = {
   set_active: (organizationId: string | undefined) =>
-    Client.better_auth(
-      () => BetterAuthClient.organization.setActive({ organizationId }),
-      { toast: { success: "Active organization updated." } },
-    ),
+    Client.better_auth(() => BetterAuthClient.organization.setActive({ organizationId }), {
+      toast: { success: "Active organization updated." },
+    }),
 
   leave: (/** Fallbacks to active org_id */ org_id?: string) =>
     Client.request(
       async () => {
-        const organizationId =
-          org_id ?? session.get().data?.session.activeOrganizationId;
+        const organizationId = org_id ?? session.get().data?.session.activeOrganizationId;
 
         if (!organizationId) {
           return result.err({ message: "Organization ID is required" });
@@ -46,20 +41,16 @@ export const OrganizationClient = {
     ),
 
   delete: (organizationId: string) =>
-    Client.better_auth(
-      () => BetterAuthClient.organization.delete({ organizationId }),
-      {
-        confirm: "Are you sure you want to delete this organization?",
-        toast: { success: "Organization deleted successfully." },
-      },
-    ),
+    Client.better_auth(() => BetterAuthClient.organization.delete({ organizationId }), {
+      confirm: "Are you sure you want to delete this organization?",
+      toast: { success: "Organization deleted successfully." },
+    }),
 
   invitation: {
     accept: (invitationId: string) =>
-      Client.better_auth(
-        () => BetterAuthClient.organization.acceptInvitation({ invitationId }),
-        { toast: { success: "Invitation accepted" } },
-      ),
+      Client.better_auth(() => BetterAuthClient.organization.acceptInvitation({ invitationId }), {
+        toast: { success: "Invitation accepted" },
+      }),
 
     cancel: (invitation_id: string) =>
       Client.request(

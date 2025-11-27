@@ -1,13 +1,9 @@
 <script lang="ts">
-  import type { User } from "$lib/server/db/schema/auth.models";
+  import type { User } from "better-auth";
   import type { AvatarRootProps } from "bits-ui";
   import Avatar from "./avatar.svelte";
 
-  let {
-    user,
-    ...rest
-  }: AvatarRootProps & { user: Pick<User, "name" | "email" | "image"> } =
-    $props();
+  let { user, ...rest }: AvatarRootProps & { user: User } = $props();
 
   const label = user.name || user.email;
 </script>
