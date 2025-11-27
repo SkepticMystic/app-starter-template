@@ -9,7 +9,7 @@ import {
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
 import { passkey } from "@better-auth/passkey";
-import type { GenericEndpointContext } from "better-auth";
+import type { APIError, GenericEndpointContext } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { generateRandomString } from "better-auth/crypto";
 import { betterAuth } from "better-auth/minimal";
@@ -418,6 +418,5 @@ const get_or_create_org_id = async (
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;
 
-export const BA_ERROR_CODES = Object.fromEntries(
-  Object.keys(auth.$ERROR_CODES).map((k) => [k, k]),
-) as { [E in ErrorCode]: E };
+export const is_ba_error_code = (error: APIError, codes: [ErrorCode, ...ErrorCode[]]) =>
+  codes.includes(error.body?.code as ErrorCode);

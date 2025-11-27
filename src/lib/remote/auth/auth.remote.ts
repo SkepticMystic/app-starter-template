@@ -1,6 +1,6 @@
 import { resolve } from "$app/paths";
 import { form, getRequestEvent } from "$app/server";
-import { auth, BA_ERROR_CODES } from "$lib/auth";
+import { auth, is_ba_error_code } from "$lib/auth";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -70,12 +70,14 @@ export const signup_credentials_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "signup_remote.error better-auth");
 
-        if (error.body?.code === BA_ERROR_CODES.USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL) {
+        if (is_ba_error_code(error, ["USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"])) {
           invalid(issue.email(error.message));
         } else if (
-          error.body?.code === BA_ERROR_CODES.PASSWORD_TOO_LONG ||
-          error.body?.code === BA_ERROR_CODES.PASSWORD_TOO_SHORT ||
-          error.body?.code === BA_ERROR_CODES.PASSWORD_COMPROMISED
+          is_ba_error_code(error, [
+            "PASSWORD_TOO_LONG",
+            "PASSWORD_TOO_SHORT",
+            "PASSWORD_COMPROMISED",
+          ])
         ) {
           invalid(issue.password(error.message));
         }

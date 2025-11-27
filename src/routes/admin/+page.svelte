@@ -1,12 +1,12 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import type { Pathname } from "$app/types";
+  import type { ResolvedPathname } from "$app/types";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
 
   type Route = {
     label: string;
     routes?: Route[];
-    href: Pathname;
+    href: ResolvedPathname;
   };
 
   const routes: Route[] = [

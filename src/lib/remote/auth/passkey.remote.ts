@@ -1,5 +1,5 @@
 import { command, form, getRequestEvent, query } from "$app/server";
-import { auth, BA_ERROR_CODES } from "$lib/auth";
+import { auth, is_ba_error_code } from "$lib/auth";
 import { get_session } from "$lib/auth/server";
 import { db } from "$lib/server/db/drizzle.db";
 import { Log } from "$lib/utils/logger.util";
@@ -96,7 +96,7 @@ export const rename_passkey_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "rename_passkey_remote.error better-auth");
 
-        if (error.body?.code === BA_ERROR_CODES.FAILED_TO_UPDATE_PASSKEY) {
+        if (is_ba_error_code(error, ["FAILED_TO_UPDATE_PASSKEY"])) {
           return result.err({ message: error.message });
         }
 
