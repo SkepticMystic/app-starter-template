@@ -6,7 +6,6 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
-  import DateRangePicker from "$lib/components/ui/date-picker/DateRangePicker.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -21,7 +20,6 @@
     TanstackTable,
   } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
-  import type { DateRange } from "bits-ui";
   import { toast } from "svelte-sonner";
 
   const tasks = get_all_tasks_remote();
@@ -140,17 +138,6 @@
             () =>
               (table.getColumn("status")?.getFilterValue() ?? []) as string[],
             (value) => table.getColumn("status")?.setFilterValue(value)
-          }
-        />
-
-        <DateRangePicker
-          placeholder="Due date"
-          bind:value={
-            () =>
-              table.getColumn("due_date")?.getFilterValue() as
-                | DateRange
-                | undefined,
-            (value) => table.getColumn("due_date")?.setFilterValue(value)
           }
         />
 
