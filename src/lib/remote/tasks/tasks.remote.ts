@@ -3,7 +3,7 @@ import { get_session } from "$lib/auth/server";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskSchema, TaskTable } from "$lib/server/db/schema/task.models";
 import { Log } from "$lib/utils/logger.util";
-import { err, suc } from "$lib/utils/result.util";
+import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
@@ -37,13 +37,13 @@ export const create_task_remote = form(
         })
         .returning();
 
-      return suc(task);
+      return result.suc(task);
     } catch (error) {
       Log.error(error, "create_task.error");
 
       captureException(error);
 
-      return err({ message: "Failed to create task" });
+      return result.err({ message: "Failed to create task" });
     }
   },
 );
@@ -65,13 +65,13 @@ export const update_task_remote = form(
         )
         .returning();
 
-      return suc(task);
+      return result.suc(task);
     } catch (error) {
       Log.error(error, "update_task.error");
 
       captureException(error);
 
-      return err({ message: "Failed to update task" });
+      return result.err({ message: "Failed to update task" });
     }
   },
 );
@@ -82,7 +82,7 @@ export const delete_task_remote = command(
     const { session } = await get_session();
 
     try {
-      const result = await db
+      const res = await db
         .delete(TaskTable)
         .where(
           and(
@@ -92,17 +92,17 @@ export const delete_task_remote = command(
         )
         .execute();
 
-      if (!result.rowCount) {
-        return err({ message: "Task not found" });
+      if (!res.rowCount) {
+        return result.err({ message: "Task not found" });
       }
 
-      return suc();
+      return result.suc();
     } catch (error) {
       Log.error(error, "delete_task.error");
 
       captureException(error);
 
-      return err({ message: "Failed to delete task" });
+      return result.err({ message: "Failed to delete task" });
     }
   },
 );

@@ -2,7 +2,7 @@ import { goto } from "$app/navigation";
 import { resolve } from "$app/paths";
 import { session } from "$lib/stores/session.store";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
-import { err } from "$lib/utils/result.util";
+import { result } from "$lib/utils/result.util";
 import { Toast, type ToastPromiseOptions } from "$lib/utils/toast/toast.util";
 import { captureException } from "@sentry/sveltekit";
 import { HTTPError } from "ky";
@@ -21,11 +21,11 @@ const inner_request = async <D>(cb: () => Promise<App.Result<D>>): Promise<App.R
     if (error instanceof HTTPError) {
       const message = `HTTP Error: ${error.response.status} ${error.response.statusText}`;
 
-      return err({ level: "error", message });
+      return result.err({ level: "error", message });
     } else {
       captureException(error);
 
-      return err({ level: "error", message: "An unknown error occurred" });
+      return result.err({ level: "error", message: "An unknown error occurred" });
     }
   }
 };
@@ -52,9 +52,9 @@ const request = async <D>(
     });
 
     // Don't return a message or level, as we've already shown a toast
-    return err();
+    return result.err();
   } else if (options?.confirm && !confirm(options.confirm)) {
-    return err();
+    return result.err();
   }
 
   const promise = inner_request(cb);

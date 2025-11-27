@@ -1,9 +1,6 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import {
-  delete_passkey_remote,
-  get_all_passkeys_remote,
-} from "$lib/remote/auth/passkey.remote";
-import { err, result, suc } from "$lib/utils/result.util";
+import { delete_passkey_remote, get_all_passkeys_remote } from "$lib/remote/auth/passkey.remote";
+import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
 
 export const PasskeyClient = {
@@ -19,16 +16,15 @@ export const PasskeyClient = {
 
           await get_all_passkeys_remote().refresh();
 
-          return suc(null);
+          return result.suc(null);
         } else if (res.error) {
           console.warn("res.error", res.error);
-          return err({
-            message:
-              res.error.message ?? "Adding passkey failed. Please try again.",
+          return result.err({
+            message: res.error.message ?? "Adding passkey failed. Please try again.",
           });
         } else {
           console.log("res.data", res.data);
-          return suc(res.data);
+          return result.suc(res.data);
         }
       },
       { toast: { success: "Passkey added successfully" } },

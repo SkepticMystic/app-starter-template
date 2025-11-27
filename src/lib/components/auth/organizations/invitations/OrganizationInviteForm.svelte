@@ -4,7 +4,7 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { ORGANIZATION } from "$lib/const/auth/organization.const";
-  import type { ResultData } from "$lib/interfaces";
+  import type { ResultData } from "$lib/interfaces/result.type";
   import {
     create_invitation_remote,
     get_all_invitations_remote,

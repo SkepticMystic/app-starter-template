@@ -2,7 +2,7 @@ import type { ResolvedPathname } from "$app/types";
 import { BetterAuthClient } from "$lib/auth-client";
 import { App } from "$lib/utils/app";
 import { BetterAuth } from "$lib/utils/better-auth.util";
-import { err } from "$lib/utils/result.util";
+import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
 
 export const UserClient = {
@@ -16,11 +16,11 @@ export const UserClient = {
   ) =>
     Client.request(
       async () => {
-        if (!email) return err({ message: "Email is required" });
+        if (!email) {
+          return result.err({ message: "Email is required" });
+        }
 
-        return BetterAuth.to_result(
-          BetterAuthClient.sendVerificationEmail({ email, ...options }),
-        );
+        return BetterAuth.to_result(BetterAuthClient.sendVerificationEmail({ email, ...options }));
       },
       {
         validate_session: false,
@@ -38,8 +38,7 @@ export const UserClient = {
         confirm:
           "Are you sure you want to delete your account? We will send an email to confirm. This action is irreversible.",
         toast: {
-          success:
-            "Account deletion requested. Please check your email to confirm.",
+          success: "Account deletion requested. Please check your email to confirm.",
         },
       },
     ),

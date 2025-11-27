@@ -1,5 +1,5 @@
 import type { MaybePromise } from "$lib/interfaces";
-import { err, suc } from "./result.util";
+import { result } from "./result.util";
 
 export type BetterAuthResult<D> =
   | {
@@ -25,10 +25,10 @@ export const BetterAuth = {
     const awaited = res instanceof Promise ? await res : res;
 
     if (awaited.data) {
-      return suc(awaited.data);
+      return result.suc(awaited.data);
     } else {
       console.warn("BetterAuth error:", awaited.error);
-      return err({
+      return result.err({
         message:
           awaited.error?.message ??
           awaited.error?.statusText ??

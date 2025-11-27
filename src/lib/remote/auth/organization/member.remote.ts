@@ -14,15 +14,15 @@ export const get_all_members_remote = query(async () => {
     });
 
     return members.members;
-  } catch (err) {
-    if (err instanceof APIError) {
-      Log.info(err, "get_all_members_remote.error better-auth");
+  } catch (e) {
+    if (e instanceof APIError) {
+      Log.info(e, "get_all_members_remote.error better-auth");
 
-      error(400, { message: err.message });
+      error(400, { message: e.message });
     } else {
-      Log.error(err, "get_all_members_remote.error unknown");
+      Log.error(e, "get_all_members_remote.error unknown");
 
-      captureException(err);
+      captureException(e);
 
       error(500, { message: "Internal server error" });
     }

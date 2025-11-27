@@ -13,7 +13,7 @@ declare global {
       level?: "error" | "warning";
     }
 
-    type Result<D> = import("$lib/interfaces").Result<D, App.Error>;
+    type Result<D> = import("$lib/interfaces/result.type").Result<D, App.Error>;
   }
 }
 

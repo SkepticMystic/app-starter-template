@@ -26,7 +26,7 @@
     await submit();
 
     const res = form.result;
-    if (res?.error) {
+    if (res?.ok === false) {
       toast.error(res.error.message);
     }
   })}

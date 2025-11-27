@@ -6,7 +6,7 @@
   import { AdminClient } from "$lib/clients/auth/admin.client";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app.const";
-  import { session, user } from "$lib/stores/session";
+  import { session } from "$lib/stores/session.store";
   import { toast } from "svelte-sonner";
   import ThemeSelector from "./ThemeSelector.svelte";
   import ButtonGroup from "./ui/button-group/button-group.svelte";
@@ -62,16 +62,16 @@
     },
   ];
 
-  const show_route = (
-    user: typeof $user,
-    route: Route,
-    side?: Route["side"],
-  ) => {
-    if (side && route.side !== side) return false;
-    if (route.authed !== !!user) return false;
-    if (route.admin && user?.role !== "admin") return false;
-
-    return true;
+  const show_route = (route: Route, side?: Route["side"]) => {
+    if (side && route.side !== side) {
+      return false;
+    } else if (route.authed !== !!$session.data?.session) {
+      return false;
+    } else if (route.admin && $session.data?.user?.role !== "admin") {
+      return false;
+    } else {
+      return true;
+    }
   };
 
   const signout = () =>
@@ -125,7 +125,7 @@
             <DropdownMenu.Separator />
 
             {#each routes as r (r.href)}
-              {#if show_route($user, r)}
+              {#if show_route(r)}
                 <DropdownMenu.Item onSelect={() => goto(resolve(r.href))}>
                   <Icon icon={r.icon} />
                   {r.label}
@@ -133,7 +133,7 @@
               {/if}
             {/each}
 
-            {#if $user}
+            {#if $session.data?.session}
               <DropdownMenu.Item onSelect={signout}>
                 <Icon icon="lucide/log-out" />
                 Sign out

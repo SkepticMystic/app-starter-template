@@ -1,15 +1,7 @@
-import type { Err, Result, Suc } from "$lib/interfaces";
+import type { Result } from "$lib/interfaces/result.type";
 
-export const err = <E = undefined>(e?: E): Err<E> => {
-  const res = { ok: false } as Err<E>;
-  if (e) res["error"] = e;
-  return res;
-};
-export const suc = <D = undefined>(d?: D): Suc<D> => {
-  const res = { ok: true } as Suc<D>;
-  if (d) res["data"] = d;
-  return res;
-};
+const suc = <D = undefined>(d?: D): Result<D, never> => ({ ok: true, data: d as D });
+const err = <E = undefined>(e?: E): Result<never, E> => ({ ok: false, error: e as E });
 
 export const result = {
   err,

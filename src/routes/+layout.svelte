@@ -1,13 +1,13 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
   import {
-    PUBLIC_UMAMI_BASE_URL,
-    PUBLIC_UMAMI_WEBSITE_ID,
+      PUBLIC_UMAMI_BASE_URL,
+      PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
   import Navbar from "$lib/components/Navbar.svelte";
   import SEO from "$lib/components/SEO.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { session } from "$lib/stores/session";
+  import { session } from "$lib/stores/session.store";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { mode, ModeWatcher } from "mode-watcher";
   import { type Snippet } from "svelte";
