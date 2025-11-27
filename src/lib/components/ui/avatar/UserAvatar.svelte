@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { User } from "better-auth";
+  import type { User } from "$lib/server/db/schema/auth.models";
   import type { AvatarRootProps } from "bits-ui";
   import Avatar from "./avatar.svelte";
 
