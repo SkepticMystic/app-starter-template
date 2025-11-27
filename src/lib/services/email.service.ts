@@ -21,7 +21,9 @@ export type SendEmailOptions = {
 export class EmailService extends Context.Tag("EmailService")<
   EmailService,
   {
-    readonly send: (input: SendEmailOptions) => Effect.Effect<void, { message: string }>;
+    readonly send: (
+      input: SendEmailOptions,
+    ) => Effect.Effect<void, { message: string }>;
   }
 >() {}
 

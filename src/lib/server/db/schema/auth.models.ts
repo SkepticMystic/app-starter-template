@@ -157,10 +157,13 @@ export const OrganizationTable = pgTable("organization", {
 export type Organization = typeof OrganizationTable.$inferSelect;
 export type InsertOrganization = typeof OrganizationTable.$inferInsert;
 
-export const organization_relations = relations(OrganizationTable, ({ many }) => ({
-  members: many(MemberTable),
-  invitations: many(InvitationTable),
-}));
+export const organization_relations = relations(
+  OrganizationTable,
+  ({ many }) => ({
+    members: many(MemberTable),
+    invitations: many(InvitationTable),
+  }),
+);
 
 export const member_role_enum = pgEnum("member_role", ORGANIZATION.ROLES.IDS);
 

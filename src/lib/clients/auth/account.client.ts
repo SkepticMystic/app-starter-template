@@ -1,4 +1,7 @@
-import { get_all_accounts_remote, unlink_account_remote } from "$lib/remote/auth/account.remote";
+import {
+  get_all_accounts_remote,
+  unlink_account_remote,
+} from "$lib/remote/auth/account.remote";
 import { Client } from "../index.client";
 
 export const AccountClient = {

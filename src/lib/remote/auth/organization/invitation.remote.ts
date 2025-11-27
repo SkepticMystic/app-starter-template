@@ -14,7 +14,8 @@ export const get_all_invitations_remote = query(async () => {
   const session = await get_session();
 
   const invitations = await db.query.invitation.findMany({
-    where: (invitation, { eq }) => eq(invitation.organizationId, session.session.org_id),
+    where: (invitation, { eq }) =>
+      eq(invitation.organizationId, session.session.org_id),
 
     orderBy: (invitation, { desc }) => [desc(invitation.createdAt)],
 
@@ -55,7 +56,11 @@ export const create_invitation_remote = form(
           ])
         ) {
           invalid(issue.email(error.message));
-        } else if (is_ba_error_code(error, ["YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE"])) {
+        } else if (
+          is_ba_error_code(error, [
+            "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
+          ])
+        ) {
           invalid(issue.role(error.message));
         }
 
@@ -80,7 +85,9 @@ export const cancel_invitation_remote = command(
         headers: getRequestEvent().request.headers,
       });
 
-      return res ? result.suc() : result.err({ message: "Failed to cancel invitation" });
+      return res
+        ? result.suc()
+        : result.err({ message: "Failed to cancel invitation" });
     } catch (error) {
       if (error instanceof APIError) {
         Log.info(error.body, "cancel_invitation_remote.error better-auth");

@@ -1,5 +1,8 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import { ACCESS_CONTROL, type IAccessControl } from "$lib/const/auth/access_control.const";
+import {
+  ACCESS_CONTROL,
+  type IAccessControl,
+} from "$lib/const/auth/access_control.const";
 import { TIME } from "$lib/const/time.const";
 import { Format } from "$lib/utils/format.util";
 import { Client } from "../index.client";
@@ -16,14 +19,20 @@ export const AdminClient = {
   ),
 
   impersonate_user: (userId: string) =>
-    Client.better_auth(() => BetterAuthClient.admin.impersonateUser({ userId }), {
-      suc_msg: "Impersonation started",
-    }),
+    Client.better_auth(
+      () => BetterAuthClient.admin.impersonateUser({ userId }),
+      {
+        suc_msg: "Impersonation started",
+      },
+    ),
 
-  stop_impersonating: Client.better_auth(() => BetterAuthClient.admin.stopImpersonating(), {
-    confirm: "Are you sure you want to stop impersonating?",
-    suc_msg: "Impersonation stopped",
-  }),
+  stop_impersonating: Client.better_auth(
+    () => BetterAuthClient.admin.stopImpersonating(),
+    {
+      confirm: "Are you sure you want to stop impersonating?",
+      suc_msg: "Impersonation stopped",
+    },
+  ),
 
   ban_user: Client.better_auth(
     (input: Parameters<typeof BetterAuthClient.admin.banUser>[0]) =>
@@ -39,10 +48,13 @@ export const AdminClient = {
     },
   ),
 
-  unban_user: Client.better_auth((userId: string) => BetterAuthClient.admin.unbanUser({ userId }), {
-    confirm: "Are you sure you want to unban this user?",
-    suc_msg: "User unbanned",
-  }),
+  unban_user: Client.better_auth(
+    (userId: string) => BetterAuthClient.admin.unbanUser({ userId }),
+    {
+      confirm: "Are you sure you want to unban this user?",
+      suc_msg: "User unbanned",
+    },
+  ),
 
   delete_user: Client.better_auth(
     (userId: string) => BetterAuthClient.admin.removeUser({ userId }),

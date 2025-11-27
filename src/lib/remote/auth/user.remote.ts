@@ -98,7 +98,10 @@ export const send_verification_email_remote = form(
         : result.err({ message: "Failed to send verification email" });
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error.body, "send_verification_email_remote.error better-auth");
+        Log.info(
+          error.body,
+          "send_verification_email_remote.error better-auth",
+        );
 
         return result.err({ message: error.message });
       } else {

@@ -1,11 +1,16 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import { delete_passkey_remote, get_all_passkeys_remote } from "$lib/remote/auth/passkey.remote";
+import {
+  delete_passkey_remote,
+  get_all_passkeys_remote,
+} from "$lib/remote/auth/passkey.remote";
 import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
 
 export const PasskeyClient = {
   create: Client.wrap(
-    async (input: Parameters<typeof BetterAuthClient.passkey.addPasskey>[0]) => {
+    async (
+      input: Parameters<typeof BetterAuthClient.passkey.addPasskey>[0],
+    ) => {
       // NOTE: Can't use BetterAuth.to_result, because it returns an inconsistent shape to the rest of the client api
       const res = await BetterAuthClient.passkey.addPasskey(input);
 
@@ -19,7 +24,8 @@ export const PasskeyClient = {
       } else if (res.error) {
         console.warn("res.error", res.error);
         return result.err({
-          message: res.error.message ?? "Adding passkey failed. Please try again.",
+          message:
+            res.error.message ?? "Adding passkey failed. Please try again.",
         });
       } else {
         console.log("res.data", res.data);

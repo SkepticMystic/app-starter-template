@@ -144,7 +144,10 @@ export const auth = Effect.runSync(
           create: {
             before: async (session, ctx) => {
               if (!ctx) {
-                Log.error({ ctx: "[auth.session.create.before]" }, "No ctx in hook callback");
+                Log.error(
+                  { ctx: "[auth.session.create.before]" },
+                  "No ctx in hook callback",
+                );
                 return { data: session };
               }
 
@@ -168,7 +171,9 @@ export const auth = Effect.runSync(
           enabled: true,
           sendDeleteAccountVerification: async ({ user, url }) =>
             Effect.runPromise(
-              email.send(EMAIL.TEMPLATES["delete-account-verification"]({ url, user })),
+              email.send(
+                EMAIL.TEMPLATES["delete-account-verification"]({ url, user }),
+              ),
             ),
         },
       },
@@ -191,7 +196,9 @@ export const auth = Effect.runSync(
         revokeSessionsOnPasswordReset: true,
 
         sendResetPassword: ({ user, url }) =>
-          Effect.runPromise(email.send(EMAIL.TEMPLATES["password-reset"]({ url, user }))),
+          Effect.runPromise(
+            email.send(EMAIL.TEMPLATES["password-reset"]({ url, user })),
+          ),
       },
 
       emailVerification: {
@@ -199,7 +206,9 @@ export const auth = Effect.runSync(
         autoSignInAfterVerification: true,
 
         sendVerificationEmail: ({ user, url }) =>
-          Effect.runPromise(email.send(EMAIL.TEMPLATES["email-verification"]({ url, user }))),
+          Effect.runPromise(
+            email.send(EMAIL.TEMPLATES["email-verification"]({ url, user })),
+          ),
       },
 
       socialProviders: {
@@ -233,7 +242,10 @@ export const auth = Effect.runSync(
         lastLoginMethod({
           customResolveMethod: (ctx) => {
             // NOTE: The plugin uses different terminology to the rest of the lib...
-            if (ctx.path === "/sign-in/email" || ctx.path === "/sign-up/email") {
+            if (
+              ctx.path === "/sign-in/email" ||
+              ctx.path === "/sign-up/email"
+            ) {
               return "credential" satisfies IAuth.ProviderId;
             } else {
               // Return null to use default logic
@@ -276,7 +288,8 @@ export const auth = Effect.runSync(
                     clientId: POCKETID_CLIENT_ID,
                     clientSecret: POCKETID_CLIENT_SECRET,
 
-                    discoveryUrl: POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                    discoveryUrl:
+                      POCKETID_BASE_URL + "/.well-known/openid-configuration",
                     // ... other config options
 
                     mapProfileToUser: (profile: unknown) => {
@@ -287,7 +300,9 @@ export const auth = Effect.runSync(
 
                       const name = (
                         typed.name ||
-                        (typed.given_name || "") + " " + (typed.family_name || "") ||
+                        (typed.given_name || "") +
+                          " " +
+                          (typed.family_name || "") ||
                         ""
                       )
                         .trim()
@@ -352,14 +367,19 @@ const get_or_create_org_id = async (
     userId: session.userId,
   });
 
-  const existing_member = await ctx.context.adapter.findOne<Pick<Member, "id" | "organizationId">>({
+  const existing_member = await ctx.context.adapter.findOne<
+    Pick<Member, "id" | "organizationId">
+  >({
     model: "member",
     select: ["id", "organizationId"],
     where: [{ field: "userId", operator: "eq", value: session.userId }],
   });
 
   if (existing_member) {
-    log.debug({ organizationId: existing_member.organizationId }, "Found existing organization");
+    log.debug(
+      { organizationId: existing_member.organizationId },
+      "Found existing organization",
+    );
     return {
       member_id: existing_member.id,
       org_id: existing_member.organizationId,
@@ -382,7 +402,10 @@ const get_or_create_org_id = async (
   log.debug({ user }, "User info");
 
   // SOURCE: https://github.com/better-auth/better-auth/blob/744e9e34c1eb8b75c373f00a71c85e5a599abae6/packages/better-auth/src/plugins/organization/adapter.ts#L186
-  const org = await ctx.context.adapter.create<OrganizationInput, Pick<Organization, "id">>({
+  const org = await ctx.context.adapter.create<
+    OrganizationInput,
+    Pick<Organization, "id">
+  >({
     model: "organization",
     select: ["id"],
     data: {
@@ -418,5 +441,7 @@ const get_or_create_org_id = async (
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;
 
-export const is_ba_error_code = (error: APIError, codes: [ErrorCode, ...ErrorCode[]]) =>
-  codes.includes(error.body?.code as ErrorCode);
+export const is_ba_error_code = (
+  error: APIError,
+  codes: [ErrorCode, ...ErrorCode[]],
+) => codes.includes(error.body?.code as ErrorCode);

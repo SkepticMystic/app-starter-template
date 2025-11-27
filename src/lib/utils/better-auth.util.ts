@@ -18,7 +18,9 @@ export type BetterAuthResult<D> =
 
 export const BetterAuth = {
   /** Transform a better-auth result into one of mine */
-  to_result: async <D>(res: MaybePromise<BetterAuthResult<D>>): Promise<App.Result<D>> => {
+  to_result: async <D>(
+    res: MaybePromise<BetterAuthResult<D>>,
+  ): Promise<App.Result<D>> => {
     const awaited = res instanceof Promise ? await res : res;
 
     if (awaited.data) {
@@ -26,7 +28,10 @@ export const BetterAuth = {
     } else {
       console.warn("BetterAuth error:", awaited.error);
       return result.err({
-        message: awaited.error?.message ?? awaited.error?.statusText ?? "An unknown error occurred",
+        message:
+          awaited.error?.message ??
+          awaited.error?.statusText ??
+          "An unknown error occurred",
       });
     }
   },

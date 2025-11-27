@@ -26,7 +26,9 @@ const config = {
 };
 
 if (SONDA) {
-  config.plugins?.push(sonda({ server: true, open: false, deep: true, sources: true }));
+  config.plugins?.push(
+    sonda({ server: true, open: false, deep: true, sources: true }),
+  );
 }
 
 export default config;
