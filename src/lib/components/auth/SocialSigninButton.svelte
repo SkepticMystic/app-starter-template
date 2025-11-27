@@ -15,16 +15,15 @@
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  const signin = () =>
-    Client.better_auth(
-      () =>
-        BetterAuthClient.signIn.social({
-          provider: provider_id,
-          disableRedirect: false,
-          callbackURL: redirect_uri,
-        }),
-      { validate_session: false },
-    );
+  const signin = Client.better_auth(
+    () =>
+      BetterAuthClient.signIn.social({
+        provider: provider_id,
+        disableRedirect: false,
+        callbackURL: redirect_uri,
+      }),
+    { validate_session: false },
+  );
 </script>
 
 <Button

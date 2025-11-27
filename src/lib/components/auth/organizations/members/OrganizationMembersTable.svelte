@@ -5,7 +5,10 @@
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Time from "$lib/components/ui/elements/Time.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import { ORGANIZATION, type IOrganization } from "$lib/const/auth/organization.const";
+  import {
+    ORGANIZATION,
+    type IOrganization,
+  } from "$lib/const/auth/organization.const";
   import { get_all_members_remote } from "$lib/remote/auth/organization/member.remote";
   import { createColumnHelper } from "@tanstack/table-core";
 
@@ -21,7 +24,10 @@
       return;
     }
 
-    return await OrganizationClient.member.update_role(member.id, role_id);
+    return await OrganizationClient.member.update_role({
+      role: role_id,
+      memberId: member.id,
+    });
   };
 
   const column = createColumnHelper<TData>();

@@ -142,7 +142,7 @@
 
             {#if $session.data?.session.impersonatedBy}
               <DropdownMenu.Item
-                onSelect={() => AdminClient.stop_impersonating()}
+                onSelect={() => AdminClient.stop_impersonating({})}
               >
                 <Icon icon="lucide/stop-circle" />
                 Stop impersonating

@@ -31,10 +31,10 @@
     }
   };
 
-  const ban_user = async (user_id: string) => {
-    const res = await AdminClient.ban_user(user_id, {});
+  const ban_user = async (userId: string) => {
+    const res = await AdminClient.ban_user({ userId });
     if (res.ok) {
-      users = Items.patch(users, user_id, res.data.user);
+      users = Items.patch(users, userId, res.data.user);
     }
   };
 

@@ -56,7 +56,7 @@
 
       <Button
         icon="lucide/fingerprint"
-        onclick={() => PasskeyClient.create()}
+        onclick={() => PasskeyClient.create({})}
       >
         Add Passkey
       </Button>

@@ -15,11 +15,10 @@
     location.href = redirect_uri;
   };
 
-  const signin = () =>
-    Client.better_auth(
-      () => BetterAuthClient.signIn.passkey({}, { onSuccess }),
-      { validate_session: false },
-    );
+  const signin = Client.better_auth(
+    () => BetterAuthClient.signIn.passkey({}, { onSuccess }),
+    { validate_session: false },
+  );
 
   onMount(() => {
     PublicKeyCredential?.isConditionalMediationAvailable?.().then(

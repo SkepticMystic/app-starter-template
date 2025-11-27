@@ -15,17 +15,16 @@
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  const signin = () =>
-    Client.better_auth(
-      () =>
-        BetterAuthClient.signIn.oauth2({
-          disableRedirect: false,
-          providerId: provider_id,
-          callbackURL: redirect_uri,
-          scopes: ["openid", "profile", "email"],
-        }),
-      { validate_session: false },
-    );
+  const signin = Client.better_auth(
+    () =>
+      BetterAuthClient.signIn.oauth2({
+        disableRedirect: false,
+        providerId: provider_id,
+        callbackURL: redirect_uri,
+        scopes: ["openid", "profile", "email"],
+      }),
+    { validate_session: false },
+  );
 </script>
 
 <Button

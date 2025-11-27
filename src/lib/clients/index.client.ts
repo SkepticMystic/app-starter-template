@@ -3,69 +3,121 @@ import { resolve } from "$app/paths";
 import { session } from "$lib/stores/session.store";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
-import { Toast, type ToastPromiseOptions } from "$lib/utils/toast/toast.util";
 import { captureException } from "@sentry/sveltekit";
+import { isHttpError } from "@sveltejs/kit";
 import { HTTPError } from "ky";
 import { toast } from "svelte-sonner";
 import { get } from "svelte/store";
 
-// Run a cb, and catch any errors into a Result with a level
-const inner_request = async <D>(cb: () => Promise<App.Result<D>>): Promise<App.Result<D>> => {
-  try {
-    const res = await cb();
+type ClientRequestOptions<I, D> = {
+  optimistic: boolean; // TODO: Implement
+  prompt: ((input: I) => string) | string | null;
+  confirm: ((input: I) => string) | string | null;
+  suc_msg: ((input: I, data: D) => string) | string | null;
+  validate_session: boolean;
+};
+const DEFAULT_OPTIONS: ClientRequestOptions<unknown, unknown> = {
+  prompt: null,
+  confirm: null,
+  suc_msg: null,
+  optimistic: false,
+  validate_session: true,
+};
 
-    return res;
-  } catch (error) {
-    console.log("Client.request error", error);
+const wrap = <I, D>(
+  cb: (input: I, options?: Partial<ClientRequestOptions<I, D>>) => Promise<App.Result<D>>,
+  client_options?: Partial<ClientRequestOptions<I, D>>,
+): typeof cb => {
+  return async (input, callsite_options) => {
+    toast.dismiss();
 
-    if (error instanceof HTTPError) {
-      const message = `HTTP Error: ${error.response.status} ${error.response.statusText}`;
+    const resolved: ClientRequestOptions<I, D> = {
+      ...DEFAULT_OPTIONS,
+      ...client_options,
+      ...callsite_options,
+    };
 
-      return result.err({ level: "error", message });
-    } else {
+    if (
+      resolved.validate_session && //
+      !get(session).data?.session
+    ) {
+      toast.warning("Your session has expired. Please signin again to continue.", {
+        action: {
+          label: "Sign in",
+          onClick: () => goto(resolve("/auth/signin")),
+        },
+      });
+
+      // Don't return a message or level, as we've already shown a toast
+      return result.err();
+    }
+
+    if (resolved.confirm) {
+      if (
+        !confirm(
+          typeof resolved.confirm === "function" //
+            ? resolved.confirm(input)
+            : resolved.confirm,
+        )
+      ) {
+        return result.err();
+      }
+    }
+
+    if (resolved.prompt) {
+      const target =
+        typeof resolved.prompt === "function" ? resolved.prompt(input) : resolved.prompt;
+
+      if (prompt(`Type "${target}" to confirm`) !== target) {
+        return result.err();
+      }
+    }
+
+    try {
+      const res = await cb(input, resolved);
+
+      if (res.ok) {
+        if (resolved.suc_msg) {
+          toast.success(
+            typeof resolved.suc_msg === "function"
+              ? resolved.suc_msg(input, res.data)
+              : resolved.suc_msg,
+          );
+        }
+      } else {
+        toast.warning(res.error.message);
+      }
+
+      return res;
+    } catch (error) {
       captureException(error);
 
-      return result.err({ level: "error", message: "An unknown error occurred" });
+      if (isHttpError(error)) {
+        console.log("Client.wrap.error.isHttpError", error.body);
+
+        toast[error.body.level ?? "error"](error.body.message);
+
+        return result.err(error.body);
+      } else if (error instanceof HTTPError) {
+        console.log("Client.wrap.error.HTTPError", error);
+
+        // const msg = await error.response.json<App.Error>();
+        toast.error(error.message);
+
+        return result.err({ message: error.message });
+      } else {
+        console.log("Client.wrap.error.unknown", error);
+
+        toast.error("Internal server error");
+        return result.err();
+      }
     }
-  }
+  };
 };
 
-type ClientRequestOptions<D> = {
-  confirm?: string;
-  validate_session?: boolean;
-  toast?: ToastPromiseOptions<D>;
-};
+const better_auth = <I, D>(
+  cb: (input: I) => Promise<BetterAuthResult<D>>,
+  options?: Partial<ClientRequestOptions<I, D>>,
+) => wrap((input) => BetterAuth.to_result(cb(input)), options);
 
-/** Handles toast before n after an http request */
-const request = async <D>(
-  cb: () => Promise<App.Result<D>>,
-  options?: ClientRequestOptions<D>,
-): Promise<App.Result<D>> => {
-  toast.dismiss();
-
-  if (options?.validate_session !== false && !get(session).data?.session) {
-    toast.warning("Your session has expired. Please signin again to continue.", {
-      action: {
-        label: "Sign in",
-        onClick: () => goto(resolve("/auth/signin")),
-      },
-    });
-
-    // Don't return a message or level, as we've already shown a toast
-    return result.err();
-  } else if (options?.confirm && !confirm(options.confirm)) {
-    return result.err();
-  }
-
-  const promise = inner_request(cb);
-  Toast.promise(promise, options?.toast);
-
-  return await promise;
-};
-
-const better_auth = async <D>(
-  cb: () => Promise<BetterAuthResult<D>>,
-  { fallback, ...options }: ClientRequestOptions<D> & { fallback?: string } = {},
-): Promise<App.Result<D>> => request(() => BetterAuth.to_result(cb(), { fallback }), options);
-
-export const Client = { request, better_auth };
+export const Client = { wrap, better_auth };
