@@ -4,9 +4,21 @@
   import Alert from "$lib/components/ui/alert/Alert.svelte";
   import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Dialog from "$lib/components/ui/dialog/dialog.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
+  import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { user } from "$lib/stores/session.store";
-  import * as Sentry from "@sentry/sveltekit";
+  import { captureFeedback } from "@sentry/sveltekit";
+  import { toast } from "svelte-sonner";
+  import { preventDefault } from "svelte/legacy";
+
+  let form = $state({
+    name: $user?.name ?? "",
+    email: $user?.email ?? "",
+    message: "",
+  });
 </script>
 
 <div class="mx-auto max-w-sm">
@@ -52,19 +64,78 @@
         </ButtonGroup>
 
         <ButtonGroup class="w-full">
-          <Button
-            class="grow"
-            variant="outline"
-            icon="lucide/bug"
-            onclick={() =>
-              Sentry.showReportDialog({
-                user: $user
-                  ? { name: $user.name, email: $user.email }
-                  : undefined,
-              })}
+          <Dialog
+            open
+            title="Send Feedback"
+            description="Help us improve the app by sending us feedback"
           >
-            Submit Feedback
-          </Button>
+            {#snippet trigger_child({ props })}
+              <Button
+                {...props}
+                class="w-full"
+                icon="lucide/bug"
+                variant="secondary"
+              >
+                Send Feedback
+              </Button>
+            {/snippet}
+
+            {#snippet content({ close })}
+              <form
+                class="flex flex-col gap-3"
+                onsubmit={preventDefault(() => {
+                  captureFeedback({
+                    name: form.name,
+                    email: form.email,
+                    message: form.message,
+                  });
+
+                  close();
+                  toast.info("Thanks for your feedback!");
+                })}
+              >
+                <Field label="Name">
+                  {#snippet input({ props })}
+                    <Input
+                      {...props}
+                      autocomplete="name"
+                      bind:value={form.name}
+                    ></Input>
+                  {/snippet}
+                </Field>
+
+                <Field label="Email">
+                  {#snippet input({ props })}
+                    <Input
+                      {...props}
+                      type="email"
+                      autocomplete="email"
+                      bind:value={form.email}
+                    ></Input>
+                  {/snippet}
+                </Field>
+
+                <Field label="Message">
+                  {#snippet input({ props })}
+                    <Textarea
+                      {...props}
+                      required
+                      placeholder="Please describe your issue"
+                      bind:value={form.message}
+                    />
+                  {/snippet}
+                </Field>
+
+                <Button
+                  type="submit"
+                  class="w-full"
+                  icon="lucide/send"
+                >
+                  Send
+                </Button>
+              </form>
+            {/snippet}
+          </Dialog>
         </ButtonGroup>
       </ButtonGroup>
     </div>

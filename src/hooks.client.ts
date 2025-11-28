@@ -18,12 +18,12 @@ Sentry.init({
   spotlight: dev,
 
   integrations: [
-    Sentry.feedbackIntegration({
-      autoInject: false,
-      showBranding: false,
-      // Additional SDK configuration goes in here, for example:
-      colorScheme: "system",
-    }),
+    // Sentry.feedbackIntegration({
+    //   autoInject: false,
+    //   showBranding: false,
+    //   // Additional SDK configuration goes in here, for example:
+    //   colorScheme: "system",
+    // }),
   ],
 });
 
