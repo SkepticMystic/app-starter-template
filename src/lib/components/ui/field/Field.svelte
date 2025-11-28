@@ -44,7 +44,7 @@
 
 <FieldRoot
   {orientation}
-  class={klass}
+  class={["w-fit", klass]}
   data-invalid={boolAttr(issue)}
 >
   <FieldContent>
