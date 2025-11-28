@@ -6,8 +6,8 @@
   import Time from "$lib/components/ui/elements/Time.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import {
-    ORGANIZATION,
-    type IOrganization,
+      ORGANIZATION,
+      type IOrganization,
   } from "$lib/const/auth/organization.const";
   import { get_all_members_remote } from "$lib/remote/auth/organization/member.remote";
   import { createColumnHelper } from "@tanstack/table-core";

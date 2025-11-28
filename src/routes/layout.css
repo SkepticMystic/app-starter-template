@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/forms";
 
 @plugin "@iconify/tailwind4" {
   prefixes: lucide;
@@ -7,8 +9,6 @@
   iconselector: ".{prefix}/{name}";
   scale: 1;
 }
-
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 

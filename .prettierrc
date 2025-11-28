@@ -13,6 +13,5 @@
     }
   ],
   "tailwindStylesheet": "./src/app.css",
-
   "singleAttributePerLine": true
 }

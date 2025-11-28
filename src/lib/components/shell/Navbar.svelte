@@ -8,10 +8,10 @@
   import { APP } from "$lib/const/app.const";
   import { session } from "$lib/stores/session.store";
   import { toast } from "svelte-sonner";
+  import ButtonGroup from "../ui/button-group/button-group.svelte";
+  import Button from "../ui/button/button.svelte";
+  import Icon from "../ui/icon/Icon.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
-  import ButtonGroup from "./ui/button-group/button-group.svelte";
-  import Button from "./ui/button/button.svelte";
-  import Icon from "./ui/icon/Icon.svelte";
 
   interface Route {
     side: "center" | "right";
