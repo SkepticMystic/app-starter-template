@@ -40,7 +40,7 @@
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/table-core": "^8.21.3",
-    "@types/node": "^24.10.1",
+    "@types/node": "^22",
     "@types/turndown": "^5.0.6",
     "@types/umami": "^2.10.1",
     "bits-ui": "^2.14.4",
