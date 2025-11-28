@@ -65,7 +65,6 @@
 
         <ButtonGroup class="w-full">
           <Dialog
-            open
             title="Send Feedback"
             description="Help us improve the app by sending us feedback"
           >
