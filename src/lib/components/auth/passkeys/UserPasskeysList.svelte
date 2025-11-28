@@ -28,10 +28,7 @@
       title={passkey.name || "Unnamed Passkey"}
     >
       {#snippet description()}
-        Connected on <Time
-          date={passkey.createdAt}
-          show="date"
-        />
+        Connected on <Time date={passkey.createdAt} />
       {/snippet}
 
       {#snippet actions()}

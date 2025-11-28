@@ -50,16 +50,18 @@ export const create_invitation_remote = form(
         Log.info(error.body, "create_invitation_remote.error better-auth");
 
         if (
-          is_ba_error_code(error, [
+          is_ba_error_code(
+            error,
             "USER_IS_ALREADY_A_MEMBER_OF_THIS_ORGANIZATION",
             "USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION",
-          ])
+          )
         ) {
           invalid(issue.email(error.message));
         } else if (
-          is_ba_error_code(error, [
+          is_ba_error_code(
+            error,
             "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
-          ])
+          )
         ) {
           invalid(issue.role(error.message));
         }

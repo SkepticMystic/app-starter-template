@@ -441,7 +441,5 @@ const get_or_create_org_id = async (
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;
 
-export const is_ba_error_code = (
-  error: APIError,
-  codes: [ErrorCode, ...ErrorCode[]],
-) => codes.includes(error.body?.code as ErrorCode);
+export const is_ba_error_code = (error: APIError, ...codes: ErrorCode[]) =>
+  codes.includes(error.body?.code as ErrorCode);

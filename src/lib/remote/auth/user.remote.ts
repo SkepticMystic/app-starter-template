@@ -60,11 +60,12 @@ export const reset_password_remote = form(
         Log.info(error.body, "reset_password_remote.error better-auth");
 
         if (
-          is_ba_error_code(error, [
+          is_ba_error_code(
+            error,
             "PASSWORD_TOO_LONG",
             "PASSWORD_TOO_SHORT",
             "PASSWORD_COMPROMISED",
-          ])
+          )
         ) {
           invalid(issue.new_password(error.message));
         }
@@ -140,14 +141,15 @@ export const change_password_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "change_password_remote.error better-auth");
 
-        if (is_ba_error_code(error, ["INVALID_PASSWORD"])) {
+        if (is_ba_error_code(error, "INVALID_PASSWORD")) {
           invalid(issue.current_password(error.message));
         } else if (
-          is_ba_error_code(error, [
+          is_ba_error_code(
+            error,
             "PASSWORD_TOO_LONG",
             "PASSWORD_TOO_SHORT",
             "PASSWORD_COMPROMISED",
-          ])
+          )
         ) {
           invalid(issue.new_password(error.message));
         }
