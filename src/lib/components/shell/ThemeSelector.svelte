@@ -2,7 +2,7 @@
   import { buttonVariants } from "$lib/components/ui/button/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { resetMode, setMode } from "mode-watcher";
-  import Icon from "./ui/icon/Icon.svelte";
+  import Icon from "../ui/icon/Icon.svelte";
 </script>
 
 <DropdownMenu.Root>
@@ -23,8 +23,9 @@
   </DropdownMenu.Trigger>
 
   <DropdownMenu.Content align="end">
-    <DropdownMenu.Item onclick={() => setMode("light")}>Light</DropdownMenu.Item
-    >
+    <DropdownMenu.Item onclick={() => setMode("light")}>
+      Light
+    </DropdownMenu.Item>
     <DropdownMenu.Item onclick={() => setMode("dark")}>Dark</DropdownMenu.Item>
     <DropdownMenu.Item onclick={() => resetMode()}>System</DropdownMenu.Item>
   </DropdownMenu.Content>

@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { MaybePromise } from "$lib/interfaces";
   import type { Snippet } from "svelte";
-  import ButtonGroup from "./ui/button-group/button-group.svelte";
-  import Button from "./ui/button/button.svelte";
+  import ButtonGroup from "../button-group/button-group.svelte";
+  import Button from "../button/button.svelte";
 
   // const LIMIT_VALUES = [10, 20, 50, 100, 500] as const;
 
