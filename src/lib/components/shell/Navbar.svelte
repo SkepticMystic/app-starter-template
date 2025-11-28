@@ -4,14 +4,13 @@
   import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { AdminClient } from "$lib/clients/auth/admin.client";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { APP } from "$lib/const/app.const";
   import { session } from "$lib/stores/session.store";
   import { toast } from "svelte-sonner";
+  import ButtonGroup from "../ui/button-group/button-group.svelte";
+  import Button from "../ui/button/button.svelte";
+  import DropdownMenu from "../ui/dropdown-menu/DropdownMenu.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
-  import ButtonGroup from "./ui/button-group/button-group.svelte";
-  import Button from "./ui/button/button.svelte";
-  import Icon from "./ui/icon/Icon.svelte";
 
   interface Route {
     side: "center" | "right";
@@ -65,9 +64,9 @@
   const show_route = (route: Route, side?: Route["side"]) => {
     if (side && route.side !== side) {
       return false;
-    } else if (route.authed !== !!$session.data?.session) {
+    } else if (route.authed !== !!$session?.data?.session) {
       return false;
-    } else if (route.admin && $session.data?.user?.role !== "admin") {
+    } else if (route.admin && $session?.data?.user?.role !== "admin") {
       return false;
     } else {
       return true;
@@ -106,51 +105,37 @@
     </ButtonGroup>
 
     <ButtonGroup>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger>
-          {#snippet child({ props })}
-            <Button
-              {...props}
-              variant="outline"
-              icon="lucide/menu"
-              title="Open menu"
-            ></Button>
-          {/snippet}
-        </DropdownMenu.Trigger>
+      <DropdownMenu
+        variant="outline"
+        title="Open menu"
+        items={[
+          {
+            kind: "group",
+            title: "My Account",
+            items: routes.map((r) => ({
+              icon: r.icon,
+              title: r.label,
+              href: resolve(r.href),
+              hide: !show_route(r),
+            })),
+          },
+          {
+            kind: "item",
+            title: "Sign out",
+            onselect: signout,
+            icon: "lucide/log-out",
+            hide: !$session.data?.session,
+          },
 
-        <DropdownMenu.Content align="end">
-          <DropdownMenu.Group>
-            <DropdownMenu.Label>My Account</DropdownMenu.Label>
-
-            <DropdownMenu.Separator />
-
-            {#each routes as r (r.href)}
-              {#if show_route(r)}
-                <DropdownMenu.Item onSelect={() => goto(resolve(r.href))}>
-                  <Icon icon={r.icon} />
-                  {r.label}
-                </DropdownMenu.Item>
-              {/if}
-            {/each}
-
-            {#if $session.data?.session}
-              <DropdownMenu.Item onSelect={signout}>
-                <Icon icon="lucide/log-out" />
-                Sign out
-              </DropdownMenu.Item>
-            {/if}
-
-            {#if $session.data?.session.impersonatedBy}
-              <DropdownMenu.Item
-                onSelect={() => AdminClient.stop_impersonating({})}
-              >
-                <Icon icon="lucide/stop-circle" />
-                Stop impersonating
-              </DropdownMenu.Item>
-            {/if}
-          </DropdownMenu.Group>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+          {
+            kind: "item",
+            title: "Stop impersonating",
+            icon: "lucide/stop-circle",
+            hide: !$session.data?.session.impersonatedBy,
+            onselect: () => AdminClient.stop_impersonating({}),
+          },
+        ]}
+      ></DropdownMenu>
     </ButtonGroup>
   </ButtonGroup>
 </nav>

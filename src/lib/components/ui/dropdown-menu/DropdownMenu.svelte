@@ -84,9 +84,9 @@
     {/if}
   {:else if item.kind === "group"}
     <DropdownMenuGroup>
-      <DropdownMenuLabel>{item.label}</DropdownMenuLabel>
+      <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
 
-      {#each item.actions as subaction, i (i)}
+      {#each item.items as subaction, i (i)}
         {@render item_snippet(subaction)}
       {/each}
     </DropdownMenuGroup>

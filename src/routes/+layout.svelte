@@ -10,17 +10,15 @@
   import { session } from "$lib/stores/session.store";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { mode, ModeWatcher } from "mode-watcher";
-  import { type Snippet } from "svelte";
   import { Toaster } from "svelte-sonner";
   import "../app.css";
 
-  interface Props {
-    children?: Snippet;
-  }
+  let { children } = $props();
 
-  let { children }: Props = $props();
 
-  session.subscribe(($session) => {
+  // NOTE: Currently this listener is _just_ for umami analytics
+  // We unsub as soon as they're identified
+  const session_listener = session.listen(($session) => {
     if ($session.isRefetching || $session.isPending) {
       return;
     } else {
@@ -34,6 +32,8 @@
           ip_address: $session.data.session.ipAddress,
           user_agent: $session.data.session.userAgent,
         });
+
+        session_listener();
       }
     }
   });
