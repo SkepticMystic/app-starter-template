@@ -19,7 +19,7 @@
 {:else if $organizations.data.length === 0}
   <p>You are not a member of any organizations.</p>
 {:else if $organizations.data.length === 1}
-  {@const org = $organizations.data[0]}
+  {@const org = $organizations.data[0]!}
 
   <p>
     <strong>Organization</strong>: {org.name} ({org.slug})

@@ -12,7 +12,7 @@ const config = {
   plugins: [
     sentrySvelteKit({
       telemetry: false,
-      sourceMapsUploadOptions: { org: "ross-keenan", project: "app-starter" }
+      sourceMapsUploadOptions: { org: "ross-keenan", project: "app-starter" },
     }),
     tailwindcss(),
     sveltekit(),
