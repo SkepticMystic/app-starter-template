@@ -1,4 +1,7 @@
 {
+  "$schema": "https://www.schemastore.org/tsconfig",
+  "_version": "5.0.0",
+
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "strict": true,
@@ -12,12 +15,13 @@
     "sourceMap": true,
     
     "skipLibCheck": true,
-    "resolveJsonModule": true,
     
+    
+    "module": "esnext",
     "target": "es2024",
-    
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
     "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true
   }
 }
