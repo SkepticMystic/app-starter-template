@@ -1,7 +1,8 @@
+import { dev } from "$app/environment";
 import { EMAIL_FROM, RESEND_API_KEY } from "$env/static/private";
 import { Log } from "$lib/utils/logger.util";
+import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { Context, Effect } from "effect";
 import { Resend } from "resend";
 
 // NOTE: Copied from nodemailer Mail.Options
@@ -18,42 +19,39 @@ export type SendEmailOptions = {
   html: string;
 };
 
-export class EmailService extends Context.Tag("EmailService")<
-  EmailService,
-  {
-    readonly send: (
-      input: SendEmailOptions,
-    ) => Effect.Effect<void, { message: string }>;
-  }
->() {}
-
 const resend = new Resend(RESEND_API_KEY);
-const of_resend: Context.Tag.Service<EmailService> = {
-  send: (input) =>
-    Effect.tryPromise({
-      try: () =>
-        resend.emails.send({
-          to: input.to,
-          subject: input.subject,
-          from: input.from ?? EMAIL_FROM,
+const of_resend = {
+  send: async (input: SendEmailOptions) => {
+    try {
+      const res = await resend.emails.send({
+        to: input.to,
+        text: input.text,
+        html: input.html,
+        subject: input.subject,
+        from: input.from ?? EMAIL_FROM,
+      });
 
-          text: input.text,
-          html: input.html,
-        }),
+      if (res.error) {
+        Log.error(res.error, "EmailService.send.error response");
 
-      catch: (error) => {
-        Log.error(error, "EmailService.send.error");
+        captureException(res.error);
 
-        captureException(error);
+        return result.err({ message: "Failed to send email" });
+      } else {
+        return result.suc(res.data);
+      }
+    } catch (error) {
+      Log.error(error, "EmailService.send.error unknown");
 
-        return { message: "Failed to send email" };
-      },
-    }),
+      captureException(error);
+
+      return result.err({ message: "Failed to send email" });
+    }
+  },
 };
 
-const of_console_log: Context.Tag.Service<EmailService> = {
-  send: (input) => Effect.sync(() => Log.info(input, "Sending email:")),
+const of_console_log = {
+  send: async (input: SendEmailOptions) => Log.info(input, "Sending email:"),
 };
 
-export const EmailLive = EmailService.of(of_resend);
-export const EmailTest = EmailService.of(of_console_log);
+export const EmailService = dev ? of_console_log : of_resend;

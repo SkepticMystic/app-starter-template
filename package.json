@@ -87,7 +87,6 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.7",
     "drizzle-zod": "^0.8.3",
-    "effect": "^3.19.8",
     "mode-watcher": "^1.1.0",
     "pino": "^9.14.0",
     "resend": "^6.5.2",
