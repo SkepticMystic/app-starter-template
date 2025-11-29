@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { OrganizationClient } from "$lib/clients/auth/organization.client.js";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { Format } from "$lib/utils/format.util.js";
+  import { Items } from "$lib/utils/items.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
 
@@ -31,6 +33,16 @@
       cell: CellHelpers.time,
     }),
   ];
+
+  const actions = {
+    delete: async (org_id: string) => {
+      const res = await OrganizationClient.admin_delete(org_id);
+
+      if (res.ok) {
+        orgs = Items.remove(orgs, org_id);
+      }
+    },
+  };
 </script>
 
 <article>
@@ -41,13 +53,13 @@
   <DataTable
     {columns}
     data={orgs}
-    actions={(_row) => [
-      // {
-      //   icon: "lucide/x",
-      //   title: "Delete org",
-      //   variant: "destructive",
-      //   onselect: () => delete_org(row.id),
-      // },
+    actions={(row) => [
+      {
+        icon: "lucide/x",
+        title: "Delete org",
+        variant: "destructive",
+        onselect: () => actions.delete(row.id),
+      },
     ]}
   >
     {#snippet header(table)}
