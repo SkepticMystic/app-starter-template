@@ -2,9 +2,9 @@
   import { resolve } from "$app/paths";
   import { BetterAuthClient } from "$lib/auth-client.js";
   import CredentialSigninForm from "$lib/components/auth/authenticate/CredentialSigninForm.svelte";
-  import GenericOAuthSigninButton from "$lib/components/auth/GenericOAuthSigninButton.svelte";
+  import GenericOAuthSigninButton from "$lib/components/auth/authenticate/GenericOAuthSigninButton.svelte";
+  import SocialSigninButton from "$lib/components/auth/authenticate/SocialSigninButton.svelte";
   import PasskeySigninButton from "$lib/components/auth/passkeys/PasskeySigninButton.svelte";
-  import SocialSigninButton from "$lib/components/auth/SocialSigninButton.svelte";
   import Badge from "$lib/components/ui/badge/badge.svelte";
   import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
   import Button from "$lib/components/ui/button/button.svelte";

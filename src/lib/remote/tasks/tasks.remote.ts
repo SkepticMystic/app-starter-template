@@ -1,7 +1,7 @@
 import { command, form, query } from "$app/server";
 import { get_session } from "$lib/auth/server";
 import { db } from "$lib/server/db/drizzle.db";
-import { TaskSchema, TaskTable } from "$lib/server/db/schema/task.models";
+import { TaskSchema, TaskTable } from "$lib/server/db/models/task.model";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";

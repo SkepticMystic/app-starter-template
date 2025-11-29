@@ -6,7 +6,7 @@
     get_all_passkeys_remote,
     rename_passkey_remote,
   } from "$lib/remote/auth/passkey.remote";
-  import type { Passkey } from "$lib/server/db/schema/auth.models";
+  import type { Passkey } from "$lib/server/db/models/auth.model";
   import { Items } from "$lib/utils/items.util";
   import { result } from "$lib/utils/result.util";
   import { toast } from "svelte-sonner";

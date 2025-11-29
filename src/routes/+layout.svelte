@@ -1,12 +1,9 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
-  import "./layout.css";
-  
   import {
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID
   } from "$env/static/public";
-  
   import Navbar from "$lib/components/shell/Navbar.svelte";
   import SEO from "$lib/components/shell/SEO.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -14,7 +11,7 @@
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { mode, ModeWatcher } from "mode-watcher";
   import { Toaster } from "svelte-sonner";
-  import "../app.css";
+  import "./layout.css";
 
   let { children } = $props();
 
