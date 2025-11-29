@@ -5,7 +5,6 @@ import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { isHttpError } from "@sveltejs/kit";
-import { HTTPError } from "ky";
 import { toast } from "svelte-sonner";
 import { get } from "svelte/store";
 
@@ -106,13 +105,6 @@ const wrap = <I, D>(
         toast[error.body.level ?? "error"](error.body.message);
 
         return result.err(error.body);
-      } else if (error instanceof HTTPError) {
-        console.log("Client.wrap.error.HTTPError", error);
-
-        // const msg = await error.response.json<App.Error>();
-        toast.error(error.message);
-
-        return result.err({ message: error.message });
       } else {
         console.log("Client.wrap.error.unknown", error);
 

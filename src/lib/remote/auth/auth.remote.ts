@@ -70,16 +70,15 @@ export const signup_credentials_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "signup_remote.error better-auth");
 
-        if (
-          is_ba_error_code(error, ["USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"])
-        ) {
+        if (is_ba_error_code(error, "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL")) {
           invalid(issue.email(error.message));
         } else if (
-          is_ba_error_code(error, [
+          is_ba_error_code(
+            error,
             "PASSWORD_TOO_LONG",
             "PASSWORD_TOO_SHORT",
             "PASSWORD_COMPROMISED",
-          ])
+          )
         ) {
           invalid(issue.password(error.message));
         }

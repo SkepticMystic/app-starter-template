@@ -96,7 +96,7 @@ export const rename_passkey_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "rename_passkey_remote.error better-auth");
 
-        if (is_ba_error_code(error, ["FAILED_TO_UPDATE_PASSKEY"])) {
+        if (is_ba_error_code(error, "FAILED_TO_UPDATE_PASSKEY")) {
           return result.err({ message: error.message });
         }
 

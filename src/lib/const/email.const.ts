@@ -5,7 +5,6 @@ import type {
 } from "$lib/server/db/schema/auth.models";
 import type { SendEmailOptions } from "$lib/services/email.service";
 import { App } from "$lib/utils/app";
-import { Markdown } from "$lib/utils/markdown";
 import { APP } from "./app.const";
 
 const HTML_SIGNATURE = `
@@ -17,7 +16,6 @@ const HTML_SIGNATURE = `
 const COMMON = {
   SIGNATURE: {
     HTML: HTML_SIGNATURE,
-    TEXT: Markdown.from_html(HTML_SIGNATURE),
   },
 };
 
@@ -41,7 +39,6 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       return {
         html,
         to: input.user.email,
-        text: Markdown.from_html(html),
         subject: `Reset your ${APP.NAME} password`,
       };
     },
@@ -64,7 +61,6 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       return {
         html,
         to: input.user.email,
-        text: Markdown.from_html(html),
         subject: `Verify your ${APP.NAME} account`,
       };
     },
@@ -95,7 +91,6 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       return {
         html,
         to: input.invitation.email,
-        text: Markdown.from_html(html),
         subject: `You have been invited to join ${input.organization.name}`,
       };
     },
@@ -117,7 +112,6 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       return {
         html,
         to: input.user.email,
-        text: Markdown.from_html(html),
         subject: `Your ${APP.NAME} account has been deleted`,
       };
     },
@@ -143,7 +137,6 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       return {
         html,
         to: input.user.email,
-        text: Markdown.from_html(html),
         subject: `Confirm Account Deletion for ${APP.NAME}`,
       };
     },

@@ -1,9 +1,12 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
+  import "./layout.css";
+  
   import {
       PUBLIC_UMAMI_BASE_URL,
-      PUBLIC_UMAMI_WEBSITE_ID,
+      PUBLIC_UMAMI_WEBSITE_ID
   } from "$env/static/public";
+  
   import Navbar from "$lib/components/shell/Navbar.svelte";
   import SEO from "$lib/components/shell/SEO.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -15,7 +18,6 @@
 
   let { children } = $props();
 
-
   // NOTE: Currently this listener is _just_ for umami analytics
   // We unsub as soon as they're identified
   const session_listener = session.listen(($session) => {
@@ -23,14 +25,14 @@
       return;
     } else {
       console.log("$session loaded", $session.data);
-
+  
       if (browser && window.umami && $session.data?.user) {
         window.umami.identify($session.data.user.id, {
           name: $session.data.user.name,
           email: $session.data.user.email,
           session_id: $session.data.session.id,
           ip_address: $session.data.session.ipAddress,
-          user_agent: $session.data.session.userAgent,
+          user_agent: $session.data.session.userAgent
         });
 
         session_listener();

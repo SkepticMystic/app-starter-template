@@ -1,11 +1,12 @@
 import { command, getRequestEvent, query } from "$app/server";
-import { auth } from "$lib/auth";
+import { auth, is_ba_error_code } from "$lib/auth";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
+import { resolve } from "$app/paths";
 
 export const get_all_members_remote = query(async () => {
   try {
@@ -17,6 +18,11 @@ export const get_all_members_remote = query(async () => {
   } catch (e) {
     if (e instanceof APIError) {
       Log.info(e, "get_all_members_remote.error better-auth");
+
+      // NOTE: This seems to happen when they're not logged in... bad error code
+      if (is_ba_error_code(e, "YOU_ARE_NOT_A_MEMBER_OF_THIS_ORGANIZATION")) {
+        redirect(302, resolve("/auth/signin"));
+      }
 
       error(400, { message: e.message });
     } else {

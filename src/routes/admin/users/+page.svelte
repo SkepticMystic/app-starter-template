@@ -3,6 +3,8 @@
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import {
     ACCESS_CONTROL,
@@ -75,6 +77,12 @@
         }),
     }),
 
+    column.accessor("banned", {
+      meta: { label: "Banned" },
+
+      cell: ({ getValue }) => (getValue() ? "Yes" : "No"),
+    }),
+
     column.accessor("createdAt", {
       meta: { label: "Join date" },
 
@@ -111,5 +119,68 @@
         onselect: () => delete_user(row.id),
       },
     ]}
-  ></DataTable>
+  >
+    {#snippet header(table)}
+      <search class="flex flex-wrap gap-2">
+        <Field label="Name">
+          {#snippet input({ props })}
+            <Input
+              {...props}
+              placeholder="Search by name"
+              bind:value={
+                () => table.getColumn("name")?.getFilterValue(),
+                (v) => table.getColumn("name")?.setFilterValue(v)
+              }
+            />
+          {/snippet}
+        </Field>
+
+        <Field label="Email">
+          {#snippet input({ props })}
+            <Input
+              {...props}
+              placeholder="Search by email"
+              bind:value={
+                () => table.getColumn("email")?.getFilterValue(),
+                (v) => table.getColumn("email")?.setFilterValue(v)
+              }
+            />
+          {/snippet}
+        </Field>
+
+        <Field label="Role">
+          {#snippet input({ props })}
+            <NativeSelect
+              {...props}
+              options={[
+                { value: undefined, label: "All" },
+                ...ACCESS_CONTROL.ROLES.OPTIONS,
+              ]}
+              bind:value={
+                () => table.getColumn("role")?.getFilterValue(),
+                (v) => table.getColumn("role")?.setFilterValue(v)
+              }
+            />
+          {/snippet}
+        </Field>
+
+        <Field label="Banned">
+          {#snippet input({ props })}
+            <NativeSelect
+              {...props}
+              options={[
+                { value: undefined, label: "All" },
+                { value: true, label: "Yes" },
+                { value: false, label: "No" },
+              ]}
+              bind:value={
+                () => table.getColumn("banned")?.getFilterValue(),
+                (v) => table.getColumn("banned")?.setFilterValue(v)
+              }
+            />
+          {/snippet}
+        </Field>
+      </search>
+    {/snippet}
+  </DataTable>
 </article>

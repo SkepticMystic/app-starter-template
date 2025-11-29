@@ -5,7 +5,6 @@
   import type { MaybePromise, SelectOption } from "$lib/interfaces";
   import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLSelectAttributes } from "svelte/elements";
-  import Icon from "../icon/Icon.svelte";
   import NativeSelectOption from "./native-select-option.svelte";
 
   let {
@@ -56,11 +55,4 @@
       {/each}
     {/if}
   </select>
-
-  <Icon
-    aria-hidden="true"
-    icon="lucide/chevron-down"
-    data-slot="native-select-icon"
-    class="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-muted-foreground opacity-50 select-none"
-  />
 </div>

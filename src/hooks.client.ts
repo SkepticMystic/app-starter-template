@@ -17,14 +17,7 @@ Sentry.init({
 
   spotlight: dev,
 
-  integrations: [
-    Sentry.feedbackIntegration({
-      autoInject: false,
-      showBranding: false,
-      // Additional SDK configuration goes in here, for example:
-      colorScheme: "system",
-    }),
-  ],
+  integrations: [],
 });
 
 // If you have a custom error handler, pass it to `handleErrorWithSentry`
