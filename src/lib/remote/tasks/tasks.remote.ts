@@ -1,5 +1,5 @@
 import { command, form, query } from "$app/server";
-import { get_session } from "$lib/auth/server";
+import { get_session } from "$lib/services/auth.service";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskSchema, TaskTable } from "$lib/server/db/models/task.model";
 import { Log } from "$lib/utils/logger.util";

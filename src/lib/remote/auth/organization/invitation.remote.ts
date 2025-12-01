@@ -1,6 +1,6 @@
 import { command, form, getRequestEvent, query } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
-import { get_session } from "$lib/auth/server";
+import { get_session } from "$lib/services/auth.service";
 import { ORGANIZATION } from "$lib/const/auth/organization.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Log } from "$lib/utils/logger.util";

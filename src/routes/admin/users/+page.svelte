@@ -6,10 +6,7 @@
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import {
-    ACCESS_CONTROL,
-    type IAccessControl,
-  } from "$lib/const/auth/access_control.const";
+  import { ROLES, type RoleId } from "$lib/const/auth/role.const.js";
   import { Items } from "$lib/utils/items.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
@@ -70,9 +67,9 @@
       meta: { label: "Role" },
 
       cell: ({ row, getValue }) =>
-        renderComponent(NativeSelect<IAccessControl.RoleId>, {
+        renderComponent(NativeSelect<RoleId>, {
           value: getValue(),
-          options: ACCESS_CONTROL.ROLES.OPTIONS,
+          options: ROLES.OPTIONS,
           on_value_select: (role) => update_user_role({ role, userId: row.id }),
         }),
     }),
@@ -152,10 +149,7 @@
           {#snippet input({ props })}
             <NativeSelect
               {...props}
-              options={[
-                { value: undefined, label: "All" },
-                ...ACCESS_CONTROL.ROLES.OPTIONS,
-              ]}
+              options={[{ value: undefined, label: "All" }, ...ROLES.OPTIONS]}
               bind:value={
                 () => table.getColumn("role")?.getFilterValue(),
                 (v) => table.getColumn("role")?.setFilterValue(v)

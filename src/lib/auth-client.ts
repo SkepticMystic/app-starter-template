@@ -6,8 +6,8 @@ import {
 } from "better-auth/client/plugins";
 import { passkeyClient } from "@better-auth/passkey/client";
 import { createAuthClient } from "better-auth/svelte";
-import { AccessControl } from "./auth/permissions";
 import { toast } from "svelte-sonner";
+import { AccessControl } from "./const/auth/access_control.const";
 
 export const BetterAuthClient = createAuthClient({
   plugins: [

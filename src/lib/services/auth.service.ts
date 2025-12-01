@@ -2,7 +2,7 @@ import { resolve } from "$app/paths";
 import { getRequestEvent } from "$app/server";
 import { auth } from "$lib/auth";
 import { BetterAuthClient } from "$lib/auth-client";
-import type { IAccessControl } from "$lib/const/auth/access_control.const";
+import type { RoleId } from "$lib/const/auth/role.const.ts";
 import { Log } from "$lib/utils/logger.util";
 import { error, redirect } from "@sveltejs/kit";
 
@@ -46,7 +46,7 @@ export const get_session = async (options?: Options) => {
   } else if (options?.permissions) {
     const role_check = BetterAuthClient.admin.checkRolePermission({
       permissions: options.permissions,
-      role: (session.user.role as IAccessControl.RoleId | undefined) || "user",
+      role: (session.user.role as RoleId | undefined) || "user",
     });
 
     if (!role_check) {

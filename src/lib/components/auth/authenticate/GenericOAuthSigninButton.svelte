@@ -2,8 +2,8 @@
   import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { Client } from "$lib/clients/index.client";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
-  import Button from "../ui/button/button.svelte";
 
   let {
     provider_id,

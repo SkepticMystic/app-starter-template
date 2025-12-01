@@ -1,20 +1,17 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import {
-  ACCESS_CONTROL,
-  type IAccessControl,
-} from "$lib/const/auth/access_control.const";
 import { TIME } from "$lib/const/time.const";
 import { Format } from "$lib/utils/format.util";
 import { Client } from "../index.client";
+import { type RoleId, ROLES } from "$lib/const/auth/role.const";
 
 export const AdminClient = {
   update_user_role: Client.better_auth(
-    (input: { userId: string; role: IAccessControl.RoleId }) =>
+    (input: { userId: string; role: RoleId }) =>
       BetterAuthClient.admin.setRole(input),
     {
       suc_msg: "User role updated",
       confirm: (input) =>
-        `Are you sure you want to update this user's role to ${ACCESS_CONTROL.ROLES.MAP[input.role].label}?`,
+        `Are you sure you want to update this user's role to ${ROLES.MAP[input.role].label}?`,
     },
   ),
 

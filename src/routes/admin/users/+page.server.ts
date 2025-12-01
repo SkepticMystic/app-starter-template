@@ -1,4 +1,4 @@
-import { get_session } from "$lib/auth/server";
+import { get_session } from "$lib/services/auth.service";
 import { db } from "$lib/server/db/drizzle.db";
 import type { PageServerLoad } from "./$types";
 

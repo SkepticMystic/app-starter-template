@@ -1,6 +1,6 @@
 import { command, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/auth";
-import { get_session } from "$lib/auth/server";
+import { get_session } from "$lib/services/auth.service";
 import { AUTH } from "$lib/const/auth/auth.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Log } from "$lib/utils/logger.util";

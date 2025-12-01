@@ -1,5 +1,5 @@
 import { resolve } from "$app/paths";
-import { safe_get_session } from "$lib/auth/server";
+import { safe_get_session } from "$lib/services/auth.service";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 

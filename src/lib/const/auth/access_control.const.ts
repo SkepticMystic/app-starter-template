@@ -1,20 +1,30 @@
-const ROLE_IDS = ["user", "admin"] as const;
-const ROLE_MAP = {
-  user: { label: "User" },
-  admin: { label: "Admin" },
-} satisfies Record<IAccessControl.RoleId, { label: string }>;
+import { createAccessControl } from "better-auth/plugins/access";
+import {
+  adminAc,
+  defaultStatements,
+  userAc,
+} from "better-auth/plugins/admin/access";
+import type { RoleId } from "$lib/const/auth/role.const";
 
-export const ACCESS_CONTROL = {
-  ROLES: {
-    IDS: ROLE_IDS,
-    MAP: ROLE_MAP,
-    OPTIONS: ROLE_IDS.map((id) => ({
-      value: id,
-      label: ROLE_MAP[id].label,
-    })),
-  },
+const statement = {
+  ...defaultStatements,
+  // project: ["create", "share", "update", "delete"],
+} as const;
+
+const ac = createAccessControl(statement);
+
+export const AccessControl = {
+  ac,
+
+  roles: {
+    user: ac.newRole({
+      ...userAc.statements,
+      // project: ["create", "share", "update"],
+    }),
+
+    admin: ac.newRole({
+      ...adminAc.statements,
+      // project: ["create", "share", "update", "delete"],
+    }),
+  } satisfies Record<RoleId, ReturnType<typeof ac.newRole>>,
 };
-
-export declare namespace IAccessControl {
-  export type RoleId = (typeof ROLE_IDS)[number];
-}

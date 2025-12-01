@@ -1,5 +1,5 @@
 import { command } from "$app/server";
-import { get_session } from "$lib/auth/server";
+import { get_session } from "$lib/services/auth.service";
 import { db } from "$lib/server/db/drizzle.db";
 import { OrganizationTable } from "$lib/server/db/models/auth.model";
 import { Log } from "$lib/utils/logger.util";
@@ -19,7 +19,9 @@ export const admin_delete_organization_remote = command(
         .where(eq(OrganizationTable.id, org_id))
         .execute();
 
-      return res.rowCount ? result.suc() : result.err({ message: "Organization not found" });
+      return res.rowCount
+        ? result.suc()
+        : result.err({ message: "Organization not found" });
     } catch (error) {
       Log.error(error, "admin_delete_organization_remote.error unknown");
 

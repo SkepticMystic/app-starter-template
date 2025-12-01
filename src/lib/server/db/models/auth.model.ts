@@ -11,12 +11,12 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { ACCESS_CONTROL } from "../../../const/auth/access_control.const";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
 import { Schema } from "./index.schema";
+import { ROLES } from "../../../const/auth/role.const";
 
-export const user_role_enum = pgEnum("user_role", ACCESS_CONTROL.ROLES.IDS);
+export const user_role_enum = pgEnum("user_role", ROLES.IDS);
 
 // Define User table schema
 export const UserTable = pgTable("user", {

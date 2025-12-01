@@ -24,7 +24,7 @@ import {
   type OrganizationInput,
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
-import { AccessControl } from "./auth/permissions";
+import { AccessControl } from "./const/auth/access_control.const";
 import { APP } from "./const/app.const";
 import { AUTH, type IAuth } from "./const/auth/auth.const";
 import { EMAIL } from "./const/email.const";
@@ -138,7 +138,10 @@ export const auth = betterAuth({
       create: {
         before: async (session, ctx) => {
           if (!ctx) {
-            Log.error({ ctx: "[auth.session.create.before]" }, "No ctx in hook callback");
+            Log.error(
+              { ctx: "[auth.session.create.before]" },
+              "No ctx in hook callback",
+            );
             return { data: session };
           }
 
@@ -161,7 +164,9 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
-        await EmailService.send(EMAIL.TEMPLATES["delete-account-verification"]({ url, user }));
+        await EmailService.send(
+          EMAIL.TEMPLATES["delete-account-verification"]({ url, user }),
+        );
       },
     },
   },
@@ -193,7 +198,9 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
 
     sendVerificationEmail: async ({ user, url }) => {
-      await EmailService.send(EMAIL.TEMPLATES["email-verification"]({ url, user }));
+      await EmailService.send(
+        EMAIL.TEMPLATES["email-verification"]({ url, user }),
+      );
     },
   },
 
@@ -272,7 +279,8 @@ export const auth = betterAuth({
                 clientId: POCKETID_CLIENT_ID,
                 clientSecret: POCKETID_CLIENT_SECRET,
 
-                discoveryUrl: POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                discoveryUrl:
+                  POCKETID_BASE_URL + "/.well-known/openid-configuration",
                 // ... other config options
 
                 mapProfileToUser: (profile: unknown) => {
@@ -283,7 +291,9 @@ export const auth = betterAuth({
 
                   const name = (
                     typed.name ||
-                    (typed.given_name || "") + " " + (typed.family_name || "") ||
+                    (typed.given_name || "") +
+                      " " +
+                      (typed.family_name || "") ||
                     ""
                   )
                     .trim()
@@ -294,7 +304,8 @@ export const auth = betterAuth({
                     email: typed.email,
                     image: typed.picture,
                     emailVerified:
-                      AUTH.PROVIDERS.MAP[providerId].force_email_verified || typed.email_verified,
+                      AUTH.PROVIDERS.MAP[providerId].force_email_verified ||
+                      typed.email_verified,
                   };
                 },
               };
@@ -344,14 +355,19 @@ const get_or_create_org_id = async (
     userId: session.userId,
   });
 
-  const existing_member = await ctx.context.adapter.findOne<Pick<Member, "id" | "organizationId">>({
+  const existing_member = await ctx.context.adapter.findOne<
+    Pick<Member, "id" | "organizationId">
+  >({
     model: "member",
     select: ["id", "organizationId"],
     where: [{ field: "userId", operator: "eq", value: session.userId }],
   });
 
   if (existing_member) {
-    log.debug({ organizationId: existing_member.organizationId }, "Found existing organization");
+    log.debug(
+      { organizationId: existing_member.organizationId },
+      "Found existing organization",
+    );
     return {
       member_id: existing_member.id,
       org_id: existing_member.organizationId,
@@ -374,7 +390,10 @@ const get_or_create_org_id = async (
   log.debug({ user }, "User info");
 
   // SOURCE: https://github.com/better-auth/better-auth/blob/744e9e34c1eb8b75c373f00a71c85e5a599abae6/packages/better-auth/src/plugins/organization/adapter.ts#L186
-  const org = await ctx.context.adapter.create<OrganizationInput, Pick<Organization, "id">>({
+  const org = await ctx.context.adapter.create<
+    OrganizationInput,
+    Pick<Organization, "id">
+  >({
     model: "organization",
     select: ["id"],
     data: {
