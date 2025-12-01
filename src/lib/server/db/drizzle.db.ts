@@ -1,8 +1,8 @@
 import { DATABASE_URL } from "$env/static/private";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import * as AuthModels from "./schema/auth.models";
-import * as TaskModel from "./schema/task.models";
+import * as AuthModels from "./models/auth.model";
+import * as TaskModel from "./models/task.model";
 
 const client = neon(DATABASE_URL);
 

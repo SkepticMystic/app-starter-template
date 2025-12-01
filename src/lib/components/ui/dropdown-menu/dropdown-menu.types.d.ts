@@ -11,8 +11,8 @@ export type DropdownMenuItemInput =
     }
   | {
       kind: "group";
-      label: string;
-      actions: DropdownMenuItemInput[];
+      title: string;
+      items: DropdownMenuItemInput[];
     }
   | ({
       kind?: "item";

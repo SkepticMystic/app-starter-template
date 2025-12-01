@@ -1,8 +1,5 @@
 import { BetterAuthClient } from "$lib/auth-client";
-import {
-  ORGANIZATION,
-  type IOrganization,
-} from "$lib/const/auth/organization.const";
+import { ORGANIZATION, type IOrganization } from "$lib/const/auth/organization.const";
 import {
   cancel_invitation_remote,
   get_all_invitations_remote,
@@ -11,6 +8,7 @@ import {
   get_all_members_remote,
   remove_member_remote,
 } from "$lib/remote/auth/organization/member.remote";
+import { admin_delete_organization_remote } from "$lib/remote/auth/organization/organization.remote";
 import { session } from "$lib/stores/session.store";
 import { BetterAuth } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
@@ -25,8 +23,7 @@ export const OrganizationClient = {
 
   leave: Client.wrap(
     async (/** Fallbacks to active org_id */ org_id?: string) => {
-      const organizationId =
-        org_id ?? session.get().data?.session.activeOrganizationId;
+      const organizationId = org_id ?? session.get().data?.session.activeOrganizationId;
 
       if (!organizationId) {
         return result.err({ message: "Organization ID is required" });
@@ -45,18 +42,21 @@ export const OrganizationClient = {
   ),
 
   delete: Client.better_auth(
-    (organizationId: string) =>
-      BetterAuthClient.organization.delete({ organizationId }),
+    (organizationId: string) => BetterAuthClient.organization.delete({ organizationId }),
     {
       confirm: "Are you sure you want to delete this organization?",
       suc_msg: "Organization deleted successfully.",
     },
   ),
 
+  admin_delete: Client.wrap((org_id: string) => admin_delete_organization_remote(org_id), {
+    confirm: "Are you sure you want to delete this organization?",
+    suc_msg: "Organization deleted successfully.",
+  }),
+
   invitation: {
     accept: Client.better_auth(
-      (invitationId: string) =>
-        BetterAuthClient.organization.acceptInvitation({ invitationId }),
+      (invitationId: string) => BetterAuthClient.organization.acceptInvitation({ invitationId }),
       { suc_msg: "Invitation accepted" },
     ),
 
@@ -77,11 +77,7 @@ export const OrganizationClient = {
 
   member: {
     update_role: Client.wrap(
-      async (
-        input: Parameters<
-          typeof BetterAuthClient.organization.updateMemberRole
-        >[0],
-      ) => {
+      async (input: Parameters<typeof BetterAuthClient.organization.updateMemberRole>[0]) => {
         const update_res = await BetterAuth.to_result(
           BetterAuthClient.organization.updateMemberRole(input),
         );
@@ -107,9 +103,7 @@ export const OrganizationClient = {
     remove: Client.wrap(
       (input: Parameters<typeof remove_member_remote>[0]) =>
         remove_member_remote(input).updates(
-          get_all_members_remote().withOverride((members) =>
-            members.filter((m) => m.id !== input),
-          ),
+          get_all_members_remote().withOverride((members) => members.filter((m) => m.id !== input)),
         ),
       {
         confirm: "Are you sure you want to remove this member?",

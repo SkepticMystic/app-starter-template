@@ -59,3 +59,4 @@
 - [ ] Zero sync?
 - [ ] Proper site.manifest and favicons: https://realfavicongenerator.net
 - [ ] https://github.com/LukasNiessen/ArchUnitTS
+- [ ] shad barrel files...

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
+  import { BetterAuthClient } from "$lib/auth-client";
   import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
@@ -27,10 +28,14 @@
 
     const res = form.result;
     console.log("signin_credentials_remote.result", res);
-    if (res?.ok) {
-      toast.success("Signed in successfully");
-    } else if (res?.error) {
+
+    if (!res?.ok && res?.error) {
       toast.error(res.error.message);
+    } else {
+      // NOTE: Bit weird. We throw a redirect in the remote form, so there isn't a suc result to branch on.
+      // Instead, we assume that any non-error result is successful, and notify the session signal
+      toast.success("Signed in successfully");
+      BetterAuthClient.$store.notify("$sessionSignal");
     }
   })}
 >

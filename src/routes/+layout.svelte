@@ -1,26 +1,23 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
-  import "./layout.css";
-  
   import {
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID
   } from "$env/static/public";
-  
   import Navbar from "$lib/components/shell/Navbar.svelte";
   import SEO from "$lib/components/shell/SEO.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { session } from "$lib/stores/session.store";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { mode, ModeWatcher } from "mode-watcher";
-  import { type Snippet } from "svelte";
   import { Toaster } from "svelte-sonner";
-  
-  interface Props { children?: Snippet }
-  
-  let { children }: Props = $props();
-  
-  session.subscribe(($session) => {
+  import "./layout.css";
+
+  let { children } = $props();
+
+  // NOTE: Currently this listener is _just_ for umami analytics
+  // We unsub as soon as they're identified
+  const session_listener = session.listen(($session) => {
     if ($session.isRefetching || $session.isPending) {
       return;
     } else {
@@ -32,8 +29,11 @@
           email: $session.data.user.email,
           session_id: $session.data.session.id,
           ip_address: $session.data.session.ipAddress,
-          user_agent: $session.data.session.userAgent
+          user_agent: $session.data.session.userAgent,
+          org_id: $session.data.session.activeOrganizationId,
         });
+
+        session_listener();
       }
     }
   });
