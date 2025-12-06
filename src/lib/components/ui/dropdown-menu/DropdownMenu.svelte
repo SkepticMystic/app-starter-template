@@ -2,7 +2,6 @@
   import type { ButtonVariant } from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { cn } from "$lib/utils/shadcn.util";
-  import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
   import type { ClassValue } from "svelte/elements";
   import Anchor from "../anchor/Anchor.svelte";
   import Button, { type ButtonSize } from "../button/button.svelte";
@@ -10,6 +9,7 @@
   import DropdownMenuGroup from "./dropdown-menu-group.svelte";
   import DropdownMenuItem from "./dropdown-menu-item.svelte";
   import DropdownMenuLabel from "./dropdown-menu-label.svelte";
+  import DropdownMenuRoot from "./dropdown-menu-root.svelte";
   import DropdownMenuSeparator from "./dropdown-menu-separator.svelte";
   import DropdownMenuTrigger from "./dropdown-menu-trigger.svelte";
   import type { DropdownMenuItemInput } from "./dropdown-menu.types";
@@ -93,7 +93,7 @@
   {/if}
 {/snippet}
 
-<DropdownMenuPrimitive.Root>
+<DropdownMenuRoot>
   <DropdownMenuTrigger>
     {#snippet child({ props })}
       <Button
@@ -113,4 +113,4 @@
       {@render item_snippet(item)}
     {/each}
   </DropdownMenuContent>
-</DropdownMenuPrimitive.Root>
+</DropdownMenuRoot>

@@ -19,7 +19,7 @@ export default ts.config(
   ...svelte.configs.prettier,
   {
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node }
+      globals: { ...globals.browser, ...globals.node },
     },
     rules: {
       // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
@@ -37,25 +37,21 @@ export default ts.config(
           caughtErrorsIgnorePattern: "^_",
           destructuredArrayIgnorePattern: "^_",
           varsIgnorePattern: "^_",
-          ignoreRestSiblings: true
-        }
-      ]
-    }
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
   },
   {
-    files: [
-      "**/*.svelte",
-      "**/*.svelte.ts",
-      "**/*.svelte.js"
-    ],
+    files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
     languageOptions: {
       parserOptions: {
         projectService: true,
         extraFileExtensions: [".svelte"],
         parser: ts.parser,
-        svelteConfig
-      }
-    }
+        svelteConfig,
+      },
+    },
   },
-  ...oxlint.configs["flat/recommended"]
+  ...oxlint.configs["flat/recommended"],
 ); // oxlint should be the last one

@@ -1,7 +1,12 @@
 <script lang="ts">
-  import * as Card from "$lib/components/ui/card/index.js";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
+  import CardContent from "./card-content.svelte";
+  import CardDescription from "./card-description.svelte";
+  import CardFooter from "./card-footer.svelte";
+  import CardHeader from "./card-header.svelte";
+  import CardRoot from "./card-root.svelte";
+  import CardTitle from "./card-title.svelte";
 
   let {
     title,
@@ -20,26 +25,26 @@
   } = $props();
 </script>
 
-<Card.Root class={klass}>
+<CardRoot class={klass}>
   {#if title || description}
-    <Card.Header>
+    <CardHeader>
       {#if title}
-        <Card.Title>{title}</Card.Title>
+        <CardTitle>{title}</CardTitle>
       {/if}
 
       {#if description}
-        <Card.Description>{description}</Card.Description>
+        <CardDescription>{description}</CardDescription>
       {/if}
-    </Card.Header>
+    </CardHeader>
   {/if}
 
-  <Card.Content>
+  <CardContent>
     {@render content()}
-  </Card.Content>
+  </CardContent>
 
   {#if actions}
-    <Card.Footer>
+    <CardFooter>
       {@render actions?.()}
-    </Card.Footer>
+    </CardFooter>
   {/if}
-</Card.Root>
+</CardRoot>

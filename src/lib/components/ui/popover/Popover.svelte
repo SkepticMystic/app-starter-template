@@ -1,11 +1,13 @@
 <script lang="ts">
-  import * as Popover from "$lib/components/ui/popover/index.js";
   import type { Snippet } from "svelte";
   import {
     buttonVariants,
     type ButtonSize,
     type ButtonVariant,
-  } from "../button";
+  } from "../button/button.svelte";
+  import PopoverContent from "./popover-content.svelte";
+  import PopoverRoot from "./popover-root.svelte";
+  import PopoverTrigger from "./popover-trigger.svelte";
 
   let {
     size,
@@ -22,12 +24,12 @@
   } = $props();
 </script>
 
-<Popover.Root>
-  <Popover.Trigger class={buttonVariants({ size, variant })}>
+<PopoverRoot>
+  <PopoverTrigger class={buttonVariants({ size, variant })}>
     {@render trigger()}
-  </Popover.Trigger>
+  </PopoverTrigger>
 
-  <Popover.Content>
+  <PopoverContent>
     {@render content()}
-  </Popover.Content>
-</Popover.Root>
+  </PopoverContent>
+</PopoverRoot>

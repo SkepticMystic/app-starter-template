@@ -31,12 +31,12 @@
       {#if checked}
         <Icon
           icon="lucide/check"
-          class="size-2.5"
+          class="size-3.5"
         />
       {:else if indeterminate}
         <Icon
           icon="lucide/minus"
-          class="size-2.5"
+          class="size-3.5"
         />
       {/if}
     </div>

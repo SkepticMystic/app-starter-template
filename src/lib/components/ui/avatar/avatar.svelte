@@ -1,6 +1,8 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
   import type { AvatarRootProps } from "bits-ui";
+  import AvatarFallback from "./avatar-fallback.svelte";
+  import AvatarImage from "./avatar-image.svelte";
+  import AvatarRoot from "./avatar-root.svelte";
 
   let {
     src,
@@ -15,10 +17,10 @@
   } = $props();
 </script>
 
-<Avatar.Root {...rest}>
-  <Avatar.Image
+<AvatarRoot {...rest}>
+  <AvatarImage
     {src}
     {alt}
   />
-  <Avatar.Fallback>{fallback}</Avatar.Fallback>
-</Avatar.Root>
+  <AvatarFallback>{fallback}</AvatarFallback>
+</AvatarRoot>

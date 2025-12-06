@@ -6,11 +6,10 @@
   } from "$env/static/public";
   import Navbar from "$lib/components/shell/Navbar.svelte";
   import SEO from "$lib/components/shell/SEO.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Sonner from "$lib/components/ui/sonner/sonner.svelte";
   import { session } from "$lib/stores/session.store";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
-  import { mode, ModeWatcher } from "mode-watcher";
-  import { Toaster } from "svelte-sonner";
+  import { ModeWatcher } from "mode-watcher";
   import "./layout.css";
 
   let { children } = $props();
@@ -78,48 +77,4 @@
   </main>
 </div>
 
-<!-- NOTE: I struggled to get shad semantic classes working to style the toasts
- It's possible to apply them, but only when toastOptions.unstyled: true
- And then ALL other styles are removed...
- So, richColors for now -->
-<Toaster
-  richColors
-  theme={mode.current}
-  closeButton={true}
-  duration={10_000}
->
-  {#snippet loadingIcon()}
-    <Icon
-      icon="lucide/loader-2"
-      class="size-5 animate-spin"
-    />
-  {/snippet}
-
-  {#snippet successIcon()}
-    <Icon
-      icon="lucide/check"
-      class="size-5"
-    />
-  {/snippet}
-
-  {#snippet errorIcon()}
-    <Icon
-      icon="lucide/x"
-      class="size-5"
-    />
-  {/snippet}
-
-  {#snippet infoIcon()}
-    <Icon
-      icon="lucide/info"
-      class="size-5"
-    />
-  {/snippet}
-
-  {#snippet warningIcon()}
-    <Icon
-      icon="lucide/alert-triangle"
-      class="size-5"
-    />
-  {/snippet}
-</Toaster>
+<Sonner />

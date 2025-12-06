@@ -1,4 +1,12 @@
-import { index, pgEnum, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import z from "zod";
 import { TASKS } from "../../../const/task.const";
@@ -57,13 +65,18 @@ const refinements = {
   description: z.string().optional(),
   assigned_member_id: z.uuid().optional(),
   due_date: z
-    .union([z.literal("").transform((_) => undefined), z.coerce.date<string>("Invalid date")])
+    .union([
+      z.literal("").transform((_) => undefined),
+      z.coerce.date<string>("Invalid date"),
+    ])
     .optional(),
 };
 
 export const TaskSchema = {
   insert: createInsertSchema(TaskTable, refinements).pick(pick),
-  update: createUpdateSchema(TaskTable, refinements).pick(pick).extend({ id: z.uuid() }),
+  update: createUpdateSchema(TaskTable, refinements)
+    .pick(pick)
+    .extend({ id: z.uuid() }),
 };
 
 export type TaskSchema = {

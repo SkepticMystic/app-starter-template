@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { buttonVariants } from "$lib/components/ui/button/index.js";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { resetMode, setMode } from "mode-watcher";
+  import { buttonVariants } from "../ui/button/button.svelte";
+  import DropdownMenuContent from "../ui/dropdown-menu/dropdown-menu-content.svelte";
+  import DropdownMenuItem from "../ui/dropdown-menu/dropdown-menu-item.svelte";
+  import DropdownMenuRoot from "../ui/dropdown-menu/dropdown-menu-root.svelte";
+  import DropdownMenuTrigger from "../ui/dropdown-menu/dropdown-menu-trigger.svelte";
   import Icon from "../ui/icon/Icon.svelte";
 </script>
 
-<DropdownMenu.Root>
-  <DropdownMenu.Trigger
+<DropdownMenuRoot>
+  <DropdownMenuTrigger
     class={buttonVariants({ variant: "outline", size: "icon" })}
   >
     <Icon
@@ -20,13 +23,11 @@
     />
 
     <span class="sr-only">Toggle theme</span>
-  </DropdownMenu.Trigger>
+  </DropdownMenuTrigger>
 
-  <DropdownMenu.Content align="end">
-    <DropdownMenu.Item onclick={() => setMode("light")}>
-      Light
-    </DropdownMenu.Item>
-    <DropdownMenu.Item onclick={() => setMode("dark")}>Dark</DropdownMenu.Item>
-    <DropdownMenu.Item onclick={() => resetMode()}>System</DropdownMenu.Item>
-  </DropdownMenu.Content>
-</DropdownMenu.Root>
+  <DropdownMenuContent align="end">
+    <DropdownMenuItem onclick={() => setMode("light")}>Light</DropdownMenuItem>
+    <DropdownMenuItem onclick={() => setMode("dark")}>Dark</DropdownMenuItem>
+    <DropdownMenuItem onclick={() => resetMode()}>System</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenuRoot>

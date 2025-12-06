@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Label } from "$lib/components/ui/label/index.js";
   import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
+  import Label from "../label/label.svelte";
 
   let {
     ref = $bindable(null),

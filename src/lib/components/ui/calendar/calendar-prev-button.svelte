@@ -1,11 +1,8 @@
 <script lang="ts">
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import {
-    buttonVariants,
-    type ButtonVariant,
-  } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils/shadcn.util.js";
   import { Calendar as CalendarPrimitive } from "bits-ui";
+  import { buttonVariants, type ButtonVariant } from "../button/button.svelte";
+  import Icon from "../icon/Icon.svelte";
 
   let {
     ref = $bindable(null),
@@ -27,11 +24,11 @@
 
 <CalendarPrimitive.PrevButton
   bind:ref
-  children={children || Fallback}
   class={cn(
     buttonVariants({ variant }),
     "size-(--cell-size) bg-transparent p-0 select-none disabled:opacity-50 rtl:rotate-180",
     className,
   )}
+  children={children || Fallback}
   {...restProps}
 />

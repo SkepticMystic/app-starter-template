@@ -1,9 +1,10 @@
 <script lang="ts">
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
   import { Dialog as DialogPrimitive } from "bits-ui";
-  import type { Snippet } from "svelte";
-  import * as Dialog from "./index.js";
+  import type { ComponentProps, Snippet } from "svelte";
+  import Icon from "../icon/Icon.svelte";
+  import DialogOverlay from "./dialog-overlay.svelte";
+  import DialogPortal from "./dialog-portal.svelte";
 
   let {
     ref = $bindable(null),
@@ -13,19 +14,19 @@
     showCloseButton = true,
     ...restProps
   }: WithoutChildrenOrChild<DialogPrimitive.ContentProps> & {
-    portalProps?: DialogPrimitive.PortalProps;
+    portalProps?: WithoutChildrenOrChild<ComponentProps<typeof DialogPortal>>;
     children: Snippet;
     showCloseButton?: boolean;
   } = $props();
 </script>
 
-<Dialog.Portal {...portalProps}>
-  <Dialog.Overlay />
+<DialogPortal {...portalProps}>
+  <DialogOverlay />
   <DialogPrimitive.Content
     bind:ref
     data-slot="dialog-content"
     class={cn(
-      "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
+      "fixed start-[50%] top-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
       className,
     )}
     {...restProps}
@@ -40,4 +41,4 @@
       </DialogPrimitive.Close>
     {/if}
   </DialogPrimitive.Content>
-</Dialog.Portal>
+</DialogPortal>

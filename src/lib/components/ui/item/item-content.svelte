@@ -1,15 +1,17 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
+  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
+    ref = $bindable(null),
     class: className,
     children,
     ...restProps
-  }: HTMLAttributes<HTMLDivElement> = $props();
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
 <div
+  bind:this={ref}
   data-slot="item-content"
   class={cn(
     "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none",

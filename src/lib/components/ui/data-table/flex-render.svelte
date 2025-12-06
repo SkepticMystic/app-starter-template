@@ -7,6 +7,7 @@
     ColumnDefTemplate,
     HeaderContext,
   } from "@tanstack/table-core";
+  import type { Attachment } from "svelte/attachments";
   import {
     RenderComponentConfig,
     RenderSnippetConfig,
@@ -20,9 +21,12 @@
         : never;
     /** The result of the `getContext()` function of the header or cell */
     context: TContext;
+
+    /** Used to pass attachments that can't be gotten through context */
+    attach?: Attachment;
   };
 
-  let { content, context }: Props = $props();
+  let { content, context, attach }: Props = $props();
 </script>
 
 {#if typeof content === "string"}
@@ -33,10 +37,13 @@
   {@const result = content(context as any)}
   {#if result instanceof RenderComponentConfig}
     {@const { component: Component, props } = result}
-    <Component {...props} />
+    <Component
+      {...props}
+      {attach}
+    />
   {:else if result instanceof RenderSnippetConfig}
     {@const { snippet, params } = result}
-    {@render snippet(params)}
+    {@render snippet({ ...params, attach })}
   {:else}
     {result}
   {/if}

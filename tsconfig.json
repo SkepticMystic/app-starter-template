@@ -12,10 +12,9 @@
 
     "noEmit": true,
     "sourceMap": true,
-    
+
     "skipLibCheck": true,
-    
-    
+
     "module": "esnext",
     "target": "es2024",
     "moduleResolution": "bundler",
