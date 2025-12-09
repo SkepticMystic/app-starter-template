@@ -15,6 +15,7 @@ const {
   SessionTable,
   UserTable,
   VerificationTable,
+  TwoFactorTable,
   ...auth_rest
 } = AuthModels;
 
@@ -32,6 +33,7 @@ export const db = drizzle(client, {
     member: MemberTable,
     invitation: InvitationTable,
     passkey: PasskeyTable,
+    twoFactor: TwoFactorTable,
     ...auth_rest,
 
     // Task

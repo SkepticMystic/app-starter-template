@@ -5,7 +5,6 @@
   import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
   import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.types";
   import type { RemoteFormField, RemoteFormFieldValue } from "@sveltejs/kit";
-  import { boolAttr } from "runed";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
   import FieldContent from "./field-content.svelte";
@@ -45,7 +44,7 @@
 <FieldRoot
   {orientation}
   class={[klass]}
-  data-invalid={boolAttr(issue)}
+  data-invalid={Boolean(issue)}
 >
   <FieldContent>
     <FieldLabel for={id}>
@@ -67,6 +66,6 @@
 
   {@render input({
     field,
-    props: { id, "aria-invalid": boolAttr(issue) },
+    props: { id, "aria-invalid": Boolean(issue) },
   })}
 </FieldRoot>

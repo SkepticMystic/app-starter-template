@@ -18,15 +18,17 @@ import {
   haveIBeenPwned,
   lastLoginMethod,
   organization,
+  twoFactor,
   type GenericOAuthConfig,
   type Member,
   type Organization,
   type OrganizationInput,
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
-import { AccessControl } from "./const/auth/access_control.const";
 import { APP } from "./const/app.const";
+import { AccessControl } from "./const/auth/access_control.const";
 import { AUTH, type IAuth } from "./const/auth/auth.const";
+import { TWO_FACTOR } from "./const/auth/two_factor.const";
 import { EMAIL } from "./const/email.const";
 import { db } from "./server/db/drizzle.db";
 import {
@@ -36,6 +38,7 @@ import {
   OrganizationTable,
   PasskeyTable,
   SessionTable,
+  TwoFactorTable,
   UserTable,
   VerificationTable,
   type Session,
@@ -94,6 +97,7 @@ export const auth = betterAuth({
       member: MemberTable,
       invitation: InvitationTable,
       passkey: PasskeyTable,
+      twoFactor: TwoFactorTable,
     },
   }),
 
@@ -220,6 +224,13 @@ export const auth = betterAuth({
     admin({
       ac: AccessControl.ac,
       roles: AccessControl.roles,
+    }),
+
+    twoFactor({
+      totpOptions: {
+        digits: TWO_FACTOR.TOTP.DIGITS,
+        period: TWO_FACTOR.TOTP.PERIOD_SECONDS,
+      },
     }),
 
     passkey({

@@ -1,10 +1,11 @@
+import { passkeyClient } from "@better-auth/passkey/client";
 import {
   adminClient,
   genericOAuthClient,
   lastLoginMethodClient,
   organizationClient,
+  twoFactorClient,
 } from "better-auth/client/plugins";
-import { passkeyClient } from "@better-auth/passkey/client";
 import { createAuthClient } from "better-auth/svelte";
 import { toast } from "svelte-sonner";
 import { AccessControl } from "./const/auth/access_control.const";
@@ -12,6 +13,7 @@ import { AccessControl } from "./const/auth/access_control.const";
 export const BetterAuthClient = createAuthClient({
   plugins: [
     passkeyClient(),
+    twoFactorClient(),
     organizationClient(),
     genericOAuthClient(),
     lastLoginMethodClient(),

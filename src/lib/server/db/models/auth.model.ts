@@ -13,8 +13,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
-import { Schema } from "./index.schema";
 import { ROLES } from "../../../const/auth/role.const";
+import { Schema } from "./index.schema";
 
 export const user_role_enum = pgEnum("user_role", ROLES.IDS);
 
@@ -33,6 +33,8 @@ export const UserTable = pgTable("user", {
   banned: boolean().default(false).notNull(),
   banReason: text(),
   banExpires: timestamp({ mode: "date" }),
+
+  twoFactorEnabled: boolean().default(false).notNull(),
 
   ...Schema.timestamps,
 });
@@ -294,3 +296,23 @@ export const VerificationTable = pgTable("verification", {
 
 export type Verification = typeof VerificationTable.$inferSelect;
 export type NewVerification = typeof VerificationTable.$inferInsert;
+
+export const TwoFactorTable = pgTable(
+  "two_factor",
+  {
+    ...Schema.id(),
+
+    userId: uuid()
+      .notNull()
+      .references(() => UserTable.id, { onDelete: "cascade" }),
+
+    secret: varchar({ length: 255 }).notNull(),
+    backupCodes: varchar({ length: 1023 }).notNull(),
+
+    ...Schema.timestamps,
+  },
+  (table) => [index("two_factor_user_id_idx").on(table.userId)],
+);
+
+export type TwoFactor = typeof TwoFactorTable.$inferSelect;
+export type NewTwoFactor = typeof TwoFactorTable.$inferInsert;

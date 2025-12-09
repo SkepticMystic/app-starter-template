@@ -5,14 +5,18 @@
   import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
   import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
   import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
+  import DisableTwoFactorForm from "$lib/components/auth/two_factor/DisableTwoFactorForm.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { get_account_by_provider_id_remote } from "$lib/remote/auth/account.remote.js";
+  import EnableTwoFactorFlow from "./EnableTwoFactorFlow.svelte";
 
   let { data } = $props();
+
+  let user = $state(data.user);
 
   let has_credential_account = $derived(
     get_account_by_provider_id_remote("credential").current,
@@ -26,19 +30,19 @@
 
   <section class="flex items-center gap-3">
     <UserAvatar
+      {user}
       class="size-14"
-      user={data.user}
     />
 
     <div>
-      {#if data.user.name}
+      {#if user.name}
         <p>
-          <strong>{data.user.name}</strong>
+          <strong>{user.name}</strong>
         </p>
       {/if}
-      <p>{data.user.email}</p>
+      <p>{user.email}</p>
       {#if dev}
-        <code>{data.user.id}</code>
+        <code>{user.id}</code>
       {/if}
     </div>
   </section>
@@ -82,6 +86,45 @@
           <ChangePasswordForm on_success={() => close()} />
         {/snippet}
       </Dialog>
+
+      {#if !user.twoFactorEnabled}
+        <Dialog>
+          {#snippet trigger()}
+            <Icon icon="lucide/lock" />
+            Enable Two-Factor Authentication
+          {/snippet}
+
+          {#snippet content({ close })}
+            <EnableTwoFactorFlow
+              on_success={() => {
+                user.twoFactorEnabled = true;
+                close();
+              }}
+            />
+          {/snippet}
+        </Dialog>
+      {:else}
+        <Dialog>
+          {#snippet trigger_child({ props })}
+            <Button
+              {...props}
+              icon="lucide/lock"
+              variant="destructive"
+            >
+              Disable Two-Factor Authentication
+            </Button>
+          {/snippet}
+
+          {#snippet content({ close })}
+            <DisableTwoFactorForm
+              on_success={() => {
+                user.twoFactorEnabled = false;
+                close();
+              }}
+            />
+          {/snippet}
+        </Dialog>
+      {/if}
     {/if}
 
     <Button

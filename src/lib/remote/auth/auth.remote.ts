@@ -1,6 +1,7 @@
-import { resolve } from "$app/paths";
 import { form, getRequestEvent } from "$app/server";
+import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
+import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -16,8 +17,10 @@ export const signin_credentials_remote = form(
     redirect_uri: z.string().default("/"),
   }),
   async (input) => {
+    let redirect_uri = input.redirect_uri as ResolvedPathname;
+
     try {
-      await auth.api.signInEmail({
+      const res = await auth.api.signInEmail({
         body: {
           email: input.email,
           password: input.password,
@@ -25,6 +28,15 @@ export const signin_credentials_remote = form(
         },
         headers: getRequestEvent().request.headers,
       });
+
+      // WARN: When you call auth.api.signInEmail on the server,
+      // and the user has 2FA enabled, it will return an object where twoFactorRedirect is set to true.
+      // This behavior isn’t inferred in TypeScript, which can be misleading.
+      // You can check using in instead to check if twoFactorRedirect is set to true.
+      // SOURCE: https://www.better-auth.com/docs/plugins/2fa#sign-in-with-2fa
+      if ("twoFactorRedirect" in res && res.twoFactorRedirect === true) {
+        redirect_uri = App.url("/auth/two-factor", { redirect_uri });
+      }
     } catch (error) {
       if (error instanceof APIError) {
         Log.info(error.body, "signin_remote.error better-auth");
@@ -39,7 +51,7 @@ export const signin_credentials_remote = form(
       }
     }
 
-    redirect(302, input.redirect_uri);
+    redirect(302, redirect_uri);
   },
 );
 
@@ -57,6 +69,7 @@ export const signup_credentials_remote = form(
   async (input, issue) => {
     try {
       await auth.api.signUpEmail({
+        headers: getRequestEvent().request.headers,
         body: {
           name: input.name,
           email: input.email,
@@ -64,7 +77,6 @@ export const signup_credentials_remote = form(
           rememberMe: input.remember,
           callbackURL: input.redirect_uri,
         },
-        headers: getRequestEvent().request.headers,
       });
     } catch (error) {
       if (error instanceof APIError) {
@@ -93,6 +105,6 @@ export const signup_credentials_remote = form(
       }
     }
 
-    redirect(302, resolve("/auth/verify-email"));
+    redirect(302, "/auth/verify-email");
   },
 );

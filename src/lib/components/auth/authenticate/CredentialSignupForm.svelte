@@ -22,11 +22,13 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async ({ submit }) => {
-    await submit();
+  {...form.enhance(async (e) => {
+    await e.submit();
 
     const res = form.result;
-    if (res?.ok === false) {
+    if (res?.ok) {
+      e.form.reset();
+    } else if (res?.ok === false) {
       toast.error(res.error.message);
     }
   })}

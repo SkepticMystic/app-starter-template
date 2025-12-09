@@ -23,8 +23,8 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async ({ submit }) => {
-    await submit();
+  {...form.enhance(async (e) => {
+    await e.submit();
 
     const res = form.result;
     console.log("signin_credentials_remote.result", res);
@@ -36,6 +36,8 @@
       // Instead, we assume that any non-error result is successful, and notify the session signal
       toast.success("Signed in successfully");
       BetterAuthClient.$store.notify("$sessionSignal");
+
+      e.form.reset();
     }
   })}
 >
