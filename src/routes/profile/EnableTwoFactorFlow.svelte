@@ -1,7 +1,7 @@
 <script lang="ts">
   import EnableTwoFactorForm from "$lib/components/auth/two_factor/EnableTwoFactorForm.svelte";
   import VerifyTwoFactorPinForm from "$lib/components/auth/two_factor/VerifyTwoFactorPinForm.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import CopyButton from "$lib/components/ui/copy-button/copy-button.svelte";
   import QrCode from "$lib/components/ui/qr-code/qr-code.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
@@ -45,17 +45,7 @@
       </p>
 
       <output>{setup_key}</output>
-      <Button
-        variant="outline"
-        icon="lucide/duplicate"
-        onclick={() =>
-          navigator.clipboard
-            .writeText(setup_key)
-            .then(() => on_success())
-            .catch(() => {
-              toast.error("Failed to copy backup codes");
-            })}
-      ></Button>
+      <CopyButton text={setup_key} />
     {/if}
 
     <Separator />
@@ -79,18 +69,6 @@
       {backup_codes_str}
     </output>
 
-    <Button
-      type="button"
-      icon="lucide/duplicate"
-      onclick={() =>
-        navigator.clipboard
-          .writeText(backup_codes_str)
-          .then(() => on_success())
-          .catch(() => {
-            toast.error("Failed to copy backup codes");
-          })}
-    >
-      Copy
-    </Button>
+    <CopyButton text={backup_codes_str}></CopyButton>
   </div>
 {/if}
