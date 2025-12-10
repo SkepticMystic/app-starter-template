@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import VerifyTwoFactorPinForm from "$lib/components/auth/two_factor/VerifyTwoFactorPinForm.svelte";
+  import VerifyTwoFactorCodeForm from "$lib/components/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
 </script>
@@ -14,7 +14,7 @@
     class="mx-auto w-full max-w-xs"
   >
     {#snippet content()}
-      <VerifyTwoFactorPinForm
+      <VerifyTwoFactorCodeForm
         on_success={() => {
           goto(page.url.searchParams.get("redirect_uri") ?? "/");
         }}
