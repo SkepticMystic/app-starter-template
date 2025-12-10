@@ -25,6 +25,8 @@
 {#if enable_data === null}
   <EnableTwoFactorForm on_success={(data) => (enable_data = data)} />
 {:else if verified === false}
+  {@const setup_key = new URL(enable_data.totpURI).searchParams.get("secret")}
+
   <div class="flex flex-col items-center gap-5">
     <p class="text-sm text-muted-foreground">
       Scan the QR code below with your preferred authenticator app. Then, enter
@@ -36,6 +38,25 @@
       class="rounded-md"
       value={enable_data.totpURI}
     />
+
+    {#if setup_key}
+      <p class="text-sm text-muted-foreground">
+        Or, copy the setup key into your authenticator app
+      </p>
+
+      <output>{setup_key}</output>
+      <Button
+        variant="outline"
+        icon="lucide/duplicate"
+        onclick={() =>
+          navigator.clipboard
+            .writeText(setup_key)
+            .then(() => on_success())
+            .catch(() => {
+              toast.error("Failed to copy backup codes");
+            })}
+      ></Button>
+    {/if}
 
     <Separator />
     <VerifyTwoFactorPinForm
@@ -60,7 +81,7 @@
 
     <Button
       type="button"
-      icon="lucide/copy"
+      icon="lucide/duplicate"
       onclick={() =>
         navigator.clipboard
           .writeText(backup_codes_str)

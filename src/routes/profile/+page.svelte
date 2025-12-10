@@ -71,7 +71,7 @@
 
   <Separator />
 
-  <section class="flex gap-2">
+  <section class="flex flex-wrap gap-2">
     {#if has_credential_account}
       <Dialog
         title="Change Password"
