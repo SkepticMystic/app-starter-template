@@ -1,6 +1,6 @@
 <script lang="ts">
   import EnableTwoFactorForm from "$lib/components/auth/two_factor/EnableTwoFactorForm.svelte";
-  import VerifyTwoFactorPinForm from "$lib/components/auth/two_factor/VerifyTwoFactorPinForm.svelte";
+  import VerifyTwoFactorCodeForm from "$lib/components/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
   import CopyButton from "$lib/components/ui/copy-button/copy-button.svelte";
   import QrCode from "$lib/components/ui/qr-code/qr-code.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
@@ -49,7 +49,7 @@
     {/if}
 
     <Separator />
-    <VerifyTwoFactorPinForm
+    <VerifyTwoFactorCodeForm
       on_success={() => {
         verified = true;
       }}
