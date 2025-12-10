@@ -27,7 +27,6 @@ export const AdminClient = {
     () => BetterAuthClient.admin.stopImpersonating(),
     {
       confirm: "Are you sure you want to stop impersonating?",
-      suc_msg: "Impersonation stopped",
     },
   ),
 
@@ -35,12 +34,10 @@ export const AdminClient = {
     (input: Parameters<typeof BetterAuthClient.admin.banUser>[0]) =>
       BetterAuthClient.admin.banUser(input),
     {
-      suc_msg: "User banned",
       confirm: (input) =>
-        `Are you sure you want to ban this user ${
-          input.banExpiresIn
-            ? `for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
-            : "indefinitely?"
+        `Are you sure you want to ban this user ${input.banExpiresIn
+          ? `for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
+          : "indefinitely?"
         }`,
     },
   ),
@@ -49,7 +46,6 @@ export const AdminClient = {
     (userId: string) => BetterAuthClient.admin.unbanUser({ userId }),
     {
       confirm: "Are you sure you want to unban this user?",
-      suc_msg: "User unbanned",
     },
   ),
 
@@ -57,7 +53,6 @@ export const AdminClient = {
     (userId: string) => BetterAuthClient.admin.removeUser({ userId }),
     {
       confirm: "Are you sure you want to delete this user?",
-      suc_msg: "User deleted",
     },
   ),
 };

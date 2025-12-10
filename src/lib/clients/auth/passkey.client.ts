@@ -32,7 +32,6 @@ export const PasskeyClient = {
         return result.suc(res.data);
       }
     },
-    { suc_msg: "Passkey added successfully" },
   ),
 
   delete: Client.wrap(
@@ -44,7 +43,6 @@ export const PasskeyClient = {
       ),
     {
       optimistic: true,
-      suc_msg: "Passkey deleted successfully",
       confirm: "Are you sure you want to delete this passkey?",
     },
   ),

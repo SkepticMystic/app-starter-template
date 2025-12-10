@@ -14,14 +14,14 @@
     class: klass,
 
     content,
-    actions,
+    footer,
   }: {
     title?: string;
     description?: string;
     class?: ClassValue;
 
     content: Snippet;
-    actions?: Snippet;
+    footer?: Snippet;
   } = $props();
 </script>
 
@@ -42,9 +42,9 @@
     {@render content()}
   </CardContent>
 
-  {#if actions}
+  {#if footer}
     <CardFooter>
-      {@render actions?.()}
+      {@render footer?.()}
     </CardFooter>
   {/if}
 </CardRoot>

@@ -13,6 +13,6 @@ export const TaskClient = {
           Items.remove(tasks, input),
         ),
       ),
-    { optimistic: true, suc_msg: "Task created" },
+    { optimistic: true },
   ),
 };

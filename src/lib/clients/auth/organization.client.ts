@@ -21,7 +21,6 @@ export const OrganizationClient = {
   set_active: Client.better_auth(
     (organizationId: string | undefined) =>
       BetterAuthClient.organization.setActive({ organizationId }),
-    { suc_msg: "Active organization updated." },
   ),
 
   leave: Client.wrap(
@@ -41,7 +40,7 @@ export const OrganizationClient = {
     },
     {
       confirm: "Are you sure you want to leave this organization?",
-      suc_msg: "Left organization successfully.",
+      suc_msg: "Left organization",
     },
   ),
 
@@ -50,7 +49,7 @@ export const OrganizationClient = {
       BetterAuthClient.organization.delete({ organizationId }),
     {
       confirm: "Are you sure you want to delete this organization?",
-      suc_msg: "Organization deleted successfully.",
+      suc_msg: "Organization deleted",
     },
   ),
 
@@ -58,7 +57,6 @@ export const OrganizationClient = {
     (org_id: string) => admin_delete_organization_remote(org_id),
     {
       confirm: "Are you sure you want to delete this organization?",
-      suc_msg: "Organization deleted successfully.",
     },
   ),
 
@@ -78,7 +76,6 @@ export const OrganizationClient = {
         ),
       {
         optimistic: true,
-        suc_msg: "Invitation cancelled successfully.",
         confirm: "Are you sure you want to cancel this invitation?",
       },
     ),
@@ -102,17 +99,12 @@ export const OrganizationClient = {
         return update_res;
       },
       {
-        suc_msg: "Member role updated successfully.",
+        suc_msg: "Member role updated",
         confirm: (input) =>
           `Are you sure you want to update this member's role to ${ORGANIZATION.ROLES.MAP[input.role as IOrganization.RoleId].label}?`,
       },
     ),
 
-    // TODO: Report a bug on better-auth orgs
-    // - Owner A invited member B
-    // - Member B tried to remove Owner A
-    // - The error says: "You cannot leave the organization as the only owner"
-    // - But it should be a permission error, since B is not an owner
     remove: Client.wrap(
       (input: Parameters<typeof remove_member_remote>[0]) =>
         remove_member_remote(input).updates(
@@ -122,7 +114,7 @@ export const OrganizationClient = {
         ),
       {
         confirm: "Are you sure you want to remove this member?",
-        suc_msg: "Member removed successfully.",
+        suc_msg: "Member removed",
       },
     ),
   },
