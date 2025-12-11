@@ -18,9 +18,8 @@ import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
 
 export const OrganizationClient = {
-  set_active: Client.better_auth(
-    (organizationId: string | undefined) =>
-      BetterAuthClient.organization.setActive({ organizationId }),
+  set_active: Client.better_auth((organizationId: string | undefined) =>
+    BetterAuthClient.organization.setActive({ organizationId }),
   ),
 
   leave: Client.wrap(

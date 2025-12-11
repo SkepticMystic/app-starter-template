@@ -35,9 +35,10 @@ export const AdminClient = {
       BetterAuthClient.admin.banUser(input),
     {
       confirm: (input) =>
-        `Are you sure you want to ban this user ${input.banExpiresIn
-          ? `for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
-          : "indefinitely?"
+        `Are you sure you want to ban this user ${
+          input.banExpiresIn
+            ? `for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
+            : "indefinitely?"
         }`,
     },
   ),
