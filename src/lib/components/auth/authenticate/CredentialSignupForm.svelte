@@ -4,6 +4,7 @@
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Password from "$lib/components/ui/password/Password.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
   import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
   import { toast } from "svelte-sonner";
@@ -66,11 +67,10 @@
     field={form.fields.password}
   >
     {#snippet input({ props, field })}
-      <Input
+      <Password
         {...props}
         {...field?.as("password")}
         required
-        autocomplete="new-password"
       />
     {/snippet}
   </Field>

@@ -2,6 +2,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Password from "$lib/components/ui/password/Password.svelte";
   import { change_password_remote } from "$lib/remote/auth/user.remote";
   import { toast } from "svelte-sonner";
 
@@ -47,11 +48,10 @@
     field={form.fields.new_password}
   >
     {#snippet input({ props, field })}
-      <Input
+      <Password
         {...props}
         {...field?.as("password")}
         required
-        autocomplete="new-password"
       />
     {/snippet}
   </Field>
