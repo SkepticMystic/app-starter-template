@@ -9,6 +9,8 @@
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
+        warning:
+          "text-warning bg-card *:data-[slot=alert-description]:text-warning/90 [&>svg]:text-current",
         destructive:
           "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
       },

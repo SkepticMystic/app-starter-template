@@ -1,12 +1,14 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
   import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
   import { AdminClient } from "$lib/clients/auth/admin.client";
   import { APP } from "$lib/const/app.const";
   import { session } from "$lib/stores/session.store";
   import { toast } from "svelte-sonner";
+  import { getFlash } from "sveltekit-flash-message";
   import ButtonGroup from "../ui/button-group/button-group.svelte";
   import Button from "../ui/button/button.svelte";
   import DropdownMenu from "../ui/dropdown-menu/DropdownMenu.svelte";
@@ -73,8 +75,8 @@
     }
   };
 
-  const signout = () =>
-    BetterAuthClient.signOut({
+  const signout = async () => {
+    await BetterAuthClient.signOut({
       fetchOptions: {
         onSuccess: () => {
           toast.info("You have been signed out.");
@@ -86,6 +88,12 @@
         },
       },
     });
+
+    getFlash(page).set({
+      level: "success",
+      message: "You have been signed out.",
+    });
+  };
 </script>
 
 <nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-3">

@@ -38,13 +38,13 @@
 
   const id = $props.id();
 
-  const issue = $derived(field?.issues()?.at(0));
+  const issues = $derived(field?.issues());
 </script>
 
 <FieldRoot
   {orientation}
   class={[klass]}
-  data-invalid={Boolean(issue)}
+  data-invalid={Boolean(issues?.length)}
 >
   <FieldContent>
     <FieldLabel for={id}>
@@ -57,15 +57,11 @@
       </FieldDescription>
     {/if}
 
-    {#if issue}
-      <FieldError>
-        {issue.message}
-      </FieldError>
-    {/if}
+    <FieldError errors={issues} />
   </FieldContent>
 
   {@render input({
     field,
-    props: { id, "aria-invalid": Boolean(issue) },
+    props: { id },
   })}
 </FieldRoot>
