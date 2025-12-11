@@ -8,8 +8,8 @@
   import DisableTwoFactorForm from "$lib/components/auth/two_factor/DisableTwoFactorForm.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Modal from "$lib/components/ui/modal/modal.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { get_account_by_provider_id_remote } from "$lib/remote/auth/account.remote.js";
   import EnableTwoFactorFlow from "./EnableTwoFactorFlow.svelte";
@@ -73,7 +73,7 @@
 
   <section class="flex flex-wrap gap-2">
     {#if has_credential_account}
-      <Dialog
+      <Modal
         title="Change Password"
         description="Change your account password"
       >
@@ -85,10 +85,10 @@
         {#snippet content({ close })}
           <ChangePasswordForm on_success={() => close()} />
         {/snippet}
-      </Dialog>
+      </Modal>
 
       {#if !user.twoFactorEnabled}
-        <Dialog>
+        <Modal>
           {#snippet trigger()}
             <Icon icon="lucide/lock" />
             Enable Two-Factor Authentication
@@ -102,9 +102,9 @@
               }}
             />
           {/snippet}
-        </Dialog>
+        </Modal>
       {:else}
-        <Dialog>
+        <Modal>
           {#snippet trigger_child({ props })}
             <Button
               {...props}
@@ -123,7 +123,7 @@
               }}
             />
           {/snippet}
-        </Dialog>
+        </Modal>
       {/if}
     {/if}
 

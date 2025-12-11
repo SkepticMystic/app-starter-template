@@ -1,18 +1,17 @@
 <script lang="ts">
-  import type { DialogRootProps } from "bits-ui";
-  import type { Snippet } from "svelte";
+  import type { ComponentProps, Snippet } from "svelte";
   import {
     buttonVariants,
     type ButtonSize,
     type ButtonVariant,
   } from "../button/button.svelte";
-  import DialogContent from "./dialog-content.svelte";
-  import DialogDescription from "./dialog-description.svelte";
-  import DialogFooter from "./dialog-footer.svelte";
-  import DialogHeader from "./dialog-header.svelte";
-  import DialogRoot from "./dialog-root.svelte";
-  import DialogTitle from "./dialog-title.svelte";
-  import DialogTrigger from "./dialog-trigger.svelte";
+  import ModalContent from "./modal-content.svelte";
+  import ModalDescription from "./modal-description.svelte";
+  import ModalFooter from "./modal-footer.svelte";
+  import ModalHeader from "./modal-header.svelte";
+  import ModalRoot from "./modal-root.svelte";
+  import ModalTitle from "./modal-title.svelte";
+  import ModalTrigger from "./modal-trigger.svelte";
 
   let {
     open,
@@ -27,7 +26,7 @@
     trigger_child,
 
     ...rest_props
-  }: DialogRootProps & {
+  }: ComponentProps<typeof ModalRoot> & {
     title?: string;
     description?: string;
     size?: ButtonSize;
@@ -44,46 +43,46 @@
   };
 </script>
 
-<DialogRoot
+<ModalRoot
   {...rest_props}
   {open}
 >
   {#if trigger_child}
-    <DialogTrigger>
+    <ModalTrigger>
       {#snippet child({ props })}
         {@render trigger_child({ props })}
       {/snippet}
-    </DialogTrigger>
+    </ModalTrigger>
   {:else}
-    <DialogTrigger
+    <ModalTrigger
       {title}
       class={buttonVariants({ variant, size })}
     >
       {@render trigger?.()}
-    </DialogTrigger>
+    </ModalTrigger>
   {/if}
 
-  <DialogContent class="sm:max-w-[425px]">
+  <ModalContent class="sm:max-w-[425px]">
     {#if title || description}
-      <DialogHeader>
+      <ModalHeader>
         {#if title}
-          <DialogTitle>{title}</DialogTitle>
+          <ModalTitle>{title}</ModalTitle>
         {/if}
 
         {#if description}
-          <DialogDescription>
+          <ModalDescription>
             {description}
-          </DialogDescription>
+          </ModalDescription>
         {/if}
-      </DialogHeader>
+      </ModalHeader>
     {/if}
 
     {@render content({ close })}
 
     {#if actions}
-      <DialogFooter>
+      <ModalFooter>
         {@render actions?.()}
-      </DialogFooter>
+      </ModalFooter>
     {/if}
-  </DialogContent>
-</DialogRoot>
+  </ModalContent>
+</ModalRoot>

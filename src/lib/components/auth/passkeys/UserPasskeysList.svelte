@@ -1,11 +1,11 @@
 <script lang="ts">
   import { PasskeyClient } from "$lib/clients/auth/passkey.client";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Time from "$lib/components/ui/elements/Time.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Item from "$lib/components/ui/item/Item.svelte";
   import ItemList from "$lib/components/ui/item/ItemList.svelte";
+  import Modal from "$lib/components/ui/modal/modal.svelte";
   import { get_all_passkeys_remote } from "$lib/remote/auth/passkey.remote";
   import { result } from "$lib/utils/result.util";
   import EditPasskeyForm from "./EditPasskeyForm.svelte";
@@ -32,7 +32,7 @@
       {/snippet}
 
       {#snippet actions()}
-        <Dialog
+        <Modal
           size="icon"
           title="Edit Passkey"
           description="Update your passkey"
@@ -44,7 +44,7 @@
           {#snippet content()}
             <EditPasskeyForm {passkey} />
           {/snippet}
-        </Dialog>
+        </Modal>
 
         <Button
           icon="lucide/x"

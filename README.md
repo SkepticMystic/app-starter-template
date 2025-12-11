@@ -60,3 +60,5 @@
 - [ ] Proper site.manifest and favicons: https://realfavicongenerator.net
 - [ ] https://github.com/LukasNiessen/ArchUnitTS
 - [ ] shad barrel files...
+- [ ] Contact form from animal-shelter
+- [ ] Client.form submit wrapper to handle toast, form.reset(), etc

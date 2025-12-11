@@ -6,9 +6,9 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
-  import Dialog from "$lib/components/ui/dialog/dialog.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import Modal from "$lib/components/ui/modal/modal.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { TASKS } from "$lib/const/task.const";
   import {
@@ -65,7 +65,7 @@
   <header class="flex items-center justify-between">
     <h1>Tasks</h1>
 
-    <Dialog
+    <Modal
       title="New Task"
       description="Create a new task"
     >
@@ -81,7 +81,7 @@
           on_success={close}
         />
       {/snippet}
-    </Dialog>
+    </Modal>
   </header>
 
   <DataTable
