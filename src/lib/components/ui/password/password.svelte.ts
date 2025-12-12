@@ -1,8 +1,8 @@
-import { Context, watch } from "runed";
-import type { ReadableBoxedValues, WritableBoxedValues } from "svelte-toolbelt";
 import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
 import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
+import { Context, watch } from "runed";
+import type { ReadableBoxedValues, WritableBoxedValues } from "svelte-toolbelt";
 
 const passwordOptions = {
   translations: zxcvbnEnPackage.translations,

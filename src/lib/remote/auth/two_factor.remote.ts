@@ -136,7 +136,10 @@ export const verify_two_factor_backup_code_remote = form(
       return result.suc(res);
     } catch (error) {
       if (error instanceof APIError) {
-        Log.info(error.body, "verify_two_factor_backup_code_remote.error better-auth");
+        Log.info(
+          error.body,
+          "verify_two_factor_backup_code_remote.error better-auth",
+        );
 
         if (is_ba_error_code(error, "INVALID_BACKUP_CODE")) {
           invalid(issue.code(error.message));

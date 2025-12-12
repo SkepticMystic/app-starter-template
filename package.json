@@ -65,7 +65,7 @@
     "runed": "^0.36.0",
     "sonda": "^0.10.1",
     "super-sitemap": "^1.0.5",
-    "svelte": "5.45.8",
+    "svelte": "5.45.10",
     "svelte-check": "^4.3.4",
     "svelte-toolbelt": "^0.10.6",
     "sveltekit-flash-message": "^2.4.6",
