@@ -1,7 +1,8 @@
 import { command } from "$app/server";
-import { get_session } from "$lib/services/auth.service";
 import { db } from "$lib/server/db/drizzle.db";
 import { OrganizationTable } from "$lib/server/db/models/auth.model";
+import { Repo } from "$lib/server/db/repos/index.repo";
+import { get_session } from "$lib/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -14,14 +15,14 @@ export const admin_delete_organization_remote = command(
     await get_session({ admin: true });
 
     try {
-      const res = await db
-        .delete(OrganizationTable)
-        .where(eq(OrganizationTable.id, org_id))
-        .execute();
+      const res = await Repo.delete_one(
+        db
+          .delete(OrganizationTable)
+          .where(eq(OrganizationTable.id, org_id))
+          .execute(),
+      );
 
-      return res.rowCount
-        ? result.suc()
-        : result.err({ message: "Organization not found" });
+      return res;
     } catch (error) {
       Log.error(error, "admin_delete_organization_remote.error unknown");
 

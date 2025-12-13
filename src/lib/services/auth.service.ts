@@ -1,10 +1,11 @@
-import { resolve } from "$app/paths";
 import { getRequestEvent } from "$app/server";
+import type { ResolvedPathname } from "$app/types";
 import { auth } from "$lib/auth";
 import { BetterAuthClient } from "$lib/auth-client";
 import type { RoleId } from "$lib/const/auth/role.const.ts";
 import { Log } from "$lib/utils/logger.util";
-import { error, redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
 
 type Options = {
   /** Must be an admin */
@@ -33,14 +34,30 @@ export const get_session = async (options?: Options) => {
   });
 
   if (!session) {
-    redirect(302, resolve("/auth/signin"));
+    redirect(
+      302,
+      "/auth/signin" satisfies ResolvedPathname,
+      {
+        level: "warning",
+        message: "Signin first to continue",
+      },
+      event,
+    );
   } else if (
     !session.session.member_id ||
     !session.session.activeOrganizationId
   ) {
     error(401, "Unauthorized");
   } else if (resolved.email_verified && !session.user.emailVerified) {
-    redirect(302, resolve("/auth/verify-email"));
+    redirect(
+      302,
+      "/auth/verify-email" satisfies ResolvedPathname,
+      {
+        level: "warning",
+        message: "Verify your email to continue",
+      },
+      event,
+    );
   } else if (resolved.admin && session.user.role !== "admin") {
     error(403, "Forbidden");
   } else if (options?.permissions) {
