@@ -1,8 +1,8 @@
+import { PUBLIC_SENTRY_DSN } from "$env/static/public";
 import * as Sentry from "@sentry/sveltekit";
-import { SENTRY_DSN } from "$env/static/private";
 
 Sentry.init({
-  dsn: SENTRY_DSN,
+  dsn: PUBLIC_SENTRY_DSN,
   environment: import.meta.env.DEV ? "development" : "production",
 
   tracesSampleRate: 1.0,
