@@ -1,23 +1,31 @@
 import { command, form, query } from "$app/server";
-import { get_session } from "$lib/services/auth.service";
 import { db } from "$lib/server/db/drizzle.db";
 import { TaskSchema, TaskTable } from "$lib/server/db/models/task.model";
+import { Repo } from "$lib/server/db/repos/index.repo";
+import { get_session } from "$lib/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
+import { error, invalid } from "@sveltejs/kit";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 
 export const get_all_tasks_remote = query(async () => {
   const { session } = await get_session();
 
-  const tasks = await db.query.task.findMany({
-    where: (task, { eq, and }) => and(eq(task.org_id, session.org_id)),
+  const tasks = await Repo.query(
+    db.query.task.findMany({
+      where: (task, { eq, and }) => and(eq(task.org_id, session.org_id)),
 
-    orderBy: (task, { desc }) => [desc(task.createdAt)],
-  });
+      orderBy: (task, { desc }) => [desc(task.createdAt)],
+    }),
+  );
 
-  return tasks;
+  if (!tasks.ok) {
+    error(tasks.error.status ?? 500, tasks.error.message);
+  }
+
+  return tasks.data;
 });
 
 export const create_task_remote = form(

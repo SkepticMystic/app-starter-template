@@ -8,11 +8,12 @@ declare global {
     }
 
     interface Error {
+      code?: string;
       message: string;
       status?: number;
+      level?: "error" | "warning";
       // Comes from StandardSchema.Issue.path
       path?: readonly (PropertyKey | { key: PropertyKey })[];
-      level?: "error" | "warning";
     }
 
     type Result<D> = import("$lib/interfaces/result.type").Result<D, App.Error>;

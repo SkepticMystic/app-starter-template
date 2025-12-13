@@ -8,7 +8,7 @@ import {
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
 import { passkey } from "@better-auth/passkey";
-import type { APIError, GenericEndpointContext } from "better-auth";
+import type { APIError } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { generateRandomString } from "better-auth/crypto";
 import { betterAuth } from "better-auth/minimal";
@@ -20,9 +20,6 @@ import {
   organization,
   twoFactor,
   type GenericOAuthConfig,
-  type Member,
-  type Organization,
-  type OrganizationInput,
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { APP } from "./const/app.const";
@@ -42,9 +39,9 @@ import {
   UserTable,
   VerificationTable,
   type Session,
-  type User,
 } from "./server/db/models/auth.model";
 import { redis } from "./server/db/redis.db";
+import { Repo } from "./server/db/repos/index.repo";
 import { EmailService } from "./services/email.service";
 import { Log } from "./utils/logger.util";
 
@@ -140,16 +137,8 @@ export const auth = betterAuth({
   databaseHooks: {
     session: {
       create: {
-        before: async (session, ctx) => {
-          if (!ctx) {
-            Log.error(
-              { ctx: "[auth.session.create.before]" },
-              "No ctx in hook callback",
-            );
-            return { data: session };
-          }
-
-          const data = await get_or_create_org_id(session, ctx);
+        before: async (session) => {
+          const data = await get_or_create_org_id(session);
 
           return {
             data: {
@@ -355,7 +344,6 @@ export const auth = betterAuth({
 // SECTION: Helper functions
 const get_or_create_org_id = async (
   session: Pick<Session, "userId">,
-  ctx: GenericEndpointContext,
 ): Promise<{
   org_id: string;
   member_id: string;
@@ -366,75 +354,77 @@ const get_or_create_org_id = async (
     userId: session.userId,
   });
 
-  const existing_member = await ctx.context.adapter.findOne<
-    Pick<Member, "id" | "organizationId">
-  >({
-    model: "member",
-    select: ["id", "organizationId"],
-    where: [{ field: "userId", operator: "eq", value: session.userId }],
-  });
+  const member = await Repo.query(
+    db.query.member.findFirst({
+      columns: { id: true, organizationId: true },
+      where: (member, { eq }) => eq(member.userId, session.userId),
+    }),
+  );
 
-  if (existing_member) {
+  if (!member.ok) {
+    return null;
+  } else if (member.data) {
     log.debug(
-      { organizationId: existing_member.organizationId },
+      { organizationId: member.data.organizationId },
       "Found existing organization",
     );
+
     return {
-      member_id: existing_member.id,
-      org_id: existing_member.organizationId,
+      member_id: member.data.id,
+      org_id: member.data.organizationId,
     };
   }
 
   log.info("Creating new organization");
 
-  const user = await ctx.context.adapter.findOne<Pick<User, "name" | "email">>({
-    model: "user",
-    select: ["name", "email"],
-    where: [{ field: "id", operator: "eq", value: session.userId }],
-  });
+  const user = await Repo.query(
+    db.query.user.findFirst({
+      columns: { name: true, email: true },
+      where: (user, { eq }) => eq(user.id, session.userId),
+    }),
+  );
 
-  if (!user) {
+  if (!user.ok || !user.data) {
     log.error("User not found");
     return null;
   }
 
   log.debug({ user }, "User info");
 
-  // SOURCE: https://github.com/better-auth/better-auth/blob/744e9e34c1eb8b75c373f00a71c85e5a599abae6/packages/better-auth/src/plugins/organization/adapter.ts#L186
-  const org = await ctx.context.adapter.create<
-    OrganizationInput,
-    Pick<Organization, "id">
-  >({
-    model: "organization",
-    select: ["id"],
-    data: {
-      // NOTE: || because name is always defined, but may be empty
-      name: `${user.name || user.email}'s Org`,
-      slug: generateRandomString(8, "a-z", "0-9").toLowerCase(),
+  const org = await Repo.insert_one(
+    db
+      .insert(OrganizationTable)
+      .values({
+        createdAt: new Date(),
 
-      createdAt: new Date(),
-    },
-  });
+        name: `${user.data.name || user.data.email}'s Org`,
+        slug: generateRandomString(8, "a-z", "0-9").toLowerCase(),
+      })
+      .returning(),
+  );
 
-  if (!org.id) {
-    log.error("Failed to create organization");
+  if (!org.ok) {
     return null;
   }
 
-  const new_member = await ctx.context.adapter.create<Member>({
-    model: "member",
-    data: {
-      role: "owner",
-      organizationId: org.id,
-      userId: session.userId,
+  const new_member = await Repo.insert_one(
+    db
+      .insert(MemberTable)
+      .values({
+        role: "owner",
+        userId: session.userId,
+        organizationId: org.data.id,
+      })
+      .returning(),
+  );
 
-      createdAt: new Date(),
-    },
-  });
+  if (!new_member.ok) {
+    return null;
+  }
 
   return {
-    org_id: org.id,
-    member_id: new_member.id,
+    org_id: org.data.id,
+    member_id: new_member.data.id,
   };
 };
 

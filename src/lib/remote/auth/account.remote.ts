@@ -1,11 +1,13 @@
 import { command, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/auth";
-import { get_session } from "$lib/services/auth.service";
 import { AUTH } from "$lib/const/auth/auth.const";
 import { db } from "$lib/server/db/drizzle.db";
+import { Repo } from "$lib/server/db/repos/index.repo";
+import { get_session } from "$lib/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
+import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -14,15 +16,21 @@ export const get_account_by_provider_id_remote = query.batch(
   async (provider_ids) => {
     const session = await get_session();
 
-    const accounts = await db.query.account.findMany({
-      where: (account, { and, eq, inArray }) =>
-        and(
-          eq(account.userId, session.user.id), //
-          inArray(account.providerId, provider_ids),
-        ),
-    });
+    const accounts = await Repo.query(
+      db.query.account.findMany({
+        where: (account, { and, eq, inArray }) =>
+          and(
+            eq(account.userId, session.user.id), //
+            inArray(account.providerId, provider_ids),
+          ),
+      }),
+    );
 
-    const map = new Map(accounts.map((a) => [a.providerId, a]));
+    if (!accounts.ok) {
+      error(accounts.error.status ?? 500, accounts.error.message);
+    }
+
+    const map = new Map(accounts.data.map((a) => [a.providerId, a]));
 
     return (provider_id) => map.get(provider_id);
   },

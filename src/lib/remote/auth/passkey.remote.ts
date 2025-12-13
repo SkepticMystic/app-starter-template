@@ -1,19 +1,20 @@
 import { command, form, getRequestEvent, query } from "$app/server";
-import { auth, is_ba_error_code } from "$lib/auth";
-import { get_session } from "$lib/services/auth.service";
+import { auth } from "$lib/auth";
 import { db } from "$lib/server/db/drizzle.db";
+import { Repo } from "$lib/server/db/repos/index.repo";
+import { get_session } from "$lib/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { error } from "@sveltejs/kit";
+import { error, invalid } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
 export const get_all_passkeys_remote = query(async () => {
   const session = await get_session();
 
-  try {
-    const passkeys = await db.query.passkey.findMany({
+  const passkeys = await Repo.query(
+    db.query.passkey.findMany({
       where: (passkey, { eq }) => eq(passkey.userId, session.user.id),
 
       orderBy: (passkey, { desc }) => [desc(passkey.createdAt)],
@@ -23,16 +24,10 @@ export const get_all_passkeys_remote = query(async () => {
         name: true,
         createdAt: true,
       },
-    });
+    }),
+  );
 
-    return result.suc(passkeys);
-  } catch (error) {
-    Log.error(error, "get_all_passkeys_remote.error");
-
-    captureException(error);
-
-    return result.err({ message: "Failed to get all passkeys" });
-  }
+  return passkeys;
 });
 
 export const get_passkey_by_id_remote = query.batch(
@@ -40,8 +35,8 @@ export const get_passkey_by_id_remote = query.batch(
   async (passkey_ids) => {
     const session = await get_session();
 
-    try {
-      const passkeys = await db.query.passkey.findMany({
+    const passkeys = await Repo.query(
+      db.query.passkey.findMany({
         where: (passkey, { and, eq, inArray }) =>
           and(
             eq(passkey.userId, session.user.id), //
@@ -55,18 +50,16 @@ export const get_passkey_by_id_remote = query.batch(
           name: true,
           createdAt: true,
         },
-      });
+      }),
+    );
 
-      const map = new Map(passkeys.map((p) => [p.id, p]));
-
-      return (passkey_id) => map.get(passkey_id);
-    } catch (e) {
-      Log.error(e, "get_passkey_by_id_remote.error");
-
-      captureException(e);
-
-      error(500, "Failed to get passkey by id");
+    if (!passkeys.ok) {
+      error(passkeys.error.status ?? 500, passkeys.error.message);
     }
+
+    const map = new Map(passkeys.data.map((p) => [p.id, p]));
+
+    return (passkey_id) => map.get(passkey_id);
   },
 );
 
