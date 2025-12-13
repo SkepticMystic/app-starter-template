@@ -9,6 +9,7 @@ import { invalid } from "@sveltejs/kit";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const request_password_reset_remote = form(
   z.object({ email: z.email("Please enter a valid email address") }),
@@ -35,7 +36,7 @@ export const request_password_reset_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -83,7 +84,7 @@ export const reset_password_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -117,7 +118,7 @@ export const send_verification_email_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -167,7 +168,7 @@ export const change_password_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },

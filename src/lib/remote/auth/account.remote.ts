@@ -10,6 +10,7 @@ import { captureException } from "@sentry/sveltekit";
 import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const get_account_by_provider_id_remote = query.batch(
   z.enum(AUTH.PROVIDERS.IDS),
@@ -84,7 +85,7 @@ export const unlink_account_remote = command(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },

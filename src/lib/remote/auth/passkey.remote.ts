@@ -9,6 +9,7 @@ import { captureException } from "@sentry/sveltekit";
 import { error, invalid } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const get_all_passkeys_remote = query(async () => {
   const session = await get_session();
@@ -125,7 +126,7 @@ export const delete_passkey_remote = command(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },

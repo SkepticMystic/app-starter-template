@@ -9,6 +9,7 @@ import { APIError } from "better-auth";
 import { TWO_FACTOR_ERROR_CODES } from "better-auth/plugins";
 import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "bits-ui";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const enable_two_factor_remote = form(
   z.object({ password: z.string().min(1, "Please enter your password") }),
@@ -34,7 +35,7 @@ export const enable_two_factor_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -63,7 +64,7 @@ export const disable_two_factor_remote = form(
         Log.error(error, "disable_two_factor_remote.error unknown");
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -106,7 +107,7 @@ export const verify_totp_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -151,7 +152,7 @@ export const verify_two_factor_backup_code_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },

@@ -5,6 +5,7 @@
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { App } from "$lib/utils/app.js";
+  import { toast } from "svelte-sonner";
 
   let { data } = $props();
 
@@ -18,6 +19,8 @@
     );
     if (res.ok) {
       await goto(resolve("/"));
+    } else {
+      toast.error(res.error.message);
     }
   };
 </script>

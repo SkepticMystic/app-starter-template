@@ -8,6 +8,7 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { eq } from "drizzle-orm";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const admin_delete_organization_remote = command(
   z.uuid(), //
@@ -28,7 +29,7 @@ export const admin_delete_organization_remote = command(
 
       captureException(error);
 
-      return result.err({ message: "Internal server error" });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   },
 );

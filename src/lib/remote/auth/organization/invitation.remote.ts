@@ -10,6 +10,7 @@ import { captureException } from "@sentry/sveltekit";
 import { error, invalid } from "@sveltejs/kit";
 import { APIError } from "better-auth/api";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const get_all_invitations_remote = query(async () => {
   const session = await get_session();
@@ -79,7 +80,7 @@ export const create_invitation_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },
@@ -107,7 +108,7 @@ export const cancel_invitation_remote = command(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },

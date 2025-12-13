@@ -8,6 +8,7 @@ import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import { redirect } from "sveltekit-flash-message/server";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const get_all_members_remote = query(async () => {
   try {
@@ -63,7 +64,7 @@ export const remove_member_remote = command(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
   },

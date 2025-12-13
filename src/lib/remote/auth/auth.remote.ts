@@ -2,6 +2,7 @@ import { form, getRequestEvent } from "$app/server";
 import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { AUTH } from "$lib/const/auth/auth.const";
+import { ERROR } from "$lib/const/error.const";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
@@ -49,7 +50,7 @@ export const signin_credentials_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
 
@@ -108,7 +109,7 @@ export const signup_credentials_remote = form(
 
         captureException(error);
 
-        return result.err({ message: "Internal server error" });
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     }
 

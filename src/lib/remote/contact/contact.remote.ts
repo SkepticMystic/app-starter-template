@@ -5,6 +5,7 @@ import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import z from "zod";
+import { ERROR } from "$lib/const/error.const";
 
 export const contact_us_remote = form(
   z.object({
@@ -22,7 +23,7 @@ export const contact_us_remote = form(
 
       captureException(error);
 
-      return result.err({ message: "Internal server error" });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   },
 );

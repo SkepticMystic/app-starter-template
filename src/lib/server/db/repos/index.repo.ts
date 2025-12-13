@@ -3,6 +3,7 @@ import { result } from "$lib/utils/result.util";
 import type { FullQueryResults } from "@neondatabase/serverless";
 import { captureException } from "@sentry/sveltekit";
 import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
+import { ERROR } from "$lib/const/error.const";
 
 const query = async <D>(promise: Promise<D>): Promise<App.Result<D>> => {
   try {
@@ -19,19 +20,19 @@ const query = async <D>(promise: Promise<D>): Promise<App.Result<D>> => {
         },
       });
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else if (error instanceof DrizzleError) {
       Log.error(error, "Repo.query.error DrizzleError");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
       Log.error(error, "Repo.query.error unknown");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }
 };
@@ -49,19 +50,19 @@ const insert = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
         tags: { query: error.query },
       });
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else if (error instanceof DrizzleError) {
       Log.error(error, "Repo.insert.error DrizzleError");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
       Log.error(error, "Repo.insert.error unknown");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }
 };
@@ -97,19 +98,19 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
         tags: { query: error.query },
       });
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else if (error instanceof DrizzleError) {
       Log.error(error, "Repo.update.error DrizzleError");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
       Log.error(error, "Repo.update.error unknown");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }
 };
@@ -146,19 +147,19 @@ const del = async (
         tags: { query: error.query },
       });
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else if (error instanceof DrizzleError) {
       Log.error(error, "Repo.delete.error DrizzleError");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
       Log.error(error, "Repo.delete.error unknown");
 
       captureException(error);
 
-      return result.err({ message: "Internal service error", status: 500 });
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }
 };
