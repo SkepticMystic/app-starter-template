@@ -1,12 +1,14 @@
 import { command, form, query } from "$app/server";
 import { db } from "$lib/server/db/drizzle.db";
-import { TaskSchema, TaskTable } from "$lib/server/db/models/task.model";
+import {
+  TaskSchema,
+  TaskTable,
+  type Task,
+} from "$lib/server/db/models/task.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { get_session } from "$lib/services/auth.service";
-import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { captureException } from "@sentry/sveltekit";
-import { error, invalid } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 
@@ -30,11 +32,11 @@ export const get_all_tasks_remote = query(async () => {
 
 export const create_task_remote = form(
   TaskSchema.insert, //
-  async (input) => {
+  async (input): Promise<App.Result<Task>> => {
     const { session } = await get_session();
 
-    try {
-      const [task] = await db
+    const task = await Repo.insert_one(
+      db
         .insert(TaskTable)
         .values({
           ...input,
@@ -43,16 +45,10 @@ export const create_task_remote = form(
           user_id: session.userId,
           member_id: session.member_id,
         })
-        .returning();
+        .returning(),
+    );
 
-      return result.suc(task);
-    } catch (error) {
-      Log.error(error, "create_task.error");
-
-      captureException(error);
-
-      return result.err({ message: "Failed to create task" });
-    }
+    return task;
   },
 );
 
@@ -61,8 +57,8 @@ export const update_task_remote = form(
   async (input) => {
     const { session } = await get_session();
 
-    try {
-      const [task] = await db
+    const task = await Repo.update_one(
+      db
         .update(TaskTable)
         .set(input)
         .where(
@@ -71,16 +67,10 @@ export const update_task_remote = form(
             eq(TaskTable.org_id, session.org_id),
           ),
         )
-        .returning();
+        .returning(),
+    );
 
-      return result.suc(task);
-    } catch (error) {
-      Log.error(error, "update_task.error");
-
-      captureException(error);
-
-      return result.err({ message: "Failed to update task" });
-    }
+    return task;
   },
 );
 
@@ -89,8 +79,8 @@ export const delete_task_remote = command(
   async (task_id) => {
     const { session } = await get_session();
 
-    try {
-      const res = await db
+    const res = await Repo.delete_one(
+      db
         .delete(TaskTable)
         .where(
           and(
@@ -98,19 +88,13 @@ export const delete_task_remote = command(
             eq(TaskTable.org_id, session.org_id),
           ),
         )
-        .execute();
+        .execute(),
+    );
 
-      if (!res.rowCount) {
-        return result.err({ message: "Task not found" });
-      }
-
+    if (!res.ok) {
+      return res;
+    } else {
       return result.suc();
-    } catch (error) {
-      Log.error(error, "delete_task.error");
-
-      captureException(error);
-
-      return result.err({ message: "Failed to delete task" });
     }
   },
 );
