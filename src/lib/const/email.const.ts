@@ -1,3 +1,4 @@
+import { ADMIN_EMAIL } from "$env/static/private";
 import type {
   Invitation,
   Organization,
@@ -159,7 +160,7 @@ ${COMMON.SIGNATURE.HTML}`.trim();
 
       return {
         html,
-        to: "rossk29@pm.me",
+        to: ADMIN_EMAIL,
         subject: `New contact form submission from ${input.name}`,
       };
     },

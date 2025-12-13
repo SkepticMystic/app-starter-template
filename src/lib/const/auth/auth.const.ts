@@ -44,11 +44,17 @@ const PROVIDER_MAP: Record<
   },
 };
 
+const PASSWORD = {
+  MIN_SCORE: 2 as const,
+};
+
 export const AUTH = {
   PROVIDERS: {
     IDS: PROVIDER_IDS,
     MAP: PROVIDER_MAP,
   },
+
+  PASSWORD,
 };
 
 export declare namespace IAuth {

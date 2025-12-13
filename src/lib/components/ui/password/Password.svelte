@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PasswordCopy from "./password-copy.svelte";
   import PasswordInput from "./password-input.svelte";
   import PasswordRoot from "./password-root.svelte";
   import PasswordStrength from "./password-strength.svelte";
@@ -7,14 +8,12 @@
 
   let {
     value,
+    copyable = false,
     ...rest
   }: Omit<PasswordInputProps, "value"> & {
     value?: string | number | undefined;
+    copyable?: boolean;
   } = $props();
-
-  // TODO:
-  // - Enforce min score
-  // - Optional copy button
 </script>
 
 <PasswordRoot>
@@ -23,7 +22,9 @@
     autocomplete="new-password"
     bind:value={() => value?.toString() ?? "", (v) => (value = v)}
   >
-    <!-- <PasswordCopy /> -->
+    {#if copyable}
+      <PasswordCopy />
+    {/if}
     <PasswordToggleVisibility />
   </PasswordInput>
 

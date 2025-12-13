@@ -1,18 +1,20 @@
 import { form, getRequestEvent } from "$app/server";
 import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
+import { AUTH } from "$lib/const/auth/auth.const";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { invalid, redirect } from "@sveltejs/kit";
+import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
 
 export const signin_credentials_remote = form(
   z.object({
     email: z.email("Please enter a valid email address"),
-    password: z.string(), // NOTE: Better-auth will do validation, so no need to do it here
+    password: z.string(),
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/"),
   }),
@@ -62,7 +64,12 @@ export const signup_credentials_remote = form(
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be at most 100 characters"),
     email: z.email("Please enter a valid email address"),
-    password: z.string(), // NOTE: Better-auth will do validation, so no need to do it here
+    password: z
+      .string()
+      .refine(
+        (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
+        "Please choose a stronger password",
+      ),
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/"),
   }),

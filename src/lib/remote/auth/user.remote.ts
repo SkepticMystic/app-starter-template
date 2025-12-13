@@ -1,10 +1,12 @@
 import { form, getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
+import { AUTH } from "$lib/const/auth/auth.const";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { invalid } from "@sveltejs/kit";
+import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -42,7 +44,12 @@ export const request_password_reset_remote = form(
 export const reset_password_remote = form(
   z.object({
     token: z.string(),
-    new_password: z.string(),
+    new_password: z
+      .string()
+      .refine(
+        (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
+        "Please choose a stronger password",
+      ),
   }),
   async (input, issue) => {
     try {
