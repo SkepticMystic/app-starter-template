@@ -5,6 +5,7 @@
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID
   } from "$env/static/public";
+  import FooterBlock from "$lib/components/blocks/footer/FooterBlock.svelte";
   import Navbar from "$lib/components/shell/Navbar.svelte";
   import SEO from "$lib/components/shell/SEO.svelte";
   import FlashAlert from "$lib/components/ui/alert/FlashAlert.svelte";
@@ -84,5 +85,7 @@
     
     {@render children?.()}
   </main>
+
+  <FooterBlock />
 </div>
 

@@ -1,3 +1,4 @@
+import { asset } from "$app/paths";
 import { PUBLIC_BASE_URL } from "$env/static/public";
 
 export const APP = {
@@ -6,6 +7,6 @@ export const APP = {
   ID: "app-starter",
   NAME: "App Starter",
   URL: PUBLIC_BASE_URL,
-  LOGO_URL: "https://placehold.co/600x400/png",
+  LOGO: asset("/favicon.png"),
   DESCRIPTION: "An awesome app built with SvelteKit and BetterAuth",
 };
