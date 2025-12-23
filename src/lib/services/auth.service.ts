@@ -71,7 +71,7 @@ export const get_session = async (options?: Options) => {
     }
   }
 
-  return {
+  const res = {
     user: session.user,
     session: {
       ...session.session,
@@ -79,6 +79,10 @@ export const get_session = async (options?: Options) => {
       org_id: session.session.activeOrganizationId,
     },
   };
+
+  event.locals.session = res
+
+  return res;
 };
 
 export const safe_get_session = async (options?: Options) => {

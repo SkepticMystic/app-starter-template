@@ -7,11 +7,17 @@ declare global {
       flash?: { level: "success" | "warning" | "error"; message: string };
     }
 
+    interface Locals {
+      session?: Awaited<
+        ReturnType<typeof import("$lib/services/auth.service").get_session>
+      >;
+    }
+
     interface Error {
-      code?: string;
       message: string;
       status?: number;
       level?: "error" | "warning";
+      code?: import("$lib/const/error.const").AppErrorCode;
       // Comes from StandardSchema.Issue.path
       path?: readonly (PropertyKey | { key: PropertyKey })[];
     }

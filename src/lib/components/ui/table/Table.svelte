@@ -2,7 +2,7 @@
   lang="ts"
   generics="T extends Record<string, unknown>"
 >
-  import type { Item } from "$lib/utils/items.util";
+  import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
   import TableBody from "./table-body.svelte";
@@ -20,9 +20,9 @@
     caption,
     class: klass,
   }: {
-    data: Item<T>[];
+    data: Resource<T>[];
     class?: ClassValue;
-    row: Snippet<[Item<T>, number]>;
+    row: Snippet<[Resource<T>, number]>;
     caption?: Snippet;
     header: Snippet<[]>;
     footer?: Snippet;

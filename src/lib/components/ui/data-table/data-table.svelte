@@ -1,11 +1,11 @@
 <script
   lang="ts"
-  generics="TData extends Item"
+  generics="TData extends Resource"
 >
   import Button from "$lib/components/ui/button/button.svelte";
   import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.types";
   import { Format } from "$lib/utils/format.util";
-  import type { Item } from "$lib/utils/items.util";
+  import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import type { Table } from "@tanstack/table-core";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";

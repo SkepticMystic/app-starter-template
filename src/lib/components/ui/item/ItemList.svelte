@@ -1,8 +1,8 @@
 <script
   lang="ts"
-  generics="T extends Item"
+  generics="T extends Resource"
 >
-  import type { Item } from "$lib/utils/items.util";
+  import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import { cn } from "$lib/utils/shadcn.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";

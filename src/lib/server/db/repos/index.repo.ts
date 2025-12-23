@@ -50,7 +50,15 @@ const insert = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
         tags: { query: error.query },
       });
 
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      if (
+        error.cause?.message.includes(
+          "duplicate key value violates unique constraint",
+        )
+      ) {
+        return result.err(ERROR.DUPLICATE);
+      } else {
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      }
     } else if (error instanceof DrizzleError) {
       Log.error(error, "Repo.insert.error DrizzleError");
 
@@ -98,7 +106,15 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
         tags: { query: error.query },
       });
 
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      if (
+        error.cause?.message.includes(
+          "duplicate key value violates unique constraint",
+        )
+      ) {
+        return result.err(ERROR.DUPLICATE);
+      } else {
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      }
     } else if (error instanceof DrizzleError) {
       Log.error(error, "Repo.update.error DrizzleError");
 
