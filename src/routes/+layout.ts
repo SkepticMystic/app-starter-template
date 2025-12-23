@@ -7,8 +7,8 @@ export const load = (({ url }) => {
   const image = {
     type: "image/svg+xml",
     alt: APP.NAME + " Logo",
-    url: APP.URL + APP.LOGO_URL,
-    secureUrl: APP.URL + APP.LOGO_URL,
+    url: APP.URL + APP.LOGO,
+    secureUrl: APP.URL + APP.LOGO,
   };
 
   const title = APP.NAME;
