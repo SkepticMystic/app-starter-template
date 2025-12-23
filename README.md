@@ -61,3 +61,5 @@
 - [ ] https://github.com/LukasNiessen/ArchUnitTS
 - [ ] Contact form from animal-shelter
 - [ ] Client.form submit wrapper to handle toast, form.reset(), etc
+- [ ] Paystack-Better-Auth
+- [ ] Paraglide

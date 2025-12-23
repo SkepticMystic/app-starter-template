@@ -14,35 +14,29 @@
   let { data } = $props();
   let users = $state(data.users);
 
-  const update_user_role = async (
+  const update_user_role = (
     input: Parameters<typeof AdminClient.update_user_role>[0],
-  ) => {
-    const res = await AdminClient.update_user_role(input);
-    if (res.ok) {
-      users = Items.patch(users, input.userId, { role: input.role });
-    }
-  };
+  ) =>
+    AdminClient.update_user_role(input, {
+      on_success: () =>
+        (users = Items.patch(users, input.userId, { role: input.role })),
+    });
 
-  const delete_user = async (user_id: string) => {
-    const res = await AdminClient.delete_user(user_id);
-    if (res.ok) {
-      users = Items.remove(users, user_id);
-    }
-  };
+  const delete_user = (user_id: string) =>
+    AdminClient.delete_user(user_id, {
+      on_success: () => (users = Items.remove(users, user_id)),
+    });
 
-  const ban_user = async (userId: string) => {
-    const res = await AdminClient.ban_user({ userId });
-    if (res.ok) {
-      users = Items.patch(users, userId, res.data.user);
-    }
-  };
+  const ban_user = (userId: string) =>
+    AdminClient.ban_user(
+      { userId },
+      { on_success: (data) => (users = Items.patch(users, userId, data.user)) },
+    );
 
-  const unban_user = async (user_id: string) => {
-    const res = await AdminClient.unban_user(user_id);
-    if (res.ok) {
-      users = Items.patch(users, user_id, res.data.user);
-    }
-  };
+  const unban_user = (user_id: string) =>
+    AdminClient.unban_user(user_id, {
+      on_success: (data) => (users = Items.patch(users, user_id, data.user)),
+    });
 
   const column = createColumnHelper<(typeof users)[number]>();
 

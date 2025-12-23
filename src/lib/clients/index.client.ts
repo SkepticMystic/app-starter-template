@@ -14,11 +14,13 @@ type ClientRequestOptions<I, D> = {
   confirm: ((input: I) => string) | string | null;
   suc_msg: ((input: I, data: D) => string) | string | null;
   validate_session: boolean;
+  on_success: ((data: D) => MaybePromise<unknown>) | null;
 };
 const DEFAULT_OPTIONS: ClientRequestOptions<unknown, unknown> = {
   prompt: null,
   confirm: null,
   suc_msg: null,
+  on_success: null,
   optimistic: false,
   validate_session: true,
 };
@@ -90,6 +92,10 @@ const wrap = <I, D>(
               ? resolved.suc_msg(input, res.data)
               : resolved.suc_msg,
           );
+        }
+
+        if (resolved.on_success) {
+          await resolved.on_success(res.data);
         }
       } else {
         toast.warning(res.error.message);

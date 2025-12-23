@@ -8,5 +8,6 @@ export const APP = {
   NAME: "App Starter",
   URL: PUBLIC_BASE_URL,
   LOGO: asset("/favicon.png"),
+  DOMAIN: new URL(PUBLIC_BASE_URL).hostname,
   DESCRIPTION: "An awesome app built with SvelteKit and BetterAuth",
 };

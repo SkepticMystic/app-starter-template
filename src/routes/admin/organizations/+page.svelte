@@ -35,13 +35,10 @@
   ];
 
   const actions = {
-    delete: async (org_id: string) => {
-      const res = await OrganizationClient.admin_delete(org_id);
-
-      if (res.ok) {
-        orgs = Items.remove(orgs, org_id);
-      }
-    },
+    delete: (org_id: string) =>
+      OrganizationClient.admin_delete(org_id, {
+        on_success: () => (orgs = Items.remove(orgs, org_id)),
+      }),
   };
 </script>
 
