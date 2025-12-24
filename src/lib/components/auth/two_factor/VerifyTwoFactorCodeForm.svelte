@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
+  import FormButton from "$lib/components/form/task/FormButton.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import InputOtp from "$lib/components/ui/input-otp/input-otp.svelte";
@@ -63,14 +63,11 @@
     </Field>
   {/if}
 
-  <Button
+  <FormButton
+    {form}
     class="w-full"
-    type="submit"
     icon="lucide/lock"
-    loading={form.pending > 0}
     disabled={form.fields.code.value() === undefined ||
       form.fields.code.value().length !== TWO_FACTOR.TOTP.DIGITS}
-  >
-    Submit
-  </Button>
+  />
 </form>

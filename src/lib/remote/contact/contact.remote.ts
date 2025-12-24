@@ -6,14 +6,21 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import z from "zod";
 import { ERROR } from "$lib/const/error.const";
+import { CaptchaService } from "$lib/services/captcha/captcha.service";
 
 export const contact_us_remote = form(
   z.object({
     name: z.string().min(1, "Please enter your name"),
     email: z.email("Please enter a valid email address"),
     message: z.string().trim().min(1, "Please enter a message"),
+    captcha_token: z.string().min(1, 'Please complete the captcha'),
   }),
   async (input) => {
+    const captcha = await CaptchaService.verify(input.captcha_token);
+    if (!captcha.ok) {
+      return captcha
+    }
+
     try {
       await EmailService.send(EMAIL.TEMPLATES["admin-contact-form"](input));
 

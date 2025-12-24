@@ -10,10 +10,19 @@ import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
 import { ERROR } from "$lib/const/error.const";
+import { CaptchaService } from "$lib/services/captcha/captcha.service";
 
 export const request_password_reset_remote = form(
-  z.object({ email: z.email("Please enter a valid email address") }),
+  z.object({
+    email: z.email("Please enter a valid email address"),
+    captcha_token: z.string().min(1, 'Please complete the captcha'),
+  }),
   async (input) => {
+    const captcha = await CaptchaService.verify(input.captcha_token);
+    if (!captcha.ok) {
+      return captcha
+    }
+
     try {
       const res = await auth.api.requestPasswordReset({
         body: {

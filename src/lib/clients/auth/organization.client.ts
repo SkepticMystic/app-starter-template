@@ -63,7 +63,6 @@ export const OrganizationClient = {
     accept: Client.better_auth(
       (invitationId: string) =>
         BetterAuthClient.organization.acceptInvitation({ invitationId }),
-      { suc_msg: "Invitation accepted" },
     ),
 
     cancel: Client.wrap(

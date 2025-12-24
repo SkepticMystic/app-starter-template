@@ -5,6 +5,7 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import { request_password_reset_remote } from "$lib/remote/auth/user.remote";
   import { toast } from "svelte-sonner";
+  import Captcha from "$lib/components/auth/Captcha.svelte";
 
   const form = request_password_reset_remote;
 </script>
@@ -40,6 +41,18 @@
               required
               autofocus
               autocomplete="email"
+            />
+          {/snippet}
+        </Field>
+
+        <Field
+          label=""
+          field={form.fields.captcha_token}
+        >
+          {#snippet input({ props, field })}
+            <Captcha
+              {...props}
+              {...field?.as("text")}
             />
           {/snippet}
         </Field>

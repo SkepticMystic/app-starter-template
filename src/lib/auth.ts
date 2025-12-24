@@ -19,6 +19,7 @@ import {
   lastLoginMethod,
   organization,
   twoFactor,
+  captcha,
   type GenericOAuthConfig,
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
@@ -213,6 +214,11 @@ export const auth = betterAuth({
     admin({
       ac: AccessControl.ac,
       roles: AccessControl.roles,
+    }),
+
+    captcha({
+    provider: 'cloudflare-turnstile',
+      secretKey: process.env.CAPTCHA_SECRET_KEY!,
     }),
 
     twoFactor({

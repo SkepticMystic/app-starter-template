@@ -14,14 +14,9 @@
   const accept_invite = async () => {
     if (!data.search.invite_id) return;
 
-    const res = await OrganizationClient.invitation.accept(
-      data.search.invite_id,
-    );
-    if (res.ok) {
-      await goto(resolve("/"));
-    } else {
-      toast.error(res.error.message);
-    }
+    await OrganizationClient.invitation.accept(data.search.invite_id, {
+      on_success: () => goto(resolve("/")),
+    });
   };
 </script>
 

@@ -23,10 +23,8 @@
       variant="destructive"
       icon="lucide/log-out"
       onclick={() =>
-        OrganizationClient.leave(undefined).then((r) => {
-          if (r.ok) {
-            goto(resolve("/"));
-          }
+        OrganizationClient.leave(undefined, {
+          on_success: () => goto(resolve("/")),
         })}
     >
       Leave Organization

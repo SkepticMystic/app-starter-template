@@ -11,6 +11,7 @@ import { invalid, redirect } from "@sveltejs/kit";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
+import { CaptchaService } from "$lib/services/captcha/captcha.service";
 
 export const signin_credentials_remote = form(
   z.object({
@@ -18,8 +19,14 @@ export const signin_credentials_remote = form(
     password: z.string(),
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/"),
+    captcha_token: z.string().min(1, 'Please complete the captcha'),
   }),
   async (input) => {
+    const captcha = await CaptchaService.verify(input.captcha_token);
+    if (!captcha.ok) {
+      return captcha
+    }
+
     let redirect_uri = input.redirect_uri as ResolvedPathname;
 
     try {
@@ -73,8 +80,14 @@ export const signup_credentials_remote = form(
       ),
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/"),
+    captcha_token: z.string().min(1, 'Please complete the captcha'),
   }),
   async (input, issue) => {
+    const captcha = await CaptchaService.verify(input.captcha_token);
+    if (!captcha.ok) {
+      return captcha
+    }
+
     try {
       await auth.api.signUpEmail({
         headers: getRequestEvent().request.headers,

@@ -4,6 +4,7 @@
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
+  import Captcha from "$lib/components/auth/Captcha.svelte";
   import { contact_us_remote } from "$lib/remote/contact/contact.remote";
   import { session } from "$lib/stores/session.store";
   import { onDestroy } from "svelte";
@@ -13,11 +14,8 @@
 
   const session_listener = session.subscribe(($session) => {
     if ($session.data?.user) {
-      form.fields.set({
-        message: "",
-        name: $session.data.user.name,
-        email: $session.data.user.email,
-      });
+      form.fields.name.set($session.data.user.name);
+      form.fields.email.set($session.data.user.email);
 
       try {
         session_listener();
@@ -102,6 +100,18 @@
               required
               class="max-h-72 min-h-24"
               placeholder="Your message"
+            />
+          {/snippet}
+        </Field>
+
+        <Field
+          label=""
+          field={form.fields.captcha_token}
+        >
+          {#snippet input({ props, field })}
+            <Captcha
+              {...props}
+              {...field?.as("text")}
             />
           {/snippet}
         </Field>
