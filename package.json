@@ -101,6 +101,7 @@
     "runed": "^0.37.1",
     "svelte-meta-tags": "^4.5.0",
     "svelte-sonner": "^1.0.7",
+    "unpic": "^4.2.2",
     "zod": "^4.3.5"
   }
 }

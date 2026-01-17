@@ -1,5 +1,6 @@
 import { goto } from "$app/navigation";
 import { resolve } from "$app/paths";
+import type { MaybePromise } from "$lib/interfaces";
 import { session } from "$lib/stores/session.store";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
   import Captcha from "$lib/components/auth/captcha/Captcha.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -16,11 +16,8 @@
 
   const session_listener = session.subscribe(($session) => {
     if ($session.data?.user) {
-      form.fields.set({
-        message: "",
-        name: $session.data.user.name,
-        email: $session.data.user.email,
-      });
+      form.fields.name.set($session.data.user.name);
+      form.fields.email.set($session.data.user.email);
 
       try {
         session_listener();
