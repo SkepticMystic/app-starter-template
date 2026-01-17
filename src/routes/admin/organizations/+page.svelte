@@ -4,7 +4,7 @@
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { Format } from "$lib/utils/format.util.js";
-  import { Items } from "$lib/utils/items.util.js";
+  import { Resources } from "$lib/utils/resource/resource.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
 
@@ -37,7 +37,7 @@
   const actions = {
     delete: (org_id: string) =>
       OrganizationClient.admin_delete(org_id, {
-        on_success: () => (orgs = Items.remove(orgs, org_id)),
+        on_success: () => (orgs = Resources.remove(orgs, org_id)),
       }),
   };
 </script>

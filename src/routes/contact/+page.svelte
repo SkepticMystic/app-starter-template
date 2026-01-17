@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button/button.svelte";
+  import Captcha from "$lib/components/auth/captcha/Captcha.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -10,6 +11,8 @@
   import { toast } from "svelte-sonner";
 
   const form = contact_us_remote;
+
+  let reset_captcha = $state<() => void>();
 
   const session_listener = session.subscribe(($session) => {
     if ($session.data?.user) {
@@ -49,6 +52,10 @@
         class="space-y-3"
         {...form.enhance(async (e) => {
           await e.submit();
+
+          if (form.fields.allIssues()?.length) {
+            reset_captcha?.();
+          }
 
           const res = form.result;
           if (res?.ok) {
@@ -102,6 +109,19 @@
               required
               class="max-h-72 min-h-24"
               placeholder="Your message"
+            />
+          {/snippet}
+        </Field>
+
+        <Field
+          label=""
+          field={form.fields.captcha_token}
+        >
+          {#snippet input({ props, field })}
+            <Captcha
+              {...props}
+              {...field?.as("text")}
+              bind:reset={reset_captcha}
             />
           {/snippet}
         </Field>

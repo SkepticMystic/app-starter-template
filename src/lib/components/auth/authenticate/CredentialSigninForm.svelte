@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
   import { BetterAuthClient } from "$lib/auth-client";
-  import FormButton from "$lib/components/form/task/FormButton.svelte";
+  import FormButton from "$lib/components/form/FormButton.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";

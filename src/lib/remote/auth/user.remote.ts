@@ -1,20 +1,26 @@
 import { form, getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
-import { AUTH } from "$lib/const/auth/auth.const";
+import { ERROR } from "$lib/const/error.const";
+import { password_schema } from "$lib/schema/password/password.schema";
+import { CaptchaService } from "$lib/services/captcha/captcha.service";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { invalid } from "@sveltejs/kit";
-import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
-import { ERROR } from "$lib/const/error.const";
 
 export const request_password_reset_remote = form(
-  z.object({ email: z.email("Please enter a valid email address") }),
+  z.object({
+    email: z.email("Please enter a valid email address"),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
+  }),
   async (input) => {
     try {
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
       const res = await auth.api.requestPasswordReset({
         body: {
           email: input.email,
@@ -45,12 +51,7 @@ export const request_password_reset_remote = form(
 export const reset_password_remote = form(
   z.object({
     token: z.string(),
-    new_password: z
-      .string()
-      .refine(
-        (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
-        "Please choose a stronger password",
-      ),
+    new_password: password_schema,
   }),
   async (input, issue) => {
     try {
@@ -127,7 +128,7 @@ export const send_verification_email_remote = form(
 export const change_password_remote = form(
   z.object({
     current_password: z.string(),
-    new_password: z.string(),
+    new_password: password_schema,
   }),
   async (input, issue) => {
     try {

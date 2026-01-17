@@ -1,14 +1,14 @@
 import { form, getRequestEvent } from "$app/server";
 import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
-import { AUTH } from "$lib/const/auth/auth.const";
 import { ERROR } from "$lib/const/error.const";
+import { password_schema } from "$lib/schema/password/password.schema";
+import { CaptchaService } from "$lib/services/captcha/captcha.service";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { invalid, redirect } from "@sveltejs/kit";
-import { zxcvbn } from "@zxcvbn-ts/core";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -65,17 +65,16 @@ export const signup_credentials_remote = form(
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be at most 100 characters"),
     email: z.email("Please enter a valid email address"),
-    password: z
-      .string()
-      .refine(
-        (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
-        "Please choose a stronger password",
-      ),
+    password: password_schema,
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/"),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input, issue) => {
     try {
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
       await auth.api.signUpEmail({
         headers: getRequestEvent().request.headers,
         body: {

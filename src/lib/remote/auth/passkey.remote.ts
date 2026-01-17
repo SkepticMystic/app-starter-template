@@ -1,15 +1,15 @@
 import { command, form, getRequestEvent, query } from "$app/server";
-import { auth } from "$lib/auth";
+import { auth, is_ba_error_code } from "$lib/auth";
+import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { get_session } from "$lib/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { error, invalid } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
-import { ERROR } from "$lib/const/error.const";
 
 export const get_all_passkeys_remote = query(async () => {
   const session = await get_session();

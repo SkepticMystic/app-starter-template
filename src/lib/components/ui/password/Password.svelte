@@ -9,18 +9,20 @@
   let {
     value,
     copyable = false,
+    hide_strength = false,
     ...rest
   }: Omit<PasswordInputProps, "value"> & {
     value?: string | number | undefined;
     copyable?: boolean;
+    hide_strength?: boolean;
   } = $props();
 </script>
 
 <PasswordRoot>
   <PasswordInput
-    {...rest}
     autocomplete="new-password"
     bind:value={() => value?.toString() ?? "", (v) => (value = v)}
+    {...rest}
   >
     {#if copyable}
       <PasswordCopy />
@@ -28,5 +30,7 @@
     <PasswordToggleVisibility />
   </PasswordInput>
 
-  <PasswordStrength />
+  {#if !hide_strength}
+    <PasswordStrength />
+  {/if}
 </PasswordRoot>

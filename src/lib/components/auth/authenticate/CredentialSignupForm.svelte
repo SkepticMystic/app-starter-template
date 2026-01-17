@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import FormButton from "$lib/components/form/FormButton.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -8,6 +8,7 @@
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
   import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
   import { toast } from "svelte-sonner";
+  import Captcha from "../captcha/Captcha.svelte";
 
   let {
     redirect_uri,
@@ -19,12 +20,18 @@
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
   const form = signup_credentials_remote;
+
+  let reset_captcha = $state<() => void>();
 </script>
 
 <form
   class="space-y-3"
   {...form.enhance(async (e) => {
     await e.submit();
+
+    if (form.fields.allIssues()?.length) {
+      reset_captcha?.();
+    }
 
     const res = form.result;
     if (res?.ok) {
@@ -89,14 +96,26 @@
     {/snippet}
   </Field>
 
+  <Field
+    label=""
+    field={form.fields.captcha_token}
+  >
+    {#snippet input({ props, field })}
+      <Captcha
+        {...props}
+        {...field?.as("text")}
+        bind:reset={reset_captcha}
+      />
+    {/snippet}
+  </Field>
+
   <input {...form.fields.redirect_uri.as("hidden", redirect_uri)} />
 
-  <Button
-    type="submit"
+  <FormButton
+    {form}
     class="w-full"
     icon={provider.icon}
-    loading={form.pending > 0}
   >
     Signup with {provider.name}
-  </Button>
+  </FormButton>
 </form>
