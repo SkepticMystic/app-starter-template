@@ -42,7 +42,7 @@ import {
 } from "./server/db/models/auth.model";
 import { redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
-import { EmailService } from "./services/email.service";
+import { EmailService } from "./server/services/email.service";
 import { Log } from "./utils/logger.util";
 
 // SECTION: betterAuth init
