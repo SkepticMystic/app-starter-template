@@ -1,16 +1,16 @@
 import { command, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/auth";
 import { AUTH } from "$lib/const/auth/auth.const";
+import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
-import { ERROR } from "$lib/const/error.const";
 
 export const get_account_by_provider_id_remote = query.batch(
   z.enum(AUTH.PROVIDERS.IDS),

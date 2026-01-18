@@ -3,7 +3,7 @@ import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { password_schema } from "$lib/schema/password/password.schema";
-import { CaptchaService } from "$lib/services/captcha/captcha.service";
+import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";

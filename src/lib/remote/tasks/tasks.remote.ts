@@ -6,7 +6,7 @@ import {
   type Task,
 } from "$lib/server/db/models/task.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { result } from "$lib/utils/result.util";
 import { error } from "@sveltejs/kit";
 import { and, eq } from "drizzle-orm";

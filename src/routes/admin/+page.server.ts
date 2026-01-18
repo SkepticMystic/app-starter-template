@@ -1,4 +1,4 @@
-import { get_session } from "$lib/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async () => {

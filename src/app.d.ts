@@ -9,7 +9,9 @@ declare global {
 
     interface Locals {
       session?: Awaited<
-        ReturnType<typeof import("$lib/services/auth.service").get_session>
+        ReturnType<
+          typeof import("$lib/server/services/auth.service").get_session
+        >
       >;
     }
 

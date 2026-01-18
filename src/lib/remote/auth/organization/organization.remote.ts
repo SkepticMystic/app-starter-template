@@ -1,14 +1,14 @@
 import { command } from "$app/server";
+import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { OrganizationTable } from "$lib/server/db/models/auth.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { eq } from "drizzle-orm";
 import z from "zod";
-import { ERROR } from "$lib/const/error.const";
 
 export const admin_delete_organization_remote = command(
   z.uuid(), //

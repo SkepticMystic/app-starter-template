@@ -4,7 +4,7 @@ import type {
   Organization,
   User,
 } from "$lib/server/db/models/auth.model";
-import type { SendEmailOptions } from "$lib/services/email.service";
+import type { SendEmailOptions } from "$lib/server/services/email.service";
 import { App } from "$lib/utils/app";
 import { HTMLUtil } from "$lib/utils/html/html.util";
 import { APP } from "./app.const";
@@ -79,8 +79,8 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       const html = `
 <p>Hi,</p>
 <p>
-  You have been invited by <strong>${HTMLUtil.sanitize( input.inviter.user.email)}</strong>
-  to join the organization <strong>${HTMLUtil.sanitize( input.organization.name)}</strong>.
+  You have been invited by <strong>${HTMLUtil.sanitize(input.inviter.user.email)}</strong>
+  to join the organization <strong>${HTMLUtil.sanitize(input.organization.name)}</strong>.
 </p>
 <p>
   Click <a href="${href}">here</a> to accept the invitation.

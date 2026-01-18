@@ -1,8 +1,8 @@
 import { form } from "$app/server";
 import { EMAIL } from "$lib/const/email.const";
 import { ERROR } from "$lib/const/error.const";
-import { CaptchaService } from "$lib/services/captcha/captcha.service";
-import { EmailService } from "$lib/services/email.service";
+import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
+import { EmailService } from "$lib/server/services/email.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";

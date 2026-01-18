@@ -1,6 +1,6 @@
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { result } from "$lib/utils/result.util";
 import type { PageServerLoad } from "./$types";
 
