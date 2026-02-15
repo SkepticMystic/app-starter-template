@@ -67,7 +67,7 @@ export const signup_credentials_remote = form(
     email: z.email("Please enter a valid email address"),
     password: password_schema,
     remember: z.boolean().default(false),
-    redirect_uri: z.string().default("/"),
+    redirect_uri: z.string().default("/onboarding"),
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input, issue) => {

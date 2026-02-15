@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -9,6 +10,7 @@
     create_invitation_remote,
     get_all_invitations_remote,
   } from "$lib/remote/auth/organization/invitation.remote";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
 
   let {
@@ -19,10 +21,7 @@
 
   const form = create_invitation_remote;
 
-  form.fields.role.set("member");
-  $effect(() => {
-    form.fields.role.set("member");
-  });
+  FormUtil.init(form, () => ({ role: "member" }));
 </script>
 
 <form
@@ -36,6 +35,8 @@
           ...cur,
         ]),
       );
+
+    FormUtil.count_issue_metrics(form, "organization_invite_form");
 
     const res = form.result;
     if (res?.ok) {
@@ -83,4 +84,6 @@
   >
     Invite member
   </Button>
+
+  <FormErrors {form} />
 </form>

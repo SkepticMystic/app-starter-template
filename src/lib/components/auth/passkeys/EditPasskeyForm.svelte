@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -7,6 +8,7 @@
     rename_passkey_remote,
   } from "$lib/remote/auth/passkey.remote";
   import type { Passkey } from "$lib/server/db/models/auth.model";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { Resources } from "$lib/utils/resource/resource.util";
   import { result } from "$lib/utils/result.util";
   import { toast } from "svelte-sonner";
@@ -19,7 +21,7 @@
 
   const form = rename_passkey_remote;
 
-  form.fields.name.set(passkey.name ?? "");
+  FormUtil.init(form, () => ({ name: passkey.name ?? "" }));
 </script>
 
 <form
@@ -32,6 +34,8 @@
         ),
       ),
     );
+
+    FormUtil.count_issue_metrics(form, "edit_passkey_form");
 
     const res = form.result;
     if (res?.ok) {
@@ -64,4 +68,6 @@
   >
     Update passkey
   </Button>
+
+  <FormErrors {form} />
 </form>

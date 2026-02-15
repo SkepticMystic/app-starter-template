@@ -109,7 +109,7 @@
     {/snippet}
   </Field>
 
-  <input {...form.fields.redirect_uri.as("hidden", redirect_uri)} />
+  <input {...form.fields.redirect_uri.as("hidden", redirect_uri ?? "/onboarding")} />
 
   <FormButton
     {form}

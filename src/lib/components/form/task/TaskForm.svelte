@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -6,57 +7,63 @@
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { TASKS } from "$lib/const/task.const";
   import type { MaybePromise } from "$lib/interfaces";
-  import type {
+  import {
     create_task_remote,
     update_task_remote,
   } from "$lib/remote/tasks/tasks.remote";
+  import type { Task, TaskSchema } from "$lib/server/db/models/task.model";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
 
   let props: (
     | {
-        kind: "create";
-        form: typeof create_task_remote;
+        mode: "create";
+        initial?: TaskSchema["insert"];
       }
     | {
-        kind: "update";
-        form: typeof update_task_remote;
+        mode: "update";
+        initial: TaskSchema["update"];
       }
   ) & {
-    on_success?: () => MaybePromise<unknown>;
+    on_success?: (d: Task) => MaybePromise<unknown>;
   } = $props();
 
-  if (props.kind === "create") {
-    props.form.fields.status.set("pending");
+  if (props.mode === "update") {
+    FormUtil.init(update_task_remote, () => props.initial);
+  } else if (props.initial) {
+    FormUtil.init(create_task_remote, () => props.initial);
   }
+
+  const form =
+    props.mode === "create" ? create_task_remote : update_task_remote;
 </script>
 
 <form
   class="space-y-3"
-  {...props.form.enhance(async ({ submit }) => {
+  {...form.enhance(async ({ submit }) => {
     await submit();
 
-    const res = props.form.result;
-    if (res?.ok) {
-      toast.success("Task updated");
+    FormUtil.count_issue_metrics(form, "task_form");
 
-      await props.on_success?.();
+    const res = form.result;
+    if (res?.ok) {
+      toast.success(props.mode === "create" ? "Task created" : "Task updated");
+
+      await props.on_success?.(res.data);
     } else if (res?.error) {
       toast.error(res.error.message);
     }
   })}
 >
-  <!-- NOTE: This only works if I've already set the id outside
- But if I've done that already, do I still need this hidden input?
- Turns out, yes, you do -->
-  {#if props.kind === "update"}
+  {#if props.mode === "update"}
     <input
-      {...props.form.fields.id.as("hidden", props.form.fields.id.value())}
+      {...update_task_remote.fields.id.as("hidden", update_task_remote.fields.id.value())}
     />
   {/if}
 
   <Field
     label="Title"
-    field={props.form.fields.title}
+    field={form.fields.title}
   >
     {#snippet input({ props, field })}
       <Input
@@ -73,7 +80,7 @@
     <Field
       label="Status"
       class="grow"
-      field={props.form.fields.status}
+      field={form.fields.status}
     >
       {#snippet input({ props, field })}
         <NativeSelect
@@ -90,7 +97,7 @@
     <Field
       label="Due Date"
       class="grow"
-      field={props.form.fields.due_date}
+      field={form.fields.due_date}
     >
       {#snippet input({ props, field })}
         <Input
@@ -104,7 +111,7 @@
 
   <Field
     label="Description"
-    field={props.form.fields.description}
+    field={form.fields.description}
   >
     {#snippet input({ props, field })}
       <Textarea
@@ -119,8 +126,10 @@
     type="submit"
     class="w-full"
     icon="lucide/check"
-    loading={props.form.pending > 0}
+    loading={form.pending > 0}
   >
     Save task
   </Button>
+
+  <FormErrors {form} />
 </form>

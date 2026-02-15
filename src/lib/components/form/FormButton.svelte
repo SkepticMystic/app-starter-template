@@ -1,9 +1,5 @@
-<script
-  lang="ts"
-  generics="Input extends RemoteFormInput, Output extends unknown"
->
+<script lang="ts">
   import Button from "$lib/components/ui/button/button.svelte";
-  import type { RemoteForm, RemoteFormInput } from "@sveltejs/kit";
   import type { ComponentProps } from "svelte";
 
   let {
@@ -11,7 +7,7 @@
     children,
     ...rest
   }: {
-    form: RemoteForm<Input, Output>;
+    form: { pending: number };
   } & Omit<ComponentProps<typeof Button>, "form" | "target" | "href"> =
     $props();
 </script>

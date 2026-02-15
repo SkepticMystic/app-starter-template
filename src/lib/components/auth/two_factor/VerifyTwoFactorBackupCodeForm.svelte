@@ -1,10 +1,12 @@
 <script lang="ts">
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import type { ResultData } from "$lib/interfaces/result.type";
   import { verify_two_factor_backup_code_remote } from "$lib/remote/auth/two_factor.remote";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
 
   let {
@@ -22,6 +24,8 @@
   class="space-y-3"
   {...form.enhance(async (e) => {
     await e.submit();
+
+    FormUtil.count_issue_metrics(form, "verify_two_factor_backup_code_form");
 
     const res = form.result;
     if (res?.ok) {
@@ -71,4 +75,6 @@
   >
     Submit
   </Button>
+
+  <FormErrors {form} />
 </form>

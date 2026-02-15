@@ -10,7 +10,6 @@ import {
 import { passkey } from "@better-auth/passkey";
 import type { APIError } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { generateRandomString } from "better-auth/crypto";
 import { betterAuth } from "better-auth/minimal";
 import {
   admin,
@@ -138,13 +137,13 @@ export const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          const data = await get_or_create_org_id(session);
+          const data = await get_active_org(session);
 
           return {
             data: {
               ...session,
-
               member_id: data?.member_id,
+              member_role: data?.member_role,
               activeOrganizationId: data?.org_id,
             },
           };
@@ -342,13 +341,15 @@ export const auth = betterAuth({
 // !SECTION
 
 // SECTION: Helper functions
-const get_or_create_org_id = async (
+// NOTE: Renamed from get_or_create_org_id - no longer creates orgs automatically
+// Organizations are now created via the onboarding flow after email verification
+const get_active_org = async (
   session: Pick<Session, "userId">,
 ): Promise<{
   org_id: string;
   member_id: string;
+  member_role: string;
 } | null> => {
-  // NOTE: Order is preserved when logging, so show ctx first
   const log = Log.child({
     ctx: "[auth.session.create.before]",
     userId: session.userId,
@@ -356,75 +357,26 @@ const get_or_create_org_id = async (
 
   const member = await Repo.query(
     db.query.member.findFirst({
-      columns: { id: true, organizationId: true },
+      columns: { id: true, organizationId: true, role: true },
       where: { userId: session.userId },
+      orderBy: { createdAt: "desc" },
     }),
   );
 
-  if (!member.ok) {
+  if (!member.ok || !member.data) {
+    log.debug("No organization found for user");
     return null;
-  } else if (member.data) {
-    log.debug(
-      { organizationId: member.data.organizationId },
-      "Found existing organization",
-    );
-
-    return {
-      member_id: member.data.id,
-      org_id: member.data.organizationId,
-    };
   }
 
-  log.info("Creating new organization");
-
-  const user = await Repo.query(
-    db.query.user.findFirst({
-      columns: { name: true, email: true },
-      where: { id: session.userId },
-    }),
+  log.debug(
+    { organizationId: member.data.organizationId },
+    "Found existing organization",
   );
-
-  if (!user.ok || !user.data) {
-    log.error("User not found");
-    return null;
-  }
-
-  log.debug({ user }, "User info");
-
-  const org = await Repo.insert_one(
-    db
-      .insert(OrganizationTable)
-      .values({
-        createdAt: new Date(),
-
-        name: `${user.data.name || user.data.email}'s Org`,
-        slug: generateRandomString(8, "a-z", "0-9").toLowerCase(),
-      })
-      .returning(),
-  );
-
-  if (!org.ok) {
-    return null;
-  }
-
-  const new_member = await Repo.insert_one(
-    db
-      .insert(MemberTable)
-      .values({
-        role: "owner",
-        userId: session.userId,
-        organizationId: org.data.id,
-      })
-      .returning(),
-  );
-
-  if (!new_member.ok) {
-    return null;
-  }
 
   return {
-    org_id: org.data.id,
-    member_id: new_member.data.id,
+    member_id: member.data.id,
+    member_role: member.data.role,
+    org_id: member.data.organizationId,
   };
 };
 

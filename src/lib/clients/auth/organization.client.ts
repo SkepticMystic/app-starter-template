@@ -4,6 +4,7 @@ import {
   type IOrganization,
 } from "$lib/const/auth/organization.const";
 import {
+  accept_invitation_remote,
   cancel_invitation_remote,
   get_all_invitations_remote,
 } from "$lib/remote/auth/organization/invitation.remote";
@@ -17,10 +18,20 @@ import { BetterAuth } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
 
+const set_active_org = async (organizationId: string | undefined) => {
+  const res = await BetterAuth.to_result(
+    BetterAuthClient.organization.setActive({
+      organizationId,
+    }),
+  );
+
+  BetterAuthClient.$store.notify("$sessionSignal");
+
+  return res;
+};
+
 export const OrganizationClient = {
-  set_active: Client.better_auth((organizationId: string | undefined) =>
-    BetterAuthClient.organization.setActive({ organizationId }),
-  ),
+  set_active: set_active_org,
 
   leave: Client.wrap(
     async (/** Fallbacks to active org_id */ org_id?: string) => {
@@ -60,11 +71,10 @@ export const OrganizationClient = {
   ),
 
   invitation: {
-    accept: Client.better_auth(
-      (invitationId: string) =>
-        BetterAuthClient.organization.acceptInvitation({ invitationId }),
-      { suc_msg: "Invitation accepted" },
-    ),
+    accept: Client.wrap(accept_invitation_remote, {
+      suc_msg: "Invitation accepted",
+      on_success: (d) => set_active_org(d.member.organizationId),
+    }),
 
     cancel: Client.wrap(
       (invitation_id: string) =>

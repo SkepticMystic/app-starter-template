@@ -20,7 +20,8 @@
       BetterAuthClient.signIn.social({
         provider: provider_id,
         disableRedirect: false,
-        callbackURL: redirect_uri,
+        callbackURL: redirect_uri ?? "/",
+        newUserCallbackURL: redirect_uri ?? "/onboarding",
       }),
     { validate_session: false },
   );

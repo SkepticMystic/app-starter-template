@@ -3,6 +3,7 @@ import type { ResolvedPathname } from "$app/types";
 import { auth } from "$lib/auth";
 import { BetterAuthClient } from "$lib/auth-client";
 import type { RoleId } from "$lib/const/auth/role.const.ts";
+import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { error } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
@@ -43,11 +44,6 @@ export const get_session = async (options?: Options) => {
       },
       event,
     );
-  } else if (
-    !session.session.member_id ||
-    !session.session.activeOrganizationId
-  ) {
-    error(401, "Unauthorized");
   } else if (resolved.email_verified && !session.user.emailVerified) {
     redirect(
       302,
@@ -55,6 +51,20 @@ export const get_session = async (options?: Options) => {
       {
         level: "warning",
         message: "Verify your email to continue",
+      },
+      event,
+    );
+  } else if (
+    !session.session.member_id ||
+    !session.session.member_role ||
+    !session.session.activeOrganizationId
+  ) {
+    redirect(
+      302,
+      App.url("/onboarding"),
+      {
+        level: "warning",
+        message: "Create your organization to continue",
       },
       event,
     );
@@ -76,11 +86,12 @@ export const get_session = async (options?: Options) => {
     session: {
       ...session.session,
       member_id: session.session.member_id!,
+      member_role: session.session.member_role!,
       org_id: session.session.activeOrganizationId,
     },
   };
 
-  event.locals.session = res
+  event.locals.session = res;
 
   return res;
 };

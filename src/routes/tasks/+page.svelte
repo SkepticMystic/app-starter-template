@@ -11,10 +11,7 @@
   import Modal from "$lib/components/ui/modal/modal.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { TASKS } from "$lib/const/task.const";
-  import {
-    create_task_remote,
-    get_all_tasks_remote,
-  } from "$lib/remote/tasks/tasks.remote";
+  import { get_all_tasks_remote } from "$lib/remote/tasks/tasks.remote";
   import {
     CellHelpers,
     TanstackTable,
@@ -76,8 +73,7 @@
 
       {#snippet content({ close })}
         <TaskForm
-          kind="create"
-          form={create_task_remote}
+          mode="create"
           on_success={close}
         />
       {/snippet}

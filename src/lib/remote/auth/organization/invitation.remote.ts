@@ -112,3 +112,51 @@ export const cancel_invitation_remote = command(
     }
   },
 );
+
+export const accept_invitation_remote = command(
+  z.uuid(), //
+  async (invitation_id) => {
+    try {
+      const event = getRequestEvent();
+
+      const session = await auth.api.getSession({
+        headers: event.request.headers,
+      });
+      if (!session) {
+        return result.err(ERROR.UNAUTHORIZED);
+      }
+
+      const res = await auth.api.acceptInvitation({
+        body: { invitationId: invitation_id },
+        headers: event.request.headers,
+      });
+
+      if (!res) {
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      }
+
+      await (
+        await auth.$context
+      ).internalAdapter.updateSession(session.session.token, {
+        member_id: res.member.id,
+        member_role: res.member.role,
+        org_id: res.invitation.organizationId,
+        activeOrganizationId: res.invitation.organizationId,
+      });
+
+      return result.suc(res);
+    } catch (error) {
+      if (error instanceof APIError) {
+        Log.info(error.body, "accept_invitation_remote.error better-auth");
+
+        return result.err({ message: error.message, status: error.statusCode });
+      } else {
+        Log.error(error, "accept_invitation_remote.error unknown");
+
+        captureException(error);
+
+        return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      }
+    }
+  },
+);

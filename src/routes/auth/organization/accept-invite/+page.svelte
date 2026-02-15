@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
@@ -18,7 +17,8 @@
       data.search.invite_id,
     );
     if (res.ok) {
-      await goto(resolve("/"));
+      // NOTE: Hard reload to trigger session update
+      window.location.href = App.url("/settings/organization");
     } else {
       toast.error(res.error.message);
     }
