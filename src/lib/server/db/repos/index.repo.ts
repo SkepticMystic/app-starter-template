@@ -37,6 +37,46 @@ const query = async <D>(promise: Promise<D>): Promise<App.Result<D>> => {
   }
 };
 
+/**
+ * Execute a query that returns a single result
+ * @returns Result with single record or NOT_FOUND error
+ */
+const query_one = async <T>(
+  promise: Promise<T | undefined>
+): Promise<App.Result<T>> => {
+  try {
+    const data = await promise;
+
+    if (!data) {
+      return result.err(ERROR.NOT_FOUND);
+    }
+
+    return result.suc(data);
+  } catch (error) {
+    if (error instanceof DrizzleQueryError) {
+      Log.error(error, "Repo.query_one.error DrizzleQueryError");
+
+      captureException(error, {
+        tags: { query: error.query },
+      });
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else if (error instanceof DrizzleError) {
+      Log.error(error, "Repo.query_one.error DrizzleError");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else {
+      Log.error(error, "Repo.query_one.error unknown");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
+  }
+};
+
 const insert = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
   try {
     const data = await promise;
@@ -132,19 +172,54 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
 };
 
 const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
-  const res = await update(promise);
-  if (!res.ok) {
-    return res;
-  }
+  try {
+    const data = await promise;
+    
+    const [first] = data;
+    
+    if (!first) {
+      Log.error("Repo.update_one.error no data");
+      return result.err(ERROR.NOT_FOUND);
+    }
+    
+    return result.suc(first);
+  } catch (error) {
+    if (error instanceof DrizzleQueryError) {
+      // Check for duplicate key BEFORE logging to Sentry
+      if (
+        error.cause?.message.includes(
+          "duplicate key value violates unique constraint",
+        )
+      ) {
+        return result.err(ERROR.DUPLICATE);
+      }
+      
+      Log.error(error, "Repo.update_one.error DrizzleQueryError");
 
-  const [data] = res.data;
+      captureException(error, {
+        tags: { query: error.query },
+        contexts: {
+          drizzle_error: {
+            message: error.message,
+            cause: error.cause?.message
+          }
+        }
+      });
 
-  if (!data) {
-    Log.error("Repo.update_one.error no data");
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else if (error instanceof DrizzleError) {
+      Log.error(error, "Repo.update_one.error DrizzleError");
 
-    return result.err({ message: "Failed to update", status: 500 });
-  } else {
-    return result.suc(data);
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else {
+      Log.error(error, "Repo.update_one.error unknown");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
   }
 };
 
@@ -180,9 +255,65 @@ const del = async (
   }
 };
 
+/**
+ * Execute an update without returning data
+ * Validates that exactly 1 row was affected
+ * @returns Result<void>
+ */
+const update_void = async (
+  promise: Promise<{ rowCount: number }>
+): Promise<App.Result<void>> => {
+  try {
+    const res = await promise;
+
+    if (res.rowCount === 0) {
+      return result.err(ERROR.NOT_FOUND);
+    }
+
+    return result.suc(undefined);
+  } catch (error) {
+    if (error instanceof DrizzleQueryError) {
+      // Check for duplicate key BEFORE logging to Sentry
+      if (
+        error.cause?.message.includes(
+          "duplicate key value violates unique constraint",
+        )
+      ) {
+        return result.err(ERROR.DUPLICATE);
+      }
+      
+      Log.error(error, "Repo.update_void.error DrizzleQueryError");
+
+      captureException(error, {
+        tags: { query: error.query },
+        contexts: {
+          drizzle_error: {
+            message: error.message,
+            cause: error.cause?.message
+          }
+        }
+      });
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else if (error instanceof DrizzleError) {
+      Log.error(error, "Repo.update_void.error DrizzleError");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else {
+      Log.error(error, "Repo.update_void.error unknown");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
+  }
+};
+
 const delete_one = async (
   promise: Promise<Omit<FullQueryResults<false>, "rows"> & { rows: never[] }>,
-): Promise<App.Result<null>> => {
+): Promise<App.Result<void>> => {
   const res = await del(promise);
   if (!res.ok) {
     return res;
@@ -191,18 +322,20 @@ const delete_one = async (
   if (!res.data.row_count) {
     Log.error("Repo.delete_one.error not found");
 
-    return result.err({ message: "Not found", status: 404 });
+    return result.err(ERROR.NOT_FOUND);
   } else {
-    return result.suc(null);
+    return result.suc(undefined);
   }
 };
 
 export const Repo = {
   query,
+  query_one,
   insert,
   insert_one,
   update,
   update_one,
+  update_void,
   delete: del,
   delete_one,
 };

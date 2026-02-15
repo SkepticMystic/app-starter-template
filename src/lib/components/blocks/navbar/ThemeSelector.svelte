@@ -1,11 +1,11 @@
 <script lang="ts">
   import { resetMode, setMode } from "mode-watcher";
-  import { buttonVariants } from "../ui/button/button.svelte";
-  import DropdownMenuContent from "../ui/dropdown-menu/dropdown-menu-content.svelte";
-  import DropdownMenuItem from "../ui/dropdown-menu/dropdown-menu-item.svelte";
-  import DropdownMenuRoot from "../ui/dropdown-menu/dropdown-menu-root.svelte";
-  import DropdownMenuTrigger from "../ui/dropdown-menu/dropdown-menu-trigger.svelte";
-  import Icon from "../ui/icon/Icon.svelte";
+  import { buttonVariants } from "../../ui/button/button.svelte";
+  import DropdownMenuContent from "../../ui/dropdown-menu/dropdown-menu-content.svelte";
+  import DropdownMenuItem from "../../ui/dropdown-menu/dropdown-menu-item.svelte";
+  import DropdownMenuRoot from "../../ui/dropdown-menu/dropdown-menu-root.svelte";
+  import DropdownMenuTrigger from "../../ui/dropdown-menu/dropdown-menu-trigger.svelte";
+  import Icon from "../../ui/icon/Icon.svelte";
 </script>
 
 <DropdownMenuRoot>

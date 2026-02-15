@@ -18,6 +18,21 @@ const config = {
     sveltekit(),
     partytownVite({ debug: false }),
   ],
+
+  test: {
+    expect: { requireAssertions: true },
+    projects: [
+      {
+        extends: "./vite.config.js",
+        test: {
+          name: "server",
+          environment: "node",
+          include: ["src/**/*.{test,spec}.{js,ts}"],
+          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+        },
+      },
+    ],
+  },
 };
 
 if (SONDA) {

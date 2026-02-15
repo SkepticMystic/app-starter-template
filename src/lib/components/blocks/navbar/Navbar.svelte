@@ -9,9 +9,9 @@
   import { session } from "$lib/stores/session.store";
   import { toast } from "svelte-sonner";
   import { getFlash } from "sveltekit-flash-message";
-  import ButtonGroup from "../ui/button-group/button-group.svelte";
-  import Button from "../ui/button/button.svelte";
-  import DropdownMenu from "../ui/dropdown-menu/DropdownMenu.svelte";
+  import ButtonGroup from "../../ui/button-group/button-group.svelte";
+  import Button from "../../ui/button/button.svelte";
+  import DropdownMenu from "../../ui/dropdown-menu/DropdownMenu.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
   interface Route {

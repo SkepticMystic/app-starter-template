@@ -174,4 +174,25 @@ export const Format = {
       return `Until ${format(range.end!)}`;
     }
   },
+
+  /**
+   * Format minutes as human-readable duration
+   * @param minutes - Number of minutes
+   * @returns Formatted string like "2h 30m" or "45m"
+   * 
+   * @example
+   * Format.duration(150) // "2h 30m"
+   * Format.duration(45)  // "45m"
+   * Format.duration(0)   // "0m"
+   */
+  duration: (minutes: number | null | undefined): string => {
+    if (Guard.is_nullish(minutes)) return "0m";
+
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+
+    if (hours === 0) return `${mins}m`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}m`;
+  },
 };
