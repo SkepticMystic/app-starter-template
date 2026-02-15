@@ -1,6 +1,7 @@
 import { getRequestEvent } from "$app/server";
 import {
   BETTER_AUTH_SECRET,
+  BETTER_AUTH_URL,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   POCKETID_BASE_URL,
@@ -8,6 +9,7 @@ import {
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
 import { passkey } from "@better-auth/passkey";
+import { waitUntil } from "@vercel/functions";
 import type { APIError } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
@@ -27,34 +29,17 @@ import { AUTH, type IAuth } from "./const/auth/auth.const";
 import { TWO_FACTOR } from "./const/auth/two_factor.const";
 import { EMAIL } from "./const/email.const";
 import { db } from "./server/db/drizzle.db";
-import {
-  AccountTable,
-  InvitationTable,
-  MemberTable,
-  OrganizationTable,
-  PasskeyTable,
-  SessionTable,
-  TwoFactorTable,
-  UserTable,
-  VerificationTable,
-  type Session,
-} from "./server/db/models/auth.model";
+import { type Session } from "./server/db/models/auth.model";
 import { redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
+import { schema } from "./server/db/schema";
 import { EmailService } from "./server/services/email.service";
 import { Log } from "./utils/logger.util";
 
 // SECTION: betterAuth init
 export const auth = betterAuth({
   appName: APP.NAME,
-
-  // NOTE: Can't get this working...
-  // It seems like the behaviour is different when setting baseURL
-  // versus just using the BETTER_AUTH_URL env var
-  // baseURL: APP.URL,
-
-  // .env is not explicitly loaded in prod, so we import it
-  // Rather than running dotenv, or something
+  baseURL: BETTER_AUTH_URL,
   secret: BETTER_AUTH_SECRET,
 
   logger: {
@@ -69,10 +54,13 @@ export const auth = betterAuth({
   },
 
   experimental: {
-    joins: true,
+    // TODO: Enable once BA support dirzzle 1.0
+    joins: false,
   },
 
   advanced: {
+    backgroundTasks: { handler: waitUntil },
+
     database: {
       // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
       // We want UUIDs everywhere, so that the image table can reference resource_id in a generic way
@@ -81,20 +69,9 @@ export const auth = betterAuth({
   },
 
   database: drizzleAdapter(db, {
+    schema,
     provider: "pg",
     debugLogs: false,
-
-    schema: {
-      user: UserTable,
-      account: AccountTable,
-      session: SessionTable,
-      verification: VerificationTable,
-      organization: OrganizationTable,
-      member: MemberTable,
-      invitation: InvitationTable,
-      passkey: PasskeyTable,
-      twoFactor: TwoFactorTable,
-    },
   }),
 
   session: {
@@ -102,12 +79,17 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // Cache duration in seconds
-
-      refreshCache: true,
     },
 
     additionalFields: {
       // NOTE: These are set in the session create hook below
+      org_id: {
+        type: "string",
+        input: false,
+        returned: true,
+        required: false,
+        defaultValue: null,
+      },
       member_id: {
         type: "string",
         input: false,
@@ -123,14 +105,6 @@ export const auth = betterAuth({
         defaultValue: null,
       },
     },
-  },
-
-  rateLimit: {
-    // NOTE: defaults to true in production, false in development
-    // enabled: true,
-    // NOTE: defaults to secondary if one is configured
-    // So no need for us to check for redis
-    // storage: redis ? "secondary-storage" : "memory",
   },
 
   databaseHooks: {
@@ -243,24 +217,10 @@ export const auth = betterAuth({
       },
     }),
 
-    // TODO: Lots of new builtin org features
-    // I probably don't need to be doing so much manually, especially on invites and member roles
     organization({
       allowUserToCreateOrganization: false,
       cancelPendingInvitationsOnReInvite: true,
       requireEmailVerificationOnInvitation: true,
-
-      // schema: {
-      //   session: {
-      //     fields: {
-      //       activeOrganizationId: "org_id",
-      //     },
-      //   },
-      // },
-
-      // Doesn't seem to do anything?
-      // SOURCE: https://github.com/better-auth/better-auth/blob/eb691e213dbe44a3c177d10a2dfd2f39ace0bf98/packages/better-auth/src/plugins/organization/types.ts#L340
-      // autoCreateOrganizationOnSignUp: true,
 
       sendInvitationEmail: async (data) => {
         await EmailService.send(EMAIL.TEMPLATES["org-invite"](data));
@@ -322,18 +282,18 @@ export const auth = betterAuth({
   secondaryStorage: redis
     ? {
         get: async (key) => {
-          return redis!.get(key);
+          return redis!.get(APP.ID + ":" + key);
         },
 
         set: async (key, value, ttl) => {
-          if (ttl) await redis!.set(key, value, { ex: ttl });
+          if (ttl) await redis!.set(APP.ID + ":" + key, value, { ex: ttl });
           // or for ioredis:
           // if (ttl) await redis!.set(key, value, "EX", ttl);
-          else await redis!.set(key, value);
+          else await redis!.set(APP.ID + ":" + key, value);
         },
 
         delete: async (key) => {
-          await redis!.del(key);
+          await redis!.del(APP.ID + ":" + key);
         },
       }
     : undefined,

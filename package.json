@@ -24,7 +24,7 @@
     "db:migrate": "pnpm _db migrate",
     "db:studio": "pnpm _db studio"
   },
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.29.3",
   "engines": {
     "node": ">=24.11.0"
   },
@@ -46,6 +46,7 @@
     "@types/node": "^24.10.13",
     "@types/turndown": "^5.0.6",
     "@types/umami": "^2.10.1",
+    "@vercel/functions": "^3.4.2",
     "@vitest/ui": "^4.0.18",
     "@zxcvbn-ts/core": "^3.0.4",
     "@zxcvbn-ts/language-common": "^3.0.4",
