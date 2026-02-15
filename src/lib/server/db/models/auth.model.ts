@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -43,14 +42,6 @@ export const UserTable = pgTable("user", {
 export type User = typeof UserTable.$inferSelect;
 export type NewUser = typeof UserTable.$inferInsert;
 
-export const user_relations = relations(UserTable, ({ many }) => ({
-  accounts: many(AccountTable),
-  sessions: many(SessionTable),
-  members: many(MemberTable),
-  passkeys: many(PasskeyTable),
-  invitations: many(InvitationTable),
-}));
-
 export const SessionTable = pgTable(
   "session",
   {
@@ -88,21 +79,6 @@ export const SessionTable = pgTable(
 export type Session = typeof SessionTable.$inferSelect;
 export type NewSession = typeof SessionTable.$inferInsert;
 
-export const session_relations = relations(SessionTable, ({ one }) => ({
-  user: one(UserTable, {
-    fields: [SessionTable.userId],
-    references: [UserTable.id],
-  }),
-  member: one(MemberTable, {
-    fields: [SessionTable.member_id],
-    references: [MemberTable.id],
-  }),
-  organization: one(OrganizationTable, {
-    fields: [SessionTable.activeOrganizationId],
-    references: [OrganizationTable.id],
-  }),
-}));
-
 // Create an enum for provider IDs
 export const provider_id_enum = pgEnum("provider_id", AUTH.PROVIDERS.IDS);
 
@@ -137,13 +113,6 @@ export const AccountTable = pgTable(
 export type Account = typeof AccountTable.$inferSelect;
 export type NewAccount = typeof AccountTable.$inferInsert;
 
-export const account_relations = relations(AccountTable, ({ one }) => ({
-  user: one(UserTable, {
-    fields: [AccountTable.userId],
-    references: [UserTable.id],
-  }),
-}));
-
 export const OrganizationTable = pgTable("organization", {
   ...Schema.id(),
 
@@ -158,14 +127,6 @@ export const OrganizationTable = pgTable("organization", {
 
 export type Organization = typeof OrganizationTable.$inferSelect;
 export type InsertOrganization = typeof OrganizationTable.$inferInsert;
-
-export const organization_relations = relations(
-  OrganizationTable,
-  ({ many }) => ({
-    members: many(MemberTable),
-    invitations: many(InvitationTable),
-  }),
-);
 
 export const member_role_enum = pgEnum("member_role", ORGANIZATION.ROLES.IDS);
 
@@ -195,17 +156,6 @@ export const MemberTable = pgTable(
 export type Member = typeof MemberTable.$inferSelect;
 export type InsertMember = typeof MemberTable.$inferInsert;
 
-export const member_relations = relations(MemberTable, ({ one }) => ({
-  organization: one(OrganizationTable, {
-    fields: [MemberTable.organizationId],
-    references: [OrganizationTable.id],
-  }),
-  user: one(UserTable, {
-    fields: [MemberTable.userId],
-    references: [UserTable.id],
-  }),
-}));
-
 export const PasskeyTable = pgTable(
   "passkey",
   {
@@ -231,13 +181,6 @@ export const PasskeyTable = pgTable(
 
 export type Passkey = typeof PasskeyTable.$inferSelect;
 export type InsertPasskey = typeof PasskeyTable.$inferInsert;
-
-export const passkey_relations = relations(PasskeyTable, ({ one }) => ({
-  user: one(UserTable, {
-    fields: [PasskeyTable.userId],
-    references: [UserTable.id],
-  }),
-}));
 
 export const invitation_status_enum = pgEnum(
   "invitation_status",
@@ -272,17 +215,6 @@ export const InvitationTable = pgTable(
 
 export type Invitation = typeof InvitationTable.$inferSelect;
 export type NewInvitation = typeof InvitationTable.$inferInsert;
-
-export const invitation_relations = relations(InvitationTable, ({ one }) => ({
-  inviter: one(UserTable, {
-    fields: [InvitationTable.inviterId],
-    references: [UserTable.id],
-  }),
-  organization: one(OrganizationTable, {
-    fields: [InvitationTable.organizationId],
-    references: [OrganizationTable.id],
-  }),
-}));
 
 export const VerificationTable = pgTable("verification", {
   ...Schema.id(),

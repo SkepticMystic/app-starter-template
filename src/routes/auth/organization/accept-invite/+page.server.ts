@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ request, url }) => {
 
     Repo.query(
       db.query.invitation.findFirst({
-        where: (invitation, { eq }) => eq(invitation.id, search.invite_id!),
+        where: { id: search.invite_id },
 
         columns: {
           id: true,
@@ -80,7 +80,7 @@ export const load: PageServerLoad = async ({ request, url }) => {
       db.query.organization.findFirst({
         columns: { name: true },
 
-        where: (organization, { eq }) => eq(organization.id, organizationId),
+        where: { id: organizationId },
       }),
     ),
 
@@ -88,7 +88,7 @@ export const load: PageServerLoad = async ({ request, url }) => {
       db.query.user.findFirst({
         columns: { name: true, email: true },
 
-        where: (user, { eq }) => eq(user.id, inviterId),
+        where: { id: inviterId },
       }),
     ),
 
@@ -96,11 +96,10 @@ export const load: PageServerLoad = async ({ request, url }) => {
       db.query.member.findFirst({
         columns: { id: true },
 
-        where: (member, { and, eq }) =>
-          and(
-            eq(member.userId, session.user.id),
-            eq(member.organizationId, organizationId),
-          ),
+        where: {
+          userId: session.user.id,
+          organizationId: organizationId,
+        },
       }),
     ),
   ]);

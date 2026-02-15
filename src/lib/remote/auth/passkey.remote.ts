@@ -16,9 +16,9 @@ export const get_all_passkeys_remote = query(async () => {
 
   const passkeys = await Repo.query(
     db.query.passkey.findMany({
-      where: (passkey, { eq }) => eq(passkey.userId, session.user.id),
+      where: { userId: session.user.id },
 
-      orderBy: (passkey, { desc }) => [desc(passkey.createdAt)],
+      orderBy: { createdAt: "desc" },
 
       columns: {
         id: true,
@@ -38,13 +38,12 @@ export const get_passkey_by_id_remote = query.batch(
 
     const passkeys = await Repo.query(
       db.query.passkey.findMany({
-        where: (passkey, { and, eq, inArray }) =>
-          and(
-            eq(passkey.userId, session.user.id), //
-            inArray(passkey.id, passkey_ids),
-          ),
+        where: {
+          userId: session.user.id,
+          id: { in: passkey_ids },
+        },
 
-        orderBy: (passkey, { desc }) => [desc(passkey.createdAt)],
+        orderBy: { createdAt: "desc" },
 
         columns: {
           id: true,

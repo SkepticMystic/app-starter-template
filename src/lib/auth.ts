@@ -357,7 +357,7 @@ const get_or_create_org_id = async (
   const member = await Repo.query(
     db.query.member.findFirst({
       columns: { id: true, organizationId: true },
-      where: (member, { eq }) => eq(member.userId, session.userId),
+      where: { userId: session.userId },
     }),
   );
 
@@ -380,7 +380,7 @@ const get_or_create_org_id = async (
   const user = await Repo.query(
     db.query.user.findFirst({
       columns: { name: true, email: true },
-      where: (user, { eq }) => eq(user.id, session.userId),
+      where: { id: session.userId },
     }),
   );
 

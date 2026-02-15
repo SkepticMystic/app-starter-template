@@ -9,7 +9,7 @@ export const load = (async ({ params }) => {
     get_session(),
     Repo.query(
       db.query.task.findFirst({
-        where: (task, { eq }) => eq(task.id, params.id),
+        where: { id: params.id },
       }),
     ),
   ]);

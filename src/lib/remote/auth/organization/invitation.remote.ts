@@ -17,10 +17,9 @@ export const get_all_invitations_remote = query(async () => {
 
   const invitations = await Repo.query(
     db.query.invitation.findMany({
-      where: (invitation, { eq }) =>
-        eq(invitation.organizationId, session.session.org_id),
+      where: { organizationId: session.session.org_id },
 
-      orderBy: (invitation, { desc }) => [desc(invitation.createdAt)],
+      orderBy: { createdAt: "desc" },
 
       columns: {
         id: true,

@@ -17,9 +17,9 @@ export const get_all_tasks_remote = query(async () => {
 
   const tasks = await Repo.query(
     db.query.task.findMany({
-      where: (task, { eq, and }) => and(eq(task.org_id, session.org_id)),
+      where: { org_id: session.org_id },
 
-      orderBy: (task, { desc }) => [desc(task.createdAt)],
+      orderBy: { createdAt: "desc" },
     }),
   );
 

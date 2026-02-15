@@ -19,11 +19,10 @@ export const get_account_by_provider_id_remote = query.batch(
 
     const accounts = await Repo.query(
       db.query.account.findMany({
-        where: (account, { and, eq, inArray }) =>
-          and(
-            eq(account.userId, session.user.id), //
-            inArray(account.providerId, provider_ids),
-          ),
+        where: {
+          userId: session.user.id,
+          providerId: { in: provider_ids },
+        },
       }),
     );
 
