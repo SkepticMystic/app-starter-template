@@ -3,8 +3,9 @@ import type { PageLoad } from "./$types";
 
 export const load = (({ url }) => {
   const search = {
-    redirect_uri: (url.searchParams.get("redirect_uri") ??
-      "/") as ResolvedPathname,
+    redirect_uri: url.searchParams.get(
+      "redirect_uri",
+    ) as ResolvedPathname | null,
   };
 
   return {

@@ -6,10 +6,7 @@ export const UserClient = {
   send_verification_email: Client.better_auth(
     (input: Parameters<typeof BetterAuthClient.sendVerificationEmail>[0]) =>
       BetterAuthClient.sendVerificationEmail(input),
-    {
-      validate_session: false,
-      suc_msg: "Verification email sent",
-    },
+    { suc_msg: "Verification email sent" },
   ),
 
   request_deletion: Client.better_auth(

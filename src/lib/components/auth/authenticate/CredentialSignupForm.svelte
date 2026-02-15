@@ -13,7 +13,7 @@
   let {
     redirect_uri,
   }: {
-    redirect_uri: ResolvedPathname;
+    redirect_uri: ResolvedPathname | null;
   } = $props();
 
   const provider_id = "credential" satisfies IAuth.ProviderId;
@@ -109,7 +109,9 @@
     {/snippet}
   </Field>
 
-  <input {...form.fields.redirect_uri.as("hidden", redirect_uri ?? "/onboarding")} />
+  <input
+    {...form.fields.redirect_uri.as("hidden", redirect_uri ?? "/onboarding")}
+  />
 
   <FormButton
     {form}

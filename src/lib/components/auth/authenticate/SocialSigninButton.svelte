@@ -10,20 +10,18 @@
     redirect_uri,
   }: {
     provider_id: IAuth.ProviderId;
-    redirect_uri: ResolvedPathname;
+    redirect_uri: ResolvedPathname | null;
   } = $props();
 
   const provider = AUTH.PROVIDERS.MAP[provider_id];
 
-  const signin = Client.better_auth(
-    () =>
-      BetterAuthClient.signIn.social({
-        provider: provider_id,
-        disableRedirect: false,
-        callbackURL: redirect_uri ?? "/",
-        newUserCallbackURL: redirect_uri ?? "/onboarding",
-      }),
-    { validate_session: false },
+  const signin = Client.better_auth(() =>
+    BetterAuthClient.signIn.social({
+      provider: provider_id,
+      disableRedirect: false,
+      callbackURL: redirect_uri ?? "/",
+      newUserCallbackURL: redirect_uri ?? "/onboarding",
+    }),
   );
 </script>
 
