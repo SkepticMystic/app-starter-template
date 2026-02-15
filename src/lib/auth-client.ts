@@ -1,26 +1,35 @@
+import { paystackClient } from "@alexasomba/better-auth-paystack/client";
 import { passkeyClient } from "@better-auth/passkey/client";
 import {
   adminClient,
   genericOAuthClient,
+  inferAdditionalFields,
+  inferOrgAdditionalFields,
   lastLoginMethodClient,
   organizationClient,
   twoFactorClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/svelte";
 import { toast } from "svelte-sonner";
+import type { auth } from "./auth";
 import { AccessControl } from "./const/auth/access_control.const";
 
 export const BetterAuthClient = createAuthClient({
   plugins: [
+    inferAdditionalFields<typeof auth>(),
     passkeyClient(),
     twoFactorClient(),
-    organizationClient(),
     genericOAuthClient(),
     lastLoginMethodClient(),
+    organizationClient({
+      schema: inferOrgAdditionalFields<typeof auth>(),
+    }),
     adminClient({
       ac: AccessControl.ac,
       roles: AccessControl.roles,
     }),
+
+    paystackClient({ subscription: true }),
   ],
 
   fetchOptions: {

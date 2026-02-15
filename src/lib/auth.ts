@@ -4,10 +4,12 @@ import {
   BETTER_AUTH_URL,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  PAYSTACK_SECRET_KEY,
   POCKETID_BASE_URL,
   POCKETID_CLIENT_ID,
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
+import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
 import { passkey } from "@better-auth/passkey";
 import { waitUntil } from "@vercel/functions";
 import type { APIError } from "better-auth";
@@ -33,7 +35,9 @@ import { type Session } from "./server/db/models/auth.model";
 import { redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
 import { schema } from "./server/db/schema";
+import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
 import { EmailService } from "./server/services/email.service";
+import { SubscriptionService } from "./server/services/subscription/subscription.service";
 import { Log } from "./utils/logger.util";
 
 // SECTION: betterAuth init
@@ -104,6 +108,13 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null,
       },
+      active_plan: {
+        type: "string",
+        input: false,
+        returned: true,
+        required: false,
+        defaultValue: null,
+      },
     },
   },
 
@@ -116,8 +127,10 @@ export const auth = betterAuth({
           return {
             data: {
               ...session,
+              org_id: data?.org_id,
               member_id: data?.member_id,
               member_role: data?.member_role,
+              active_plan: data?.active_plan,
               activeOrganizationId: data?.org_id,
             },
           };
@@ -227,6 +240,60 @@ export const auth = betterAuth({
       },
     }),
 
+    paystack({
+      paystackClient: PaystackClient,
+      paystackWebhookSecret: PAYSTACK_SECRET_KEY,
+
+      organization: {
+        enabled: true,
+        createCustomerOnOrganizationCreate: true,
+      },
+
+      subscription: {
+        enabled: true,
+        requireEmailVerification: true,
+
+        plans: async () => {
+          const plans = await PaystackClient.plan_list({});
+
+          if (plans.error) {
+            Log.error(plans.error, "auth.paystack.subscription.plans.error");
+
+            return [];
+          } else if (plans.data) {
+            return plans.data.data
+              .filter((p) => !p.is_archived && !p.is_deleted)
+              .map((p) => ({
+                name: p.name,
+                amount: p.amount,
+                currency: p.currency,
+                planCode: p.plan_code,
+                invoiceLimit: p.invoice_limit,
+                interval: p.interval as PaystackPlan["interval"],
+              }));
+          } else {
+            Log.error("auth.paystack.subscription.plans no data");
+            return [];
+          }
+        },
+
+        async authorizeReference(data) {
+          const member = await Repo.query(
+            db.query.member.findFirst({
+              columns: { role: true },
+              where: { userId: data.user.id, organizationId: data.referenceId },
+            }),
+          );
+
+          if (!member.ok || !member.data || member.data.role !== "owner") {
+            return false;
+          }
+
+          return true;
+        },
+      },
+    }),
+
     genericOAuth({
       config: [
         POCKETID_CLIENT_ID && POCKETID_CLIENT_SECRET && POCKETID_BASE_URL
@@ -309,6 +376,7 @@ const get_active_org = async (
   org_id: string;
   member_id: string;
   member_role: string;
+  active_plan: string;
 } | null> => {
   const log = Log.child({
     ctx: "[auth.session.create.before]",
@@ -333,7 +401,15 @@ const get_active_org = async (
     "Found existing organization",
   );
 
+  const subscription = await SubscriptionService.get_active({
+    session: { org_id: member.data.organizationId },
+  });
+  const active_plan = subscription.ok
+    ? (subscription.data?.plan ?? "free")
+    : "free";
+
   return {
+    active_plan,
     member_id: member.data.id,
     member_role: member.data.role,
     org_id: member.data.organizationId,

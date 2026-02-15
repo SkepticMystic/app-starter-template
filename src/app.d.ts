@@ -7,6 +7,10 @@ declare global {
       flash?: { level: "success" | "warning" | "error"; message: string };
     }
 
+    type Session = Awaited<
+      ReturnType<typeof import("$lib/server/services/auth.service").get_session>
+    >;
+
     interface Locals {
       session?: Awaited<
         ReturnType<
