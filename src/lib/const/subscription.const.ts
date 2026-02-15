@@ -28,6 +28,25 @@ const STATUS_MAP: Record<
   },
 };
 
+const PLAN_IDS = ["free", "pro", "enterprise"] as const;
+type PlanId = (typeof PLAN_IDS)[number];
+const PLAN_MAP: Record<
+  PlanId,
+  {
+    label: string;
+  }
+> = {
+  free: {
+    label: "Free",
+  },
+  pro: {
+    label: "Pro",
+  },
+  enterprise: {
+    label: "Enterprise",
+  },
+};
+
 /**
  * Subscription status constants and utilities for UI rendering
  */
@@ -35,5 +54,10 @@ export const SUBSCRIPTION = {
   STATUS: {
     IDS: STATUS_IDS,
     MAP: STATUS_MAP,
+  },
+
+  PLAN: {
+    IDS: PLAN_IDS,
+    MAP: PLAN_MAP,
   },
 };

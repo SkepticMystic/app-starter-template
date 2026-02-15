@@ -7,8 +7,10 @@
   } from "$env/static/public";
   import FooterBlock from "$lib/components/blocks/footer/FooterBlock.svelte";
   import Navbar from "$lib/components/blocks/navbar/Navbar.svelte";
+  import AppSidebar from "$lib/components/blocks/sidebar/AppSidebar.svelte";
   import SEO from "$lib/components/shell/SEO.svelte";
   import FlashAlert from "$lib/components/ui/alert/FlashAlert.svelte";
+  import SidebarProvider from "$lib/components/ui/sidebar/sidebar-provider.svelte";
   import Sonner from "$lib/components/ui/sonner/sonner.svelte";
   import { session } from "$lib/stores/session.store";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
@@ -75,17 +77,21 @@
 <Sonner />
 <ModeWatcher />
 
-<div class="flex min-h-screen flex-col">
-  <header>
-    <Navbar />
-  </header>
+<SidebarProvider>
+  <AppSidebar />
 
-  <main class="mx-auto mt-1 mb-12 w-full max-w-4xl grow px-2 sm:px-3 md:px-5">
-    <FlashAlert flash={$flash} />
-    
-    {@render children?.()}
-  </main>
+  <div class="flex min-h-screen w-full flex-col">
+    <header>
+      <Navbar />
+    </header>
 
-  <FooterBlock />
-</div>
+    <main class="mx-auto mt-1 mb-12 w-full max-w-4xl grow px-2 sm:px-3 md:px-5">
+      <FlashAlert flash={$flash} />
 
+      {@render children?.()}
+    </main>
+
+
+    <FooterBlock />
+  </div>
+</SidebarProvider>
