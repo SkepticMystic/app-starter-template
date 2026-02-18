@@ -5,6 +5,8 @@ import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 
+const log = Log.child({ service: "RateLimiter" });
+
 interface RateLimitConfig {
   /**
    * Maximum number of tokens in the bucket
@@ -114,7 +116,7 @@ export class RateLimiter {
         });
       }
     } catch (error) {
-      Log.error(error, "RateLimiter.consume.error unknown");
+      log.error(error, "consume.error unknown");
       captureException(error);
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
@@ -157,7 +159,11 @@ export class RateLimiter {
         tokens: Math.floor(tokens),
         max_tokens: this.config.max_tokens,
       });
-    } catch (_error) {
+    } catch (error) {
+      log.error(error, "consume.error unknown");
+
+      captureException(error);
+
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }
@@ -172,7 +178,11 @@ export class RateLimiter {
       const bucket_key = `${this.prefix}:${key}`;
       await redis.del(bucket_key);
       return result.suc(undefined);
-    } catch (_error) {
+    } catch (error) {
+      log.error(error, "reset.error unknown");
+
+      captureException(error);
+
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }

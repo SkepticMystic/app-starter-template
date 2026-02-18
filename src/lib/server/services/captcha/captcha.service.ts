@@ -5,6 +5,8 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { AdapterService } from "../adapter/adapter.service";
 
+const log = Log.child({ service: "Captcha" });
+
 type TurnstileResponse = {
   success: boolean;
   "error-codes"?: string[] | undefined;
@@ -40,11 +42,11 @@ const verify = async (
     if (data.success) {
       return result.suc(data);
     } else {
-      Log.warn(data, "Failed to verify captcha token");
+      log.warn(data, "verify.error !data.success");
       return result.err(ERROR.FORBIDDEN);
     }
   } catch (error) {
-    Log.error(error, "Failed to verify captcha token");
+    log.error(error, "verify.error unknown");
 
     captureException(error);
 
