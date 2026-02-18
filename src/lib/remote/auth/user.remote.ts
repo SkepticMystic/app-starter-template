@@ -36,7 +36,9 @@ export const request_password_reset_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "request_password_reset_remote.error better-auth");
 
-        return result.err({ message: error.message });
+        captureException(error);
+
+        return result.from_ba_error(error);
       } else {
         Log.error(error, "request_password_reset_remote.error unknown");
 
@@ -77,9 +79,11 @@ export const reset_password_remote = form(
           )
         ) {
           invalid(issue.new_password(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "reset_password_remote.error unknown");
 
@@ -113,7 +117,9 @@ export const send_verification_email_remote = form(
           "send_verification_email_remote.error better-auth",
         );
 
-        return result.err({ message: error.message });
+        captureException(error);
+
+        return result.from_ba_error(error);
       } else {
         Log.error(error, "send_verification_email_remote.error unknown");
 
@@ -161,9 +167,11 @@ export const change_password_remote = form(
           )
         ) {
           invalid(issue.new_password(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "change_password_remote.error unknown");
 

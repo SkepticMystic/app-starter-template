@@ -6,7 +6,7 @@ import z from "zod";
 
 export const create_invitation_remote = form(
   InvitationSchema.create,
-  async (input, issue) => {
+  async (input) => {
     const res = await InvitationService.create(input);
 
     if (!res.ok && res.error.path) {

@@ -5,6 +5,8 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { Resend } from "resend";
 
+const log = Log.child({ service: "EmailService" });
+
 // NOTE: Copied from nodemailer Mail.Options
 export type SendEmailOptions = {
   /** The e-mail address of the sender. All e-mail addresses can be plain 'sender@server.com' or formatted 'Sender Name <sender@server.com>' */
@@ -32,7 +34,7 @@ const of_resend = {
       });
 
       if (res.error) {
-        Log.error(res.error, "EmailService.send.error response");
+        log.error(res.error, "send.error response");
 
         captureException(res.error);
 
@@ -41,7 +43,7 @@ const of_resend = {
         return result.suc(res.data);
       }
     } catch (error) {
-      Log.error(error, "EmailService.send.error unknown");
+      log.error(error, "send.error unknown");
 
       captureException(error);
 
@@ -51,7 +53,7 @@ const of_resend = {
 };
 
 const of_console_log = {
-  send: async (input: SendEmailOptions) => Log.info(input, "Sending email:"),
+  send: async (input: SendEmailOptions) => log.info(input, "Sending email:"),
 };
 
 export const EmailService = dev ? of_console_log : of_resend;

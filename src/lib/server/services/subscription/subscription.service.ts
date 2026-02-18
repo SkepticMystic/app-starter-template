@@ -12,6 +12,8 @@ import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 import { APIError } from "better-auth";
 
+const log = Log.child({ service: "SubscriptionService" });
+
 const get_by_id = async (
   subscription_id: string,
   session: { session: { org_id: string } },
@@ -28,7 +30,7 @@ const get_by_id = async (
 
     return result.suc(res.data);
   } catch (error) {
-    Log.error(error, "SubscriptionService.get_by_id.error unknown");
+    log.error(error, "get_by_id.error unknown");
     captureException(error);
     return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
@@ -37,7 +39,7 @@ const get_by_id = async (
 const get_active = async (session: {
   session: { org_id: string };
 }): Promise<App.Result<Subscription | undefined>> => {
-  const log = Log.child({ ctx: "SubscriptionService.get_active" });
+  const l = log.child({ method: "get_active" });
 
   try {
     const res = await Repo.query(
@@ -69,7 +71,7 @@ const get_active = async (session: {
 
     return res;
   } catch (error) {
-    log.error(error, "error unknown");
+    l.error(error, "error unknown");
     captureException(error);
     return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
@@ -103,7 +105,7 @@ const upgrade = async (
       },
     });
 
-    Log.info(res, "upgrade.res");
+    log.info(res, "upgrade.res");
 
     if (!res.url) {
       return result.err({
@@ -115,11 +117,13 @@ const upgrade = async (
     return result.suc({ url: res.url });
   } catch (error) {
     if (error instanceof APIError) {
-      Log.info(error.body, "SubscriptionService.upgrade.error better-auth");
+      log.info(error.body, "upgrade.error better-auth");
 
-      return result.err({ message: error.message, status: error.statusCode });
+      captureException(error);
+
+      return result.from_ba_error(error);
     } else {
-      Log.error(error, "SubscriptionService.upgrade.error unknown");
+      log.error(error, "upgrade.error unknown");
 
       captureException(error);
 
@@ -132,7 +136,7 @@ const disable = async (
   subscription_id: string,
   session: { session: { org_id: string } },
 ) => {
-  const log = Log.child({ ctx: "SubscriptionService.disable" });
+  const l = log.child({ method: "disable" });
 
   try {
     const subscription = await get_by_id(subscription_id, session);
@@ -143,7 +147,8 @@ const disable = async (
         message: "Subscription is already canceled",
       });
     } else if (!subscription.data.paystackSubscriptionCode) {
-      log.error(subscription.data, "error no paystackSubscriptionCode");
+      l.error(subscription.data, "error no paystackSubscriptionCode");
+
       return result.err({
         ...ERROR.INVALID_INPUT,
         message: "Subscription has no code",
@@ -158,20 +163,21 @@ const disable = async (
       },
     });
 
-    log.info(res, "res");
+    l.info(res, "res");
 
     return result.suc(res.status);
   } catch (error) {
     if (error instanceof APIError) {
-      log.info(error.body, "error better-auth");
+      l.info(error.body, "error better-auth");
 
-      return result.err({
-        message: error.message,
-        status: error.statusCode,
-      });
-    } else {
-      log.error(error, "error unknown");
       captureException(error);
+
+      return result.from_ba_error(error);
+    } else {
+      l.error(error, "error unknown");
+
+      captureException(error);
+
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
   }
@@ -185,10 +191,7 @@ const enable = async (
     const subscription = await get_by_id(subscription_id, session);
     if (!subscription.ok) return subscription;
     else if (!subscription.data.paystackSubscriptionCode) {
-      Log.error(
-        subscription.data,
-        "SubscriptionService.enable.error no paystackSubscriptionCode",
-      );
+      log.error(subscription.data, "enable.error no paystackSubscriptionCode");
       return result.err({
         ...ERROR.INVALID_INPUT,
         message: "Subscription has no code",
@@ -203,16 +206,18 @@ const enable = async (
       },
     });
 
-    Log.info(res, "SubscriptionService.enable.res");
+    log.info(res, "enable.res");
 
     return result.suc(res.status);
   } catch (error) {
     if (error instanceof APIError) {
-      Log.info(error.body, "SubscriptionService.enable.error better-auth");
+      log.info(error.body, "enable.error better-auth");
 
-      return result.err({ message: error.message, status: error.statusCode });
+      captureException(error);
+
+      return result.from_ba_error(error);
     } else {
-      Log.error(error, "SubscriptionService.enable.error unknown");
+      log.error(error, "enable.error unknown");
 
       captureException(error);
 

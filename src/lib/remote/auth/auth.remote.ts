@@ -44,7 +44,9 @@ export const signin_credentials_remote = form(
       if (error instanceof APIError) {
         Log.info(error.body, "signin_remote.error better-auth");
 
-        return result.err({ message: error.message });
+        captureException(error);
+
+        return result.from_ba_error(error);
       } else {
         Log.error(error, "signin_remote.error unknown");
 
@@ -100,9 +102,11 @@ export const signup_credentials_remote = form(
           )
         ) {
           invalid(issue.password(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "signup_remote.error unknown");
 

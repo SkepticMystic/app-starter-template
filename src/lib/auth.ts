@@ -349,18 +349,18 @@ export const auth = betterAuth({
   secondaryStorage: redis
     ? {
         get: async (key) => {
-          return redis!.get(APP.ID + ":" + key);
+          return redis.get(APP.ID + ":" + key);
         },
 
         set: async (key, value, ttl) => {
-          if (ttl) await redis!.set(APP.ID + ":" + key, value, { ex: ttl });
+          if (ttl) await redis.set(APP.ID + ":" + key, value, { ex: ttl });
           // or for ioredis:
-          // if (ttl) await redis!.set(key, value, "EX", ttl);
-          else await redis!.set(APP.ID + ":" + key, value);
+          // if (ttl) await redis.set(key, value, "EX", ttl);
+          else await redis.set(APP.ID + ":" + key, value);
         },
 
         delete: async (key) => {
-          await redis!.del(APP.ID + ":" + key);
+          await redis.del(APP.ID + ":" + key);
         },
       }
     : undefined,

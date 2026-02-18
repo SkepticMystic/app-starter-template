@@ -117,7 +117,7 @@ export const get_session = async (options?: Options) => {
       ...session.session,
       member_id: session.session.member_id!,
       member_role: session.session.member_role!,
-      org_id: session.session.activeOrganizationId,
+      org_id: session.session.activeOrganizationId!,
     },
   };
 

@@ -5,10 +5,10 @@
   import Item from "$lib/components/ui/item/Item.svelte";
   import ItemList from "$lib/components/ui/item/ItemList.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
-  import { get_all_accounts_remote } from "$lib/remote/auth/account.remote";
+  import { list_accounts_remote } from "$lib/remote/auth/account.remote";
   import { result } from "$lib/utils/result.util";
 
-  const accounts = get_all_accounts_remote();
+  const accounts = list_accounts_remote();
 
   let items = $derived(
     result.unwrap_or(accounts.current, []).map((acc) => {

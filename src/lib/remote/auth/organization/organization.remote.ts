@@ -2,6 +2,7 @@ import { command, form } from "$app/server";
 import { OrganizationSchema } from "$lib/server/db/models/auth.model";
 import { get_session } from "$lib/server/services/auth.service";
 import { OrganizationService } from "$lib/server/services/auth/organization/organization.service";
+import { invalid } from "@sveltejs/kit";
 import z from "zod";
 
 export const create_organization_remote = form(
@@ -10,6 +11,9 @@ export const create_organization_remote = form(
     const session = await get_session();
 
     const res = await OrganizationService.create(input, session);
+    if (!res.ok && res.error.path) {
+      invalid(res.error);
+    }
 
     return res;
   },

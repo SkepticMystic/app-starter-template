@@ -22,6 +22,8 @@ import { captureException } from "@sentry/sveltekit";
 import type { Readable } from "stream";
 import type z from "zod";
 
+const log = Log.child({ service: "R2" });
+
 // Initialize R2 client with S3-compatible endpoint
 const r2_client = new S3Client({
   region: "auto",
@@ -54,11 +56,11 @@ const put = async (input: {
       }),
     );
 
-    Log.debug(res, "R2Service.put.res");
+    log.debug(res, "put.res");
 
     return result.suc(res);
   } catch (error) {
-    Log.error(error, "R2Service.put.error unknown");
+    log.error(error, "put.error unknown");
     captureException(error);
     return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
@@ -87,7 +89,7 @@ export const R2Service = {
 
       return res;
     } catch (error) {
-      Log.error(error, "R2Service.put_file.error unknown");
+      log.error(error, "put_file.error unknown");
       captureException(error);
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
@@ -107,11 +109,11 @@ export const R2Service = {
         }),
       );
 
-      Log.debug(delete_res, "R2Service.delete.delete_res");
+      log.debug(delete_res, "delete.delete_res");
 
       return result.suc();
     } catch (error) {
-      Log.error(error, "R2Service.delete.error unknown");
+      log.error(error, "delete.error unknown");
       captureException(error);
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
@@ -146,14 +148,14 @@ export const R2Service = {
         content_type: response.ContentType || "application/octet-stream",
       });
     } catch (error) {
-      Log.debug(error, "R2Service.get.error");
+      log.debug(error, "get.error");
 
       // Check for NoSuchKey error (404)
       if (error instanceof NoSuchKey) {
         return result.err(ERROR.NOT_FOUND);
       }
 
-      Log.error(error, "R2Service.get_file_buffer.error unknown");
+      log.error(error, "get_file_buffer.error unknown");
       captureException(error);
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
@@ -181,7 +183,7 @@ export const R2Service = {
 
       return result.suc(url);
     } catch (error) {
-      Log.error(error, "R2Service.get_download_url.error unknown");
+      log.error(error, "get_download_url.error unknown");
       captureException(error);
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }

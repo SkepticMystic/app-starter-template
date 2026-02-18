@@ -1,6 +1,7 @@
 import { form, getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
+import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -9,7 +10,6 @@ import { APIError } from "better-auth";
 import { TWO_FACTOR_ERROR_CODES } from "better-auth/plugins";
 import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "bits-ui";
 import z from "zod";
-import { ERROR } from "$lib/const/error.const";
 
 export const enable_two_factor_remote = form(
   z.object({ password: z.string().min(1, "Please enter your password") }),
@@ -27,9 +27,11 @@ export const enable_two_factor_remote = form(
 
         if (is_ba_error_code(error, "INVALID_PASSWORD")) {
           invalid(issue.password(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "enable_two_factor_remote.error unknown");
 
@@ -57,11 +59,14 @@ export const disable_two_factor_remote = form(
 
         if (is_ba_error_code(error, "INVALID_PASSWORD")) {
           invalid(issue.password(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "disable_two_factor_remote.error unknown");
+
         captureException(error);
 
         return result.err(ERROR.INTERNAL_SERVER_ERROR);
@@ -72,6 +77,7 @@ export const disable_two_factor_remote = form(
 
 export const verify_totp_remote = form(
   z.object({
+    trust_device: z.boolean().default(false),
     code: z
       .string()
       .min(1, TWO_FACTOR_ERROR_CODES.INVALID_CODE)
@@ -80,7 +86,6 @@ export const verify_totp_remote = form(
         new RegExp(REGEXP_ONLY_DIGITS),
         TWO_FACTOR_ERROR_CODES.INVALID_CODE,
       ),
-    trust_device: z.boolean().default(false),
   }),
   async (input, issue) => {
     try {
@@ -99,9 +104,11 @@ export const verify_totp_remote = form(
 
         if (is_ba_error_code(error, "INVALID_CODE")) {
           invalid(issue.code(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "verify_totp_remote.error unknown");
 
@@ -144,9 +151,11 @@ export const verify_two_factor_backup_code_remote = form(
 
         if (is_ba_error_code(error, "INVALID_BACKUP_CODE")) {
           invalid(issue.code(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "verify_two_factor_backup_code_remote.error unknown");
 

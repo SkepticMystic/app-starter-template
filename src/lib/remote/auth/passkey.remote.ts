@@ -3,7 +3,7 @@ import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/server/services/auth.service";
+import { safe_get_session } from "$lib/server/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -11,8 +11,9 @@ import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
-export const get_all_passkeys_remote = query(async () => {
-  const session = await get_session();
+export const list_passkeys_remote = query(async () => {
+  const session = await safe_get_session();
+  if (!session) return [];
 
   const passkeys = await Repo.query(
     db.query.passkey.findMany({
@@ -34,7 +35,8 @@ export const get_all_passkeys_remote = query(async () => {
 export const get_passkey_by_id_remote = query.batch(
   z.uuid(), //
   async (passkey_ids) => {
-    const session = await get_session();
+    const session = await safe_get_session();
+    if (!session) return () => undefined;
 
     const passkeys = await Repo.query(
       db.query.passkey.findMany({
@@ -90,10 +92,12 @@ export const rename_passkey_remote = form(
         Log.info(error.body, "rename_passkey_remote.error better-auth");
 
         if (is_ba_error_code(error, "FAILED_TO_UPDATE_PASSKEY")) {
-          return result.err({ message: error.message });
-        }
+          return result.from_ba_error(error);
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "update_passkey_remote.error unknown");
 
@@ -119,7 +123,11 @@ export const delete_passkey_remote = command(
       return result.suc();
     } catch (error) {
       if (error instanceof APIError) {
-        return result.err({ message: error.message });
+        Log.info(error.body, "delete_passkey_remote.error better-auth");
+
+        captureException(error);
+
+        return result.from_ba_error(error);
       } else {
         Log.error(error, "delete_passkey_remote.error unknown");
 

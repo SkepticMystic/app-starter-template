@@ -1,4 +1,4 @@
-import { auth } from "$lib/auth";
+import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import {
@@ -11,6 +11,7 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import { generateRandomString } from "better-auth/crypto";
+import type { Organization } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import type z from "zod";
 import { authorize_event } from "../../auth.service";
@@ -21,7 +22,7 @@ const log = Log.child({ service: "Organization" });
 const create = async (
   input: z.output<typeof OrganizationSchema.create>,
   session: App.Session,
-) => {
+): Promise<App.Result<Organization>> => {
   const l = log.child({ method: "create" });
 
   try {
@@ -66,6 +67,10 @@ const create = async (
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
+
+      if (is_ba_error_code(error, "ORGANIZATION_SLUG_ALREADY_TAKEN")) {
+        return result.from_ba_error(error, { path: ["name"] });
+      }
 
       captureException(error);
 

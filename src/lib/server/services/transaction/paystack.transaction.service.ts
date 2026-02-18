@@ -11,6 +11,8 @@ import { waitUntil } from "@vercel/functions";
 import { APIError } from "better-auth";
 import { R2Service } from "../r2.service";
 
+const log = Log.child({ service: "Paystack" });
+
 const get_by_id = async (
   transaction_id: string,
   session: App.Session,
@@ -27,7 +29,7 @@ const get_by_id = async (
 
     return result.suc(res.data);
   } catch (error) {
-    Log.error(error, "PaystackService.get_by_id.error unknown");
+    log.error(error, "get_by_id.error unknown");
     captureException(error);
     return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
@@ -38,22 +40,24 @@ const initialize_transaction = async (
     Parameters<(typeof auth.api)["initializeTransaction"]>[0]
   >["body"],
 ) => {
+  const l = log.child({ method: "initialize_transaction" });
+
   try {
     const data = await auth.api["initializeTransaction"]({
       headers: getRequestEvent().request.headers,
-      body: {
-        ...input,
-      },
+      body: input,
     });
 
     return result.suc(data);
   } catch (error) {
     if (error instanceof APIError) {
-      Log.info(error.body, "initialize_transaction.error better-auth");
+      l.info(error.body, "error better-auth");
 
-      return result.err({ message: error.message, status: error.statusCode });
+      captureException(error);
+
+      return result.from_ba_error(error);
     } else {
-      Log.error(error, "initialize_transaction.error unknown");
+      l.error(error, "error unknown");
 
       captureException(error);
 
@@ -78,7 +82,7 @@ const get_transaction_invoice = async (
   transaction_id: string,
   session: App.Session,
 ) => {
-  const log = Log.child({ ctx: "PaystackService.get_transaction_invoice" });
+  const l = log.child({ method: "get_transaction_invoice" });
 
   try {
     const transaction = await get_by_id(transaction_id, session);
@@ -104,14 +108,16 @@ const get_transaction_invoice = async (
 
     return signed_url;
   } catch (error) {
-    log.error(error, "error unknown");
+    l.error(error, "error unknown");
+
     captureException(error);
+
     return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
 };
 
 const verify_transaction = async ({ reference }: { reference: string }) => {
-  const log = Log.child({ ctx: "PaystackService.verify_transaction" });
+  const l = log.child({ method: "verify_transaction" });
 
   try {
     const verify = await auth.api["verifyTransaction"]({
@@ -121,19 +127,21 @@ const verify_transaction = async ({ reference }: { reference: string }) => {
 
     waitUntil(create_r2_log(reference, verify));
 
-    log.info(verify, "verify res");
+    l.info(verify, "verify res");
     if (verify.status !== "success") {
-      log.warn(verify, "verify.status !== 'success'");
+      l.warn(verify, "verify.status !== 'success'");
     }
 
     return result.suc(verify);
   } catch (error) {
     if (error instanceof APIError) {
-      log.info(error, "error better-auth");
+      l.info(error, "error better-auth");
 
-      return result.err({ message: error.message, status: error.statusCode });
+      captureException(error);
+
+      return result.from_ba_error(error);
     } else {
-      log.error(error, "error unknown");
+      l.error(error, "error unknown");
 
       captureException(error);
 

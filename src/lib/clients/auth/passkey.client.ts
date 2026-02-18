@@ -1,7 +1,7 @@
 import { BetterAuthClient } from "$lib/auth-client";
 import {
   delete_passkey_remote,
-  get_all_passkeys_remote,
+  list_passkeys_remote,
 } from "$lib/remote/auth/passkey.remote";
 import { result } from "$lib/utils/result.util";
 import { Client } from "../index.client";
@@ -18,7 +18,7 @@ export const PasskeyClient = {
         // NOTE: This seems to be the _success_ case for some reason????
         console.warn("No response from addPasskey");
 
-        await get_all_passkeys_remote().refresh();
+        await list_passkeys_remote().refresh();
 
         return result.suc(null);
       } else if (res.error) {
@@ -37,7 +37,7 @@ export const PasskeyClient = {
   delete: Client.wrap(
     (passkey_id: string) =>
       delete_passkey_remote(passkey_id).updates(
-        get_all_passkeys_remote().withOverride((cur) =>
+        list_passkeys_remote().withOverride((cur) =>
           result.pipe(cur, (d) => d.filter((p) => p.id !== passkey_id)),
         ),
       ),
