@@ -3,7 +3,7 @@
   generics="TData extends Resource"
 >
   import Button from "$lib/components/ui/button/button.svelte";
-  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.types";
+  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.type";
   import { Format } from "$lib/utils/format.util";
   import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import type { Table } from "@tanstack/table-core";

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import Captcha from "$lib/components/auth/captcha/Captcha.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import Captcha from "$lib/components/form/auth/captcha/Captcha.svelte";
+  import FormButton from "$lib/components/form/FormButton.svelte";
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -123,14 +124,15 @@
           {/snippet}
         </Field>
 
-        <Button
-          type="submit"
+        <FormButton
+          {form}
           class="w-full"
           icon="lucide/send"
-          loading={form.pending > 0}
         >
           Send Message
-        </Button>
+        </FormButton>
+
+        <FormErrors {form} />
       </form>
     {/snippet}
   </Card>

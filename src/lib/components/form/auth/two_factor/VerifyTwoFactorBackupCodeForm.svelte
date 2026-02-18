@@ -1,14 +1,13 @@
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
-  import InputOtp from "$lib/components/ui/input-otp/input-otp.svelte";
-  import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
+  import Input from "$lib/components/ui/input/input.svelte";
   import type { ResultData } from "$lib/interfaces/result.type";
-  import { verify_totp_remote } from "$lib/remote/auth/two_factor.remote";
+  import { verify_two_factor_backup_code_remote } from "$lib/remote/auth/two_factor.remote";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
+  import FormButton from "../../FormButton.svelte";
 
   let {
     on_success,
@@ -18,7 +17,7 @@
     on_success: (data: ResultData<NonNullable<typeof form.result>>) => void;
   } = $props();
 
-  const form = verify_totp_remote;
+  const form = verify_two_factor_backup_code_remote;
 </script>
 
 <form
@@ -26,7 +25,7 @@
   {...form.enhance(async (e) => {
     await e.submit();
 
-    FormUtil.count_issue_metrics(form, "verify_two_factor_code_form");
+    FormUtil.count_issue_metrics(form, "verify_two_factor_backup_code_form");
 
     const res = form.result;
     if (res?.ok) {
@@ -39,12 +38,12 @@
   })}
 >
   <Field
-    label="Pin code"
+    label="Backup code"
     field={form.fields.code}
-    description="The {TWO_FACTOR.TOTP.DIGITS} digit code from your 2FA app"
+    description="Enter one of your saved 2FA backup codes to recover your account"
   >
     {#snippet input({ props, field })}
-      <InputOtp
+      <Input
         {...props}
         {...field?.as("text")}
       />
@@ -67,16 +66,12 @@
     </Field>
   {/if}
 
-  <Button
+  <FormButton
+    {form}
     class="w-full"
-    type="submit"
     icon="lucide/lock"
-    loading={form.pending > 0}
-    disabled={form.fields.code.value() === undefined ||
-      form.fields.code.value().length !== TWO_FACTOR.TOTP.DIGITS}
-  >
-    Submit
-  </Button>
+    disabled={!form.fields.code.value()}
+  ></FormButton>
 
   <FormErrors {form} />
 </form>

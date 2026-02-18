@@ -1,11 +1,12 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Fieldset from "$lib/components/ui/field/Fieldset.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import type { ResultData } from "$lib/interfaces/result.type";
   import { enable_two_factor_remote } from "$lib/remote/auth/two_factor.remote";
   import { toast } from "svelte-sonner";
+  import FormButton from "../../FormButton.svelte";
+  import FormErrors from "../../FormErrors.svelte";
 
   let {
     on_success,
@@ -48,13 +49,14 @@
       {/snippet}
     </Field>
 
-    <Button
-      type="submit"
+    <FormButton
+      {form}
       class="w-full"
       icon="lucide/lock"
-      loading={form.pending > 0}
     >
       Enable Two-Factor Authentication
-    </Button>
+    </FormButton>
+
+    <FormErrors {form} />
   </Fieldset>
 </form>

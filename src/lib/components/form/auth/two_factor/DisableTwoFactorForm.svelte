@@ -1,6 +1,5 @@
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Fieldset from "$lib/components/ui/field/Fieldset.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -8,6 +7,7 @@
   import { disable_two_factor_remote } from "$lib/remote/auth/two_factor.remote";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
+  import FormButton from "../../FormButton.svelte";
 
   let {
     on_success,
@@ -58,15 +58,14 @@
       {/snippet}
     </Field>
 
-    <Button
-      type="submit"
+    <FormButton
+      {form}
       class="w-full"
       icon="lucide/x"
       variant="destructive"
-      loading={form.pending > 0}
     >
       Disable Two-Factor Authentication
-    </Button>
+    </FormButton>
 
     <FormErrors {form} />
   </Fieldset>

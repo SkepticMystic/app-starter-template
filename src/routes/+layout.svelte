@@ -6,9 +6,9 @@
       PUBLIC_UMAMI_WEBSITE_ID
   } from "$env/static/public";
   import FooterBlock from "$lib/components/blocks/footer/FooterBlock.svelte";
+  import SEO from "$lib/components/blocks/head/SEO.svelte";
   import Navbar from "$lib/components/blocks/navbar/Navbar.svelte";
   import AppSidebar from "$lib/components/blocks/sidebar/AppSidebar.svelte";
-  import SEO from "$lib/components/shell/SEO.svelte";
   import FlashAlert from "$lib/components/ui/alert/FlashAlert.svelte";
   import SidebarProvider from "$lib/components/ui/sidebar/sidebar-provider.svelte";
   import Sonner from "$lib/components/ui/sonner/sonner.svelte";

@@ -9,12 +9,26 @@
     ORGANIZATION,
     type IOrganization,
   } from "$lib/const/auth/organization.const";
-  import { get_all_members_remote } from "$lib/remote/auth/organization/member.remote";
+  import type { Member, User } from "$lib/server/db/models/auth.model";
   import { createColumnHelper } from "@tanstack/table-core";
 
-  const members = get_all_members_remote();
+  let {
+    members,
+    on_update_role,
+    on_remove,
+  }: {
+    members: (Pick<Member, "id" | "role" | "createdAt"> & {
+      user: Pick<User, "name" | "email" | "image">;
+    })[];
 
-  type TData = NonNullable<typeof members.current>[number];
+    on_remove?: (member_id: string) => void;
+    on_update_role?: (member: {
+      id: string;
+      role: IOrganization.RoleId;
+    }) => void;
+  } = $props();
+
+  type TData = NonNullable<typeof members>[number];
 
   const update_member_role = async (
     member: TData,
@@ -24,10 +38,10 @@
       return;
     }
 
-    return await OrganizationClient.member.update_role({
-      role: role_id,
-      memberId: member.id,
-    });
+    return await OrganizationClient.member.update_role(
+      { role: role_id, memberId: member.id },
+      { on_success: (d) => on_update_role?.(d) },
+    );
   };
 
   const column = createColumnHelper<TData>();
@@ -70,14 +84,16 @@
 
 <DataTable
   {columns}
-  loading={members.loading}
-  data={members.current ?? []}
+  data={members}
   actions={(row) => [
     {
       icon: "lucide/x",
       title: "Remove member",
       variant: "destructive",
-      onselect: () => OrganizationClient.member.remove(row.id),
+      onselect: () =>
+        OrganizationClient.member.remove(row.id, {
+          on_success: () => on_remove?.(row.id),
+        }),
     },
   ]}
 ></DataTable>

@@ -16,7 +16,7 @@
 
 <script lang="ts">
   import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.types";
+  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
   import Icon from "../icon/Icon.svelte";
   import Spinner from "../spinner/spinner.svelte";
   import EmptyContent from "./empty-content.svelte";

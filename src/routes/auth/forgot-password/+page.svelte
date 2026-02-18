@@ -1,6 +1,7 @@
 <script lang="ts">
-  import Captcha from "$lib/components/auth/captcha/Captcha.svelte";
+  import Captcha from "$lib/components/form/auth/captcha/Captcha.svelte";
   import FormButton from "$lib/components/form/FormButton.svelte";
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -71,6 +72,8 @@
         >
           Request password reset
         </FormButton>
+
+        <FormErrors {form} />
       </form>
     {/snippet}
   </Card>

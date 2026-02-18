@@ -1,13 +1,12 @@
 <script lang="ts">
-  import EnableTwoFactorForm from "$lib/components/auth/two_factor/EnableTwoFactorForm.svelte";
-  import VerifyTwoFactorCodeForm from "$lib/components/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
+  import EnableTwoFactorForm from "$lib/components/form/auth/two_factor/EnableTwoFactorForm.svelte";
+  import VerifyTwoFactorCodeForm from "$lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
   import CopyButton from "$lib/components/ui/copy-button/copy-button.svelte";
   import QrCode from "$lib/components/ui/qr-code/qr-code.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
   import type { ResultData } from "$lib/interfaces/result.type";
   import type { enable_two_factor_remote } from "$lib/remote/auth/two_factor.remote";
-  import { toast } from "svelte-sonner";
 
   let {
     on_success,

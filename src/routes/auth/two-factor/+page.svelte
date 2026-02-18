@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import VerifyTwoFactorCodeForm from "$lib/components/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
+  import VerifyTwoFactorCodeForm from "$lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
 </script>

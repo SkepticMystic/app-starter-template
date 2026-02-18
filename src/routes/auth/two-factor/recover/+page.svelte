@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import VerifyTwoFactorBackupCodeForm from "$lib/components/auth/two_factor/VerifyTwoFactorBackupCodeForm.svelte";
+  import VerifyTwoFactorBackupCodeForm from "$lib/components/form/auth/two_factor/VerifyTwoFactorBackupCodeForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
 </script>

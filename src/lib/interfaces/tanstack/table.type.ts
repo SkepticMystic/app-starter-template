@@ -7,6 +7,7 @@ import type {
   GroupingState,
   PaginationState,
   Row,
+  RowData,
   RowSelectionState,
   SortingState,
   VisibilityState,

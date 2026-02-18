@@ -1,6 +1,6 @@
 <script lang="ts">
   import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.types";
+  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
   import { cn, type WithElementRef } from "$lib/utils/shadcn.util";
   import type { HTMLAnchorAttributes } from "svelte/elements";
   import Icon from "../icon/Icon.svelte";

@@ -8,6 +8,7 @@
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const.js";
   import { signin_credentials_remote } from "$lib/remote/auth/auth.remote";
   import { toast } from "svelte-sonner";
+  import FormErrors from "../FormErrors.svelte";
 
   let {
     redirect_uri,
@@ -95,4 +96,6 @@
   >
     Signin with {provider.name}
   </FormButton>
+
+  <FormErrors {form} />
 </form>

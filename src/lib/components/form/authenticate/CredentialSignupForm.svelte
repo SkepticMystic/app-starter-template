@@ -8,7 +8,8 @@
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
   import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
   import { toast } from "svelte-sonner";
-  import Captcha from "../captcha/Captcha.svelte";
+  import Captcha from "../auth/captcha/Captcha.svelte";
+  import FormErrors from "../FormErrors.svelte";
 
   let {
     redirect_uri,
@@ -120,4 +121,6 @@
   >
     Signup with {provider.name}
   </FormButton>
+
+  <FormErrors {form} />
 </form>

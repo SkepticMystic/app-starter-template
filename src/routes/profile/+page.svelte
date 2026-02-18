@@ -2,10 +2,9 @@
   import { dev } from "$app/environment";
   import { PasskeyClient } from "$lib/clients/auth/passkey.client.js";
   import { UserClient } from "$lib/clients/auth/user.client";
-  import ChangePasswordForm from "$lib/components/auth/accounts/ChangePasswordForm.svelte";
-  import UserAccountsList from "$lib/components/auth/accounts/UserAccountsList.svelte";
-  import UserPasskeysList from "$lib/components/auth/passkeys/UserPasskeysList.svelte";
-  import DisableTwoFactorForm from "$lib/components/auth/two_factor/DisableTwoFactorForm.svelte";
+  import ChangePasswordForm from "$lib/components/form/account/ChangePasswordForm.svelte";
+  import UserAccountsList from "$lib/components/form/account/UserAccountsList.svelte";
+  import DisableTwoFactorForm from "$lib/components/form/auth/two_factor/DisableTwoFactorForm.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -13,6 +12,7 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { get_account_by_provider_id_remote } from "$lib/remote/auth/account.remote.js";
   import EnableTwoFactorFlow from "./EnableTwoFactorFlow.svelte";
+  import UserPasskeysList from "./UserPasskeysList.svelte";
 
   let { data } = $props();
 

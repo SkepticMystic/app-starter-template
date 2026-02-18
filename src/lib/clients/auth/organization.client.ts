@@ -6,12 +6,8 @@ import {
 import {
   accept_invitation_remote,
   cancel_invitation_remote,
-  get_all_invitations_remote,
 } from "$lib/remote/auth/organization/invitation.remote";
-import {
-  get_all_members_remote,
-  remove_member_remote,
-} from "$lib/remote/auth/organization/member.remote";
+import { remove_member_remote } from "$lib/remote/auth/organization/member.remote";
 import { admin_delete_organization_remote } from "$lib/remote/auth/organization/organization.remote";
 import { session } from "$lib/stores/session.store";
 import { BetterAuth } from "$lib/utils/better-auth.util";
@@ -76,18 +72,9 @@ export const OrganizationClient = {
       on_success: (d) => set_active_org(d.member.organizationId),
     }),
 
-    cancel: Client.wrap(
-      (invitation_id: string) =>
-        cancel_invitation_remote(invitation_id).updates(
-          get_all_invitations_remote().withOverride((cur) =>
-            cur.filter((i) => i.id !== invitation_id),
-          ),
-        ),
-      {
-        optimistic: true,
-        confirm: "Are you sure you want to cancel this invitation?",
-      },
-    ),
+    cancel: Client.wrap(cancel_invitation_remote, {
+      confirm: "Are you sure you want to cancel this invitation?",
+    }),
   },
 
   member: {
@@ -101,10 +88,6 @@ export const OrganizationClient = {
           BetterAuthClient.organization.updateMemberRole(input),
         );
 
-        if (update_res.ok) {
-          await get_all_members_remote().refresh();
-        }
-
         return update_res;
       },
       {
@@ -114,17 +97,9 @@ export const OrganizationClient = {
       },
     ),
 
-    remove: Client.wrap(
-      (input: Parameters<typeof remove_member_remote>[0]) =>
-        remove_member_remote(input).updates(
-          get_all_members_remote().withOverride((members) =>
-            members.filter((m) => m.id !== input),
-          ),
-        ),
-      {
-        confirm: "Are you sure you want to remove this member?",
-        suc_msg: "Member removed",
-      },
-    ),
+    remove: Client.wrap(remove_member_remote, {
+      confirm: "Are you sure you want to remove this member?",
+      suc_msg: "Member removed",
+    }),
   },
 };

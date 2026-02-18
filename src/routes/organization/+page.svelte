@@ -2,13 +2,19 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
-  import OrganizationInvitationsTable from "$lib/components/auth/organizations/invitations/OrganizationInvitationsTable.svelte";
-  import OrganizationInviteForm from "$lib/components/auth/organizations/invitations/OrganizationInviteForm.svelte";
-  import OrganizationMembersTable from "$lib/components/auth/organizations/members/OrganizationMembersTable.svelte";
-  import OrganizationSelector from "$lib/components/auth/organizations/OrganizationSelector.svelte";
+  import OrganizationInviteForm from "$lib/components/form/auth/organization/invitation/OrganizationInviteForm.svelte";
+  import OrganizationSelector from "$lib/components/selector/OrganizationSelector.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Modal from "$lib/components/ui/modal/modal.svelte";
+  import { Resources } from "$lib/utils/resource/resource.util";
+  import OrganizationInvitationsTable from "./OrganizationInvitationsTable.svelte";
+  import OrganizationMembersTable from "./OrganizationMembersTable.svelte";
+
+  let { data } = $props();
+
+  let members = $derived(data.members);
+  let invitations = $derived(data.invitations);
 </script>
 
 <article>
@@ -35,7 +41,15 @@
 
   <section>
     <h2>Members</h2>
-    <OrganizationMembersTable />
+    <OrganizationMembersTable
+      {members}
+      on_remove={(member_id) => {
+        members = Resources.remove(members, member_id);
+      }}
+      on_update_role={({ id, role }) => {
+        members = Resources.patch(members, id, { role });
+      }}
+    />
   </section>
 
   <section>
@@ -52,11 +66,21 @@
         {/snippet}
 
         {#snippet content({ close })}
-          <OrganizationInviteForm on_success={() => close()} />
+          <OrganizationInviteForm
+            on_success={(d) => {
+              close();
+              invitations = Resources.add(invitations, d);
+            }}
+          />
         {/snippet}
       </Modal>
     </div>
 
-    <OrganizationInvitationsTable />
+    <OrganizationInvitationsTable
+      {invitations}
+      on_cancel={(id) => {
+        invitations = Resources.remove(invitations, id);
+      }}
+    />
   </section>
 </article>

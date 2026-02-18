@@ -6,13 +6,11 @@ import { Resources } from "$lib/utils/resource/resource.util";
 import { Client } from "./index.client";
 
 export const TaskClient = {
-  delete: Client.wrap(
-    (input: Parameters<typeof delete_task_remote>[0]) =>
-      delete_task_remote(input).updates(
-        get_all_tasks_remote().withOverride((tasks) =>
-          Resources.remove(tasks, input),
-        ),
+  delete: Client.wrap((input: Parameters<typeof delete_task_remote>[0]) =>
+    delete_task_remote(input).updates(
+      get_all_tasks_remote().withOverride((tasks) =>
+        Resources.remove(tasks, input),
       ),
-    { optimistic: true },
+    ),
   ),
 };

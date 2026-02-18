@@ -4,14 +4,22 @@
   import Field from "$lib/components/ui/field/Field.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { ORGANIZATION } from "$lib/const/auth/organization.const";
-  import { get_all_invitations_remote } from "$lib/remote/auth/organization/invitation.remote";
+  import type { Invitation } from "$lib/server/db/models/auth.model";
   import { CellHelpers } from "$lib/utils/tanstack/table.util";
   import { createColumnHelper } from "@tanstack/table-core";
 
-  const invitations = get_all_invitations_remote();
+  let {
+    invitations,
+    on_cancel,
+  }: {
+    invitations: Pick<
+      Invitation,
+      "id" | "email" | "role" | "status" | "expiresAt"
+    >[];
+    on_cancel?: (invitation_id: string) => void;
+  } = $props();
 
-  const column =
-    createColumnHelper<NonNullable<typeof invitations.current>[number]>();
+  const column = createColumnHelper<NonNullable<typeof invitations>[number]>();
 
   const columns = [
     column.accessor("email", {
@@ -41,8 +49,7 @@
 
 <DataTable
   {columns}
-  loading={invitations.loading}
-  data={invitations.current ?? []}
+  data={invitations}
   states={{
     sorting: [{ id: "expiresAt", desc: true }],
     column_filters: [{ id: "status", value: ["pending"] }],
@@ -59,7 +66,10 @@
       title: "Cancel invitation",
       disabled: row.original.status !== "pending",
 
-      onselect: () => OrganizationClient.invitation.cancel(row.id),
+      onselect: () =>
+        OrganizationClient.invitation.cancel(row.id, {
+          on_success: () => on_cancel?.(row.id),
+        }),
     },
   ]}
 >

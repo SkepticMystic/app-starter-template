@@ -8,7 +8,7 @@
   import Modal from "$lib/components/ui/modal/modal.svelte";
   import { get_all_passkeys_remote } from "$lib/remote/auth/passkey.remote";
   import { result } from "$lib/utils/result.util";
-  import EditPasskeyForm from "./EditPasskeyForm.svelte";
+  import EditPasskeyForm from "../../lib/components/form/auth/passkeys/EditPasskeyForm.svelte";
 
   const passkeys = get_all_passkeys_remote();
 </script>

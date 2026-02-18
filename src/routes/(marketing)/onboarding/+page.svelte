@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import FormButton from "$lib/components/form/FormButton.svelte";
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { create_organization_remote } from "$lib/remote/auth/organization/organization.remote";
@@ -53,5 +54,7 @@
     >
       Create Organization
     </FormButton>
+
+    <FormErrors {form} />
   </form>
 </article>

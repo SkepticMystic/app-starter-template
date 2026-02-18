@@ -10,6 +10,8 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import z from "zod";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
 import { ROLES } from "../../../const/auth/role.const";
@@ -128,6 +130,22 @@ export const OrganizationTable = pgTable("organization", {
 export type Organization = typeof OrganizationTable.$inferSelect;
 export type InsertOrganization = typeof OrganizationTable.$inferInsert;
 
+export const OrganizationSchema = {
+  create: createInsertSchema(OrganizationTable, {
+    name: z
+      .string()
+      .trim()
+      .min(2, "Organization name must be at least 2 characters"),
+    logo: z
+      .union([z.url("Logo must be a valid URL"), z.literal("")])
+      .transform((v) => v || undefined)
+      .optional(),
+  }).pick({
+    name: true,
+    logo: true,
+  }),
+};
+
 export const member_role_enum = pgEnum("member_role", ORGANIZATION.ROLES.IDS);
 
 export const MemberTable = pgTable(
@@ -215,6 +233,16 @@ export const InvitationTable = pgTable(
 
 export type Invitation = typeof InvitationTable.$inferSelect;
 export type NewInvitation = typeof InvitationTable.$inferInsert;
+
+export const InvitationSchema = {
+  create: createInsertSchema(InvitationTable, {
+    email: z.email("Please enter a valid email address"),
+    role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
+  }).pick({
+    email: true,
+    role: true,
+  }),
+};
 
 export const VerificationTable = pgTable("verification", {
   ...Schema.id(),

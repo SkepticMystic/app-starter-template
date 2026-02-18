@@ -41,9 +41,6 @@ export const PasskeyClient = {
           result.pipe(cur, (d) => d.filter((p) => p.id !== passkey_id)),
         ),
       ),
-    {
-      optimistic: true,
-      confirm: "Are you sure you want to delete this passkey?",
-    },
+    { confirm: "Are you sure you want to delete this passkey?" },
   ),
 };

@@ -3,9 +3,13 @@
   import type { AvatarRootProps } from "bits-ui";
   import Avatar from "./avatar.svelte";
 
-  let { user, ...rest }: AvatarRootProps & { user: User } = $props();
+  let {
+    user,
+    ...rest
+  }: AvatarRootProps & { user: Pick<User, "name" | "email" | "image"> } =
+    $props();
 
-  const label = user.name || user.email;
+  const label = $derived(user.name || user.email);
 </script>
 
 <Avatar

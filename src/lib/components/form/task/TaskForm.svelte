@@ -1,6 +1,5 @@
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
@@ -14,6 +13,7 @@
   import type { Task, TaskSchema } from "$lib/server/db/models/task.model";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
+  import FormButton from "../FormButton.svelte";
 
   let props: (
     | {
@@ -57,7 +57,10 @@
 >
   {#if props.mode === "update"}
     <input
-      {...update_task_remote.fields.id.as("hidden", update_task_remote.fields.id.value())}
+      {...update_task_remote.fields.id.as(
+        "hidden",
+        update_task_remote.fields.id.value(),
+      )}
     />
   {/if}
 
@@ -122,14 +125,13 @@
     {/snippet}
   </Field>
 
-  <Button
-    type="submit"
+  <FormButton
+    {form}
     class="w-full"
     icon="lucide/check"
-    loading={form.pending > 0}
   >
     Save task
-  </Button>
+  </FormButton>
 
   <FormErrors {form} />
 </form>

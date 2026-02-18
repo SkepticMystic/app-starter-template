@@ -1,10 +1,11 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import Password from "$lib/components/ui/password/Password.svelte";
   import { change_password_remote } from "$lib/remote/auth/user.remote";
   import { toast } from "svelte-sonner";
+  import FormButton from "../FormButton.svelte";
+  import FormErrors from "../FormErrors.svelte";
 
   let {
     on_success,
@@ -56,12 +57,13 @@
     {/snippet}
   </Field>
 
-  <Button
-    type="submit"
+  <FormButton
+    {form}
     class="w-full"
     icon="lucide/lock-open"
-    loading={form.pending > 0}
   >
     Change Password
-  </Button>
+  </FormButton>
+
+  <FormErrors {form} />
 </form>

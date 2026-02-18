@@ -3,7 +3,7 @@
   generics="TData extends Resource"
 >
   import { createSvelteTable } from "$lib/components/ui/data-table/index.js";
-  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.types";
+  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.type";
   import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import type { Table } from "@tanstack/table-core";
   import {

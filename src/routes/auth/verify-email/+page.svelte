@@ -1,5 +1,6 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
+  import FormButton from "$lib/components/form/FormButton.svelte";
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -42,14 +43,15 @@
         {/snippet}
       </Field>
 
-      <Button
-        type="submit"
+      <FormButton
+        {form}
         class="w-full"
         icon="lucide/mail"
-        loading={form.pending > 0}
       >
         Resend verification email
-      </Button>
+      </FormButton>
+
+      <FormErrors {form} />
     </form>
   {/snippet}
 </Card>

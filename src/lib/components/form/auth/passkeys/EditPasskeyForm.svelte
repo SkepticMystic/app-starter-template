@@ -1,6 +1,5 @@
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import {
@@ -12,6 +11,7 @@
   import { Resources } from "$lib/utils/resource/resource.util";
   import { result } from "$lib/utils/result.util";
   import { toast } from "svelte-sonner";
+  import FormButton from "../../FormButton.svelte";
 
   let {
     passkey,
@@ -60,14 +60,13 @@
     {/snippet}
   </Field>
 
-  <Button
-    type="submit"
+  <FormButton
+    {form}
     class="w-full"
     icon="lucide/tag"
-    loading={form.pending > 0}
   >
     Update passkey
-  </Button>
+  </FormButton>
 
   <FormErrors {form} />
 </form>

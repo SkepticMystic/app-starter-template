@@ -1,7 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import FormButton from "$lib/components/form/FormButton.svelte";
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Password from "$lib/components/ui/password/Password.svelte";
   import { reset_password_remote } from "$lib/remote/auth/user.remote";
@@ -47,14 +48,15 @@
         {/snippet}
       </Field>
 
-      <Button
-        type="submit"
+      <FormButton
+        {form}
         class="w-full"
         icon="lucide/key"
-        loading={form.pending > 0}
       >
         Reset Password
-      </Button>
+      </FormButton>
+
+      <FormErrors {form} />
     </form>
   {:else}
     <div class="alert alert-error">
