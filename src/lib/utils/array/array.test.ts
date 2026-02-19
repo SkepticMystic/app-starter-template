@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Arrays, type Resource } from "./array.util";
 
-describe("Resources", () => {
+describe("Arrays", () => {
   type TestResource = Resource<{ name: string; value: number }>;
 
   const createResource = (

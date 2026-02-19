@@ -7,7 +7,7 @@
     rename_passkey_remote,
   } from "$lib/remote/auth/passkey.remote";
   import type { Passkey } from "$lib/server/db/models/auth.model";
-  import { Resources } from "$lib/utils/array/array.util";
+  import { Arrays } from "$lib/utils/array/array.util";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { result } from "$lib/utils/result.util";
   import { toast } from "svelte-sonner";
@@ -30,7 +30,7 @@
     await submit().updates(
       list_passkeys_remote().withOverride((cur) =>
         result.pipe(cur, (d) =>
-          Resources.patch(d, passkey.id, { name: data.name }),
+          Arrays.patch(d, passkey.id, { name: data.name }),
         ),
       ),
     );
