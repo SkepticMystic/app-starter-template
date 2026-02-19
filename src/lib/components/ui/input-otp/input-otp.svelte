@@ -26,7 +26,7 @@
 >
   {#snippet children({ cells })}
     <InputOtpGroup>
-      {#each cells.slice(0, 3) as cell}
+      {#each cells.slice(0, 3) as cell, i (i)}
         <InputOtpSlot
           {cell}
           aria-invalid={aria_invalid}
@@ -37,7 +37,7 @@
     <InputOtpSeparator />
 
     <InputOtpGroup>
-      {#each cells.slice(3, 6) as cell}
+      {#each cells.slice(3, 6) as cell, i (i)}
         <InputOtpSlot
           {cell}
           aria-invalid={aria_invalid}

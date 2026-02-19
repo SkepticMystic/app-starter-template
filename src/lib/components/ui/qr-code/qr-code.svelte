@@ -72,8 +72,8 @@
       fill={backgroundColor}
     />
 
-    {#each matrix as row, r}
-      {#each row as bit, c}
+    {#each matrix as row, r (r)}
+      {#each row as bit, c (c)}
         {#if bit}
           <rect
             x={c + margin}

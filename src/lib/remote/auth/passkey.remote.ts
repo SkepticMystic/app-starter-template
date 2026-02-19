@@ -7,7 +7,6 @@ import { safe_get_session } from "$lib/server/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -32,39 +31,6 @@ export const list_passkeys_remote = query(async () => {
   return passkeys;
 });
 
-export const get_passkey_by_id_remote = query.batch(
-  z.uuid(), //
-  async (passkey_ids) => {
-    const session = await safe_get_session();
-    if (!session) return () => undefined;
-
-    const passkeys = await Repo.query(
-      db.query.passkey.findMany({
-        where: {
-          userId: session.user.id,
-          id: { in: passkey_ids },
-        },
-
-        orderBy: { createdAt: "desc" },
-
-        columns: {
-          id: true,
-          name: true,
-          createdAt: true,
-        },
-      }),
-    );
-
-    if (!passkeys.ok) {
-      error(passkeys.error.status ?? 500, passkeys.error.message);
-    }
-
-    const map = new Map(passkeys.data.map((p) => [p.id, p]));
-
-    return (passkey_id) => map.get(passkey_id);
-  },
-);
-
 export const rename_passkey_remote = form(
   z.object({
     id: z.uuid(),
@@ -78,12 +44,6 @@ export const rename_passkey_remote = form(
       const res = await auth.api.updatePasskey({
         body: { id: input.id, name: input.name },
         headers: getRequestEvent().request.headers,
-      });
-
-      get_passkey_by_id_remote(res.passkey.id).set({
-        id: res.passkey.id,
-        name: res.passkey.name ?? null,
-        createdAt: res.passkey.createdAt,
       });
 
       return result.suc({ passkey: res.passkey });
@@ -117,8 +77,6 @@ export const delete_passkey_remote = command(
         body: { id: passkey_id },
         headers: getRequestEvent().request.headers,
       });
-
-      get_passkey_by_id_remote(passkey_id).set(undefined);
 
       return result.suc();
     } catch (error) {
