@@ -7,12 +7,10 @@ import { marked } from "marked";
  */
 export const Markdown = {
   to_html: (markdown: string): Branded<"PrerenderedHTML"> => {
-    const html = marked.parse(markdown, {
+    return marked.parse(markdown, {
       gfm: true, // GitHub Flavored Markdown
       async: false,
       breaks: true, // Convert \n to <br>
-    }) as string;
-
-    return html as Branded<"PrerenderedHTML">;
+    }) as Branded<"PrerenderedHTML">;
   },
 };

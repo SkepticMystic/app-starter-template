@@ -2,7 +2,7 @@
   lang="ts"
   generics="T extends Record<string, unknown>"
 >
-  import type { Resource } from "$lib/utils/resource/resource.util.ts";
+  import type { Resource } from "$lib/utils/array/array.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
   import TableBody from "./table-body.svelte";

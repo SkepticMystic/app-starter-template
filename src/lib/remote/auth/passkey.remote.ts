@@ -13,7 +13,7 @@ import z from "zod";
 
 export const list_passkeys_remote = query(async () => {
   const session = await safe_get_session();
-  if (!session) return [];
+  if (!session) return result.err(ERROR.UNAUTHORIZED);
 
   const passkeys = await Repo.query(
     db.query.passkey.findMany({

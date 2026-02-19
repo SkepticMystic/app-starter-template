@@ -2,7 +2,7 @@
   lang="ts"
   generics="T extends Resource"
 >
-  import type { Resource } from "$lib/utils/resource/resource.util.ts";
+  import type { Resource } from "$lib/utils/array/array.util";
   import { cn } from "$lib/utils/shadcn.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";

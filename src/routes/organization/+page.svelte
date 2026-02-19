@@ -7,7 +7,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Modal from "$lib/components/ui/modal/modal.svelte";
-  import { Resources } from "$lib/utils/resource/resource.util";
+  import { Arrays } from "$lib/utils/array/array.util";
   import OrganizationInvitationsTable from "./OrganizationInvitationsTable.svelte";
   import OrganizationMembersTable from "./OrganizationMembersTable.svelte";
 
@@ -44,10 +44,10 @@
     <OrganizationMembersTable
       {members}
       on_remove={(member_id) => {
-        members = Resources.remove(members, member_id);
+        members = Arrays.remove(members, member_id);
       }}
       on_update_role={({ id, role }) => {
-        members = Resources.patch(members, id, { role });
+        members = Arrays.patch(members, id, { role });
       }}
     />
   </section>
@@ -69,7 +69,7 @@
           <OrganizationInviteForm
             on_success={(d) => {
               close();
-              invitations = Resources.add(invitations, d);
+              invitations = Arrays.add(invitations, d);
             }}
           />
         {/snippet}
@@ -79,7 +79,7 @@
     <OrganizationInvitationsTable
       {invitations}
       on_cancel={(id) => {
-        invitations = Resources.remove(invitations, id);
+        invitations = Arrays.remove(invitations, id);
       }}
     />
   </section>

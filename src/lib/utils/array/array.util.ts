@@ -1,5 +1,6 @@
-export type Resource<T extends Record<string, unknown> = Record<string, unknown>> =
-  T & { id: string };
+export type Resource<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = T & { id: string };
 
 /** Find an item by its ID */
 const find = <T extends Record<string, unknown>>(
@@ -11,10 +12,10 @@ const find = <T extends Record<string, unknown>>(
 
 /** Add a new item */
 const add = <T extends Record<string, unknown>>(
-  items: Resource<T>[],
-  item: Resource<T>,
+  items: T[],
+  item: T,
   options?: { front?: boolean },
-): Resource<T>[] => {
+): T[] => {
   if (options?.front) {
     return [item, ...items];
   } else {
@@ -44,11 +45,11 @@ const filter = <T extends Record<string, unknown>>(
   items: Resource<T>[],
   ids: string[],
 ): Resource<T>[] => {
-  const idSet = new Set(ids);
-  return items.filter((item) => idSet.has(item.id));
+  const set = new Set(ids);
+  return items.filter((item) => set.has(item.id));
 };
 
-export const Resources = {
+export const Arrays = {
   find,
   add,
   patch,

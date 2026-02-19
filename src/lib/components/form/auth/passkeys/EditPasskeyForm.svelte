@@ -2,10 +2,13 @@
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
-  import { list_passkeys_remote } from "$lib/remote/auth/passkey.remote";
+  import {
+    list_passkeys_remote,
+    rename_passkey_remote,
+  } from "$lib/remote/auth/passkey.remote";
   import type { Passkey } from "$lib/server/db/models/auth.model";
+  import { Resources } from "$lib/utils/array/array.util";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
-  import { Resources } from "$lib/utils/resource/resource.util";
   import { result } from "$lib/utils/result.util";
   import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";

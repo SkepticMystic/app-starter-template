@@ -7,7 +7,7 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { ROLES, type RoleId } from "$lib/const/auth/role.const.js";
-  import { Resources } from "$lib/utils/resource/resource.util.js";
+  import { Arrays } from "$lib/utils/array/array.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
 
@@ -19,27 +19,25 @@
   ) =>
     AdminClient.update_user_role(input, {
       on_success: () =>
-        (users = Resources.patch(users, input.userId, { role: input.role })),
+        (users = Arrays.patch(users, input.userId, { role: input.role })),
     });
 
   const delete_user = (user_id: string) =>
     AdminClient.delete_user(user_id, {
-      on_success: () => (users = Resources.remove(users, user_id)),
+      on_success: () => (users = Arrays.remove(users, user_id)),
     });
 
   const ban_user = (userId: string) =>
     AdminClient.ban_user(
       { userId },
       {
-        on_success: (data) =>
-          (users = Resources.patch(users, userId, data.user)),
+        on_success: (data) => (users = Arrays.patch(users, userId, data.user)),
       },
     );
 
   const unban_user = (user_id: string) =>
     AdminClient.unban_user(user_id, {
-      on_success: (data) =>
-        (users = Resources.patch(users, user_id, data.user)),
+      on_success: (data) => (users = Arrays.patch(users, user_id, data.user)),
     });
 
   const column = createColumnHelper<(typeof users)[number]>();

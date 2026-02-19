@@ -4,8 +4,8 @@
 >
   import Button from "$lib/components/ui/button/button.svelte";
   import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.type";
+  import type { Resource } from "$lib/utils/array/array.util";
   import { Format } from "$lib/utils/format.util";
-  import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import type { Table } from "@tanstack/table-core";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";
