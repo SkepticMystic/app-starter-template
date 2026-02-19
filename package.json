@@ -26,7 +26,7 @@
   },
   "packageManager": "pnpm@10.30.0",
   "engines": {
-    "node": ">=24.13.1"
+    "node": ">=24.13.0"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.52.0",
