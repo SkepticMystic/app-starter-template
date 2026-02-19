@@ -123,7 +123,7 @@
             items: routes.map((r) => ({
               icon: r.icon,
               title: r.label,
-              href: resolve(r.href),
+              href: r.href,
               hide: !show_route(r),
             })),
           },

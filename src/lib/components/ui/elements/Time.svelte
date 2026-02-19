@@ -19,9 +19,9 @@
       | ((dt: Date | number | string | undefined | null) => string);
   } = $props();
 
-  const resolved = date ? new Date(date) : null;
+  const resolved = $derived(date ? new Date(date) : null);
 
-  const format = typeof show === "string" ? Format[show] : show;
+  const format = $derived(typeof show === "string" ? Format[show] : show);
 </script>
 
 {#if resolved}

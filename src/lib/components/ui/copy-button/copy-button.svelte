@@ -1,10 +1,10 @@
 <script lang="ts">
   import { UseClipboard } from "$lib/hooks/use-clipboard.svelte";
-  import { scale } from "svelte/transition";
-  import type { CopyButtonProps } from "./types";
-  import Button from "../button/button.svelte";
   import { cn } from "$lib/utils/shadcn.util";
+  import { scale } from "svelte/transition";
+  import Button from "../button/button.svelte";
   import Icon from "../icon/Icon.svelte";
+  import type { CopyButtonProps } from "./types";
 
   let {
     ref = $bindable(null),
@@ -20,7 +20,7 @@
     ...rest
   }: CopyButtonProps = $props();
 
-  // this way if the user passes text then the button will be the default size
+  // svelte-ignore state_referenced_locally
   if (size === "icon" && children) {
     size = "default";
   }

@@ -31,18 +31,18 @@
 
   // NOTE: ...rest props are readonly,
   // so we destructure them above and pass them down to Picture
+  // svelte-ignore state_referenced_locally
   if (prioritize) {
     loading ??= "eager";
     fetchpriority ??= "high";
   }
 
-  const style = [
-    width ? `width: ${width}px` : "",
-    height ? `height: ${height}px` : "",
-  ]
-    .filter(Boolean)
-    .join("; ")
-    .trim();
+  const style = $derived(
+    [width ? `width: ${width}px` : "", height ? `height: ${height}px` : ""]
+      .filter(Boolean)
+      .join("; ")
+      .trim(),
+  );
 </script>
 
 {#snippet img()}

@@ -1,13 +1,17 @@
 <script lang="ts">
-  import type { User } from "$lib/server/db/models/auth.model";
   import type { AvatarRootProps } from "bits-ui";
   import Avatar from "./avatar.svelte";
 
   let {
     user,
     ...rest
-  }: AvatarRootProps & { user: Pick<User, "name" | "email" | "image"> } =
-    $props();
+  }: AvatarRootProps & {
+    user: {
+      email: string;
+      name?: string | null | undefined;
+      image?: string | null | undefined;
+    };
+  } = $props();
 
   const label = $derived(user.name || user.email);
 </script>

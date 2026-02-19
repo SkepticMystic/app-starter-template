@@ -13,7 +13,7 @@
     redirect_uri: ResolvedPathname | null;
   } = $props();
 
-  const provider = AUTH.PROVIDERS.MAP[provider_id];
+  const provider = $derived(AUTH.PROVIDERS.MAP[provider_id]);
 
   const signin = Client.better_auth(() =>
     BetterAuthClient.signIn.social({

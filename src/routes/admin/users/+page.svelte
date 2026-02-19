@@ -12,7 +12,7 @@
   import { createColumnHelper } from "@tanstack/table-core";
 
   let { data } = $props();
-  let users = $state(data.users);
+  let users = $derived(data.users);
 
   const update_user_role = (
     input: Parameters<typeof AdminClient.update_user_role>[0],
@@ -31,13 +31,23 @@
     AdminClient.ban_user(
       { userId },
       {
-        on_success: (data) => (users = Arrays.patch(users, userId, data.user)),
+        on_success: (data) =>
+          (users = Arrays.patch(users, userId, {
+            banReason: data.user.banReason,
+            banExpires: data.user.banExpires,
+            banned: data.user.banned ?? false,
+          })),
       },
     );
 
   const unban_user = (user_id: string) =>
     AdminClient.unban_user(user_id, {
-      on_success: (data) => (users = Arrays.patch(users, user_id, data.user)),
+      on_success: (data) =>
+        (users = Arrays.patch(users, user_id, {
+          banReason: data.user.banReason,
+          banExpires: data.user.banExpires,
+          banned: data.user.banned ?? false,
+        })),
     });
 
   const column = createColumnHelper<(typeof users)[number]>();

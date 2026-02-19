@@ -1,5 +1,6 @@
 import { getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
+import type { IOrganization } from "$lib/const/auth/organization.const";
 import { ERROR } from "$lib/const/error.const";
 import type { InvitationSchema } from "$lib/server/db/models/auth.model";
 import { Log } from "$lib/utils/logger.util";
@@ -13,7 +14,7 @@ const log = Log.child({ service: "Invitation" });
 
 const create = async (
   input: z.output<typeof InvitationSchema.create>,
-): Promise<App.Result<Invitation>> => {
+): Promise<App.Result<Invitation & { role: IOrganization.RoleId }>> => {
   const l = log.child({ method: "create" });
 
   try {

@@ -28,13 +28,17 @@
     on_success?: (d: Task) => MaybePromise<unknown>;
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   if (props.mode === "update") {
     FormUtil.init(update_task_remote, () => props.initial);
-  } else if (props.initial) {
+  }
+  // svelte-ignore state_referenced_locally
+  else if (props.initial) {
     FormUtil.init(create_task_remote, () => props.initial);
   }
 
   const form =
+    // svelte-ignore state_referenced_locally
     props.mode === "create" ? create_task_remote : update_task_remote;
 </script>
 

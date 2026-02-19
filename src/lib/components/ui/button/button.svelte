@@ -91,6 +91,7 @@
     ...restProps
   }: ButtonProps = $props();
 
+  // svelte-ignore state_referenced_locally
   if (size === "default" && icon && !children && !label) {
     size = "icon";
   }

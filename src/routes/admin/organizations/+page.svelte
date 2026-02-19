@@ -9,7 +9,7 @@
   import { createColumnHelper } from "@tanstack/table-core";
 
   let { data } = $props();
-  let orgs = $state(data.orgs);
+  let orgs = $derived(data.orgs);
 
   const column = createColumnHelper<(typeof orgs)[number]>();
 
