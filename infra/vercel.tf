@@ -269,7 +269,7 @@ resource "vercel_project_environment_variable" "captcha_secret_key" {
   project_id = vercel_project.app.id
   team_id    = var.vercel_team_id
   key        = "CAPTCHA_SECRET_KEY"
-  value      = var.captcha_secret_key
+  value      = cloudflare_turnstile_widget.main.secret
   target     = local.all_envs
   sensitive  = false
 }
@@ -278,7 +278,7 @@ resource "vercel_project_environment_variable" "captcha_site_key" {
   project_id = vercel_project.app.id
   team_id    = var.vercel_team_id
   key        = "PUBLIC_CAPTCHA_SITE_KEY"
-  value      = var.captcha_site_key
+  value      = cloudflare_turnstile_widget.main.sitekey
   target     = local.all_envs
 }
 

@@ -21,3 +21,10 @@ resource "cloudflare_r2_bucket" "dev" {
 #   bucket_name = cloudflare_r2_bucket.main.name
 #   enabled     = true
 # }
+
+resource "cloudflare_turnstile_widget" "main" {
+  account_id = var.cloudflare_account_id
+  domains    = ["localhost"]
+  mode       = "managed"
+  name       = var.project_name
+}

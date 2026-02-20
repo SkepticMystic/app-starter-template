@@ -59,10 +59,6 @@ sentry_integration_token = "your_sentry_integration_token"
 umami_base_url   = "https://eu.umami.is"
 umami_website_id = "your_umami_website_uuid"
 
-# Cloudflare Turnstile — create a widget at https://dash.cloudflare.com > Turnstile
-captcha_secret_key = "your_turnstile_secret_key"
-captcha_site_key   = "your_turnstile_site_key"
-
 paystack_secret_key = "sk_live_your_paystack_secret_key"
 paystack_secret_key_dev = "sk_test_your_paystack_secret_key"
 

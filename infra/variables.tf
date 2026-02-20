@@ -25,7 +25,7 @@ variable "upstash_api_key" {
 }
 
 variable "cloudflare_api_token" {
-  description = "Cloudflare API token with R2:Edit and Zone:Read permissions"
+  description = "Cloudflare API token with R2:Edit, Turnstile:Edit, and Zone:Read permissions"
   type        = string
   sensitive   = true
 }
@@ -185,19 +185,6 @@ variable "umami_base_url" {
 
 variable "umami_website_id" {
   description = "Umami website ID (UUID from Umami dashboard)"
-  type        = string
-  default     = ""
-}
-
-variable "captcha_secret_key" {
-  description = "Cloudflare Turnstile secret key. Create a widget at https://dash.cloudflare.com/?to=/:account/turnstile"
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "captcha_site_key" {
-  description = "Cloudflare Turnstile site key (public, safe to expose)"
   type        = string
   default     = ""
 }
