@@ -34,6 +34,9 @@ r2_secret_access_key = "your_r2_secret_access_key"
 r2_access_key_id_dev     = "your_r2_access_key_id"
 r2_secret_access_key_dev = "your_r2_secret_access_key"
 
+# Turnstile
+turnstile_domains = ["localhost"]
+
 # ---------------------------------------------------------------------------
 # App secrets
 # ---------------------------------------------------------------------------
@@ -58,6 +61,9 @@ sentry_integration_token = "your_sentry_integration_token"
 
 umami_base_url   = "https://eu.umami.is"
 umami_website_id = "your_umami_website_uuid"
+
+app_url = "http://localhost:5173"
+app_url_dev = "http://localhost:5173"
 
 paystack_secret_key = "sk_live_your_paystack_secret_key"
 paystack_secret_key_dev = "sk_test_your_paystack_secret_key"

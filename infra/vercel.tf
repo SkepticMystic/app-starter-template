@@ -139,19 +139,19 @@ resource "vercel_project_environment_variable" "r2_secret_access_key_dev" {
 
 # --- URLs ---
 
-resource "vercel_project_environment_variable" "public_base_url" {
+resource "vercel_project_environment_variable" "app_url" {
   project_id = vercel_project.app.id
   team_id    = var.vercel_team_id
   key        = "PUBLIC_BASE_URL"
-  value      = "https://${vercel_project.app.name}.vercel.app"
+  value      = var.app_url
   target     = local.prod_only
 }
 
-resource "vercel_project_environment_variable" "public_base_url_dev" {
+resource "vercel_project_environment_variable" "app_url_dev" {
   project_id = vercel_project.app.id
   team_id    = var.vercel_team_id
   key        = "PUBLIC_BASE_URL"
-  value      = "http://localhost:5173"
+  value      = var.app_url_dev
   target     = local.dev_only
 }
 

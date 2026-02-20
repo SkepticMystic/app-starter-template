@@ -97,6 +97,12 @@ variable "r2_secret_access_key_dev" {
   sensitive   = true
 }
 
+variable "turnstile_domains" {
+  description = "Domains to create Turnstile widgets for"
+  type        = list(string)
+  default     = ["localhost"]
+}
+
 # ---------------------------------------------------------------------------
 # App secrets — passed through to Vercel environment variables
 # ---------------------------------------------------------------------------
@@ -143,6 +149,18 @@ variable "pocketid_base_url" {
   description = "Base URL of your Pocket ID instance (e.g. https://pocketid.example.com)"
   type        = string
   default     = ""
+}
+
+variable "app_url" {
+  description = "URL of the app (e.g. https://app.example.com)"
+  type        = string
+  default     = "http://localhost:5173"
+}
+
+variable "app_url_dev" {
+  description = "URL of the app for local development (e.g. https://app.example.com)"
+  type        = string
+  default     = "http://localhost:5173"
 }
 
 variable "email_from" {

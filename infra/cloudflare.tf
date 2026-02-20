@@ -24,7 +24,7 @@ resource "cloudflare_r2_bucket" "dev" {
 
 resource "cloudflare_turnstile_widget" "main" {
   account_id = var.cloudflare_account_id
-  domains    = ["localhost"]
+  domains    = var.turnstile_domains
   mode       = "managed"
   name       = var.project_name
 }
