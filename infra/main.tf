@@ -14,6 +14,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 5.17"
     }
+    sentry = {
+      source  = "jianyuan/sentry"
+      version = "0.14.9"
+    }
     vercel = {
       source  = "vercel/vercel"
       version = "~> 4.6"
@@ -32,6 +36,10 @@ provider "upstash" {
 
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
+}
+
+provider "sentry" {
+  token = var.sentry_integration_token
 }
 
 provider "vercel" {

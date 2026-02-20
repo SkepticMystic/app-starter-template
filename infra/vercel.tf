@@ -243,17 +243,8 @@ resource "vercel_project_environment_variable" "sentry_dsn" {
   project_id = vercel_project.app.id
   team_id    = var.vercel_team_id
   key        = "PUBLIC_SENTRY_DSN"
-  value      = var.sentry_dsn
+  value      = sentry_key.main.dsn["public"]
   target     = local.all_envs
-}
-
-resource "vercel_project_environment_variable" "sentry_auth_token" {
-  project_id = vercel_project.app.id
-  team_id    = var.vercel_team_id
-  key        = "SENTRY_AUTH_TOKEN"
-  value      = var.sentry_auth_token
-  target     = local.prod_only
-  sensitive  = true
 }
 
 resource "vercel_project_environment_variable" "umami_base_url" {

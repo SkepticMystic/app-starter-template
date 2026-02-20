@@ -158,14 +158,20 @@ variable "resend_api_key" {
   default     = ""
 }
 
-variable "sentry_dsn" {
-  description = "Sentry DSN for error tracking (PUBLIC_ prefixed; safe to expose)"
+variable "sentry_org_slug" {
+  description = "Sentry organization slug"
   type        = string
   default     = ""
 }
 
-variable "sentry_auth_token" {
-  description = "Sentry auth token for source map uploads at build time"
+variable "sentry_team_slug" {
+  description = "Sentry team slug"
+  type        = string
+  default     = ""
+}
+
+variable "sentry_integration_token" {
+  description = "Sentry integration token so that OpenTofu can create a new project"
   type        = string
   sensitive   = true
   default     = ""

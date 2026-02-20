@@ -52,8 +52,9 @@ pocketid_base_url      = "https://pocketid.example.com"
 email_from    = "hello@example.com"
 resend_api_key = "re_your_resend_api_key"
 
-sentry_dsn        = "https://your_key@ingest.sentry.io/your_project_id"
-sentry_auth_token = "your_sentry_auth_token"
+sentry_org_slug = "your_sentry_org_slug"
+sentry_team_slug = "your_sentry_team_slug"
+sentry_integration_token = "your_sentry_integration_token"
 
 umami_base_url   = "https://eu.umami.is"
 umami_website_id = "your_umami_website_uuid"
