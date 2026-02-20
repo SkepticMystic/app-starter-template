@@ -1,6 +1,6 @@
 import {
+  CLOUDFLARE_ACCOUNT_ID,
   R2_ACCESS_KEY_ID,
-  R2_ACCOUNT_ID,
   R2_BUCKET_NAME,
   R2_SECRET_ACCESS_KEY,
 } from "$env/static/private";
@@ -27,7 +27,7 @@ const log = Log.child({ service: "R2" });
 // Initialize R2 client with S3-compatible endpoint
 const r2_client = new S3Client({
   region: "auto",
-  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
     accessKeyId: R2_ACCESS_KEY_ID,
     secretAccessKey: R2_SECRET_ACCESS_KEY,

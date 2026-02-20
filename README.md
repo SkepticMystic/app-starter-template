@@ -53,6 +53,60 @@
 4. Edit the build command to `vite build && npm run db migrate` in the Vercel dashboard.
 5. Deploy the app using Vercel.
 
+## Infrastructure
+
+Cloud resources are managed with [OpenTofu](https://opentofu.org/) in the `infra/` directory.
+
+Resources managed:
+
+| Service                              | Provider                | What's provisioned                             |
+| ------------------------------------ | ----------------------- | ---------------------------------------------- |
+| [Neon](https://neon.tech)            | `kislerdm/neon`         | Project, production branch, database, app role |
+| [Upstash](https://upstash.com)       | `upstash/upstash`       | Redis database                                 |
+| [Cloudflare](https://cloudflare.com) | `cloudflare/cloudflare` | R2 bucket                     |
+| [Vercel](https://vercel.com)         | `vercel/vercel`         | Project config + all environment variables     |
+
+**Note:** 
+
+- Cloudflare Turnstile widgets must be created manually in the Cloudflare dashboard. Add the resulting site key and secret key to `terraform.tfvars`.
+- Cloudflare R2 buckets are allocated by TOFU, but we have 
+
+### Prerequisites
+
+- [OpenTofu](https://opentofu.org/docs/intro/install/) >= 1.8
+- API credentials for Neon, Upstash, Cloudflare, and Vercel
+
+### First-time setup
+
+```bash
+# 1. Fill in credentials
+cp infra/terraform.tfvars.example infra/terraform.tfvars
+# edit infra/terraform.tfvars with your real values
+
+# 2. Initialise providers
+cd infra && tofu init
+
+# 3. Review the plan
+tofu plan
+
+# 4. Apply
+tofu apply
+
+# 5. Initialise Vercel project
+vercel link
+
+# 6. Pull local env vars from Vercel
+vercel env pull --environment=development .env.local
+
+# 7. Migrate database
+pnpm db:push
+
+```
+
+### State
+
+State is stored locally in `infra/terraform.tfstate` (git-ignored). Keep this file backed up — it contains sensitive values (DB passwords, Redis URLs). To share state across a team, migrate to a [remote backend](https://opentofu.org/docs/language/settings/backends/).
+
 ## TODOs
 
 - [ ] PWA on app store: https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable#installation_from_an_app_store

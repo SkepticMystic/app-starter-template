@@ -1,0 +1,68 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is git-ignored — never commit real credentials.
+
+# ---------------------------------------------------------------------------
+# Provider credentials
+# ---------------------------------------------------------------------------
+
+neon_api_key = "your_neon_api_key"
+neon_org_id  = "your_neon_org_id" # Settings → Organization → General
+
+upstash_email   = "you@example.com"
+upstash_api_key = "your_upstash_api_key"
+
+cloudflare_api_token  = "your_cloudflare_api_token"
+cloudflare_account_id = "your_cloudflare_account_id"
+
+vercel_api_token = "your_vercel_api_token"
+vercel_team_id   = "team_xxxxxxxxxxxxxxxxxxxxxxxx"
+
+
+# ---------------------------------------------------------------------------
+# Project config
+# ---------------------------------------------------------------------------
+
+github_repo = "owner/repo"
+project_name   = "app-starter-template"
+neon_region    = "aws-eu-west-2"
+upstash_region = "eu-west-1"
+
+# R2 API token keys — create under R2 > Manage API tokens in the Cloudflare dashboard
+r2_access_key_id     = "your_r2_access_key_id"
+r2_secret_access_key = "your_r2_secret_access_key"
+## NOTE: Create different _user_ API tokens for local bucket
+r2_access_key_id_dev     = "your_r2_access_key_id"
+r2_secret_access_key_dev = "your_r2_secret_access_key"
+
+# ---------------------------------------------------------------------------
+# App secrets
+# ---------------------------------------------------------------------------
+
+# Generate with: openssl rand -hex 32
+better_auth_secret = "your_better_auth_secret_min_32_chars"
+better_auth_secret_dev = "your_better_auth_secret_dev_min_32_chars"
+
+google_client_id     = "your_google_client_id"
+google_client_secret = "your_google_client_secret"
+
+pocketid_client_id     = "your_pocketid_client_id"
+pocketid_client_secret = "your_pocketid_client_secret"
+pocketid_base_url      = "https://pocketid.example.com"
+
+email_from    = "hello@example.com"
+resend_api_key = "re_your_resend_api_key"
+
+sentry_dsn        = "https://your_key@ingest.sentry.io/your_project_id"
+sentry_auth_token = "your_sentry_auth_token"
+
+umami_base_url   = "https://eu.umami.is"
+umami_website_id = "your_umami_website_uuid"
+
+# Cloudflare Turnstile — create a widget at https://dash.cloudflare.com > Turnstile
+captcha_secret_key = "your_turnstile_secret_key"
+captcha_site_key   = "your_turnstile_site_key"
+
+paystack_secret_key = "sk_live_your_paystack_secret_key"
+paystack_secret_key_dev = "sk_test_your_paystack_secret_key"
+
+log_level = "info"

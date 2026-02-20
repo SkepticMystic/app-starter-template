@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { BetterAuthClient } from "$lib/auth-client";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
@@ -27,6 +28,9 @@
       const res = form.result;
       if (res?.ok) {
         toast.success("Organization created successfully");
+
+        BetterAuthClient.$store.notify("$sessionSignal");
+
         await goto(App.url("/"));
       } else if (res?.ok === false) {
         toast.error(res.error.message);

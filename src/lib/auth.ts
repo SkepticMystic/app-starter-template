@@ -1,7 +1,6 @@
 import { getRequestEvent } from "$app/server";
 import {
   BETTER_AUTH_SECRET,
-  BETTER_AUTH_URL,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   PAYSTACK_SECRET_KEY,
@@ -9,6 +8,7 @@ import {
   POCKETID_CLIENT_ID,
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
+import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
 import { passkey } from "@better-auth/passkey";
 import { waitUntil } from "@vercel/functions";
@@ -43,7 +43,7 @@ import { Log } from "./utils/logger.util";
 // SECTION: betterAuth init
 export const auth = betterAuth({
   appName: APP.NAME,
-  baseURL: BETTER_AUTH_URL,
+  baseURL: PUBLIC_BASE_URL,
   secret: BETTER_AUTH_SECRET,
 
   logger: {
