@@ -321,4 +321,12 @@ resource "vercel_project_environment_variable" "log_level" {
   target     = local.all_envs
 }
 
+resource "vercel_project_environment_variable" "no_color" {
+  project_id = vercel_project.app.id
+  team_id    = var.vercel_team_id
+  key        = "NO_COLOR"
+  value      = var.no_color
+  target     = local.all_envs
+}
+
 

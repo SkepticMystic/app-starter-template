@@ -220,3 +220,9 @@ variable "log_level" {
     error_message = "log_level must be one of: trace, debug, info, warn, error, fatal"
   }
 }
+
+variable "no_color" {
+  description = "Disable color in logs"
+  type        = string
+  default     = "false"
+}

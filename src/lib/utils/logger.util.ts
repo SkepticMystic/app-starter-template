@@ -15,7 +15,7 @@ export const Log = pino({
     ? {
         target: "pino-pretty",
         options: {
-          colorize: !NO_COLOR,
+          colorize: NO_COLOR !== "true",
           // translateTime: "SYS:standard",
           ignore: "pid,hostname",
         },
