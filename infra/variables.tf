@@ -70,7 +70,7 @@ variable "neon_region" {
 variable "upstash_region" {
   description = "Upstash region for the Redis database. See https://upstash.com/docs/redis/overall/regions"
   type        = string
-  default     = "eu-west-1"
+  default     = "af-south-1"
 }
 
 variable "r2_access_key_id" {
