@@ -14,7 +14,7 @@ const log = Log.child({ service: "Session" });
  */
 const patch = async (
   patch: Partial<App.Session["session"]>,
-  session: App.Session,
+  session: { session: { token: string } },
 ): Promise<App.Result<Session>> => {
   const l = log.child({ method: "patch" });
 

@@ -237,3 +237,27 @@ variable "no_color" {
   type        = string
   default     = "false"
 }
+
+# --- Image hosting ---
+
+variable "cloudinary_api_key" {
+  description = "Cloudinary API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudinary_api_secret" {
+  description = "Cloudinary API secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudinary_cloud_name" {
+  description = "Cloudinary cloud name"
+  type        = string
+}
+
+variable "cloudinary_upload_preset" {
+  description = "Cloudinary upload preset"
+  type        = string
+}

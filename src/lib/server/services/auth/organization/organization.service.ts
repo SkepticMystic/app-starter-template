@@ -21,7 +21,7 @@ const log = Log.child({ service: "Organization" });
 
 const create = async (
   input: z.output<typeof OrganizationSchema.create>,
-  session: App.Session,
+  session: { session: { token: string }; user: { id: string } },
 ): Promise<App.Result<Organization>> => {
   const l = log.child({ method: "create" });
 

@@ -217,5 +217,31 @@ resource "vercel_project_environment_variables" "main" {
       target    = local.dev_only
       sensitive = false
     },
+
+    # --- Image hosting ---
+    {
+      key       = "CLOUDINARY_API_KEY"
+      value     = var.cloudinary_api_key
+      target    = local.all_envs
+      sensitive = false
+    },
+    {
+      key       = "CLOUDINARY_API_SECRET"
+      value     = var.cloudinary_api_secret
+      target    = local.all_envs
+      sensitive = false
+    },
+    {
+      key       = "CLOUDINARY_CLOUD_NAME"
+      value     = var.cloudinary_cloud_name
+      target    = local.all_envs
+      sensitive = false
+    },
+    {
+      key       = "CLOUDINARY_UPLOAD_PRESET"
+      value     = var.cloudinary_upload_preset
+      target    = local.all_envs
+      sensitive = false
+    },
   ]
 }

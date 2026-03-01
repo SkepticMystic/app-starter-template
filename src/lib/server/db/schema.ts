@@ -1,4 +1,5 @@
 import * as AuthModels from "./models/auth.model";
+import * as ImageModels from "./models/image.model";
 import * as SubscriptionModels from "./models/subscription.model";
 import * as TaskModels from "./models/task.model";
 
@@ -22,6 +23,8 @@ const {
 const { SubscriptionTable, PaystackTransactionTable, ...subscription_rest } =
   SubscriptionModels;
 
+const { ImageTable, ...image_rest } = ImageModels;
+
 const { TaskTable, TaskSchema: _TaskSchema, ...task_rest } = TaskModels;
 
 export const schema = {
@@ -41,6 +44,10 @@ export const schema = {
   subscription: SubscriptionTable,
   paystack_transaction: PaystackTransactionTable,
   ...subscription_rest,
+
+  // Image
+  image: ImageTable,
+  ...image_rest,
 
   // Task
   task: TaskTable,
