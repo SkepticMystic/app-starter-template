@@ -5,6 +5,7 @@
     type ButtonSize,
     type ButtonVariant,
   } from "../button/button.svelte";
+  import Icon from "../icon/Icon.svelte";
   import ModalContent from "./modal-content.svelte";
   import ModalDescription from "./modal-description.svelte";
   import ModalFooter from "./modal-footer.svelte";
@@ -14,6 +15,7 @@
   import ModalTrigger from "./modal-trigger.svelte";
 
   let {
+    icon,
     open,
     title,
     description,
@@ -27,6 +29,7 @@
 
     ...rest_props
   }: ComponentProps<typeof ModalRoot> & {
+    icon?: string;
     title?: string;
     description?: string;
     size?: ButtonSize;
@@ -58,6 +61,7 @@
       {title}
       class={buttonVariants({ variant, size })}
     >
+      <Icon {icon} />
       {@render trigger?.()}
     </ModalTrigger>
   {/if}

@@ -7,7 +7,7 @@
   import DisableTwoFactorForm from "$lib/components/form/auth/two_factor/DisableTwoFactorForm.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Item from "$lib/components/ui/item/Item.svelte";
   import Modal from "$lib/components/ui/modal/modal.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import { get_account_by_provider_id_remote } from "$lib/remote/auth/account.remote.js";
@@ -71,68 +71,101 @@
 
   <Separator />
 
-  <section class="flex flex-wrap gap-2">
+  <section class="">
     {#if has_credential_account}
-      <Modal
+      <Item
+        variant="default"
         title="Change Password"
-        description="Change your account password"
+        description="Update your account password to keep your account secure"
       >
-        {#snippet trigger()}
-          <Icon icon="lucide/lock" />
-          Change Password
-        {/snippet}
+        {#snippet actions()}
+          <Modal
+            icon="lucide/lock"
+            variant="secondary"
+            title="Change Password"
+            description="Change your account password"
+          >
+            {#snippet trigger()}
+              Change
+            {/snippet}
 
-        {#snippet content({ close })}
-          <ChangePasswordForm on_success={() => close()} />
+            {#snippet content({ close })}
+              <ChangePasswordForm on_success={() => close()} />
+            {/snippet}
+          </Modal>
         {/snippet}
-      </Modal>
+      </Item>
 
       {#if !user.twoFactorEnabled}
-        <Modal>
-          {#snippet trigger()}
-            <Icon icon="lucide/lock" />
-            Enable Two-Factor Authentication
-          {/snippet}
+        <Item
+          variant="default"
+          title="Two-Factor Authentication"
+          description="Add an extra layer of security to your account by requiring a second form of authentication when signing in"
+        >
+          {#snippet actions()}
+            <Modal
+              icon="lucide/lock"
+              variant="secondary"
+            >
+              {#snippet trigger()}
+                Enable
+              {/snippet}
 
-          {#snippet content({ close })}
-            <EnableTwoFactorFlow
-              on_success={() => {
-                user.twoFactorEnabled = true;
-                close();
-              }}
-            />
+              {#snippet content({ close })}
+                <EnableTwoFactorFlow
+                  on_success={() => {
+                    user.twoFactorEnabled = true;
+                    close();
+                  }}
+                />
+              {/snippet}
+            </Modal>
           {/snippet}
-        </Modal>
+        </Item>
       {:else}
-        <Modal>
-          {#snippet trigger_child({ props })}
-            <Button
-              {...props}
+        <Item
+          variant="default"
+          title="Two-Factor Authentication"
+          description="Two-factor authentication is currently enabled on your account. Disabling it will remove the extra layer of security from your account and make it more vulnerable to unauthorized access."
+        >
+          {#snippet actions()}
+            <Modal
               icon="lucide/lock"
               variant="destructive"
             >
-              Disable Two-Factor Authentication
-            </Button>
-          {/snippet}
+              {#snippet trigger()}
+                Disable
+              {/snippet}
 
-          {#snippet content({ close })}
-            <DisableTwoFactorForm
-              on_success={() => {
-                user.twoFactorEnabled = false;
-                close();
-              }}
-            />
+              {#snippet content({ close })}
+                <DisableTwoFactorForm
+                  on_success={() => {
+                    user.twoFactorEnabled = false;
+                    close();
+                  }}
+                />
+              {/snippet}
+            </Modal>
           {/snippet}
-        </Modal>
+        </Item>
       {/if}
     {/if}
 
-    <Button
-      icon="lucide/trash"
-      variant="destructive"
-      onclick={UserClient.request_deletion}
+    <Item
+      variant="muted"
+      class="border-destructive/30 bg-destructive/10"
+      title="Delete Account"
+      description="Permanently delete your account and all associated data. This action cannot be undone."
     >
-      Delete my account
-    </Button>
+      {#snippet actions()}
+        <Button
+          icon="lucide/trash"
+          variant="destructive"
+          onclick={UserClient.request_deletion}
+        >
+          Delete
+        </Button>
+      {/snippet}
+    </Item>
   </section>
 </article>

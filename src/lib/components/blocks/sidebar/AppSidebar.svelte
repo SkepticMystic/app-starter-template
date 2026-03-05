@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import type { ResolvedPathname } from "$app/types";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
@@ -55,7 +56,7 @@
         {#snippet child({ props })}
           <a
             {...props}
-            href="/f"
+            href={resolve("/")}
           >
             <Icon icon="lucide/home" />
             <span> {APP.NAME} </span>

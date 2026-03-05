@@ -74,6 +74,8 @@
 
       if (res.every((r) => r.ok)) {
         form.fields.files.set([]);
+
+        toast.success("Images uploaded successfully");
       } else {
         for (const r of res) {
           if (r.ok === false) {
@@ -98,15 +100,20 @@
   />
 
   <ItemList
-    items={form.fields.files.value()?.map((f) => ({
-      id: f.name,
-      file: f,
-    })) ?? []}
+    empty={{
+      icon: "lucide/image",
+      title: "No images added",
+      description: "Drag and drop images above to add them to the upload list.",
+    }}
+    items={form.fields.files
+      .value()
+      ?.flatMap((f) => (f ? [{ id: f.name, file: f }] : [])) ?? []}
   >
     {#snippet item(item, i)}
       {@const url = urls.get(item.file.name)}
 
       <Item
+        size="sm"
         title={item.file.name}
         description={format_bytes(item.file.size)}
       >

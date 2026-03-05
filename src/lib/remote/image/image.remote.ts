@@ -1,4 +1,5 @@
 import { command, form } from "$app/server";
+import { format_bytes } from "$lib/components/ui/file-drop-zone";
 import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
 import { ImageSchema, type Image } from "$lib/server/db/models/image.model";
 import { get_session } from "$lib/server/services/auth.service";
@@ -8,7 +9,14 @@ import z from "zod";
 export const upload_images_remote = form(
   ImageSchema.insert.extend({
     files: z
-      .array(z.instanceof(File))
+      .array(
+        z
+          .file()
+          .max(
+            IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES,
+            `File must be smaller than ${format_bytes(IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES)}`,
+          ),
+      )
       .min(1, "No files to upload")
       .max(IMAGE_HOSTING.LIMITS.MAX_COUNT.PER_RESOURCE),
   }),

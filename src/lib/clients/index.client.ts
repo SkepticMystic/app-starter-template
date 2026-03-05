@@ -26,8 +26,6 @@ const wrap = <I, D>(
   client_options?: Partial<ClientRequestOptions<I, D>>,
 ): typeof cb => {
   return async (input, callsite_options) => {
-    toast.dismiss();
-
     const resolved: ClientRequestOptions<I, D> = {
       ...DEFAULT_OPTIONS,
       ...client_options,

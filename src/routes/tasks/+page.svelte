@@ -6,10 +6,9 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
-  import Modal from "$lib/components/ui/modal/modal.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
+  import Sheet from "$lib/components/ui/sheet/Sheet.svelte";
   import { TASKS } from "$lib/const/task.const";
   import { get_all_tasks_remote } from "$lib/remote/tasks/tasks.remote";
   import {
@@ -17,7 +16,6 @@
     TanstackTable,
   } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
-  import { toast } from "svelte-sonner";
 
   const tasks = get_all_tasks_remote();
 
@@ -62,22 +60,18 @@
   <header class="flex items-center justify-between">
     <h1>Tasks</h1>
 
-    <Modal
+    <Sheet
+      icon="lucide/plus"
       title="New Task"
       description="Create a new task"
     >
-      {#snippet trigger()}
-        <Icon icon="lucide/plus" />
-        New task
-      {/snippet}
-
-      {#snippet content({ close })}
+      {#snippet children({ close })}
         <TaskForm
           mode="create"
           on_success={close}
         />
       {/snippet}
-    </Modal>
+    </Sheet>
   </header>
 
   <DataTable
@@ -89,25 +83,11 @@
     }}
     actions={(row) => [
       {
-        title: "View task",
-        icon: "lucide/eye",
-        href: resolve("/tasks/[id]", row),
-      },
-      {
         title: "Edit task",
         icon: "lucide/pencil",
         href: resolve("/tasks/[id]/edit", row),
       },
-      {
-        title: "Copy task ID",
-        icon: "lucide/copy",
 
-        onselect: () =>
-          navigator.clipboard
-            .writeText(row.id)
-            .then(() => toast.success("Copied task ID"))
-            .catch(() => toast.error("Failed to copy task ID")),
-      },
       {
         title: "Delete task",
         icon: "lucide/trash-2",
