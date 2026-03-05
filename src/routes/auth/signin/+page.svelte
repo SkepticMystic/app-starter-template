@@ -16,7 +16,6 @@
   let { data } = $props();
 
   const last_method = BetterAuthClient.getLastUsedLoginMethod();
-  console.log("last_method", last_method);
 </script>
 
 <Card

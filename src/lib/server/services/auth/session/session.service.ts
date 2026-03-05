@@ -3,7 +3,7 @@ import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { APIError, type Session } from "better-auth";
+import { APIError } from "better-auth";
 
 const log = Log.child({ service: "Session" });
 
@@ -15,13 +15,19 @@ const log = Log.child({ service: "Session" });
 const patch = async (
   patch: Partial<App.Session["session"]>,
   session: { session: { token: string } },
-): Promise<App.Result<Session>> => {
+) => {
   const l = log.child({ method: "patch" });
 
   try {
     const res = await (
       await auth.$context
     ).internalAdapter.updateSession(session.session.token, patch);
+    // NOTE: This new way only allows you to set session fields that have `input: true`
+    // But we want to modify non-user fields
+    // const res = await auth.api.updateSession({
+    //   headers: getRequestEvent().request.headers,
+    //   body: patch,
+    // });
 
     if (!res) {
       l.warn("error no response");

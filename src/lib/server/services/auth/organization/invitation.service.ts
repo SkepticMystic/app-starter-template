@@ -9,6 +9,7 @@ import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import type { Invitation } from "better-auth/plugins";
 import type z from "zod";
+import { SessionService } from "../session/session.service";
 
 const log = Log.child({ service: "Invitation" });
 
@@ -118,14 +119,15 @@ const accept = async (invitation_id: string) => {
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
 
-    await (
-      await auth.$context
-    ).internalAdapter.updateSession(session.session.token, {
-      member_id: res.member.id,
-      member_role: res.member.role,
-      org_id: res.invitation.organizationId,
-      activeOrganizationId: res.invitation.organizationId,
-    });
+    await SessionService.patch(
+      {
+        member_id: res.member.id,
+        member_role: res.member.role,
+        org_id: res.invitation.organizationId,
+        activeOrganizationId: res.invitation.organizationId,
+      },
+      session,
+    );
 
     return result.suc(res);
   } catch (error) {

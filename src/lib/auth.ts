@@ -10,10 +10,10 @@ import {
 } from "$env/static/private";
 import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { passkey } from "@better-auth/passkey";
 import { waitUntil } from "@vercel/functions";
 import type { APIError } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
 import {
   admin,
@@ -44,7 +44,12 @@ import { Log } from "./utils/logger.util";
 export const auth = betterAuth({
   appName: APP.NAME,
   baseURL: PUBLIC_BASE_URL,
-  secret: BETTER_AUTH_SECRET,
+
+  secrets: [
+    // NOTE: New data is always encrypted with the latest key (first in the array), while decryption automatically tries all configured keys. This lets you roll secrets gradually without downtime or data loss.
+    // {version: 2, value: BETTER_AUTH_SECRET},
+    { version: 1, value: BETTER_AUTH_SECRET }, //
+  ],
 
   logger: {
     level: "debug",
@@ -150,6 +155,11 @@ export const auth = betterAuth({
     },
   },
 
+  verification: {
+    storeIdentifier: "hashed",
+    storeInDatabase: false,
+  },
+
   account: {
     accountLinking: {
       enabled: true,
@@ -174,8 +184,8 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
+    sendOnSignIn: true,
     autoSignInAfterVerification: true,
-
     sendVerificationEmail: async ({ user, url }) => {
       await EmailService.send(
         EMAIL.TEMPLATES["email-verification"]({ url, user }),
@@ -346,24 +356,22 @@ export const auth = betterAuth({
   ],
 
   // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
-  secondaryStorage: redis
-    ? {
-        get: async (key) => {
-          return redis.get(APP.ID + ":" + key);
-        },
+  secondaryStorage: {
+    get: async (key) => {
+      return redis.get(APP.ID + ":" + key);
+    },
 
-        set: async (key, value, ttl) => {
-          if (ttl) await redis.set(APP.ID + ":" + key, value, { ex: ttl });
-          // or for ioredis:
-          // if (ttl) await redis.set(key, value, "EX", ttl);
-          else await redis.set(APP.ID + ":" + key, value);
-        },
+    set: async (key, value, ttl) => {
+      if (ttl) await redis.set(APP.ID + ":" + key, value, { ex: ttl });
+      // or for ioredis:
+      // if (ttl) await redis.set(key, value, "EX", ttl);
+      else await redis.set(APP.ID + ":" + key, value);
+    },
 
-        delete: async (key) => {
-          await redis.del(APP.ID + ":" + key);
-        },
-      }
-    : undefined,
+    delete: async (key) => {
+      await redis.del(APP.ID + ":" + key);
+    },
+  },
 });
 // !SECTION
 

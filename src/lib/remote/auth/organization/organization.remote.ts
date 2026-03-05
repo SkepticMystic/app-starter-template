@@ -17,19 +17,19 @@ export const create_organization_remote = form(
     });
     if (!session) {
       return result.err(ERROR.UNAUTHORIZED);
-    } else if (!session.user.emailVerified) {
-      return result.err({
-        ...ERROR.FORBIDDEN,
-        message: "Email not verified",
-      });
     }
 
     const res = await OrganizationService.create(input, session);
-    if (!res.ok && res.error.path) {
-      invalid(res.error);
+    if (!res.ok) {
+      if (res.error.path) {
+        invalid(res.error);
+      } else {
+        return res;
+      }
     }
 
     return res;
+    // redirect(302, App.url("/organization"));
   },
 );
 

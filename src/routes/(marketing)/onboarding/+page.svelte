@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { BetterAuthClient } from "$lib/auth-client";
+  import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
@@ -13,12 +13,12 @@
 </script>
 
 <article>
-  <div class="text-center">
+  <header class="text-center">
     <h1>Create Your Organization</h1>
     <p class="text-muted-foreground">
       Let's set up your workspace to get started
     </p>
-  </div>
+  </header>
 
   <form
     class="space-y-6"
@@ -26,12 +26,14 @@
       await e.submit();
 
       const res = form.result;
+
       if (res?.ok) {
         toast.success("Organization created successfully");
 
-        BetterAuthClient.$store.notify("$sessionSignal");
+        await OrganizationClient.set_active(res.data.id);
+        // BetterAuthClient.$store.notify("$sessionSignal");
 
-        await goto(App.url("/"));
+        await goto(App.url("/organization"));
       } else if (res?.ok === false) {
         toast.error(res.error.message);
       }

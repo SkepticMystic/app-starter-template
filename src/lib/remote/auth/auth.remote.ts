@@ -42,6 +42,10 @@ export const signin_credentials_remote = form(
       }
     } catch (error) {
       if (error instanceof APIError) {
+        if (is_ba_error_code(error, "INVALID_EMAIL_OR_PASSWORD")) {
+          invalid(error.message);
+        }
+
         Log.info(error.body, "signin_remote.error better-auth");
 
         captureException(error);

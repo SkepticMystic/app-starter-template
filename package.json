@@ -28,6 +28,7 @@
     "node": ">=24.13.0"
   },
   "devDependencies": {
+    "@better-auth/drizzle-adapter": "^1.5.3",
     "@dotenvx/dotenvx": "^1.52.0",
     "@eslint/compat": "^2.0.2",
     "@eslint/js": "^10.0.1",
@@ -100,7 +101,7 @@
     ]
   },
   "dependencies": {
-    "@alexasomba/better-auth-paystack": "^1.0.4",
+    "@alexasomba/better-auth-paystack": "^1.2.0",
     "@alexasomba/paystack-node": "^1.2.1",
     "@aws-sdk/client-s3": "^3.1002.0",
     "@aws-sdk/s3-request-presigner": "^3.1002.0",

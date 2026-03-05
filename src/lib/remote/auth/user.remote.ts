@@ -96,13 +96,16 @@ export const reset_password_remote = form(
 );
 
 export const send_verification_email_remote = form(
-  z.object({ email: z.email("Please enter a valid email address") }),
+  z.object({
+    email: z.email("Please enter a valid email address"),
+    redirect_uri: z.string().default("/onboarding"),
+  }),
   async (input) => {
     try {
       const res = await auth.api.sendVerificationEmail({
         body: {
-          callbackURL: "/",
           email: input.email,
+          callbackURL: input.redirect_uri,
         },
         headers: getRequestEvent().request.headers,
       });

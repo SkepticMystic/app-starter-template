@@ -11,10 +11,7 @@ export const load = (async (event) => {
   // Not logged in → go to signup
   if (!session) {
     redirect(302, App.url("/auth/signup"));
-  }
-
-  // Already has org → go to app
-  if (session.session.activeOrganizationId) {
+  } else if (session.session.activeOrganizationId) {
     redirect(302, App.url("/"));
   }
 

@@ -13,6 +13,8 @@ resource "vercel_project" "app" {
     function_default_regions = ["cpt1"]
   }
 
+  automatically_expose_system_environment_variables = true
+
   git_repository = {
     type              = "github"
     repo              = var.github_repo

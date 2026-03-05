@@ -32,6 +32,7 @@ const create = async (
         name: input.name,
         logo: input.logo,
         userId: session.user.id,
+        keepCurrentActiveOrganization: false,
         slug: generateRandomString(8, "a-z", "0-9").toLowerCase(),
       },
     });
@@ -56,6 +57,7 @@ const create = async (
     // Update session with organization context
     await SessionService.patch(
       {
+        org_id: org.id,
         member_id: member.id,
         member_role: member.role,
         activeOrganizationId: org.id,
