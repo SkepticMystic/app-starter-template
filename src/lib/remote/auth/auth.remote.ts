@@ -17,7 +17,7 @@ export const signin_credentials_remote = form(
     email: z.email("Please enter a valid email address"),
     password: z.string(),
     remember: z.boolean().default(false),
-    redirect_uri: z.string().default("/"),
+    redirect_uri: z.string().default("/onboarding"),
   }),
   async (input) => {
     let redirect_uri = input.redirect_uri as ResolvedPathname;

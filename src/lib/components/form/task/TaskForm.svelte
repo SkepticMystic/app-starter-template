@@ -63,7 +63,7 @@
     <input
       {...update_task_remote.fields.id.as(
         "hidden",
-        update_task_remote.fields.id.value(),
+        update_task_remote.fields.id.value() ?? "",
       )}
     />
   {/if}

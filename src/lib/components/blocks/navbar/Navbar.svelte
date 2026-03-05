@@ -99,7 +99,7 @@
 <nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-3">
   <ButtonGroup>
     <Button
-      href="/"
+      href="/home"
       size="lg"
       variant="link"
     >

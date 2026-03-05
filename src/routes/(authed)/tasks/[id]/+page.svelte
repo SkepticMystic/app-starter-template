@@ -12,7 +12,7 @@
     <Button
       variant="outline"
       icon="lucide/pencil"
-      href={resolve("/tasks/[id]/edit", data.task)}
+      href={resolve("/(authed)/tasks/[id]/edit", data.task)}
     >
       Edit task
     </Button>

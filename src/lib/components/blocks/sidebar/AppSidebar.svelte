@@ -56,7 +56,7 @@
         {#snippet child({ props })}
           <a
             {...props}
-            href={resolve("/")}
+            href={resolve("/home")}
           >
             <Icon icon="lucide/home" />
             <span> {APP.NAME} </span>

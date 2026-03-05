@@ -14,12 +14,41 @@ resource "cloudflare_r2_bucket" "dev" {
   location = "EEUR"
 }
 
-# Enables the public *.r2.dev subdomain for the bucket.
-# Note: public access is off by default; this just provisions the domain.
-# resource "cloudflare_r2_managed_domain" "main" {
-#   account_id  = var.cloudflare_account_id
-#   bucket_name = cloudflare_r2_bucket.main.name
-#   enabled     = true
+
+# data "cloudflare_api_token_permission_groups" "all" {}
+
+# resource "cloudflare_api_token" "r2_prod" {
+#   name       = "${var.project_name}-r2-prod"
+
+#   policies = [
+#     {
+#       effect = "allow"
+#       permission_groups = [
+#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Read"],
+#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Write"],
+#       ]
+#       resources = {
+#         "com.cloudflare.edge.r2.bucket.${var.cloudflare_account_id}_default_${cloudflare_r2_bucket.main.name}" = "*"
+#       }
+#     }
+#   ]
+# }
+
+# resource "cloudflare_api_token" "r2_dev" {
+#   name       = "${var.project_name}-r2-dev"
+
+#   policies = [
+#     {
+#       effect = "allow"
+#       permission_groups = [
+#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Read"],
+#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Write"],
+#       ]
+#       resources = {
+#         "com.cloudflare.edge.r2.bucket.${var.cloudflare_account_id}_default_${cloudflare_r2_bucket.dev.name}" = "*"
+#       }
+#     }
+#   ]
 # }
 
 resource "cloudflare_turnstile_widget" "main" {

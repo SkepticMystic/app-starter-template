@@ -46,7 +46,7 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Brand Section -->
       <div class="lg:col-span-1">
-        <a href="/">
+        <a href="/home">
           <div class="flex items-center gap-2">
             <Logo />
             <h3>{APP.NAME}</h3>

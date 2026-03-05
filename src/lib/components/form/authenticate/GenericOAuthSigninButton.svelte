@@ -19,7 +19,7 @@
     BetterAuthClient.signIn.oauth2({
       disableRedirect: false,
       providerId: provider_id,
-      callbackURL: redirect_uri ?? "/",
+      callbackURL: redirect_uri ?? "/home",
       newUserCallbackURL: redirect_uri ?? "/onboarding",
       scopes: ["openid", "profile", "email"],
     }),

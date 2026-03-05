@@ -29,7 +29,7 @@
       cell: ({ row }) =>
         renderComponent(Anchor, {
           content: row.original.title,
-          href: resolve("/tasks/[id]", row),
+          href: resolve("/(authed)/tasks/[id]", row),
         }),
     }),
 
@@ -85,7 +85,7 @@
       {
         title: "Edit task",
         icon: "lucide/pencil",
-        href: resolve("/tasks/[id]/edit", row),
+        href: resolve("/(authed)/tasks/[id]/edit", row),
       },
 
       {

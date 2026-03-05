@@ -16,7 +16,7 @@
     {#snippet content()}
       <VerifyTwoFactorCodeForm
         on_success={() => {
-          goto(page.url.searchParams.get("redirect_uri") ?? "/");
+          goto(page.url.searchParams.get("redirect_uri") ?? "/home");
         }}
       />
     {/snippet}

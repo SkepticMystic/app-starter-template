@@ -5,22 +5,16 @@
       PUBLIC_UMAMI_BASE_URL,
       PUBLIC_UMAMI_WEBSITE_ID
   } from "$env/static/public";
-  import FooterBlock from "$lib/components/blocks/footer/FooterBlock.svelte";
   import SEO from "$lib/components/blocks/head/SEO.svelte";
-  import Navbar from "$lib/components/blocks/navbar/Navbar.svelte";
-  import AppSidebar from "$lib/components/blocks/sidebar/AppSidebar.svelte";
   import FlashAlert from "$lib/components/ui/alert/FlashAlert.svelte";
-  import SidebarProvider from "$lib/components/ui/sidebar/sidebar-provider.svelte";
   import Sonner from "$lib/components/ui/sonner/sonner.svelte";
   import { session } from "$lib/stores/session.store";
   import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { ModeWatcher } from "mode-watcher";
-  import { getFlash } from 'sveltekit-flash-message';
+  import { getFlash } from "sveltekit-flash-message";
   import "./layout.css";
 
   let { children } = $props();
-
-  const flash = getFlash(page);
 
   // NOTE: Currently this listener is _just_ for umami analytics
   // We unsub as soon as they're identified
@@ -29,7 +23,7 @@
       return;
     } else {
       console.log("$session loaded", $session.data);
-  
+
       if (browser && window.umami && $session.data?.user) {
         window.umami.identify($session.data.user.id, {
           name: $session.data.user.name,
@@ -44,6 +38,8 @@
       }
     }
   });
+
+  const flash = getFlash(page);
 </script>
 
 <svelte:head>
@@ -71,27 +67,11 @@
       data-website-id={PUBLIC_UMAMI_WEBSITE_ID}
     ></script>
   {/if}
-
 </svelte:head>
 
 <Sonner />
 <ModeWatcher />
 
-<SidebarProvider>
-  <AppSidebar />
+<FlashAlert flash={$flash} />
 
-  <div class="flex min-h-screen w-full flex-col">
-    <header>
-      <Navbar />
-    </header>
-
-    <main class="mx-auto mt-1 mb-12 w-full max-w-4xl grow px-2 sm:px-3 md:px-5">
-      <FlashAlert flash={$flash} />
-
-      {@render children?.()}
-    </main>
-
-
-    <FooterBlock />
-  </div>
-</SidebarProvider>
+{@render children?.()}

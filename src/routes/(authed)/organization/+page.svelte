@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { resolve } from "$app/paths";
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import OrganizationInviteForm from "$lib/components/form/auth/organization/invitation/OrganizationInviteForm.svelte";
   import OrganizationSelector from "$lib/components/selector/OrganizationSelector.svelte";
@@ -31,7 +29,7 @@
       onclick={() =>
         OrganizationClient.leave(undefined).then((r) => {
           if (r.ok) {
-            goto(resolve("/"));
+            window.location.reload();
           }
         })}
     >

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { resolve } from "$app/paths";
   import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Logo from "$lib/components/ui/image/Logo.svelte";
@@ -28,18 +27,5 @@
         </Button>
       </ButtonGroup>
     </ButtonGroup>
-  </section>
-
-  <section id="contact">
-    <h2>Contact</h2>
-    <p>We'd love to hear from you!</p>
-
-    <Button
-      size="lg"
-      icon="lucide/mail"
-      href={resolve("/contact")}
-    >
-      Contact Us
-    </Button>
   </section>
 </article>

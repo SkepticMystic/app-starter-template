@@ -6,7 +6,7 @@ import type { PageServerLoad } from "./$types";
 export const load = (async () => {
   const session = await safe_get_session();
   if (session?.user.emailVerified) {
-    redirect(302, "/" satisfies ResolvedPathname);
+    redirect(302, "/home" satisfies ResolvedPathname);
   }
 
   return {};
