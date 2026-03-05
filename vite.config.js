@@ -10,10 +10,7 @@ const SONDA = process.env.SONDA;
 const config = {
   build: { sourcemap: Boolean(SONDA) },
   plugins: [
-    sentrySvelteKit({
-      telemetry: false,
-      sourceMapsUploadOptions: { org: "ross-keenan", project: "app-starter" },
-    }),
+    sentrySvelteKit({ telemetry: false }),
     tailwindcss(),
     sveltekit(),
     partytownVite({ debug: false }),
