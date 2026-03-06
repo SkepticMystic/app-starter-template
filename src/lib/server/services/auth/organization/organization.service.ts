@@ -1,3 +1,4 @@
+import { getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
@@ -85,6 +86,46 @@ const create = async (
   }
 };
 
+const owner_delete = async (org_id: string, session: App.Session) => {
+  const l = log.child({ method: "owner_delete" });
+
+  try {
+    // Delete organization via Better-Auth
+    const res = await auth.api.deleteOrganization({
+      headers: getRequestEvent().request.headers,
+      body: { organizationId: org_id },
+    });
+
+    // TODO: I could setActiveOrg on some other org they're a member of
+    // But I think the actual solution is to allow an authenticated user to not have an active org
+    // Then some capture page that lets them choose an org to set as active
+    // Cloudflare does this
+
+    await SessionService.patch(
+      {
+        member_id: null,
+        member_role: null,
+        activeOrganizationId: null,
+      },
+      session,
+    );
+
+    return result.suc(res);
+  } catch (error) {
+    if (error instanceof APIError) {
+      l.info(error.body, "error better-auth");
+
+      captureException(error);
+
+      return result.from_ba_error(error);
+    } else {
+      l.error(error, "error unknown");
+      captureException(error);
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
+  }
+};
+
 const admin_delete = async (org_id: string) => {
   authorize_event({ admin: true });
 
@@ -118,5 +159,6 @@ const admin_delete = async (org_id: string) => {
 
 export const OrganizationService = {
   create,
+  owner_delete,
   admin_delete,
 };

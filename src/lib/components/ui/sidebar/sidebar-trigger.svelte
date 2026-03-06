@@ -2,7 +2,6 @@
   import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Button from "../button/button.svelte";
-  import Icon from "../icon/Icon.svelte";
   import { useSidebar } from "./context.svelte.js";
 
   let {
@@ -24,12 +23,12 @@
   size="icon"
   class={cn("size-7", className)}
   type="button"
+  icon="lucide/panel-left"
   onclick={(e) => {
     onclick?.(e);
     sidebar.toggle();
   }}
   {...restProps}
 >
-  <Icon icon="lucide/panel-left" />
   <span class="sr-only">Toggle Sidebar</span>
 </Button>

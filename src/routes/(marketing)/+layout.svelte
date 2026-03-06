@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
+  import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { APP } from "$lib/const/app.const";
+  import { user } from "$lib/stores/session.store";
 
   let { children } = $props();
 </script>
@@ -14,6 +17,22 @@
       >
         {APP.NAME}
       </Button>
+
+      <ButtonGroup>
+        {#if $user}
+          <ButtonGroup>
+            <Button href={resolve("/home")}>Home</Button>
+          </ButtonGroup>
+        {:else}
+          <ButtonGroup>
+            <Button href={resolve("/auth/signup")}>Signup</Button>
+          </ButtonGroup>
+
+          <ButtonGroup>
+            <Button href={resolve("/auth/signin")}>Login</Button>
+          </ButtonGroup>
+        {/if}
+      </ButtonGroup>
     </nav>
   </header>
 

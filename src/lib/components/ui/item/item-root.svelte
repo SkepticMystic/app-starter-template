@@ -11,6 +11,8 @@
         default: "bg-transparent",
         outline: "border-border",
         muted: "bg-muted/50",
+        destructive:
+          "bg-destructive/30 text-destructive-foreground border-destructive/50",
       },
       size: {
         default: "gap-4 p-4",

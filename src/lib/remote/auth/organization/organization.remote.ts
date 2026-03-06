@@ -33,6 +33,17 @@ export const create_organization_remote = form(
   },
 );
 
+export const owner_delete_organization_remote = command(
+  z.uuid(), //
+  async (org_id) => {
+    const session = await get_session();
+
+    const res = await OrganizationService.owner_delete(org_id, session);
+
+    return res;
+  },
+);
+
 export const admin_delete_organization_remote = command(
   z.uuid(), //
   async (org_id) => {

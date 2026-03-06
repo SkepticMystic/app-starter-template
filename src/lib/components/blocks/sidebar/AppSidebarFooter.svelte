@@ -99,6 +99,18 @@
               </a>
             {/snippet}
           </DropdownMenuItem>
+
+          <DropdownMenuItem>
+            {#snippet child({ props })}
+              <a
+                {...props}
+                href={resolve("/settings/billing")}
+              >
+                <Icon icon="lucide/credit-card" />
+                <span>Billing</span>
+              </a>
+            {/snippet}
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
 
@@ -107,7 +119,7 @@
             {#snippet child({ props })}
               <a
                 {...props}
-                href={resolve("/settings/account")}
+                href={resolve("/(authed)/profile")}
               >
                 <Icon icon="lucide/badge-check" />
                 <span>Account</span>
@@ -119,10 +131,10 @@
             {#snippet child({ props })}
               <a
                 {...props}
-                href={resolve("/settings/billing")}
+                href={resolve("/(authed)/organization")}
               >
-                <Icon icon="lucide/credit-card" />
-                <span>Billing</span>
+                <Icon icon="lucide/users" />
+                <span>Team</span>
               </a>
             {/snippet}
           </DropdownMenuItem>

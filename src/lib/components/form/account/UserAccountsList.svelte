@@ -56,7 +56,9 @@
               accountId: item.accountId,
               providerId: item.provider_id,
             })}
-        />
+        >
+          Unlink
+        </Button>
       {/snippet}
     </Item>
   {/snippet}

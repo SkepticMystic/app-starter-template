@@ -4,7 +4,9 @@
   import OrganizationSelector from "$lib/components/selector/OrganizationSelector.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Item from "$lib/components/ui/item/Item.svelte";
   import Modal from "$lib/components/ui/modal/modal.svelte";
+  import { member, organization } from "$lib/stores/organization.store";
   import { Arrays } from "$lib/utils/array/array.util";
   import OrganizationInvitationsTable from "./OrganizationInvitationsTable.svelte";
   import OrganizationMembersTable from "./OrganizationMembersTable.svelte";
@@ -22,19 +24,6 @@
 
   <section>
     <OrganizationSelector />
-
-    <Button
-      variant="destructive"
-      icon="lucide/log-out"
-      onclick={() =>
-        OrganizationClient.leave(undefined).then((r) => {
-          if (r.ok) {
-            window.location.reload();
-          }
-        })}
-    >
-      Leave Organization
-    </Button>
   </section>
 
   <section>
@@ -80,5 +69,48 @@
         invitations = Arrays.remove(invitations, id);
       }}
     />
+  </section>
+
+  <section>
+    <Item
+      variant="destructive"
+      title="Leave Organization"
+      description="You'll no longer be able to access this organization"
+    >
+      {#snippet actions()}
+        <Button
+          variant="outline"
+          icon="lucide/log-out"
+          onclick={() =>
+            OrganizationClient.leave(undefined, {
+              on_success: () => window.location.reload(),
+            })}
+        >
+          Leave
+        </Button>
+      {/snippet}
+    </Item>
+
+    {#if $member.data?.role === "owner"}
+      <Item
+        variant="destructive"
+        title="Delete Organization"
+        description="Delete this organization and all associated data"
+      >
+        {#snippet actions()}
+          <Button
+            variant="outline"
+            icon="lucide/trash"
+            onclick={() =>
+              $organization.data &&
+              OrganizationClient.delete($organization.data.id, {
+                on_success: () => window.location.reload(),
+              })}
+          >
+            Delete
+          </Button>
+        {/snippet}
+      </Item>
+    {/if}
   </section>
 </article>
