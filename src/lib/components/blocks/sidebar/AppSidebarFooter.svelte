@@ -113,6 +113,18 @@
               </a>
             {/snippet}
           </DropdownMenuItem>
+
+          <DropdownMenuItem>
+            {#snippet child({ props })}
+              <a
+                {...props}
+                href={resolve("/(authed)/settings/api-key")}
+              >
+                <Icon icon="lucide/key" />
+                <span>API Keys</span>
+              </a>
+            {/snippet}
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
 

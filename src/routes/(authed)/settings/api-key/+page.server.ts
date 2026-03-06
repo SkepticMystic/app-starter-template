@@ -23,7 +23,6 @@ export const load = (async () => {
         createdAt: true,
         expiresAt: true,
         lastRequest: true,
-        requestCount: true,
       },
     }),
   );

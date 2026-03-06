@@ -48,11 +48,6 @@
 
       cell: CellHelpers.time,
     }),
-    column.accessor("requestCount", {
-      meta: { label: "Request Count" },
-
-      cell: CellHelpers.number,
-    }),
   ];
 </script>
 
