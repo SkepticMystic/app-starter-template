@@ -1,5 +1,6 @@
 <script lang="ts">
   import { dev } from "$app/environment";
+  import UpdateUserForm from "$lib/components/form/auth/user/UpdateUserForm.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
 
   let { data } = $props();
@@ -30,4 +31,6 @@
       {/if}
     </div>
   </section>
+
+  <UpdateUserForm initial={user} />
 </article>

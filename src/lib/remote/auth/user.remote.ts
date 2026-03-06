@@ -11,6 +11,53 @@ import { invalid } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
+export const update_user_remote = form(
+  z.object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must be at most 100 characters"),
+    image: z.union([z.url(), z.literal("").transform(() => null)]).optional(),
+  }),
+  async (input) => {
+    try {
+      const res = await auth.api.updateUser({
+        headers: getRequestEvent().request.headers,
+        body: {
+          name: input.name,
+          image: input.image,
+        },
+      });
+
+      if (res.status) {
+        return result.suc();
+      } else {
+        return result.err({
+          ...ERROR.INTERNAL_SERVER_ERROR,
+          message: "Failed to update user",
+        });
+      }
+    } catch (error) {
+      if (error instanceof APIError) {
+        Log.info(error.body, "update_user_remote.error better-auth");
+
+        captureException(error, { extra: { input } });
+
+        return result.from_ba_error(error);
+      } else {
+        Log.error(error, "update_user_remote.error unknown");
+
+        captureException(error, { extra: { input } });
+
+        return result.err({
+          ...ERROR.INTERNAL_SERVER_ERROR,
+          message: "Failed to update user",
+        });
+      }
+    }
+  },
+);
+
 export const request_password_reset_remote = form(
   z.object({
     email: z.email("Please enter a valid email address"),

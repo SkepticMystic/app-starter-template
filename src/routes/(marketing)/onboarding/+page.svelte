@@ -33,7 +33,7 @@
         await OrganizationClient.set_active(res.data.id);
         // BetterAuthClient.$store.notify("$sessionSignal");
 
-        await goto(App.url("/organization"));
+        await goto(App.url("/settings/organization"));
       } else if (res?.ok === false) {
         toast.error(res.error.message);
       }
