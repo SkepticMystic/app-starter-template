@@ -42,7 +42,7 @@ const query = async <D>(promise: Promise<D>): Promise<App.Result<D>> => {
  * @returns Result with single record or NOT_FOUND error
  */
 const query_one = async <T>(
-  promise: Promise<T | undefined>
+  promise: Promise<T | undefined>,
 ): Promise<App.Result<T>> => {
   try {
     const data = await promise;
@@ -174,14 +174,14 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
 const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
   try {
     const data = await promise;
-    
+
     const [first] = data;
-    
+
     if (!first) {
       Log.error("Repo.update_one.error no data");
       return result.err(ERROR.NOT_FOUND);
     }
-    
+
     return result.suc(first);
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
@@ -193,7 +193,7 @@ const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
       ) {
         return result.err(ERROR.DUPLICATE);
       }
-      
+
       Log.error(error, "Repo.update_one.error DrizzleQueryError");
 
       captureException(error, {
@@ -201,9 +201,9 @@ const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
         contexts: {
           drizzle_error: {
             message: error.message,
-            cause: error.cause?.message
-          }
-        }
+            cause: error.cause?.message,
+          },
+        },
       });
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
@@ -261,7 +261,7 @@ const del = async (
  * @returns Result<void>
  */
 const update_void = async (
-  promise: Promise<{ rowCount: number }>
+  promise: Promise<{ rowCount: number }>,
 ): Promise<App.Result<void>> => {
   try {
     const res = await promise;
@@ -281,7 +281,7 @@ const update_void = async (
       ) {
         return result.err(ERROR.DUPLICATE);
       }
-      
+
       Log.error(error, "Repo.update_void.error DrizzleQueryError");
 
       captureException(error, {
@@ -289,9 +289,9 @@ const update_void = async (
         contexts: {
           drizzle_error: {
             message: error.message,
-            cause: error.cause?.message
-          }
-        }
+            cause: error.cause?.message,
+          },
+        },
       });
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);

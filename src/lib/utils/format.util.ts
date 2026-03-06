@@ -179,7 +179,7 @@ export const Format = {
    * Format minutes as human-readable duration
    * @param minutes - Number of minutes
    * @returns Formatted string like "2h 30m" or "45m"
-   * 
+   *
    * @example
    * Format.duration(150) // "2h 30m"
    * Format.duration(45)  // "45m"

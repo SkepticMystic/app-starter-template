@@ -2,7 +2,7 @@ import { z, type ZodObject, type ZodRawShape } from "zod";
 
 /**
  * Creates a standardized query schema with pagination and filtering
- * 
+ *
  * @example
  * const get_tasks_schema = query_schema(z.object({
  *   status: where_schema.in(TaskStatusEnum),
@@ -10,14 +10,12 @@ import { z, type ZodObject, type ZodRawShape } from "zod";
  *   created_at: where_schema.date_range()
  * }));
  */
-export const query_schema = <T extends ZodRawShape>(
-  where: ZodObject<T>
-) =>
+export const query_schema = <T extends ZodRawShape>(where: ZodObject<T>) =>
   z.object({
     where,
     offset: z.number().int().min(0).default(0),
     limit: z.number().int().min(1).max(100).default(10),
-    orderBy: z.literal("RANDOM()").optional()
+    orderBy: z.literal("RANDOM()").optional(),
   });
 
 /**
@@ -51,6 +49,6 @@ export const where_schema = {
   date_range: () =>
     z.object({
       gte: z.date().optional(),
-      lte: z.date().optional()
-    })
+      lte: z.date().optional(),
+    }),
 };

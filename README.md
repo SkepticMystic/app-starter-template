@@ -63,13 +63,13 @@ Resources managed:
 | ------------------------------------ | ----------------------- | ---------------------------------------------- |
 | [Neon](https://neon.tech)            | `kislerdm/neon`         | Project, production branch, database, app role |
 | [Upstash](https://upstash.com)       | `upstash/upstash`       | Redis database                                 |
-| [Cloudflare](https://cloudflare.com) | `cloudflare/cloudflare` | R2 bucket                     |
+| [Cloudflare](https://cloudflare.com) | `cloudflare/cloudflare` | R2 bucket                                      |
 | [Vercel](https://vercel.com)         | `vercel/vercel`         | Project config + all environment variables     |
 
-**Note:** 
+**Note:**
 
 - Cloudflare Turnstile widgets must be created manually in the Cloudflare dashboard. Add the resulting site key and secret key to `terraform.tfvars`.
-- Cloudflare R2 buckets are allocated by TOFU, but we have 
+- Cloudflare R2 buckets are allocated by TOFU, but we have
 
 ### Prerequisites
 

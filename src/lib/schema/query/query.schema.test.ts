@@ -4,14 +4,16 @@ import { query_schema, where_schema } from "./query.schema";
 
 describe("query_schema", () => {
   it("should validate basic query", () => {
-    const schema = query_schema(z.object({
-      name: where_schema.ilike()
-    }));
+    const schema = query_schema(
+      z.object({
+        name: where_schema.ilike(),
+      }),
+    );
 
     const result = schema.parse({
       where: { name: { ilike: "test" } },
       offset: 0,
-      limit: 10
+      limit: 10,
     });
 
     expect(result.where.name.ilike).toBe("test");
@@ -20,12 +22,14 @@ describe("query_schema", () => {
   });
 
   it("should apply defaults", () => {
-    const schema = query_schema(z.object({
-      name: where_schema.ilike()
-    }));
+    const schema = query_schema(
+      z.object({
+        name: where_schema.ilike(),
+      }),
+    );
 
     const result = schema.parse({
-      where: { name: { ilike: "test" } }
+      where: { name: { ilike: "test" } },
     });
 
     expect(result.offset).toBe(0);
@@ -33,14 +37,16 @@ describe("query_schema", () => {
   });
 
   it("should enforce max limit", () => {
-    const schema = query_schema(z.object({
-      name: where_schema.ilike()
-    }));
+    const schema = query_schema(
+      z.object({
+        name: where_schema.ilike(),
+      }),
+    );
 
     expect(() => {
       schema.parse({
         where: { name: { ilike: "test" } },
-        limit: 200
+        limit: 200,
       });
     }).toThrow();
   });
@@ -74,7 +80,7 @@ describe("where_schema", () => {
       const schema = where_schema.date_range();
       const start = new Date("2024-01-01");
       const end = new Date("2024-12-31");
-      
+
       const result = schema.parse({ gte: start, lte: end });
       expect(result.gte).toEqual(start);
       expect(result.lte).toEqual(end);

@@ -62,14 +62,14 @@ const to_local_time = (date: Date): string => {
   return date.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false
+    hour12: false,
   });
 };
 
 /**
  * Convert Date to format required by <input type="datetime-local">
  * Returns: "YYYY-MM-DDTHH:mm"
- * 
+ *
  * @example
  * const date = new Date("2024-03-15T14:30:00");
  * to_datetime_local_string(date) // "2024-03-15T14:30"

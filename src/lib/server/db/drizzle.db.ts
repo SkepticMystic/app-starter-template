@@ -7,8 +7,8 @@ import { schema } from "./schema";
 const client = neon(DATABASE_URL);
 
 export const db = drizzle({
-	client,
-	casing: "snake_case",
-	schema,
-	relations,
+  client,
+  casing: "snake_case",
+  schema,
+  relations,
 });
