@@ -1,13 +1,12 @@
 import type { ResolvedPathname } from "$app/types";
 import { get_session } from "$lib/server/services/auth.service";
-import { error, redirect } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async () => {
   const session = await get_session();
-  if (!session.ok) {
-    error(session.error.status ?? 401, session.error);
-  } else if (session.data.user.emailVerified) {
+
+  if (session.ok && session.data.user.emailVerified) {
     redirect(302, "/home" satisfies ResolvedPathname);
   }
 

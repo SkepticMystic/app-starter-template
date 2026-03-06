@@ -3,12 +3,13 @@ import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { password_schema } from "$lib/schema/password/password.schema";
+import { EmailValidationService } from "$lib/server/services/auth/email/email_validation.service";
 import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { invalid, redirect } from "@sveltejs/kit";
+import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 
@@ -70,7 +71,9 @@ export const signup_credentials_remote = form(
       .string()
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be at most 100 characters"),
-    email: z.email("Please enter a valid email address"),
+    email: z
+      .email("Please enter a valid email address")
+      .brand<"EmailAddress">(),
     password: password_schema,
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/onboarding"),
@@ -80,6 +83,15 @@ export const signup_credentials_remote = form(
     try {
       const captcha = await CaptchaService.verify(input.captcha_token);
       if (!captcha.ok) return captcha;
+
+      const email_valid = await EmailValidationService.has_mx_records(
+        input.email,
+      );
+      if (!email_valid.ok) {
+        return email_valid;
+      } else if (email_valid.data === false) {
+        invalid(issue.email("Email address is not valid"));
+      }
 
       await auth.api.signUpEmail({
         headers: getRequestEvent().request.headers,
@@ -92,6 +104,10 @@ export const signup_credentials_remote = form(
         },
       });
     } catch (error) {
+      if (isValidationError(error)) {
+        throw error;
+      }
+
       if (error instanceof APIError) {
         Log.info(error.body, "signup_remote.error better-auth");
 
