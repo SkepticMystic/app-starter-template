@@ -34,11 +34,6 @@ locals {
   all_envs  = toset(["production", "preview", "development"])
   prod_only = toset(["production", "preview"])
   dev_only  = toset(["development"])
-
-  # Compose the Neon connection string from provisioned resources
-  database_url = neon_project.main.connection_uri
-
-  dev_database_url = "postgresql://${neon_role.dev.name}:${neon_role.dev.password}@${neon_endpoint.dev.host}/${neon_database.dev.name}?sslmode=require"
 }
 
 # --- Infra-derived vars (different per environment is not needed here) ---
@@ -124,14 +119,14 @@ resource "vercel_project_environment_variables" "main" {
       target = local.all_envs
     },
     {
-      key       = "DATABASE_URL"
-      value     = local.database_url
-      target    = local.prod_only
-      sensitive = true
+      key    = "DATABASE_URL"
+      value  = neon_project.main.connection_uri
+      target = local.prod_only
+      # sensitive = true
     },
     {
       key       = "DATABASE_URL"
-      value     = local.dev_database_url
+      value     = "postgresql://${neon_role.dev.name}:${neon_role.dev.password}@${neon_endpoint.dev.host}/${neon_database.dev.name}?sslmode=require"
       target    = local.dev_only
       sensitive = false
     },
@@ -148,16 +143,16 @@ resource "vercel_project_environment_variables" "main" {
       sensitive = false
     },
     {
-      key       = "R2_ACCESS_KEY_ID"
-      value     = var.r2_access_key_id
-      target    = local.prod_only
-      sensitive = true
+      key    = "R2_ACCESS_KEY_ID"
+      value  = var.r2_access_key_id
+      target = local.prod_only
+      # sensitive = true
     },
     {
-      key       = "R2_SECRET_ACCESS_KEY"
-      value     = var.r2_secret_access_key
-      target    = local.prod_only
-      sensitive = true
+      key    = "R2_SECRET_ACCESS_KEY"
+      value  = var.r2_secret_access_key
+      target = local.prod_only
+      # sensitive = true
     },
     {
       key       = "R2_ACCESS_KEY_ID"
@@ -172,10 +167,10 @@ resource "vercel_project_environment_variables" "main" {
       sensitive = false
     },
     {
-      key       = "BETTER_AUTH_SECRET"
-      value     = var.better_auth_secret
-      target    = local.prod_only
-      sensitive = true
+      key    = "BETTER_AUTH_SECRET"
+      value  = var.better_auth_secret
+      target = local.prod_only
+      # sensitive = true
     },
     {
       key       = "BETTER_AUTH_SECRET"
@@ -208,10 +203,10 @@ resource "vercel_project_environment_variables" "main" {
       sensitive = false
     },
     {
-      key       = "PAYSTACK_SECRET_KEY"
-      value     = var.paystack_secret_key
-      target    = local.prod_only
-      sensitive = true
+      key    = "PAYSTACK_SECRET_KEY"
+      value  = var.paystack_secret_key
+      target = local.prod_only
+      # sensitive = true
     },
     {
       key       = "PAYSTACK_SECRET_KEY"
