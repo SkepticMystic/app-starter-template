@@ -31,7 +31,6 @@
           session_id: $session.data.session.id,
           ip_address: $session.data.session.ipAddress,
           user_agent: $session.data.session.userAgent,
-          org_id: $session.data.session.activeOrganizationId,
         });
 
         session_listener();

@@ -24,6 +24,7 @@
 >
   {#snippet item(passkey)}
     <Item
+      size="sm"
       icon="lucide/fingerprint"
       title={passkey.name || "Unnamed Passkey"}
     >
@@ -41,8 +42,11 @@
             <Icon icon="lucide/pencil" />
           {/snippet}
 
-          {#snippet content()}
-            <EditPasskeyForm {passkey} />
+          {#snippet content({ close })}
+            <EditPasskeyForm
+              {passkey}
+              on_success={close}
+            />
           {/snippet}
         </Modal>
 

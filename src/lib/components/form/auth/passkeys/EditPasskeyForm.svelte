@@ -2,6 +2,7 @@
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import type { MaybePromise } from "$lib/interfaces";
   import {
     list_passkeys_remote,
     rename_passkey_remote,
@@ -15,13 +16,15 @@
 
   let {
     passkey,
+    on_success,
   }: {
     passkey: Pick<Passkey, "id" | "name">;
+    on_success?: (d: Passkey) => MaybePromise<void>;
   } = $props();
 
   const form = rename_passkey_remote;
 
-  FormUtil.init(form, () => ({ name: passkey.name ?? "" }));
+  FormUtil.init(form, () => ({ name: passkey.name ?? "", id: passkey.id }));
 </script>
 
 <form
@@ -40,6 +43,8 @@
     const res = form.result;
     if (res?.ok) {
       toast.success("Passkey updated successfully");
+
+      await on_success?.(res.data);
     } else if (res?.error) {
       toast.error(res.error.message);
     }

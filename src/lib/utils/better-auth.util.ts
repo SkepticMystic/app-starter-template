@@ -28,6 +28,7 @@ export const BetterAuth = {
     } else {
       console.warn("BetterAuth error:", awaited.error);
       return result.err({
+        status: awaited.error?.status,
         message:
           awaited.error?.message ??
           awaited.error?.statusText ??

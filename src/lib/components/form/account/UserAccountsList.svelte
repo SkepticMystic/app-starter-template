@@ -36,6 +36,7 @@
 >
   {#snippet item(item)}
     <Item
+      size="sm"
       icon={item.icon}
       title={item.name}
     >

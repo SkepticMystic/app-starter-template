@@ -46,7 +46,7 @@ export const rename_passkey_remote = form(
         headers: getRequestEvent().request.headers,
       });
 
-      return result.suc({ passkey: res.passkey });
+      return result.suc(res.passkey);
     } catch (error) {
       if (error instanceof APIError) {
         Log.info(error.body, "rename_passkey_remote.error better-auth");
