@@ -8,6 +8,7 @@
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";
+  import Captcha from "../captcha/Captcha.svelte";
 
   let {
     on_success,
@@ -18,6 +19,14 @@
   } = $props();
 
   const form = verify_two_factor_backup_code_remote;
+
+  FormUtil.init(form, () => ({
+    code: "",
+    captcha_token: "",
+    trust_device: false,
+  }));
+
+  let reset_captcha = $state<() => void>();
 </script>
 
 <form
@@ -26,6 +35,10 @@
     await e.submit();
 
     FormUtil.count_issue_metrics(form, "verify_two_factor_backup_code_form");
+
+    if (form.fields.allIssues()?.length) {
+      reset_captcha?.();
+    }
 
     const res = form.result;
     if (res?.ok) {
@@ -65,6 +78,19 @@
       {/snippet}
     </Field>
   {/if}
+
+  <Field
+    label=""
+    field={form.fields.captcha_token}
+  >
+    {#snippet input({ props, field })}
+      <Captcha
+        {...props}
+        {...field?.as("text")}
+        bind:reset={reset_captcha}
+      />
+    {/snippet}
+  </Field>
 
   <FormButton
     {form}

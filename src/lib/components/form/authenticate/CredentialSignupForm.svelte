@@ -7,6 +7,7 @@
   import Password from "$lib/components/ui/password/Password.svelte";
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
   import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
   import Captcha from "../auth/captcha/Captcha.svelte";
   import FormErrors from "../FormErrors.svelte";
@@ -22,6 +23,15 @@
 
   const form = signup_credentials_remote;
 
+  FormUtil.init(form, () => ({
+    name: "",
+    email: "",
+    password: "",
+    remember: false,
+    captcha_token: "",
+    redirect_uri: redirect_uri ?? undefined,
+  }));
+
   let reset_captcha = $state<() => void>();
 </script>
 
@@ -29,6 +39,8 @@
   class="space-y-3"
   {...form.enhance(async (e) => {
     await e.submit();
+
+    FormUtil.count_issue_metrics(form, "signup_credentials_form");
 
     if (form.fields.allIssues()?.length) {
       reset_captcha?.();

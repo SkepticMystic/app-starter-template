@@ -2,6 +2,7 @@ import { form, getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
 import { ERROR } from "$lib/const/error.const";
+import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -44,9 +45,15 @@ export const enable_two_factor_remote = form(
 );
 
 export const disable_two_factor_remote = form(
-  z.object({ password: z.string().min(1, "Please enter your password") }),
+  z.object({
+    password: z.string().min(1, "Please enter your password"),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
+  }),
   async (input, issue) => {
     try {
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
       const res = await auth.api.disableTwoFactor({
         body: { password: input.password },
         headers: getRequestEvent().request.headers,
@@ -103,7 +110,10 @@ export const verify_totp_remote = form(
         Log.info(error.body, "verify_totp_remote.error better-auth");
 
         if (is_ba_error_code(error, "INVALID_CODE")) {
-          invalid(issue.code(error.message));
+          invalid(
+            // NOTE: There doesn't seem to be an actual error message from BA...
+            issue.code(error.message || "Invalid code"),
+          );
         } else {
           captureException(error);
 
@@ -130,9 +140,13 @@ export const verify_two_factor_backup_code_remote = form(
         TWO_FACTOR_ERROR_CODES.INVALID_BACKUP_CODE,
       ),
     trust_device: z.boolean().default(false),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input, issue) => {
     try {
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
       const res = await auth.api.verifyBackupCode({
         headers: getRequestEvent().request.headers,
         body: {

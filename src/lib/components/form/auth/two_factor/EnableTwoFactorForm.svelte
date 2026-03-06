@@ -1,9 +1,9 @@
 <script lang="ts">
   import Field from "$lib/components/ui/field/Field.svelte";
-  import Fieldset from "$lib/components/ui/field/Fieldset.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import type { ResultData } from "$lib/interfaces/result.type";
   import { enable_two_factor_remote } from "$lib/remote/auth/two_factor.remote";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";
   import FormErrors from "../../FormErrors.svelte";
@@ -15,12 +15,18 @@
   } = $props();
 
   const form = enable_two_factor_remote;
+
+  FormUtil.init(form, () => ({
+    password: "",
+  }));
 </script>
 
 <form
   class="space-y-3"
   {...form.enhance(async (e) => {
     await e.submit();
+
+    FormUtil.count_issue_metrics(form, "enable_two_factor_form");
 
     const res = form.result;
     if (res?.ok) {
@@ -32,31 +38,27 @@
     }
   })}
 >
-  <Fieldset
-    legend="Enable Two-Factor Authentication"
-    description="You will need to provide your password."
+  <Field
+    label="Current Password"
+    field={form.fields.password}
   >
-    <Field
-      label="Password"
-      field={form.fields.password}
-    >
-      {#snippet input({ props, field })}
-        <Input
-          {...props}
-          {...field?.as("password")}
-          autocomplete="current-password"
-        />
-      {/snippet}
-    </Field>
+    {#snippet input({ props, field })}
+      <Input
+        {...props}
+        {...field?.as("password")}
+        required
+        autocomplete="current-password"
+      />
+    {/snippet}
+  </Field>
 
-    <FormButton
-      {form}
-      class="w-full"
-      icon="lucide/lock"
-    >
-      Enable Two-Factor Authentication
-    </FormButton>
+  <FormButton
+    {form}
+    class="w-full"
+    icon="lucide/lock"
+  >
+    Enable Two-Factor Authentication
+  </FormButton>
 
-    <FormErrors {form} />
-  </Fieldset>
+  <FormErrors {form} />
 </form>

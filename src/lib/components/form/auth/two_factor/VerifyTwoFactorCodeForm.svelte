@@ -19,6 +19,11 @@
   } = $props();
 
   const form = verify_totp_remote;
+
+  FormUtil.init(form, () => ({
+    code: "",
+    trust_device: false,
+  }));
 </script>
 
 <form
@@ -29,6 +34,7 @@
     FormUtil.count_issue_metrics(form, "verify_two_factor_code_form");
 
     const res = form.result;
+
     if (res?.ok) {
       e.form.reset();
 

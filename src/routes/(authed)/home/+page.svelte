@@ -20,7 +20,7 @@
 
       <ButtonGroup>
         <Button
-          href="/profile"
+          href="/settings/profile"
           variant="secondary"
         >
           Profile

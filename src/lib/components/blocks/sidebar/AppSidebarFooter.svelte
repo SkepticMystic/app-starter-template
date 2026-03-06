@@ -63,7 +63,13 @@
         side={sidebar.isMobile ? "bottom" : "right"}
       >
         <DropdownMenuLabel class="p-0 font-normal">
-          <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+          <a
+            class={[
+              "flex items-center gap-2 px-1 py-1.5 text-start text-sm",
+              "hover:bg-accent hover:text-accent-foreground",
+            ]}
+            href={resolve("/(authed)/settings/profile")}
+          >
             <AvatarRoot class="size-8 rounded-md">
               <AvatarImage
                 src={$user?.image}
@@ -79,8 +85,35 @@
               <span class="truncate font-medium">{$user?.name}</span>
               <span class="truncate text-xs">{$user?.email}</span>
             </div>
-          </div>
+          </a>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            {#snippet child({ props })}
+              <a
+                {...props}
+                href={resolve("/(authed)/settings/account")}
+              >
+                <Icon icon="lucide/badge-check" />
+                <span>Account</span>
+              </a>
+            {/snippet}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem>
+            {#snippet child({ props })}
+              <a
+                {...props}
+                href={resolve("/(authed)/settings/organization")}
+              >
+                <Icon icon="lucide/users" />
+                <span>Team</span>
+              </a>
+            {/snippet}
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
@@ -112,34 +145,6 @@
             {/snippet}
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/(authed)/settings/profile")}
-              >
-                <Icon icon="lucide/badge-check" />
-                <span>Account</span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/(authed)/settings/organization")}
-              >
-                <Icon icon="lucide/users" />
-                <span>Team</span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-
         <DropdownMenuSeparator />
 
         <DropdownMenuItem onSelect={() => UserClient.signout()}>
