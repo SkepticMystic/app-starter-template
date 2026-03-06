@@ -13,6 +13,7 @@ const {
   UserTable,
   VerificationTable,
   TwoFactorTable,
+  APIKeyTable,
 
   InvitationSchema: _InvitationSchema,
   OrganizationSchema: _OrganizationSchema,
@@ -38,6 +39,7 @@ export const schema = {
   invitation: InvitationTable,
   passkey: PasskeyTable,
   twoFactor: TwoFactorTable,
+  apikey: APIKeyTable,
   ...auth_rest,
 
   // Subscription

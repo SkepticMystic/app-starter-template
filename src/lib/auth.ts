@@ -10,6 +10,7 @@ import {
 } from "$env/static/private";
 import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
+import { apiKey } from "@better-auth/api-key";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { passkey } from "@better-auth/passkey";
 import { captureException } from "@sentry/sveltekit";
@@ -249,6 +250,16 @@ export const auth = betterAuth({
       sendInvitationEmail: async (data) => {
         await EmailService.send(EMAIL.TEMPLATES["org-invite"](data));
       },
+    }),
+
+    apiKey({
+      defaultPrefix: "sk_",
+      references: "organization",
+      // NOTE: We don't use secondary, since it doesn't add _anything_ to the pg db...
+      // Which stops us doing CRUD on the table?
+      // storage: "secondary-storage",
+
+      requireName: true,
     }),
 
     paystack({

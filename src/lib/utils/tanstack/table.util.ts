@@ -1,9 +1,10 @@
-import Time from "$lib/components/ui/elements/Time.svelte";
 import { renderComponent } from "$lib/components/ui/data-table";
+import Time from "$lib/components/ui/elements/Time.svelte";
 import { getLocalTimeZone } from "@internationalized/date";
 import type { Column, FilterFn, Row, RowData } from "@tanstack/table-core";
 import type { DateRange } from "bits-ui";
 import type { ComponentProps } from "svelte";
+import { Format } from "../format.util";
 
 const get_column_label = <TData>(column: Column<TData>) =>
   column.columnDef.meta?.label ?? column.id;
@@ -27,6 +28,9 @@ const filter_fns = {
 };
 
 export const CellHelpers = {
+  number: (cell: { getValue: () => number }, props?: undefined) =>
+    Format.number(cell.getValue()),
+
   time: (
     cell: { getValue: () => ComponentProps<typeof Time>["date"] },
     props?: Omit<ComponentProps<typeof Time>, "date">,

@@ -1,18 +1,15 @@
 <script lang="ts">
   import { UseClipboard } from "$lib/hooks/use-clipboard.svelte";
   import { cn } from "$lib/utils/shadcn.util";
-  import { scale } from "svelte/transition";
   import Button from "../button/button.svelte";
   import Icon from "../icon/Icon.svelte";
   import type { CopyButtonProps } from "./types";
 
   let {
-    ref = $bindable(null),
     text,
     icon,
     animationDuration = 500,
     variant = "outline",
-    size = "icon",
     onCopy,
     class: className,
     tabindex = -1,
@@ -20,19 +17,12 @@
     ...rest
   }: CopyButtonProps = $props();
 
-  // svelte-ignore state_referenced_locally
-  if (size === "icon" && children) {
-    size = "default";
-  }
-
   const clipboard = new UseClipboard();
 </script>
 
 <Button
   {...rest}
-  bind:ref
   {variant}
-  {size}
   {tabindex}
   class={cn("flex items-center gap-2", className)}
   type="button"
@@ -44,7 +34,7 @@
   }}
 >
   {#if clipboard.status === "success"}
-    <div in:scale={{ duration: animationDuration, start: 0.85 }}>
+    <div>
       <Icon
         icon="lucide/check"
         tabindex={-1}
@@ -52,7 +42,7 @@
       <span class="sr-only">Copied</span>
     </div>
   {:else if clipboard.status === "failure"}
-    <div in:scale={{ duration: animationDuration, start: 0.85 }}>
+    <div>
       <Icon
         icon="lucide/x"
         tabindex={-1}
@@ -60,7 +50,7 @@
       <span class="sr-only">Failed to copy</span>
     </div>
   {:else}
-    <div in:scale={{ duration: animationDuration, start: 0.85 }}>
+    <div>
       {#if icon}
         {@render icon()}
       {:else}

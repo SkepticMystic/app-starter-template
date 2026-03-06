@@ -276,3 +276,31 @@ export const TwoFactorTable = pgTable(
 
 export type TwoFactor = typeof TwoFactorTable.$inferSelect;
 export type NewTwoFactor = typeof TwoFactorTable.$inferInsert;
+
+export const APIKeyTable = pgTable("apiKey", {
+  ...Schema.id(),
+
+  configId: text().notNull(),
+  name: text(),
+  start: text(),
+  prefix: text(),
+  key: text().notNull(),
+  referenceId: text().notNull(),
+  refillInterval: integer(),
+  refillAmount: integer(),
+  lastRefillAt: timestamp({ precision: 6, withTimezone: true }),
+  enabled: boolean().notNull(),
+  rateLimitEnabled: boolean().notNull(),
+  rateLimitTimeWindow: integer(),
+  rateLimitMax: integer(),
+  requestCount: integer().notNull(),
+  remaining: integer(),
+  lastRequest: timestamp({ precision: 6, withTimezone: true }),
+  expiresAt: timestamp({ precision: 6, withTimezone: true }),
+  createdAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+  updatedAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+  permissions: text(),
+  metadata: text(),
+});
+
+export type APIKey = typeof APIKeyTable.$inferSelect;
