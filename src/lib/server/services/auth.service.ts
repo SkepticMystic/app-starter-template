@@ -6,7 +6,6 @@ import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { error } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 
 const log = Log.child({ service: "Auth" });
@@ -23,7 +22,7 @@ type Options = {
 };
 
 const authorize = (
-  session: Awaited<ReturnType<typeof auth.api.getSession>>,
+  session: App.Session | null,
   options?: Options,
 ): App.Result<undefined> => {
   const l = log.child({ method: "authorize" });
@@ -44,15 +43,6 @@ const authorize = (
       return result.err({
         ...ERROR.FORBIDDEN,
         message: "Email not verified",
-      });
-    } else if (
-      !session.session.member_id ||
-      !session.session.member_role ||
-      !session.session.activeOrganizationId
-    ) {
-      return result.err({
-        ...ERROR.FORBIDDEN,
-        message: "Complete onboarding to continue",
       });
     } else if (resolved.admin && session.user.role !== "admin") {
       return result.err(ERROR.FORBIDDEN);
@@ -90,48 +80,43 @@ export const authorize_event = async (options?: Options) => {
 
   const session = event.locals.session ?? null;
   const check = authorize(session, options);
-  if (!check.ok) {
-    error(check.error?.status ?? 403, check.error);
-  }
+  if (!check.ok) return check;
 };
 
 /** Redirect to signin if not logged in. */
-export const get_session = async (options?: Options) => {
-  const event = getRequestEvent();
-
-  const session = await auth.api.getSession({
-    headers: event.request.headers,
-  });
-  if (!session) {
-    error(401, ERROR.UNAUTHORIZED);
-  }
-
-  const check = authorize(session, options);
-  if (!check.ok) {
-    error(check.error?.status ?? 403, check.error);
-  }
-
-  const res = {
-    user: session.user,
-    session: {
-      ...session.session,
-      member_id: session.session.member_id!,
-      member_role: session.session.member_role!,
-      org_id: session.session.activeOrganizationId!,
-    },
-  };
-
-  event.locals.session = res;
-
-  return res;
-};
-
-export const safe_get_session = async (options?: Options) => {
+export const get_session = async (
+  options?: Options,
+): Promise<App.Result<App.Session>> => {
   try {
-    return await get_session(options);
-  } catch (e) {
-    Log.info(e, "safe_get_session error");
+    const event = getRequestEvent();
 
-    return null;
+    const session = await auth.api.getSession({
+      headers: event.request.headers,
+    });
+
+    if (!session) {
+      return result.err(ERROR.UNAUTHORIZED);
+    }
+
+    const check = authorize(session, options);
+    if (!check.ok) return check;
+
+    event.locals.session = session;
+
+    return result.suc(session);
+  } catch (error) {
+    if (error instanceof APIError) {
+      log.info(error.body, "get_session.error better-auth");
+
+      captureException(error);
+
+      return result.from_ba_error(error);
+    } else {
+      log.error(error, "get_session.error unknown");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
   }
 };

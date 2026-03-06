@@ -37,8 +37,9 @@ export const owner_delete_organization_remote = command(
   z.uuid(), //
   async (org_id) => {
     const session = await get_session();
+    if (!session.ok) return session;
 
-    const res = await OrganizationService.owner_delete(org_id, session);
+    const res = await OrganizationService.owner_delete(org_id, session.data);
 
     return res;
   },
@@ -47,7 +48,8 @@ export const owner_delete_organization_remote = command(
 export const admin_delete_organization_remote = command(
   z.uuid(), //
   async (org_id) => {
-    await get_session({ admin: true });
+    const session = await get_session({ admin: true });
+    if (!session.ok) return session;
 
     const res = await OrganizationService.admin_delete(org_id);
 

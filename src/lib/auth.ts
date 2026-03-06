@@ -12,6 +12,7 @@ import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { passkey } from "@better-auth/passkey";
+import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 import type { APIError } from "better-auth";
 import { betterAuth } from "better-auth/minimal";
@@ -391,37 +392,43 @@ const get_active_org = async (
     userId: session.userId,
   });
 
-  const member = await Repo.query(
-    db.query.member.findFirst({
-      columns: { id: true, organizationId: true, role: true },
-      where: { userId: session.userId },
-      orderBy: { createdAt: "desc" },
-    }),
-  );
+  try {
+    const member = await Repo.query(
+      db.query.member.findFirst({
+        columns: { id: true, organizationId: true, role: true },
+        where: { userId: session.userId },
+        orderBy: { createdAt: "desc" },
+      }),
+    );
 
-  if (!member.ok || !member.data) {
-    log.debug("No organization found for user");
+    if (!member.ok || !member.data) {
+      log.debug("No organization found for user");
+      return null;
+    }
+
+    log.debug(
+      { organizationId: member.data.organizationId },
+      "Found existing organization",
+    );
+
+    const subscription = await SubscriptionService.get_active({
+      session: { org_id: member.data.organizationId },
+    });
+    const active_plan = subscription.ok
+      ? (subscription.data?.plan ?? "free")
+      : "free";
+
+    return {
+      active_plan,
+      member_id: member.data.id,
+      member_role: member.data.role,
+      org_id: member.data.organizationId,
+    };
+  } catch (error) {
+    log.error(error, "error unknown");
+    captureException(error);
     return null;
   }
-
-  log.debug(
-    { organizationId: member.data.organizationId },
-    "Found existing organization",
-  );
-
-  const subscription = await SubscriptionService.get_active({
-    session: { org_id: member.data.organizationId },
-  });
-  const active_plan = subscription.ok
-    ? (subscription.data?.plan ?? "free")
-    : "free";
-
-  return {
-    active_plan,
-    member_id: member.data.id,
-    member_role: member.data.role,
-    org_id: member.data.organizationId,
-  };
 };
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;

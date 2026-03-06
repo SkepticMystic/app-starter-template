@@ -3,7 +3,7 @@ import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { safe_get_session } from "$lib/server/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -11,12 +11,12 @@ import { APIError } from "better-auth";
 import z from "zod";
 
 export const list_passkeys_remote = query(async () => {
-  const session = await safe_get_session();
-  if (!session) return result.err(ERROR.UNAUTHORIZED);
+  const session = await get_session();
+  if (!session.ok) return session;
 
   const passkeys = await Repo.query(
     db.query.passkey.findMany({
-      where: { userId: session.user.id },
+      where: { userId: session.data.user.id },
 
       orderBy: { createdAt: "desc" },
 

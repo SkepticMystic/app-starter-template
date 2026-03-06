@@ -4,7 +4,7 @@ import { AUTH } from "$lib/const/auth/auth.const";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import { safe_get_session } from "$lib/server/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -15,13 +15,13 @@ import z from "zod";
 export const get_account_by_provider_id_remote = query.batch(
   z.enum(AUTH.PROVIDERS.IDS),
   async (provider_ids) => {
-    const session = await safe_get_session();
-    if (!session) return () => undefined;
+    const session = await get_session();
+    if (!session.ok) return () => undefined;
 
     const accounts = await Repo.query(
       db.query.account.findMany({
         where: {
-          userId: session.user.id,
+          userId: session.data.user.id,
           providerId: { in: provider_ids },
         },
       }),

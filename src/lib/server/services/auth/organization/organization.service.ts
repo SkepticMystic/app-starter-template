@@ -58,7 +58,6 @@ const create = async (
     // Update session with organization context
     await SessionService.patch(
       {
-        org_id: org.id,
         member_id: member.id,
         member_role: member.role,
         activeOrganizationId: org.id,
@@ -101,14 +100,16 @@ const owner_delete = async (org_id: string, session: App.Session) => {
     // Then some capture page that lets them choose an org to set as active
     // Cloudflare does this
 
-    await SessionService.patch(
-      {
-        member_id: null,
-        member_role: null,
-        activeOrganizationId: null,
-      },
-      session,
-    );
+    if (session.session.activeOrganizationId === org_id) {
+      await SessionService.patch(
+        {
+          member_id: null,
+          member_role: null,
+          activeOrganizationId: null,
+        },
+        session,
+      );
+    }
 
     return result.suc(res);
   } catch (error) {

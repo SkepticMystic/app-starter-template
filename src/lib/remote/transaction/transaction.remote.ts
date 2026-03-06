@@ -3,10 +3,8 @@
  */
 
 import { query } from "$app/server";
-import { ERROR } from "$lib/const/error.const";
-import { safe_get_session } from "$lib/server/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { PaystackService } from "$lib/server/services/transaction/paystack.transaction.service";
-import { result } from "$lib/utils/result.util";
 import z from "zod";
 
 /**
@@ -16,12 +14,12 @@ import z from "zod";
 export const get_transaction_invoice_remote = query(
   z.uuid(),
   async (transaction_id) => {
-    const session = await safe_get_session();
-    if (!session) return result.err(ERROR.UNAUTHORIZED);
+    const session = await get_session();
+    if (!session.ok) return session;
 
     const res = await PaystackService.get_transaction_invoice(
       transaction_id,
-      session,
+      session.data,
     );
 
     return res;

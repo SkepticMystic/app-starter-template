@@ -22,12 +22,13 @@ export const upload_images_remote = form(
   }),
   async (input) => {
     const session = await get_session();
+    if (!session.ok) return session;
 
     const results: App.Result<Image>[] = [];
 
     // One at a time to avoid racing the count check
     for (const file of input.files) {
-      const res = await ImageService.upload({ ...input, file }, session);
+      const res = await ImageService.upload({ ...input, file }, session.data);
 
       results.push(res);
     }
@@ -36,8 +37,12 @@ export const upload_images_remote = form(
   },
 );
 
-export const delete_image_remote = command(z.uuid(), async (image_id) => {
-  const session = await get_session();
+export const delete_image_remote = command(
+  z.uuid(), //
+  async (image_id) => {
+    const session = await get_session();
+    if (!session.ok) return session;
 
-  return await ImageService.delete_many({ id: image_id }, session);
-});
+    return await ImageService.delete_many({ id: image_id }, session.data);
+  },
+);

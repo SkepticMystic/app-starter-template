@@ -14,11 +14,12 @@ import { APIError } from "better-auth";
 
 const log = Log.child({ service: "SubscriptionService" });
 
-const get_by_id = async (
-  subscription_id: string,
-  session: { session: { org_id: string } },
-) => {
+const get_by_id = async (subscription_id: string, session: App.Session) => {
   try {
+    if (!session.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
+
     const res = await SubscriptionRepo.get_by_id(subscription_id);
     if (!res.ok) {
       return res;
@@ -37,11 +38,15 @@ const get_by_id = async (
 };
 
 const get_active = async (session: {
-  session: { org_id: string };
+  session: Pick<App.Session["session"], "org_id">;
 }): Promise<App.Result<Subscription | undefined>> => {
   const l = log.child({ method: "get_active" });
 
   try {
+    if (!session.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
+
     const res = await Repo.query(
       db.query.subscription.findFirst({
         where: {
@@ -82,6 +87,10 @@ const upgrade = async (
   session: App.Session,
 ) => {
   try {
+    if (!session.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
+
     const existing = await get_active(session);
     if (!existing.ok) return existing;
     else if (existing.data?.plan === input.plan) {
@@ -132,13 +141,14 @@ const upgrade = async (
   }
 };
 
-const disable = async (
-  subscription_id: string,
-  session: { session: { org_id: string } },
-) => {
+const disable = async (subscription_id: string, session: App.Session) => {
   const l = log.child({ method: "disable" });
 
   try {
+    if (!session.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
+
     const subscription = await get_by_id(subscription_id, session);
     if (!subscription.ok) return subscription;
     else if (subscription.data.cancelAtPeriodEnd) {
@@ -183,11 +193,12 @@ const disable = async (
   }
 };
 
-const enable = async (
-  subscription_id: string,
-  session: { session: { org_id: string } },
-) => {
+const enable = async (subscription_id: string, session: App.Session) => {
   try {
+    if (!session.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
+
     const subscription = await get_by_id(subscription_id, session);
     if (!subscription.ok) return subscription;
     else if (!subscription.data.paystackSubscriptionCode) {

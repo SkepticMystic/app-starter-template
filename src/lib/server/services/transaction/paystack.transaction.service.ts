@@ -18,6 +18,10 @@ const get_by_id = async (
   session: App.Session,
 ): Promise<App.Result<PaystackTransaction>> => {
   try {
+    if (!session.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
+
     const res = await PaystackTransactionRepo.get_by_id(transaction_id);
     if (!res.ok) {
       return res;

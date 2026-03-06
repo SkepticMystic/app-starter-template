@@ -1,4 +1,5 @@
 import { command, form, query } from "$app/server";
+import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import {
   TaskSchema,
@@ -6,22 +7,22 @@ import {
   type Task,
 } from "$lib/server/db/models/task.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
-import {
-  get_session,
-  safe_get_session,
-} from "$lib/server/services/auth.service";
+import { get_session } from "$lib/server/services/auth.service";
 import { result } from "$lib/utils/result.util";
 import { error } from "@sveltejs/kit";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 
 export const get_all_tasks_remote = query(async () => {
-  const session = await safe_get_session();
-  if (!session) return [];
+  const session = await get_session();
+  if (!session.ok) return [];
+  else if (!session.data.session.org_id) {
+    return [];
+  }
 
   const tasks = await Repo.query(
     db.query.task.findMany({
-      where: { org_id: session.session.org_id },
+      where: { org_id: session.data.session.org_id },
 
       orderBy: { createdAt: "desc" },
     }),
@@ -37,7 +38,11 @@ export const get_all_tasks_remote = query(async () => {
 export const create_task_remote = form(
   TaskSchema.insert, //
   async (input): Promise<App.Result<Task>> => {
-    const { session } = await get_session();
+    const session = await get_session();
+    if (!session.ok) return session;
+    else if (!session.data.session.org_id || !session.data.session.member_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
 
     const task = await Repo.insert_one(
       db
@@ -45,9 +50,9 @@ export const create_task_remote = form(
         .values({
           ...input,
 
-          org_id: session.org_id,
-          user_id: session.userId,
-          member_id: session.member_id,
+          org_id: session.data.session.org_id,
+          user_id: session.data.session.userId,
+          member_id: session.data.session.member_id,
         })
         .returning(),
     );
@@ -59,7 +64,11 @@ export const create_task_remote = form(
 export const update_task_remote = form(
   TaskSchema.update, //
   async (input) => {
-    const { session } = await get_session();
+    const session = await get_session();
+    if (!session.ok) return session;
+    else if (!session.data.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
 
     const task = await Repo.update_one(
       db
@@ -68,7 +77,7 @@ export const update_task_remote = form(
         .where(
           and(
             eq(TaskTable.id, input.id), //
-            eq(TaskTable.org_id, session.org_id),
+            eq(TaskTable.org_id, session.data.session.org_id),
           ),
         )
         .returning(),
@@ -81,7 +90,11 @@ export const update_task_remote = form(
 export const delete_task_remote = command(
   z.uuid(), //
   async (task_id) => {
-    const { session } = await get_session();
+    const session = await get_session();
+    if (!session.ok) return session;
+    else if (!session.data.session.org_id) {
+      return result.err(ERROR.FORBIDDEN);
+    }
 
     const res = await Repo.delete_one(
       db
@@ -89,7 +102,7 @@ export const delete_task_remote = command(
         .where(
           and(
             eq(TaskTable.id, task_id), //
-            eq(TaskTable.org_id, session.org_id),
+            eq(TaskTable.org_id, session.data.session.org_id),
           ),
         )
         .execute(),
