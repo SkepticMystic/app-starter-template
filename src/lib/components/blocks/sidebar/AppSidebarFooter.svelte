@@ -119,7 +119,7 @@
             {#snippet child({ props })}
               <a
                 {...props}
-                href={resolve("/(authed)/profile")}
+                href={resolve("/(authed)/settings/profile")}
               >
                 <Icon icon="lucide/badge-check" />
                 <span>Account</span>
@@ -131,7 +131,7 @@
             {#snippet child({ props })}
               <a
                 {...props}
-                href={resolve("/(authed)/organization")}
+                href={resolve("/(authed)/settings/organization")}
               >
                 <Icon icon="lucide/users" />
                 <span>Team</span>

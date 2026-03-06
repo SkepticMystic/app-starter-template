@@ -18,7 +18,7 @@
       meta: { label: "Name" },
 
       // cell: ({getValue, row}) => renderComponent(Anchor, {
-      //   href: resolve("/(authed)/account/api-keys/[id]/edit", row),
+      //   href: resolve("/(authed)/settings/api-keys/[id]/edit", row),
       //   content: getValue(),
       // })
     }),
@@ -62,7 +62,7 @@
 
     <Button
       icon="lucide/plus"
-      href={resolve("/(authed)/account/api-key/create")}
+      href={resolve("/(authed)/settings/api-key/create")}
     >
       Create API Key
     </Button>

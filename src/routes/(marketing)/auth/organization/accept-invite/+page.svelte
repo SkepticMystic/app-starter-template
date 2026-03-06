@@ -75,7 +75,7 @@
   {:else if data.prompt === "already_member"}
     <p class="">You are already a member of the organization.</p>
 
-    <Anchor href={resolve("/organization")}>View Organization</Anchor>
+    <Anchor href={resolve("/settings/organization")}>View Organization</Anchor>
   {:else if data.prompt === "invite_not_pending"}
     <p class="text-error">
       The invitation is no longer pending. Please contact the inviter for more
