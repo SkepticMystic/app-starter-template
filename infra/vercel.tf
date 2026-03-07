@@ -245,5 +245,12 @@ resource "vercel_project_environment_variables" "main" {
       target    = local.all_envs
       sensitive = false
     },
+    {
+      key    = "OPENAI_API_KEY"
+      value  = var.openai_api_key
+      target = local.all_envs
+      # sensitive = true
+      sensitive = false
+    },
   ]
 }

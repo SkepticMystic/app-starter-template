@@ -6,6 +6,7 @@ import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { APIError, type User } from "better-auth";
+import { AIModerationService } from "../../moderation/ai.moderation.service";
 
 const log = Log.child({ service: "User" });
 
@@ -15,6 +16,18 @@ const update = async (
   const l = log.child({ method: "update" });
 
   try {
+    if (input.image) {
+      const moderation = await AIModerationService.image(input.image);
+      if (!moderation.ok) return moderation;
+      else if (moderation.data.flagged) {
+        return result.err({
+          ...ERROR.INTERNAL_SERVER_ERROR,
+          path: ["image"],
+          message: "Image moderation flagged",
+        });
+      }
+    }
+
     const res = await auth.api.updateUser({
       headers: getRequestEvent().request.headers,
       body: {

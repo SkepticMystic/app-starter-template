@@ -69,20 +69,22 @@
     const res = form.result;
     FormUtil.count_issue_metrics(form, "image_upload");
 
-    if (res) {
+    if (res?.ok) {
       after_upload?.(res);
 
-      if (res.every((r) => r.ok)) {
+      if (res.data.every((r) => r.ok)) {
         form.fields.files.set([]);
 
         toast.success("Images uploaded successfully");
       } else {
-        for (const r of res) {
+        for (const r of res.data) {
           if (r.ok === false) {
             toast.error(r.error.message);
           }
         }
       }
+    } else if (res?.error) {
+      toast.error(res.error.message);
     }
   })}
   enctype="multipart/form-data"
