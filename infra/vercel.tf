@@ -111,12 +111,22 @@ resource "vercel_project_environment_variables" "main" {
     {
       key    = "LOG_LEVEL"
       value  = var.log_level
-      target = local.all_envs
+      target = local.prod_only
+    },
+    {
+      key    = "LOG_LEVEL"
+      value  = "debug"
+      target = local.dev_only
     },
     {
       key    = "NO_COLOR"
       value  = var.no_color
-      target = local.all_envs
+      target = local.prod_only
+    },
+    {
+      key    = "NO_COLOR"
+      value  = "false"
+      target = local.dev_only
     },
     {
       key    = "DATABASE_URL"

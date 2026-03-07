@@ -58,6 +58,7 @@ const create = async (
     // Update session with organization context
     await SessionService.patch(
       {
+        org_id: org.id,
         member_id: member.id,
         member_role: member.role,
         activeOrganizationId: org.id,
@@ -103,6 +104,7 @@ const owner_delete = async (org_id: string, session: App.Session) => {
     if (session.session.activeOrganizationId === org_id) {
       await SessionService.patch(
         {
+          org_id: null,
           member_id: null,
           member_role: null,
           activeOrganizationId: null,
