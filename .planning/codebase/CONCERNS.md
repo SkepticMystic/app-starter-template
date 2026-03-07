@@ -66,12 +66,6 @@
 - Current mitigation: Organization-level secondary storage (Redis) is configured for Better-Auth rate limiting.
 - Recommendations: Evaluate enabling per-key rate limiting for API keys used in production integrations. At minimum, document the decision.
 
-**Image Moderation Disabled:**
-
-- Risk: AI content moderation for uploaded images is fully commented out. Images are uploaded to Cloudinary without any content filtering.
-- Files: `src/lib/server/services/image/image.service.ts:67-80`
-- Current mitigation: None. Users can upload any image content.
-- Recommendations: Re-enable moderation before allowing user-generated image content in a production environment. The infrastructure (`AIModerationService`) appears to exist but is dormant.
 
 ---
 

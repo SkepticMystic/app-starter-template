@@ -1,5 +1,5 @@
 import { getRequestEvent } from "$app/server";
-import { auth } from "$lib/auth";
+import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
@@ -31,9 +31,18 @@ const remove = async (member_id: string) => {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
 
-      captureException(error);
+      if (
+        is_ba_error_code(
+          error,
+          "YOU_CANNOT_LEAVE_THE_ORGANIZATION_AS_THE_ONLY_OWNER",
+        )
+      ) {
+        return result.from_ba_error(error);
+      } else {
+        captureException(error);
 
-      return result.from_ba_error(error);
+        return result.from_ba_error(error);
+      }
     } else {
       l.error(error, "error unknown");
 

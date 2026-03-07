@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
@@ -33,7 +32,7 @@
         await OrganizationClient.set_active(res.data.id);
         // BetterAuthClient.$store.notify("$sessionSignal");
 
-        await goto(App.url("/settings/organization"));
+        window.location.href = App.url("/settings/organization");
       } else if (res?.ok === false) {
         toast.error(res.error.message);
       }
