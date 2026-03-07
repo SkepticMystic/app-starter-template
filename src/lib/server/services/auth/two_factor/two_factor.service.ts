@@ -10,7 +10,9 @@ const log = Log.child({ service: "TwoFactor" });
 
 const enable = async (input: {
   password: string;
-}): Promise<App.Result<undefined>> => {
+}): Promise<
+  App.Result<Awaited<ReturnType<typeof auth.api.enableTwoFactor>>>
+> => {
   const l = log.child({ method: "enable" });
 
   try {

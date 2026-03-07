@@ -24,7 +24,7 @@
   </header>
 
   <section>
-    {#if enable_data === null}
+    {#if !enable_data}
       <Card
         title="Enable Two-Factor Authentication"
         description="You will need to provide your password."
@@ -100,7 +100,7 @@
 
             <output>
               <ul class="flex flex-wrap gap-x-4 gap-y-2">
-                {#each enable_data.backupCodes as code}
+                {#each enable_data.backupCodes as code (code)}
                   <li>
                     <span class="font-mono text-sm">{code}</span>
                   </li>

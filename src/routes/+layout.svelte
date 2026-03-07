@@ -2,14 +2,13 @@
   import { browser, dev } from "$app/environment";
   import { page } from "$app/state";
   import {
-      PUBLIC_UMAMI_BASE_URL,
-      PUBLIC_UMAMI_WEBSITE_ID
+    PUBLIC_UMAMI_BASE_URL,
+    PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
   import SEO from "$lib/components/blocks/head/SEO.svelte";
   import FlashAlert from "$lib/components/ui/alert/FlashAlert.svelte";
   import Sonner from "$lib/components/ui/sonner/sonner.svelte";
   import { session } from "$lib/stores/session.store";
-  import { partytownSnippet } from "@qwik.dev/partytown/integration";
   import { ModeWatcher } from "mode-watcher";
   import { getFlash } from "sveltekit-flash-message";
   import "./layout.css";
@@ -42,14 +41,6 @@
 </script>
 
 <svelte:head>
-  <script>
-    partytown = {
-      forward: ["umami.identify"],
-    };
-  </script>
-
-  {@html "<script>" + partytownSnippet() + "</script>"}
-
   <SEO />
 
   <!-- Svelte says to use %sveltekit.env.[NAME]%
@@ -59,7 +50,6 @@
     <script
       defer
       async
-      type="text/partytown"
       data-do-not-track="true"
       data-tag={dev ? "dev" : "prod"}
       src="{PUBLIC_UMAMI_BASE_URL}/script.js"

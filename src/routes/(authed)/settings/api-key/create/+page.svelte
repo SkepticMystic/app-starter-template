@@ -17,10 +17,8 @@
 
   FormUtil.init(form, () => ({
     name: "",
-    expiresIn: undefined,
+    expiresIn: "",
   }));
-
-  $inspect(form.fields.value());
 
   let apikey: ApiKey | undefined = $state(undefined);
 </script>

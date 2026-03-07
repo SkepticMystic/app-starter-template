@@ -1,32 +1,34 @@
 <script lang="ts">
   import { UseClipboard } from "$lib/hooks/use-clipboard.svelte";
   import { cn } from "$lib/utils/shadcn.util";
+  import type { ClassValue } from "svelte/elements";
   import Button from "../button/button.svelte";
   import Icon from "../icon/Icon.svelte";
-  import type { CopyButtonProps } from "./types";
+  import type { CopyButtonPropsWithoutHTML } from "./types";
 
   let {
     text,
     icon,
-    animationDuration = 500,
+    size,
     variant = "outline",
     onCopy,
     class: className,
     tabindex = -1,
     children,
-    ...rest
-  }: CopyButtonProps = $props();
+  }: CopyButtonPropsWithoutHTML & {
+    class?: ClassValue;
+    tabindex?: number;
+  } = $props();
 
   const clipboard = new UseClipboard();
 </script>
 
 <Button
-  {...rest}
+  {size}
   {variant}
   {tabindex}
   class={cn("flex items-center gap-2", className)}
   type="button"
-  name="copy"
   onclick={async () => {
     const status = await clipboard.copy(text);
 

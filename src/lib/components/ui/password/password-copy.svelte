@@ -4,18 +4,13 @@
   import { usePasswordCopy } from "./password.svelte.js";
   import type { PasswordCopyButtonProps } from "./types.js";
 
-  let {
-    ref = $bindable(null),
-    class: className,
-    ...rest
-  }: PasswordCopyButtonProps = $props();
+  let { class: className, ...rest }: PasswordCopyButtonProps = $props();
 
   const state = usePasswordCopy();
 </script>
 
 <CopyButton
   {...rest}
-  bind:ref
   text={state.root.passwordState.value}
   tabindex={-1}
   class={cn(

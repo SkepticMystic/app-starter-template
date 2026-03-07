@@ -1,4 +1,5 @@
 import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { page } from "$app/state";
 import { BetterAuthClient } from "$lib/auth-client";
 import { App } from "$lib/utils/app";
@@ -31,9 +32,9 @@ export const UserClient = {
       fetchOptions: {
         onSuccess: () => {
           toast.info("You have been signed out.");
-          return goto("/auth/signin");
+          return goto(resolve("/auth/signin"));
         },
-        onError: (error) => {
+        onError: (error: unknown) => {
           console.error("Error signing out:", error);
           location.reload();
         },

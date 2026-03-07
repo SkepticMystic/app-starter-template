@@ -40,6 +40,8 @@ export default ts.config(
           ignoreRestSiblings: true,
         },
       ],
+
+      "svelte/no-navigation-without-resolve": "off",
     },
   },
   {

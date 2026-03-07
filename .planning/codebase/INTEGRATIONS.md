@@ -52,10 +52,8 @@
 **Analytics:**
 
 - **Umami** — Privacy-focused web analytics (self-hosted or cloud)
-  - SDK/Client: Script injected via Partytown (`src/routes/+layout.svelte`)
   - Auth: `PUBLIC_UMAMI_BASE_URL`, `PUBLIC_UMAMI_WEBSITE_ID` (optional; script not injected if vars absent)
   - Features: user identification on session load via `window.umami.identify()`
-  - Script runs off main thread via `@qwik.dev/partytown`
 
 **Captcha:**
 

@@ -1,3 +1,4 @@
+<!-- svelte-ignore state_referenced_locally -->
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
@@ -28,7 +29,6 @@
     on_success?: (d: Task) => MaybePromise<unknown>;
   } = $props();
 
-  // svelte-ignore state_referenced_locally
   if (props.mode === "update") {
     FormUtil.init(update_task_remote, () => props.initial);
   } else {
@@ -36,7 +36,6 @@
   }
 
   const form =
-    // svelte-ignore state_referenced_locally
     props.mode === "create" ? create_task_remote : update_task_remote;
 </script>
 

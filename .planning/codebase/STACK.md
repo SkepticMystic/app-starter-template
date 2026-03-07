@@ -121,7 +121,6 @@
 
 **Analytics:**
 
-- `@qwik.dev/partytown` — Third-party script isolation (used to run Umami off main thread)
 - `@types/umami` — TypeScript types for Umami analytics
 
 **PDF:**
