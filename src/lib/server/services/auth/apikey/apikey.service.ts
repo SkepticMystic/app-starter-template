@@ -141,7 +141,7 @@ const update = async (
 const verify = async (input: {
   key: string;
   configId?: string;
-}): Promise<App.Result<Omit<ApiKey, "key"> | null>> => {
+}): Promise<App.Result<Omit<ApiKey, "key">>> => {
   const l = log.child({ method: "verify" });
 
   try {
@@ -154,16 +154,34 @@ const verify = async (input: {
       },
     });
 
-    // {
-    //   valid: boolean;
-    //   error: { message: string; code: string } | null;
-    //   key: Omit<ApiKey, "key"> | null;
-    // };
+    if (data.error) {
+      // NOTE: These Better-auth return types are crazy...
+      // I _think_ it's because the apikey plugin hasn't updated yet?
+      if (data.error.message) {
+        const message =
+          typeof data.error.message === "string"
+            ? data.error.message
+            : data.error.message.message;
 
-    if (data.valid) {
-      return result.suc(data.key);
-    } else if (data.error) {
-      return result.err(data.error);
+        return result.err({
+          ...ERROR.UNAUTHORIZED,
+          message,
+        });
+      } else
+        return result.err({
+          ...ERROR.UNAUTHORIZED,
+          message: "Failed to verify API key",
+        });
+    } else if (data.valid) {
+      if (data.key) {
+        return result.suc(data.key);
+      } else {
+        l.error("data.key is null");
+        return result.err({
+          ...ERROR.UNAUTHORIZED,
+          message: "Failed to verify API key",
+        });
+      }
     } else {
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,

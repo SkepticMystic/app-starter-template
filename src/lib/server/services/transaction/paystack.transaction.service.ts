@@ -9,7 +9,7 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 import { APIError } from "better-auth";
-import { R2Service } from "../r2.service";
+import { R2Service } from "../storage/r2.storage.service";
 
 const log = Log.child({ service: "Paystack" });
 
