@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deployed on Vercel.
 
-**Tech Stack**: Node 22, pnpm 10.23.0, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Effect (service DI), Resend (email), Pino (logging)
+**Tech Stack**: Node 24, pnpm 10.23.0, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Resend (email), Pino (logging)
 
 ## Development Commands
 
@@ -24,7 +24,6 @@ This project uses **pnpm** (v10.23.0) as the package manager. Always use `pnpm` 
 ### Type Checking & Linting
 
 - `pnpm check` - Run svelte-check for type checking
-- `pnpm check:watch` - Run svelte-check in watch mode
 - `pnpm lint` - Run oxlint (type-aware), eslint, and prettier checks
 - `pnpm format` - Format code with prettier
 
@@ -43,27 +42,6 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - `pnpm knip` - Find unused files, dependencies, and exports
 
 ## Architecture
-
-### Directory Structure
-
-- `src/lib/` - Core application logic
-  - `auth/` - Authentication configuration and permissions (Better-Auth setup)
-  - `clients/` - Client-side API wrappers
-  - `components/` - UI components organized by type (auth, form, ui, daisyui)
-  - `const/` - Application constants and configuration
-  - `external/` - External service integrations (e.g., Discord)
-  - `interfaces/` - TypeScript interfaces
-  - `remote/` - SvelteKit remote functions (uses experimental feature)
-  - `schema/` - Zod validation schemas
-  - `server/` - Server-only code
-    - `db/` - Database configuration and schemas
-  - `services/` - Business logic services (email, config)
-  - `stores/` - Svelte stores for state management
-  - `utils/` - Utility functions
-- `src/routes/` - SvelteKit file-based routing
-- `drizzle/` - SQL migrations and metadata
-- `scripts/` - Build and utility scripts
-- `static/` - Static assets
 
 ### Authentication Architecture
 

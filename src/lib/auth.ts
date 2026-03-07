@@ -267,15 +267,18 @@ export const auth = betterAuth({
       },
     }),
 
-    apiKey({
-      requireName: true,
-      defaultPrefix: "sk_",
-      references: "organization",
+    apiKey([
+      {
+        configId: "default",
+        requireName: true,
+        defaultPrefix: "sk_",
+        references: "organization",
 
-      // SOURCE: https://better-auth.com/docs/plugins/api-key/advanced#secondary-storage-with-fallback
-      fallbackToDatabase: true,
-      storage: "secondary-storage",
-    }),
+        // SOURCE: https://better-auth.com/docs/plugins/api-key/advanced#secondary-storage-with-fallback
+        fallbackToDatabase: true,
+        storage: "secondary-storage",
+      },
+    ]),
 
     paystack({
       paystackClient: PaystackClient,

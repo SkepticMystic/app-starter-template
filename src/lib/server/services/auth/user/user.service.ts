@@ -78,6 +78,8 @@ const request_password_reset = async (input: {
       headers: getRequestEvent().request.headers,
     });
 
+    // NOTE: We return the BA message here, even in the success case, because
+    // we don't want to reveal if the email exists or not
     return res.status
       ? result.suc({ message: res.message })
       : result.err({

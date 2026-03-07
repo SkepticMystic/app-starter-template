@@ -66,7 +66,6 @@
 - Current mitigation: Organization-level secondary storage (Redis) is configured for Better-Auth rate limiting.
 - Recommendations: Evaluate enabling per-key rate limiting for API keys used in production integrations. At minimum, document the decision.
 
-
 ---
 
 ## Performance Bottlenecks

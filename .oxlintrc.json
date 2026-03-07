@@ -1,9 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn"
-  ],
+  "plugins": ["typescript", "unicorn"],
   "categories": {
     "correctness": "off"
   },
@@ -158,17 +155,10 @@
     "svelte/valid-each-key": "error",
     "svelte/valid-prop-names-in-kit-pages": "error"
   },
-  "jsPlugins": [
-    "eslint-plugin-svelte"
-  ],
+  "jsPlugins": ["eslint-plugin-svelte"],
   "overrides": [
     {
-      "files": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.mts",
-        "**/*.cts"
-      ],
+      "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
       "rules": {
         "constructor-super": "off",
         "getter-return": "off",
@@ -193,17 +183,12 @@
       }
     },
     {
-      "files": [
-        "*.svelte",
-        "**/*.svelte"
-      ],
+      "files": ["*.svelte", "**/*.svelte"],
       "rules": {
         "no-inner-declarations": "off",
         "no-self-assign": "off"
       },
-      "jsPlugins": [
-        "eslint-plugin-svelte"
-      ]
+      "jsPlugins": ["eslint-plugin-svelte"]
     }
   ]
 }
