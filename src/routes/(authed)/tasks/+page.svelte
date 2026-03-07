@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import { Client } from "$lib/clients/index.client";
   import { TaskClient } from "$lib/clients/tasks.client";
   import TaskForm from "$lib/components/form/task/TaskForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
@@ -11,16 +12,18 @@
   import Sheet from "$lib/components/ui/sheet/Sheet.svelte";
   import { TASKS } from "$lib/const/task.const";
   import { get_all_tasks_remote } from "$lib/remote/tasks/tasks.remote";
+  import { Arrays } from "$lib/utils/array/array.util";
   import {
     CellHelpers,
     TanstackTable,
   } from "$lib/utils/tanstack/table.util.js";
   import { createColumnHelper } from "@tanstack/table-core";
 
-  const tasks = get_all_tasks_remote();
+  let tasks = $derived(
+    await Client.wrap(get_all_tasks_remote)().then((r) => (r.ok ? r.data : [])),
+  );
 
-  const column =
-    createColumnHelper<NonNullable<typeof tasks.current>[number]>();
+  const column = createColumnHelper<NonNullable<typeof tasks>[number]>();
 
   const columns = [
     column.accessor("title", {
@@ -76,8 +79,7 @@
 
   <DataTable
     {columns}
-    loading={tasks.loading}
-    data={tasks.current ?? []}
+    data={tasks}
     states={{
       sorting: [{ id: "createdAt", desc: true }],
     }}
@@ -92,7 +94,10 @@
         title: "Delete task",
         icon: "lucide/trash-2",
         variant: "destructive",
-        onselect: () => TaskClient.delete(row.id),
+        onselect: () =>
+          TaskClient.delete(row.id, {
+            on_success: () => (tasks = Arrays.remove(tasks, row.id)),
+          }),
       },
     ]}
   >
