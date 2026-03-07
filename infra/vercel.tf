@@ -123,6 +123,7 @@ resource "vercel_project_environment_variables" "main" {
       value  = neon_project.main.connection_uri
       target = local.prod_only
       # sensitive = true
+      sensitive = false
     },
     {
       key       = "DATABASE_URL"
@@ -147,12 +148,14 @@ resource "vercel_project_environment_variables" "main" {
       value  = var.r2_access_key_id
       target = local.prod_only
       # sensitive = true
+      sensitive = false
     },
     {
       key    = "R2_SECRET_ACCESS_KEY"
       value  = var.r2_secret_access_key
       target = local.prod_only
       # sensitive = true
+      sensitive = false
     },
     {
       key       = "R2_ACCESS_KEY_ID"
@@ -171,6 +174,7 @@ resource "vercel_project_environment_variables" "main" {
       value  = var.better_auth_secret
       target = local.prod_only
       # sensitive = true
+      sensitive = false
     },
     {
       key       = "BETTER_AUTH_SECRET"
@@ -207,6 +211,7 @@ resource "vercel_project_environment_variables" "main" {
       value  = var.paystack_secret_key
       target = local.prod_only
       # sensitive = true
+      sensitive = false
     },
     {
       key       = "PAYSTACK_SECRET_KEY"

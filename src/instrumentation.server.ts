@@ -5,11 +5,11 @@ Sentry.init({
   dsn: PUBLIC_SENTRY_DSN,
   environment: import.meta.env.DEV ? "development" : "production",
 
-  tracesSampleRate: 1.0,
+  tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.1,
 
-  // Enable logs to be sent to Sentry
   enableLogs: true,
+  integrations: [Sentry.pinoIntegration(), Sentry.zodErrorsIntegration()],
 
   // SOURCE: https://spotlightjs.com
-  spotlight: import.meta.env.DEV,
+  // spotlight: import.meta.env.DEV,
 });
