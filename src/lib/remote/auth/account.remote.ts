@@ -35,7 +35,8 @@ export const get_account_by_provider_id_remote = query.batch(
 export const list_accounts_remote = query(async () => {
   const session = await get_session();
   if (!session.ok) return session;
-  return AccountService.list(session.data);
+
+  return await AccountService.list(session.data);
 });
 
 export const unlink_account_remote = command(
