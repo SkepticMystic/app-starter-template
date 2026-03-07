@@ -38,6 +38,7 @@ import { redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
 import { schema } from "./server/db/schema";
 import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
+import { Dicebear } from "./server/services/dicebear/dicebear.service";
 import { EmailService } from "./server/services/email.service";
 import { SubscriptionService } from "./server/services/subscription/subscription.service";
 import { Log } from "./utils/logger.util";
@@ -126,6 +127,20 @@ export const auth = betterAuth({
   },
 
   databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          if (!user.image) {
+            const image = Dicebear.get_url({ seed: user.email });
+            if (image.ok) {
+              user.image = image.data;
+            }
+          }
+
+          return { data: user };
+        },
+      },
+    },
     session: {
       create: {
         before: async (session) => {
