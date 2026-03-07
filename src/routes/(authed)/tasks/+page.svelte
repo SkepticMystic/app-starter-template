@@ -71,6 +71,13 @@
       {#snippet children({ close })}
         <TaskForm
           mode="create"
+          initial={{
+            title: "",
+            description: "",
+            status: "pending",
+            due_date: undefined,
+            assigned_member_id: undefined,
+          }}
           on_success={close}
         />
       {/snippet}

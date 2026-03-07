@@ -18,7 +18,7 @@
   let props: (
     | {
         mode: "create";
-        initial?: TaskSchema["insert"];
+        initial: TaskSchema["insert"];
       }
     | {
         mode: "update";
@@ -31,9 +31,7 @@
   // svelte-ignore state_referenced_locally
   if (props.mode === "update") {
     FormUtil.init(update_task_remote, () => props.initial);
-  }
-  // svelte-ignore state_referenced_locally
-  else if (props.initial) {
+  } else {
     FormUtil.init(create_task_remote, () => props.initial);
   }
 

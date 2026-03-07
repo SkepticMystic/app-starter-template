@@ -28,8 +28,10 @@ const filter_fns = {
 };
 
 export const CellHelpers = {
-  number: (cell: { getValue: () => number }, props?: undefined) =>
-    Format.number(cell.getValue()),
+  number: (
+    cell: { getValue: () => number },
+    options?: Intl.NumberFormatOptions,
+  ) => Format.number(cell.getValue(), options),
 
   time: (
     cell: { getValue: () => ComponentProps<typeof Time>["date"] },

@@ -9,7 +9,7 @@ import z from "zod";
 
 export const enable_two_factor_remote = form(
   z.object({ password: z.string().min(1, "Please enter your password") }),
-  async (input, issue) => {
+  async (input) => {
     const res = await TwoFactorService.enable(input);
     if (!res.ok && res.error.path) {
       invalid(res.error);

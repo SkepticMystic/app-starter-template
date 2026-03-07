@@ -213,7 +213,7 @@ const del = async (
     configId?: string;
     keyId: string;
   },
-  session: App.Session,
+  _session: App.Session,
 ): Promise<App.Result<undefined>> => {
   const l = log.child({ method: "delete" });
 

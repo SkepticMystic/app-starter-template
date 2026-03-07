@@ -38,7 +38,7 @@ export type TanstackTableInput<TData extends Record<string, unknown>> = {
 };
 
 declare module "@tanstack/table-core" {
-  //@ts-expect-error
+  // @ts-expect-error: Seems to be fine? more shadcn-svelte does it too
   interface ColumnMeta<_TData extends RowData, _TValue> {
     /** NOTE: Use when passing a snippet/component to `header`
      * (In this case, column.columnDef.header is a big html mess)
