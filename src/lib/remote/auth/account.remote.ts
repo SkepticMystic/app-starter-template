@@ -1,15 +1,10 @@
-import { command, getRequestEvent, query } from "$app/server";
-import { auth, is_ba_error_code } from "$lib/auth";
+import { command, query } from "$app/server";
 import { AUTH } from "$lib/const/auth/auth.const";
-import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { get_session } from "$lib/server/services/auth.service";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
-import { captureException } from "@sentry/sveltekit";
+import { AccountService } from "$lib/server/services/auth/account/account.service";
 import { error } from "@sveltejs/kit";
-import { APIError } from "better-auth";
 import z from "zod";
 
 export const get_account_by_provider_id_remote = query.batch(
@@ -38,30 +33,9 @@ export const get_account_by_provider_id_remote = query.batch(
 );
 
 export const list_accounts_remote = query(async () => {
-  try {
-    const accounts = await auth.api.listUserAccounts({
-      headers: getRequestEvent().request.headers,
-    });
-
-    return result.suc(accounts);
-  } catch (error) {
-    if (error instanceof APIError) {
-      Log.info(error.body, "list_accounts_remote.error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      Log.error(error, "list_accounts_remote.error");
-
-      captureException(error);
-
-      return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Failed to get accounts",
-      });
-    }
-  }
+  const session = await get_session();
+  if (!session.ok) return session;
+  return AccountService.list(session.data);
 });
 
 export const unlink_account_remote = command(
@@ -70,40 +44,15 @@ export const unlink_account_remote = command(
     providerId: z.enum(AUTH.PROVIDERS.IDS),
   }),
   async (input) => {
-    try {
-      const res = await auth.api.unlinkAccount({
-        headers: getRequestEvent().request.headers,
-        body: {
-          accountId: input.accountId,
-          providerId: input.providerId,
-        },
-      });
+    const session = await get_session();
+    if (!session.ok) return session;
 
-      if (res.status) {
-        get_account_by_provider_id_remote(input.providerId).set(undefined);
+    const res = await AccountService.unlink(input, session.data);
 
-        return result.suc();
-      } else {
-        return result.err({ message: "Failed to unlink account" });
-      }
-    } catch (error) {
-      if (error instanceof APIError) {
-        Log.info(error.body, "unlink_account_remote.error better-auth");
-
-        if (is_ba_error_code(error, "FAILED_TO_UNLINK_LAST_ACCOUNT")) {
-          return result.from_ba_error(error, { path: ["providerId"] });
-        } else {
-          captureException(error);
-
-          return result.from_ba_error(error);
-        }
-      } else {
-        Log.error(error, "unlink_account_remote.error");
-
-        captureException(error);
-
-        return result.err(ERROR.INTERNAL_SERVER_ERROR);
-      }
+    if (res.ok) {
+      get_account_by_provider_id_remote(input.providerId).set(undefined);
     }
+
+    return res;
   },
 );
