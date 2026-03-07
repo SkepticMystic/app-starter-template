@@ -18,7 +18,10 @@
 
   const form = create_invitation_remote;
 
-  FormUtil.init(form, () => ({ role: "member" }));
+  FormUtil.init(form, () => ({
+    email: "",
+    role: "member" as const,
+  }));
 </script>
 
 <form

@@ -133,7 +133,7 @@
             {#snippet child({ props })}
               <a
                 {...props}
-                href={resolve("/upgrade")}
+                href={resolve("/(authed)/settings/subscription/upgrade")}
               >
                 <Icon icon="lucide/sparkles" />
                 <span>
@@ -149,7 +149,7 @@
             {#snippet child({ props })}
               <a
                 {...props}
-                href={resolve("/settings/billing")}
+                href={resolve("/settings/subscription")}
               >
                 <Icon icon="lucide/credit-card" />
                 <span>Billing</span>

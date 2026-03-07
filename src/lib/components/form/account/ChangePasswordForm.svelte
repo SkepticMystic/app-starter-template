@@ -23,7 +23,7 @@
 
     const res = form.result;
     if (res?.ok) {
-      toast.success(res.data.message);
+      toast.success("Password changed");
       on_success?.();
     } else if (res?.error) {
       toast.error(res.error.message);

@@ -203,7 +203,7 @@ const change_password = async (input: {
 const send_verification_email = async (input: {
   email: string;
   redirect_uri: string;
-}): Promise<App.Result<undefined>> => {
+}): Promise<App.Result<{ message: string }>> => {
   const l = log.child({ method: "send_verification_email" });
 
   try {
@@ -216,8 +216,12 @@ const send_verification_email = async (input: {
     });
 
     return res.status
-      ? result.suc()
-      : result.err({ message: "Failed to send verification email" });
+      ? result.suc({
+          message: res.message ?? "Verification email sent",
+        })
+      : result.err({
+          message: res.message ?? "Failed to send verification email",
+        });
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

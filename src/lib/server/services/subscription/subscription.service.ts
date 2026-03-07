@@ -107,9 +107,11 @@ const upgrade = async (
         plan: input.plan,
         referenceId: session.session.org_id,
 
-        callbackURL: App.full_url("/upgrade/verify").toString(),
+        callbackURL: App.full_url("/settings/subscription/verify").toString(),
         metadata: {
-          cancel_action: App.full_url("/upgrade", { cancel: true }).toString(),
+          cancel_action: App.full_url("/settings/subscription", {
+            cancel: true,
+          }).toString(),
         },
       },
     });
