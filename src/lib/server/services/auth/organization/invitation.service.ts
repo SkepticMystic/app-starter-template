@@ -101,6 +101,8 @@ const accept = async (invitation_id: string) => {
   try {
     const event = getRequestEvent();
 
+    // TODO: What happens if I don't have a session?
+    // Check what BA does if I'm not logged in
     const session = await auth.api.getSession({
       headers: event.request.headers,
     });
