@@ -50,12 +50,7 @@
 
     <div class="flex gap-2">
       <Anchor href={App.url("/auth/signin", { redirect_uri })}>Login</Anchor>
-      <Anchor
-        class="btn btn-secondary"
-        href={App.url("/auth/signup", { redirect_uri })}
-      >
-        Signup
-      </Anchor>
+      <Anchor href={App.url("/auth/signup", { redirect_uri })}>Signup</Anchor>
     </div>
   {:else if data.prompt === "wrong_account"}
     <p>
@@ -65,33 +60,28 @@
 
     <div class="flex gap-2">
       <Anchor href={App.url("/auth/signin", { redirect_uri })}>Login</Anchor>
-      <Anchor
-        class="btn btn-secondary"
-        href={App.url("/auth/signup", { redirect_uri })}
-      >
-        Signup
-      </Anchor>
+      <Anchor href={App.url("/auth/signup", { redirect_uri })}>Signup</Anchor>
     </div>
   {:else if data.prompt === "already_member"}
-    <p class="">You are already a member of the organization.</p>
+    <p>You are already a member of the organization.</p>
 
     <Anchor href={resolve("/settings/organization")}>View Organization</Anchor>
   {:else if data.prompt === "invite_not_pending"}
-    <p class="text-error">
+    <p class="text-warning">
       The invitation is no longer pending. Please contact the inviter for more
       details.
     </p>
   {:else if data.prompt === "invite_expired"}
-    <p class="text-error">
+    <p class="text-warning">
       The invitation has expired. Please contact the inviter for a new
       invitation.
     </p>
   {:else if data.prompt === "invalid_invite_id"}
-    <p class="text-error">
+    <p class="text-warning">
       The invitation link is invalid. Please check the link or contact the
       inviter.
     </p>
   {:else}
-    <p class="text-error">Invalid prompt type.</p>
+    <p class="text-warning">Invalid prompt type.</p>
   {/if}
 </article>
