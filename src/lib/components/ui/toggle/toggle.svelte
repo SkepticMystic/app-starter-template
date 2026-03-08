@@ -21,8 +21,7 @@
     variants: {
       variant: {
         default: "bg-transparent",
-        outline:
-          `
+        outline: `
             border border-input bg-transparent shadow-xs
             hover:bg-accent hover:text-accent-foreground
           `,

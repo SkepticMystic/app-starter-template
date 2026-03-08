@@ -26,49 +26,42 @@
     `,
     variants: {
       variant: {
-        default:
-          `
+        default: `
             bg-primary text-primary-foreground shadow-xs
             hover:bg-primary/90
           `,
-        destructive:
-          `
+        destructive: `
             bg-destructive text-white shadow-xs
             hover:bg-destructive/90
             focus-visible:ring-destructive/20
             dark:bg-destructive/60
             dark:focus-visible:ring-destructive/40
           `,
-        warning:
-          `
+        warning: `
             bg-warning text-warning-foreground shadow-xs
             hover:bg-warning/90
             focus-visible:ring-warning/20
             dark:bg-warning/60
             dark:focus-visible:ring-warning/40
           `,
-        success:
-          `
+        success: `
             bg-success text-success-foreground shadow-xs
             hover:bg-success/90
             focus-visible:ring-success/20
             dark:bg-success/60
             dark:focus-visible:ring-success/40
           `,
-        outline:
-          `
+        outline: `
             border bg-background shadow-xs
             hover:bg-accent hover:text-accent-foreground
             dark:border-input dark:bg-input/30
             dark:hover:bg-input/50
           `,
-        secondary:
-          `
+        secondary: `
             bg-secondary text-secondary-foreground shadow-xs
             hover:bg-secondary/80
           `,
-        ghost:
-          `
+        ghost: `
             hover:bg-accent hover:text-accent-foreground
             dark:hover:bg-accent/50
           `,

@@ -42,16 +42,20 @@
 </script>
 
 <footer class="border-t bg-background">
-  <div class="
+  <div
+    class="
     mx-auto max-w-4xl px-2 py-6
     sm:px-3
     md:px-5
-  ">
-    <div class="
+  "
+  >
+    <div
+      class="
       grid grid-cols-1 gap-6
       sm:grid-cols-2
       lg:grid-cols-4
-    ">
+    "
+    >
       <!-- Brand Section -->
       <div class="lg:col-span-1">
         <a href="/home">

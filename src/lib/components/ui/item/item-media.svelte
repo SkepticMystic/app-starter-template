@@ -18,8 +18,7 @@
           size-8 rounded-sm border bg-muted
           [&_svg:not([class*='size-'])]:size-4
         `,
-        image:
-          `
+        image: `
             size-10 overflow-hidden rounded-sm
             [&_img]:size-full [&_img]:object-cover
           `,

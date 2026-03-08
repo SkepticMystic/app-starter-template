@@ -14,14 +14,12 @@
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
-        warning:
-          `
+        warning: `
             bg-card text-warning
             *:data-[slot=alert-description]:text-warning/90
             [&>svg]:text-current
           `,
-        destructive:
-          `
+        destructive: `
             bg-card text-destructive
             *:data-[slot=alert-description]:text-destructive/90
             [&>svg]:text-current

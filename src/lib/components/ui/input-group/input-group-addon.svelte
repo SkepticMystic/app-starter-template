@@ -13,26 +13,22 @@
     `,
     variants: {
       align: {
-        "inline-start":
-          `
+        "inline-start": `
             order-first ps-3
             has-[>button]:ms-[-0.45rem]
             has-[>kbd]:ms-[-0.35rem]
           `,
-        "inline-end":
-          `
+        "inline-end": `
             order-last pe-3
             has-[>button]:me-[-0.45rem]
             has-[>kbd]:me-[-0.35rem]
           `,
-        "block-start":
-          `
+        "block-start": `
             order-first w-full justify-start px-3 pt-3
             group-has-[>input]/input-group:pt-2.5
             [.border-b]:pb-3
           `,
-        "block-end":
-          `
+        "block-end": `
             order-last w-full justify-start px-3 pb-3
             group-has-[>input]/input-group:pb-2.5
             [.border-t]:pt-3

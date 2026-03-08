@@ -17,8 +17,7 @@
           data-[state=closed]:slide-out-to-top
           data-[state=open]:slide-in-from-top
         `,
-        bottom:
-          `
+        bottom: `
             inset-x-0 bottom-0 h-auto border-t
             data-[state=closed]:slide-out-to-bottom
             data-[state=open]:slide-in-from-bottom
@@ -29,8 +28,7 @@
           data-[state=open]:slide-in-from-start
           sm:max-w-sm
         `,
-        right:
-          `
+        right: `
             inset-y-0 inset-e-0 h-full w-3/4 border-s
             data-[state=closed]:slide-out-to-end
             data-[state=open]:slide-in-from-end

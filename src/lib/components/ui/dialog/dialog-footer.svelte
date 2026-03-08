@@ -13,10 +13,13 @@
 <div
   bind:this={ref}
   data-slot="dialog-footer"
-  class={[`
+  class={[
+    `
     flex flex-col-reverse gap-2
     sm:flex-row sm:justify-end
-  `, className]}
+  `,
+    className,
+  ]}
   {...restProps}
 >
   {@render children?.()}

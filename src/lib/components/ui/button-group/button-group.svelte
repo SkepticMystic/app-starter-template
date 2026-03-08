@@ -15,14 +15,12 @@
     `,
     variants: {
       orientation: {
-        horizontal:
-          `
+        horizontal: `
             [&>*:not(:first-child)]:rounded-s-none
             [&>*:not(:first-child)]:border-s-0
             [&>*:not(:last-child)]:rounded-e-none
           `,
-        vertical:
-          `
+        vertical: `
             flex-col
             [&>*:not(:first-child)]:rounded-t-none
             [&>*:not(:first-child)]:border-t-0

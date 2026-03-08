@@ -93,10 +93,12 @@
               </SidebarMenuButton>
 
               {#if item.action}
-                <SidebarMenuAction class="
+                <SidebarMenuAction
+                  class="
                   hidden
                   group-hover:inline
-                ">
+                "
+                >
                   {#snippet child({ props })}
                     {#if item.action?.kind === "href"}
                       <a
