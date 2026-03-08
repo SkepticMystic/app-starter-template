@@ -64,7 +64,7 @@
     viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
     xmlns="http://www.w3.org/2000/svg"
     shape-rendering="crispEdges"
-    class="h-full w-full"
+    class="size-full"
   >
     <rect
       width={viewBoxSize}
@@ -89,7 +89,10 @@
 
   {#if logo}
     <div
-      class="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background p-1 shadow-sm"
+      class="
+        absolute top-1/2 left-1/2 flex -translate-1/2 items-center
+        justify-center rounded-full bg-background p-1 shadow-sm
+      "
       style:width={`${size * logoSize}px`}
       style:height={`${size * logoSize}px`}
     >
@@ -97,7 +100,7 @@
         <img
           src={logo}
           alt="QR Logo"
-          class="h-full w-full object-contain"
+          class="size-full object-contain"
         />
       {:else}
         {@render logo()}

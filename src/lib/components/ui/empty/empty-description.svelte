@@ -14,7 +14,11 @@
   bind:this={ref}
   data-slot="empty-description"
   class={[
-    "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+    `
+      text-sm/relaxed text-muted-foreground
+      [&>a]:underline [&>a]:underline-offset-4
+      [&>a:hover]:text-primary
+    `,
     className,
   ]}
   {...restProps}

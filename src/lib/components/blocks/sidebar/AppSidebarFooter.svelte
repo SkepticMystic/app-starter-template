@@ -29,7 +29,10 @@
         {#snippet child({ props })}
           <SidebarMenuButton
             size="lg"
-            class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            class="
+              data-[state=open]:bg-sidebar-accent
+              data-[state=open]:text-sidebar-accent-foreground
+            "
             {...props}
           >
             <AvatarRoot class="size-8 rounded-md">
@@ -43,7 +46,7 @@
               </AvatarFallback>
             </AvatarRoot>
 
-            <div class="grid flex-1 text-start text-sm leading-tight">
+            <div class="grid flex-1 text-start text-sm/tight">
               <span class="truncate font-medium">{$user?.name}</span>
               <span class="truncate text-xs">{$user?.email}</span>
             </div>
@@ -81,7 +84,7 @@
               </AvatarFallback>
             </AvatarRoot>
 
-            <div class="grid flex-1 text-start text-sm leading-tight">
+            <div class="grid flex-1 text-start text-sm/tight">
               <span class="truncate font-medium">{$user?.name}</span>
               <span class="truncate text-xs">{$user?.email}</span>
             </div>

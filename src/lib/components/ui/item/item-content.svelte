@@ -14,7 +14,10 @@
   bind:this={ref}
   data-slot="item-content"
   class={[
-    "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none",
+    `
+      flex flex-1 flex-col gap-1
+      [&+[data-slot=item-content]]:flex-none
+    `,
     className,
   ]}
   {...restProps}

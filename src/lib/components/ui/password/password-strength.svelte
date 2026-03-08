@@ -44,7 +44,9 @@
   ></div>
   <!-- This creates the gaps between the bars -->
   <div
-    class="absolute top-0 left-0 z-10 flex h-[6px] w-full place-items-center gap-1"
+    class="
+      absolute top-0 left-0 z-10 flex h-[6px] w-full place-items-center gap-1
+    "
   >
     {#each Array.from({ length: 4 }) as _, i (i)}
       <div class="h-[6px] w-1/4 rounded-full ring-3 ring-background"></div>

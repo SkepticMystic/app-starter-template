@@ -52,7 +52,7 @@
       {fetchpriority}
       src={image?.url ?? src}
       transformer={transform}
-      class={["h-full w-full rounded-md", klass]}
+      class={["size-full rounded-md", klass]}
     />
   {:else if fallback}
     <div

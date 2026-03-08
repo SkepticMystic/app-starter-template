@@ -29,7 +29,10 @@
 {#if collapsible === "none"}
   <div
     class={[
-      "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
+      `
+        flex h-full w-(--sidebar-width) flex-col bg-sidebar
+        text-sidebar-foreground
+      `,
       className,
     ]}
     bind:this={ref}
@@ -46,7 +49,10 @@
       data-sidebar="sidebar"
       data-slot="sidebar"
       data-mobile="true"
-      class="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+      class="
+        w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground
+        [&>button]:hidden
+      "
       style="--sidebar-width: {SIDEBAR_WIDTH_MOBILE};"
       {side}
     >
@@ -54,7 +60,7 @@
         <SheetTitle>Sidebar</SheetTitle>
         <SheetDescription>Displays the mobile sidebar.</SheetDescription>
       </SheetHeader>
-      <div class="flex h-full w-full flex-col">
+      <div class="flex size-full flex-col">
         {@render children?.()}
       </div>
     </SheetContent>
@@ -62,7 +68,10 @@
 {:else}
   <div
     bind:this={ref}
-    class="group peer hidden text-sidebar-foreground md:block"
+    class="
+      group peer hidden text-sidebar-foreground
+      md:block
+    "
     data-state={sidebar.state}
     data-collapsible={sidebar.state === "collapsed" ? collapsible : ""}
     data-variant={variant}
@@ -73,25 +82,47 @@
     <div
       data-slot="sidebar-gap"
       class={[
-        "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+        `
+          relative w-(--sidebar-width) bg-transparent transition-[width]
+          duration-200 ease-linear
+        `,
         "group-data-[collapsible=offcanvas]:w-0",
         "group-data-[side=right]:rotate-180",
         variant === "floating" || variant === "inset"
-          ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
+          ? `
+            group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]
+          `
           : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
       ]}
     ></div>
     <div
       data-slot="sidebar-container"
       class={[
-        "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+        `
+          fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width)
+          transition-[left,right,width] duration-200 ease-linear
+          md:flex
+        `,
         side === "left"
-          ? "start-0 group-data-[collapsible=offcanvas]:start-[calc(var(--sidebar-width)*-1)]"
-          : "end-0 group-data-[collapsible=offcanvas]:end-[calc(var(--sidebar-width)*-1)]",
+          ? `
+            inset-s-0
+            group-data-[collapsible=offcanvas]:inset-s-[calc(var(--sidebar-width)*-1)]
+          `
+          : `
+            inset-e-0
+            group-data-[collapsible=offcanvas]:inset-e-[calc(var(--sidebar-width)*-1)]
+          `,
         // Adjust the padding for floating and inset variants.
         variant === "floating" || variant === "inset"
-          ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-          : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-e group-data-[side=right]:border-s",
+          ? `
+            p-2
+            group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]
+          `
+          : `
+            group-data-[collapsible=icon]:w-(--sidebar-width-icon)
+            group-data-[side=left]:border-e
+            group-data-[side=right]:border-s
+          `,
         className,
       ]}
       {...restProps}
@@ -99,7 +130,13 @@
       <div
         data-sidebar="sidebar"
         data-slot="sidebar-inner"
-        class="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
+        class="
+          flex size-full flex-col bg-sidebar
+          group-data-[variant=floating]:rounded-lg
+          group-data-[variant=floating]:border
+          group-data-[variant=floating]:border-sidebar-border
+          group-data-[variant=floating]:shadow-sm
+        "
       >
         {@render children?.()}
       </div>

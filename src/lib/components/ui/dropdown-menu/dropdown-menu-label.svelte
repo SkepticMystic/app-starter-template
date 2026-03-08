@@ -17,7 +17,10 @@
   bind:this={ref}
   data-slot="dropdown-menu-label"
   data-inset={inset}
-  class={["px-2 py-1.5 text-sm font-semibold data-[inset]:ps-8", className]}
+  class={[`
+    px-2 py-1.5 text-sm font-semibold
+    data-inset:ps-8
+  `, className]}
   {...restProps}
 >
   {@render children?.()}

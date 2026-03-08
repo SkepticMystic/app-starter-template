@@ -135,7 +135,13 @@
   aria-disabled={!can_upload}
   ondragover={(e) => e.preventDefault()}
   class={[
-    "flex h-48 w-full place-items-center justify-center rounded-lg border-2 border-dashed border-border p-6 transition-all hover:cursor-pointer hover:bg-accent/25 aria-disabled:opacity-50 aria-disabled:hover:cursor-not-allowed",
+    `
+      flex h-48 w-full place-items-center justify-center rounded-lg border-2
+      border-dashed border-border p-6 transition-all
+      hover:cursor-pointer hover:bg-accent/25
+      aria-disabled:opacity-50
+      aria-disabled:hover:cursor-not-allowed
+    `,
     className,
   ]}
 >
@@ -144,7 +150,10 @@
   {:else}
     <div class="flex flex-col place-items-center justify-center gap-2">
       <div
-        class="flex size-14 place-items-center justify-center rounded-full border border-dashed border-border text-muted-foreground"
+        class="
+          flex size-14 place-items-center justify-center rounded-full border
+          border-dashed border-border text-muted-foreground
+        "
       >
         <Icon
           icon="lucide/upload"

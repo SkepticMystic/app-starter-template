@@ -5,14 +5,21 @@
   import { tv, type VariantProps } from "tailwind-variants";
 
   export const itemVariants = tv({
-    base: "group/item [a]:hover:bg-accent/50 [a]:transition-colors focus-visible:border-ring focus-visible:ring-ring/50 flex flex-wrap items-center rounded-md border border-transparent text-sm outline-none transition-colors duration-100 focus-visible:ring-[3px]",
+    base: `
+      group/item flex flex-wrap items-center rounded-md border
+      border-transparent text-sm transition-colors duration-100 outline-none
+      focus-visible:border-ring focus-visible:ring-[3px]
+      focus-visible:ring-ring/50
+      [a]:transition-colors
+      [a]:hover:bg-accent/50
+    `,
     variants: {
       variant: {
         default: "bg-transparent",
         outline: "border-border",
         muted: "bg-muted/50",
         destructive:
-          "bg-destructive/30 text-destructive-foreground border-destructive/50",
+          "text-destructive-foreground border-destructive/50 bg-destructive/30",
       },
       size: {
         default: "gap-4 p-4",

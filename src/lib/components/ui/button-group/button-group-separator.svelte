@@ -15,7 +15,10 @@
   data-slot="button-group-separator"
   {orientation}
   class={[
-    "relative !m-0 self-stretch bg-input data-[orientation=vertical]:h-auto",
+    `
+      relative m-0! self-stretch bg-input
+      data-[orientation=vertical]:h-auto
+    `,
     className,
   ]}
   {...restProps}

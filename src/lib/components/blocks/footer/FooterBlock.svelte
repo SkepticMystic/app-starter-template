@@ -42,8 +42,16 @@
 </script>
 
 <footer class="border-t bg-background">
-  <div class="mx-auto max-w-4xl px-2 py-6 sm:px-3 md:px-5">
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="
+    mx-auto max-w-4xl px-2 py-6
+    sm:px-3
+    md:px-5
+  ">
+    <div class="
+      grid grid-cols-1 gap-6
+      sm:grid-cols-2
+      lg:grid-cols-4
+    ">
       <!-- Brand Section -->
       <div class="lg:col-span-1">
         <a href="/home">
@@ -70,7 +78,10 @@
                 href={link.href}
                 target={link.external ? "_blank" : undefined}
                 rel={link.external ? "noopener noreferrer" : undefined}
-                class="text-sm text-muted-foreground no-underline transition-colors hover:text-foreground"
+                class="
+                  text-sm text-muted-foreground no-underline transition-colors
+                  hover:text-foreground
+                "
               >
                 {link.label}
 
@@ -90,7 +101,9 @@
     <!-- Copyright -->
     <div class="mt-6 border-t pt-4">
       <p
-        class="flex items-center justify-center gap-1 text-sm text-muted-foreground"
+        class="
+          flex items-center justify-center gap-1 text-sm text-muted-foreground
+        "
       >
         © {currentYear}
         {APP.NAME}. Made with
