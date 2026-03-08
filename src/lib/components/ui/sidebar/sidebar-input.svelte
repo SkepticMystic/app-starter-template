@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Input from "../input/input.svelte";
 
@@ -16,6 +15,6 @@
   bind:value
   data-slot="sidebar-input"
   data-sidebar="input"
-  class={cn("h-8 w-full bg-background shadow-none", className)}
+  class={["h-8 w-full bg-background shadow-none", className]}
   {...restProps}
 />

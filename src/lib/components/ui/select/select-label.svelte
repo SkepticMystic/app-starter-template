@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,7 +13,7 @@
 <div
   bind:this={ref}
   data-slot="select-label"
-  class={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
+  class={["px-2 py-1.5 text-xs text-muted-foreground", className]}
   {...restProps}
 >
   {@render children?.()}

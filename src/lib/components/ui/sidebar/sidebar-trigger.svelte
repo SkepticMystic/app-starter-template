@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Button from "../button/button.svelte";
   import { useSidebar } from "./context.svelte.js";
@@ -20,7 +19,7 @@
   data-slot="sidebar-trigger"
   variant="ghost"
   size="icon"
-  class={cn("size-7", className)}
+  class={["size-7", className]}
   type="button"
   icon="lucide/panel-left"
   onclick={(e) => {

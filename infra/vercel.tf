@@ -155,27 +155,27 @@ resource "vercel_project_environment_variables" "main" {
     },
     {
       key    = "R2_ACCESS_KEY_ID"
-      value  = var.r2_access_key_id
+      value  = module.r2_api_token_prod.id
       target = local.prod_only
       # sensitive = true
       sensitive = false
     },
     {
       key    = "R2_SECRET_ACCESS_KEY"
-      value  = var.r2_secret_access_key
+      value  = module.r2_api_token_prod.secret
       target = local.prod_only
       # sensitive = true
       sensitive = false
     },
     {
       key       = "R2_ACCESS_KEY_ID"
-      value     = var.r2_access_key_id_dev
+      value     = module.r2_api_token_dev.id
       target    = local.dev_only
       sensitive = false
     },
     {
       key       = "R2_SECRET_ACCESS_KEY"
-      value     = var.r2_secret_access_key_dev
+      value     = module.r2_api_token_dev.secret
       target    = local.dev_only
       sensitive = false
     },

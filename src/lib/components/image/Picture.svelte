@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util";
   import { Image } from "@unpic/svelte/base";
   import type { ClassValue } from "svelte/elements";
   import { transform } from "unpic/providers/cloudinary";
@@ -53,12 +52,12 @@
       {fetchpriority}
       src={image?.url ?? src}
       transformer={transform}
-      class={cn("h-full w-full rounded-md", klass)}
+      class={["h-full w-full rounded-md", klass]}
     />
   {:else if fallback}
     <div
       {style}
-      class={cn("flex items-center justify-center rounded-md bg-muted", klass)}
+      class={["flex items-center justify-center rounded-md bg-muted", klass]}
     >
       {fallback}
     </div>

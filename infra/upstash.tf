@@ -1,5 +1,6 @@
 resource "upstash_redis_database" "main" {
-  database_name = var.project_name
+  # NOTE: Change in future if the project warrents its own instance
+  database_name = "the-free-one"
 
   region         = "global"
   primary_region = var.upstash_region

@@ -24,7 +24,7 @@
 </script>
 
 <script lang="ts">
-  import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import { type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
   import { Dialog as SheetPrimitive } from "bits-ui";
   import type { ComponentProps, Snippet } from "svelte";
   import Icon from "../icon/Icon.svelte";
@@ -50,7 +50,7 @@
   <SheetPrimitive.Content
     bind:ref
     data-slot="sheet-content"
-    class={cn(sheetVariants({ side }), className)}
+    class={[sheetVariants({ side }), className]}
     {...restProps}
   >
     {@render children?.()}

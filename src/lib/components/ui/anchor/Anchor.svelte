@@ -1,7 +1,7 @@
 <script lang="ts">
   import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
   import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util";
+  import { type WithElementRef } from "$lib/utils/shadcn.util";
   import type { HTMLAnchorAttributes } from "svelte/elements";
   import Icon from "../icon/Icon.svelte";
   import Loading from "../loading/Loading.svelte";
@@ -29,7 +29,7 @@
   href={disabled || loading ? undefined : href}
   role={disabled || loading ? "link" : undefined}
   tabindex={disabled || loading ? -1 : undefined}
-  class={cn(
+  class={[
     // NOTE: Copied from buttonVariants.variant === 'link'
     // But we don't take the rest cause then it forces the `size` classes on us
     "inline-block underline underline-offset-4",
@@ -38,7 +38,7 @@
     // We call it something besides 'loading' cause daisy is clashing with it
     loading && "btn-loading",
     klass,
-  )}
+  ]}
   bind:this={ref}
   {...rest_props}
 >

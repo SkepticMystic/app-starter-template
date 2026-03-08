@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -14,7 +14,7 @@
   bind:this={ref}
   data-slot="input-group"
   role="group"
-  class={cn(
+  class={[
     "group/input-group relative flex w-full items-center rounded-md border border-input shadow-xs transition-[color,box-shadow] outline-none dark:bg-input/30",
     "h-9 has-[>textarea]:h-auto",
 
@@ -31,7 +31,7 @@
     "has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40",
 
     className,
-  )}
+  ]}
   {...props}
 >
   {@render children?.()}

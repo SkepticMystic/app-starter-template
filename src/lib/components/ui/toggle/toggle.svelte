@@ -30,7 +30,6 @@
 </script>
 
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util";
   import { Toggle as TogglePrimitive } from "bits-ui";
 
   let {
@@ -50,6 +49,6 @@
   bind:ref
   bind:pressed
   data-slot="toggle"
-  class={cn(toggleVariants({ variant, size }), className)}
+  class={[toggleVariants({ variant, size }), className]}
   {...restProps}
 />

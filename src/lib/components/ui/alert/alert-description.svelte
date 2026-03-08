@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,10 +13,10 @@
 <div
   bind:this={ref}
   data-slot="alert-description"
-  class={cn(
+  class={[
     "col-start-2 grid justify-items-start gap-1 text-sm text-muted-foreground [&_p]:leading-relaxed",
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

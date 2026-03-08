@@ -73,30 +73,6 @@ variable "upstash_region" {
   default     = "af-south-1"
 }
 
-variable "r2_access_key_id" {
-  description = "Cloudflare R2 API token access key ID. Create under R2 > Manage API tokens in the Cloudflare dashboard."
-  type        = string
-  sensitive   = true
-}
-
-variable "r2_secret_access_key" {
-  description = "Cloudflare R2 API token secret access key"
-  type        = string
-  sensitive   = true
-}
-
-variable "r2_access_key_id_dev" {
-  description = "Cloudflare R2 API token access key ID for local development. Create under R2 > Manage API tokens in the Cloudflare dashboard."
-  type        = string
-  sensitive   = true
-}
-
-variable "r2_secret_access_key_dev" {
-  description = "Cloudflare R2 API token secret access key for local development"
-  type        = string
-  sensitive   = true
-}
-
 variable "turnstile_domains" {
   description = "Domains to create Turnstile widgets for"
   type        = list(string)

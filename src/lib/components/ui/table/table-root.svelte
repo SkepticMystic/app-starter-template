@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLTableAttributes } from "svelte/elements";
 
   let {
@@ -17,7 +17,7 @@
   <table
     bind:this={ref}
     data-slot="table"
-    class={cn("w-full caption-bottom text-sm", className)}
+    class={["w-full caption-bottom text-sm", className]}
     {...restProps}
   >
     {@render children?.()}

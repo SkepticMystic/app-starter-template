@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLThAttributes } from "svelte/elements";
 
   let {
@@ -13,10 +13,10 @@
 <th
   bind:this={ref}
   data-slot="table-head"
-  class={cn(
+  class={[
     "h-10 bg-clip-padding px-2 text-start align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pe-0",
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

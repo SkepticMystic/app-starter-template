@@ -4,7 +4,7 @@
 >
   import type { ResolvedPathname } from "$app/types";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type {
     HTMLAnchorAttributes,
     HTMLButtonAttributes,
@@ -104,7 +104,7 @@
     {loading}
     {disabled}
     {children}
-    class={cn("no-underline", buttonVariants({ variant, size }), klass)}
+    class={[buttonVariants({ variant, size }), "no-underline!", klass]}
     data-slot="button"
     bind:ref
     {...restProps}
@@ -112,12 +112,12 @@
 {:else}
   <button
     {type}
-    class={cn(
+    class={[
       buttonVariants({ variant, size }),
       // We call it something besides 'loading' cause daisy is clashing with it
       loading && "btn-loading",
       klass,
-    )}
+    ]}
     data-slot="button"
     disabled={disabled || loading}
     bind:this={ref}

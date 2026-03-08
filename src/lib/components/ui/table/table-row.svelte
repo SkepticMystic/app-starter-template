@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,10 +13,10 @@
 <tr
   bind:this={ref}
   data-slot="table-row"
-  class={cn(
+  class={[
     "border-b transition-colors data-[state=selected]:bg-muted hover:[&,&>svelte-css-wrapper]:[&>th,td]:bg-muted/50",
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

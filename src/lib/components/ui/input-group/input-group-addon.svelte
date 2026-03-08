@@ -28,7 +28,7 @@
 </script>
 
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -47,7 +47,7 @@
   role="group"
   data-slot="input-group-addon"
   data-align={align}
-  class={cn(inputGroupAddonVariants({ align }), className)}
+  class={[inputGroupAddonVariants({ align }), className]}
   onclick={(e) => {
     if ((e.target as HTMLElement).closest("button")) {
       return;

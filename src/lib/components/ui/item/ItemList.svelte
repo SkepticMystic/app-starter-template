@@ -3,7 +3,6 @@
   generics="T extends Resource"
 >
   import type { Resource } from "$lib/utils/array/array.util";
-  import { cn } from "$lib/utils/shadcn.util";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
   import Empty, { type EmptyProps } from "../empty/empty.svelte";
@@ -25,9 +24,7 @@
   } = $props();
 </script>
 
-<ItemGroup
-  class={cn("rounded-md border border-border bg-card shadow-sm", klass)}
->
+<ItemGroup class={["rounded-md border border-border bg-card shadow-sm", klass]}>
   {#each items as row, i (row.id)}
     {@render item(row, i)}
 

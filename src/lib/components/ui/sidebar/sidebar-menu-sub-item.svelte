@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -14,7 +14,7 @@
   bind:this={ref}
   data-slot="sidebar-menu-sub-item"
   data-sidebar="menu-sub-item"
-  class={cn("group/menu-sub-item relative", className)}
+  class={["group/menu-sub-item relative", className]}
   {...restProps}
 >
   {@render children?.()}

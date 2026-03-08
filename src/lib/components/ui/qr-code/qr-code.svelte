@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util";
+  import {} from "$lib/utils/shadcn.util";
   import qrcode from "qrcode-generator";
   import type { Snippet } from "svelte";
 
@@ -53,10 +53,10 @@
 </script>
 
 <div
-  class={cn(
+  class={[
     "relative inline-flex shrink-0 items-center justify-center",
     className,
-  )}
+  ]}
   style:width={`${size}px`}
   style:height={`${size}px`}
 >

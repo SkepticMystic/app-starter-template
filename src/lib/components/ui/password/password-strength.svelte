@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import { Meter } from "bits-ui";
   import { tv } from "tailwind-variants";
   import { usePasswordStrength } from "./password.svelte.js";
@@ -32,15 +31,15 @@
 
 <Meter.Root
   value={state.strength.score}
-  class={cn(
+  class={[
     "relative h-[6px] w-full gap-1 overflow-hidden rounded-full bg-accent",
     className,
-  )}
+  ]}
   min={0}
   max={4}
 >
   <div
-    class={cn("h-full transition-all duration-500", color({ score }))}
+    class={["h-full transition-all duration-500", color({ score })]}
     style="width: {(score / 4) * 100}%;"
   ></div>
   <!-- This creates the gaps between the bars -->

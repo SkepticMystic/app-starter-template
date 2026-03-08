@@ -19,7 +19,7 @@ const count_issue_metrics = (
 
 const init = <T extends RemoteFormInput, R = unknown>(
   form: RemoteForm<T, R>,
-  getter: () => Parameters<typeof form.fields.set>[0],
+  getter: () => T,
 ) => {
   let hydrated = false;
 

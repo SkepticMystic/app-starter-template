@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util";
   import { Drawer as DrawerPrimitive } from "vaul-svelte";
 
   let {
@@ -12,6 +11,6 @@
 <DrawerPrimitive.Description
   bind:ref
   data-slot="drawer-description"
-  class={cn("text-sm text-muted-foreground", className)}
+  class={["text-sm text-muted-foreground", className]}
   {...restProps}
 />

@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    cn,
     type WithElementRef,
     type WithoutChildren,
   } from "$lib/utils/shadcn.util.js";
@@ -16,6 +15,6 @@
 <div
   bind:this={ref}
   data-slot="skeleton"
-  class={cn("animate-pulse rounded-md bg-accent", className)}
+  class={["animate-pulse rounded-md bg-accent", className]}
   {...restProps}
 ></div>

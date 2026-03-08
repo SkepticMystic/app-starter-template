@@ -34,7 +34,6 @@
 
 <script lang="ts">
   import {
-    cn,
     type WithElementRef,
     type WithoutChildrenOrChild,
   } from "$lib/utils/shadcn.util.js";
@@ -71,7 +70,7 @@
   const sidebar = useSidebar();
 
   const buttonProps = $derived({
-    class: cn(sidebarMenuButtonVariants({ variant, size }), className),
+    class: [sidebarMenuButtonVariants({ variant, size }), className],
     "data-slot": "sidebar-menu-button",
     "data-sidebar": "menu-button",
     "data-size": size,

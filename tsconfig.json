@@ -20,10 +20,10 @@
     "skipLibCheck": true,
 
     "module": "esnext",
-    "target": "es2025",
+    "target": "es2024",
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+  },
 }

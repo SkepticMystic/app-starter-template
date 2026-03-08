@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Separator from "../separator/separator.svelte";
 
@@ -15,9 +14,9 @@
   bind:ref
   data-slot="button-group-separator"
   {orientation}
-  class={cn(
+  class={[
     "relative !m-0 self-stretch bg-input data-[orientation=vertical]:h-auto",
     className,
-  )}
+  ]}
   {...restProps}
 />

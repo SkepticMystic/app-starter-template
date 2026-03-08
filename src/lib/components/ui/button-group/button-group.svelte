@@ -25,7 +25,7 @@
 </script>
 
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -44,7 +44,7 @@
   role="group"
   data-slot="button-group"
   data-orientation={orientation}
-  class={cn(buttonGroupVariants({ orientation }), className)}
+  class={[buttonGroupVariants({ orientation }), className]}
   {...restProps}
 >
   {@render children?.()}

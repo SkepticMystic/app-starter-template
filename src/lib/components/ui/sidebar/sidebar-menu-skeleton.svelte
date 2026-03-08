@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
   import Skeleton from "../skeleton/skeleton.svelte";
 
@@ -21,7 +21,7 @@
   bind:this={ref}
   data-slot="sidebar-menu-skeleton"
   data-sidebar="menu-skeleton"
-  class={cn("flex h-8 items-center gap-2 rounded-md px-2", className)}
+  class={["flex h-8 items-center gap-2 rounded-md px-2", className]}
   {...restProps}
 >
   {#if showIcon}

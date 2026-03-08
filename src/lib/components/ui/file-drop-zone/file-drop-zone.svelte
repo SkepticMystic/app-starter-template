@@ -1,6 +1,5 @@
 <script lang="ts">
   import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
-  import { cn } from "$lib/utils/shadcn.util";
   import { useId } from "bits-ui";
   import { format_bytes } from ".";
   import Icon from "../icon/Icon.svelte";
@@ -135,10 +134,10 @@
   ondrop={drop}
   aria-disabled={!can_upload}
   ondragover={(e) => e.preventDefault()}
-  class={cn(
+  class={[
     "flex h-48 w-full place-items-center justify-center rounded-lg border-2 border-dashed border-border p-6 transition-all hover:cursor-pointer hover:bg-accent/25 aria-disabled:opacity-50 aria-disabled:hover:cursor-not-allowed",
     className,
-  )}
+  ]}
 >
   {#if children}
     {@render children()}

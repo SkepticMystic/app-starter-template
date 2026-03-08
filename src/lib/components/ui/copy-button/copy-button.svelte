@@ -1,6 +1,5 @@
 <script lang="ts">
   import { UseClipboard } from "$lib/hooks/use-clipboard.svelte";
-  import { cn } from "$lib/utils/shadcn.util";
   import type { ClassValue } from "svelte/elements";
   import Button from "../button/button.svelte";
   import Icon from "../icon/Icon.svelte";
@@ -27,7 +26,7 @@
   {size}
   {variant}
   {tabindex}
-  class={cn("flex items-center gap-2", className)}
+  class={["flex items-center gap-2", className]}
   type="button"
   onclick={async () => {
     const status = await clipboard.copy(text);

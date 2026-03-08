@@ -14,42 +14,31 @@ resource "cloudflare_r2_bucket" "dev" {
   location = "EEUR"
 }
 
+module "r2_api_token_prod" {
+  source  = "Cyb3r-Jak3/r2-api-token/cloudflare"
+  version = "6.0.0"
 
-# data "cloudflare_api_token_permission_groups" "all" {}
+  account_id = var.cloudflare_account_id
 
-# resource "cloudflare_api_token" "r2_prod" {
-#   name       = "${var.project_name}-r2-prod"
+  buckets      = [cloudflare_r2_bucket.main.name]
+  bucket_read  = true
+  bucket_write = true
 
-#   policies = [
-#     {
-#       effect = "allow"
-#       permission_groups = [
-#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Read"],
-#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Write"],
-#       ]
-#       resources = {
-#         "com.cloudflare.edge.r2.bucket.${var.cloudflare_account_id}_default_${cloudflare_r2_bucket.main.name}" = "*"
-#       }
-#     }
-#   ]
-# }
+  token_name = "r2-${var.project_name}-prod"
+}
 
-# resource "cloudflare_api_token" "r2_dev" {
-#   name       = "${var.project_name}-r2-dev"
+module "r2_api_token_dev" {
+  source  = "Cyb3r-Jak3/r2-api-token/cloudflare"
+  version = "6.0.0"
 
-#   policies = [
-#     {
-#       effect = "allow"
-#       permission_groups = [
-#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Read"],
-#         data.cloudflare_api_token_permission_groups.all.r2["Workers R2 Storage Bucket Item Write"],
-#       ]
-#       resources = {
-#         "com.cloudflare.edge.r2.bucket.${var.cloudflare_account_id}_default_${cloudflare_r2_bucket.dev.name}" = "*"
-#       }
-#     }
-#   ]
-# }
+  account_id = var.cloudflare_account_id
+
+  buckets      = [cloudflare_r2_bucket.dev.name]
+  bucket_read  = true
+  bucket_write = true
+
+  token_name = "r2-${var.project_name}-dev"
+}
 
 resource "cloudflare_turnstile_widget" "main" {
   account_id = var.cloudflare_account_id

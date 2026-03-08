@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Separator from "../separator/separator.svelte";
 
@@ -14,6 +13,6 @@
   bind:ref
   data-slot="item-separator"
   orientation="horizontal"
-  class={cn("my-0", className)}
+  class={["my-0", className]}
   {...restProps}
 />

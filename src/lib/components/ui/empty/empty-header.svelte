@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,7 +13,7 @@
 <div
   bind:this={ref}
   data-slot="empty-header"
-  class={cn("flex max-w-sm flex-col items-center gap-2 text-center", className)}
+  class={["flex max-w-sm flex-col items-center gap-2 text-center", className]}
   {...restProps}
 >
   {@render children?.()}

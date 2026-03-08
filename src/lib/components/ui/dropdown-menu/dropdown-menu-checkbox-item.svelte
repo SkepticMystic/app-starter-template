@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import type { WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
   import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
   import type { Snippet } from "svelte";
   import Icon from "../icon/Icon.svelte";
@@ -21,10 +21,10 @@
   bind:checked
   bind:indeterminate
   data-slot="dropdown-menu-checkbox-item"
-  class={cn(
+  class={[
     "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 ps-8 pe-2 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     className,
-  )}
+  ]}
   {...restProps}
 >
   {#snippet children({ checked, indeterminate })}
@@ -39,7 +39,7 @@
       {:else}
         <Icon
           icon="lucide/check"
-          class={cn("size-4", !checked && "text-transparent")}
+          class={["size-4", !checked && "text-transparent"]}
         />
       {/if}
     </span>

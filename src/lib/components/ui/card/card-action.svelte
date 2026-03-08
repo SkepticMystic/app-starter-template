@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,10 +13,10 @@
 <div
   bind:this={ref}
   data-slot="card-action"
-  class={cn(
+  class={[
     "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

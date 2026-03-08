@@ -26,7 +26,6 @@
 </script>
 
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Button from "../button/button.svelte";
 
@@ -51,7 +50,7 @@
   {type}
   data-size={size}
   {variant}
-  class={cn(inputGroupButtonVariants({ size }), className)}
+  class={[inputGroupButtonVariants({ size }), className]}
   {...restProps}
 >
   {@render children?.()}

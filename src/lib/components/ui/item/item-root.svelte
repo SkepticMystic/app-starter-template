@@ -30,7 +30,7 @@
 </script>
 
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
 
@@ -48,7 +48,7 @@
   } = $props();
 
   const mergedProps = $derived({
-    class: cn(itemVariants({ variant, size }), className),
+    class: [itemVariants({ variant, size }), className],
     "data-slot": "item",
     "data-variant": variant,
     "data-size": size,

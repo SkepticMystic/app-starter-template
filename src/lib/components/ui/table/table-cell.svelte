@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLTdAttributes } from "svelte/elements";
 
   let {
@@ -13,10 +13,10 @@
 <td
   bind:this={ref}
   data-slot="table-cell"
-  class={cn(
+  class={[
     "bg-clip-padding p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

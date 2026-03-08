@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
   import TooltipProvider from "../tooltip/tooltip-provider.svelte";
   import {
@@ -41,10 +41,10 @@
   <div
     data-slot="sidebar-wrapper"
     style="--sidebar-width: {SIDEBAR_WIDTH}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}"
-    class={cn(
+    class={[
       "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
       className,
-    )}
+    ]}
     bind:this={ref}
     {...restProps}
   >

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Icon from "../icon/Icon.svelte";
   import InputRoot from "./input-root.svelte";
@@ -19,7 +18,7 @@
   <InputRoot
     bind:ref
     bind:value
-    class={cn(klass, snippet_class)}
+    class={[klass, snippet_class]}
     {...restProps}
   />
 {/snippet}

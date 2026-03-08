@@ -7,6 +7,9 @@ export const Schema = {
 
   timestamps: {
     createdAt: timestamp({ mode: "date" }).defaultNow().notNull(),
-    updatedAt: timestamp({ mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp({ mode: "date" })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
   },
 };

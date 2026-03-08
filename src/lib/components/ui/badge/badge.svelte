@@ -31,7 +31,7 @@
 </script>
 
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAnchorAttributes } from "svelte/elements";
 
   let {
@@ -51,7 +51,7 @@
   bind:this={ref}
   data-slot="badge"
   {href}
-  class={cn(badgeVariants({ variant }), className)}
+  class={[badgeVariants({ variant }), className]}
   {...restProps}
 >
   {@render children?.()}
