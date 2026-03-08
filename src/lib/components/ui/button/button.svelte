@@ -49,12 +49,11 @@
           `,
         success:
           `
-            bg-success
-            text-success-foreground
-            shadow-xs
+            bg-success text-success-foreground shadow-xs
             hover:bg-success/90
             focus-visible:ring-success/20
-            dark:bg-success/60 dark:focus-visible:ring-success/40
+            dark:bg-success/60
+            dark:focus-visible:ring-success/40
           `,
         outline:
           `

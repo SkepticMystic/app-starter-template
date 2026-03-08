@@ -42,8 +42,7 @@
           `,
         success:
           `
-            border-transparent bg-success
-            text-success-foreground
+            border-transparent bg-success text-success-foreground
             [a&]:hover:bg-success/90
           `,
         outline:

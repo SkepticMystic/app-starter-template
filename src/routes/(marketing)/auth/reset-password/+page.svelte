@@ -3,6 +3,7 @@
   import { resolve } from "$app/paths";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
+  import Alert from "$lib/components/ui/alert/Alert.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Password from "$lib/components/ui/password/Password.svelte";
   import { reset_password_remote } from "$lib/remote/auth/user.remote";
@@ -59,8 +60,10 @@
       <FormErrors {form} />
     </form>
   {:else}
-    <div class="alert alert-error">
-      <span>Invalid or missing reset token ({data.search.error ?? ""})</span>
-    </div>
+    <Alert
+      title="Error"
+      variant="destructive"
+      description="Invalid or missing reset token ({data.search.error ?? ''})"
+    ></Alert>
   {/if}
 </article>
