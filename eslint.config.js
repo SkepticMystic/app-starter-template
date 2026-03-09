@@ -45,6 +45,8 @@ export default defineConfig(
       ],
 
       "svelte/no-navigation-without-resolve": "off",
+
+      "enforce-consistent-line-wrapping": "off",
     },
   },
   {

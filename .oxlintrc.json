@@ -155,7 +155,7 @@
     "svelte/valid-each-key": "error",
     "svelte/valid-prop-names-in-kit-pages": "error",
     "better-tailwindcss/enforce-consistent-class-order": "warn",
-    "better-tailwindcss/enforce-consistent-line-wrapping": "warn",
+    "better-tailwindcss/enforce-consistent-line-wrapping": "off",
     "better-tailwindcss/no-deprecated-classes": "warn",
     "better-tailwindcss/no-duplicate-classes": "warn",
     "better-tailwindcss/no-unnecessary-whitespace": "warn",

@@ -11,7 +11,7 @@
     "useUnknownInCatchVariables": true,
     "noUncheckedSideEffectImports": true,
 
-    "types": ["node"],
+    "types": ["node", "umami"],
     "rootDir": "./src",
 
     "noEmit": true,
@@ -24,6 +24,6 @@
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+  },
 }
