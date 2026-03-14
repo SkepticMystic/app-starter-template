@@ -1,10 +1,8 @@
 <script lang="ts">
-  import UploadImagesForm from "$lib/components/form/image/UploadImagesForm.svelte";
   import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Logo from "$lib/components/ui/image/Logo.svelte";
   import { APP } from "$lib/const/app.const";
-  import { user } from "$lib/stores/session.store";
 </script>
 
 <article class="mx-auto mt-32 flex max-w-lg flex-col gap-y-7">
@@ -31,8 +29,3 @@
     </ButtonGroup>
   </section>
 </article>
-
-<UploadImagesForm
-  resource_kind="user"
-  resource_id={$user?.id ?? "test"}
-/>

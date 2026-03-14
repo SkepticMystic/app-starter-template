@@ -5,7 +5,6 @@
     PUBLIC_UMAMI_BASE_URL,
     PUBLIC_UMAMI_WEBSITE_ID,
   } from "$env/static/public";
-  import SEO from "$lib/components/blocks/head/SEO.svelte";
   import FlashAlert from "$lib/components/ui/alert/FlashAlert.svelte";
   import Sonner from "$lib/components/ui/sonner/sonner.svelte";
   import { session } from "$lib/stores/session.store";
@@ -41,8 +40,6 @@
 </script>
 
 <svelte:head>
-  <SEO />
-
   <!-- Svelte says to use %sveltekit.env.[NAME]%
        But at this point, there's enough js stuff that I think this is fine
        SOURCE: https://svelte.dev/docs/kit/project-structure#Project-files-tsconfig.json -->

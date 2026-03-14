@@ -1,5 +1,6 @@
 import { dev } from "$app/environment";
 import { EMAIL_FROM, RESEND_API_KEY } from "$env/static/private";
+import type { Branded } from "$lib/interfaces/zod/zod.type";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -18,7 +19,7 @@ export type SendEmailOptions = {
   /** The plaintext version of the message */
   text?: string;
   /** The HTML version of the message */
-  html: string;
+  html: Branded<"SanitizedHTML">;
 };
 
 const resend = new Resend(RESEND_API_KEY);

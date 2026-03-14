@@ -1,9 +1,5 @@
 import { EMAIL_FROM } from "$env/static/private";
-import type {
-  Invitation,
-  Organization,
-  User,
-} from "$lib/server/db/models/auth.model";
+import type { Invitation, Organization, User } from "$lib/server/db/models/auth.model";
 import type { SendEmailOptions } from "$lib/server/services/email.service";
 import { App } from "$lib/utils/app";
 import { HTMLUtil } from "$lib/utils/html/html.util";
@@ -27,8 +23,9 @@ export const EMAIL = {
       url: string;
       user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
-      const html = `
-<p>Hi ${HTMLUtil.sanitize(input.user.name)}</p>
+      const html = HTMLUtil.sanitize(
+        `
+<p>Hi ${input.user.name}</p>
 <p>
   Click <a href="${input.url}">here</a> to reset your ${APP.NAME} password.
 </p>
@@ -36,7 +33,8 @@ export const EMAIL = {
   If you did not request this, you can safely ignore this email.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim();
+${COMMON.SIGNATURE.HTML}`.trim(),
+      );
 
       return {
         html,
@@ -49,8 +47,9 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       url: string;
       user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
-      const html = `
-<p>Hi ${HTMLUtil.sanitize(input.user.name)},</p>
+      const html = HTMLUtil.sanitize(
+        `
+<p>Hi ${input.user.name},</p>
 <p>
   Click <a href="${input.url}">here</a> to verify your ${APP.NAME} account.
 </p>
@@ -58,7 +57,8 @@ ${COMMON.SIGNATURE.HTML}`.trim();
   If you did not request this, you can safely ignore this email.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim();
+${COMMON.SIGNATURE.HTML}`.trim(),
+      );
 
       return {
         html,
@@ -76,11 +76,12 @@ ${COMMON.SIGNATURE.HTML}`.trim();
         invite_id: input.invitation.id,
       });
 
-      const html = `
+      const html = HTMLUtil.sanitize(
+        `
 <p>Hi,</p>
 <p>
-  You have been invited by <strong>${HTMLUtil.sanitize(input.inviter.user.email)}</strong>
-  to join the organization <strong>${HTMLUtil.sanitize(input.organization.name)}</strong>.
+  You have been invited by <strong>${input.inviter.user.email}</strong>
+  to join the organization <strong>${input.organization.name}</strong>.
 </p>
 <p>
   Click <a href="${href}">here</a> to accept the invitation.
@@ -89,7 +90,8 @@ ${COMMON.SIGNATURE.HTML}`.trim();
   If you did not request this, you can safely ignore this email.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim();
+${COMMON.SIGNATURE.HTML}`.trim(),
+      );
 
       return {
         html,
@@ -98,11 +100,10 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       };
     },
 
-    "user-deleted": (input: {
-      user: Pick<User, "email" | "name">;
-    }): SendEmailOptions => {
-      const html = `
-<p>Hi ${HTMLUtil.sanitize(input.user.name)},</p>
+    "user-deleted": (input: { user: Pick<User, "email" | "name"> }): SendEmailOptions => {
+      const html = HTMLUtil.sanitize(
+        `
+<p>Hi ${input.user.name},</p>
 <p>
   This is to confirm that your account associated with this email address has been successfully deleted from ${APP.NAME}.
 </p>
@@ -110,7 +111,8 @@ ${COMMON.SIGNATURE.HTML}`.trim();
   If you did not request this, please contact our support team immediately.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim();
+${COMMON.SIGNATURE.HTML}`.trim(),
+      );
 
       return {
         html,
@@ -123,8 +125,9 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       user: Pick<User, "email" | "name">;
       url: string;
     }): SendEmailOptions => {
-      const html = `
-<p>Hi ${HTMLUtil.sanitize(input.user.name)},</p>
+      const html = HTMLUtil.sanitize(
+        `
+<p>Hi ${input.user.name},</p>
 <p>
   We've received a request to delete your account associated with this email address from ${APP.NAME}.
 </p>
@@ -135,7 +138,8 @@ ${COMMON.SIGNATURE.HTML}`.trim();
   If you did not request this, please contact our support team immediately.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim();
+${COMMON.SIGNATURE.HTML}`.trim(),
+      );
 
       return {
         html,
@@ -149,16 +153,19 @@ ${COMMON.SIGNATURE.HTML}`.trim();
       email: string;
       message: string;
     }): SendEmailOptions => {
-      const html = `
+      const message = HTMLUtil.sanitize(input.message).replaceAll("\n", "<br />");
+      const html = HTMLUtil.sanitize(
+        `
 <p>You have received a new message from the contact form on ${APP.NAME}.</p>
 
-<p><strong>Name:</strong> ${HTMLUtil.sanitize(input.name)}</p>
-<p><strong>Email:</strong> ${HTMLUtil.sanitize(input.email)}</p>
+<p><strong>Name:</strong> ${input.name}</p>
+<p><strong>Email:</strong> ${input.email}</p>
 
 <p><strong>Message:</strong></p>
-<p>${HTMLUtil.sanitize(input.message.replaceAll(/\n/g, "<br />"))}</p>
+<p>${message}</p>
 
-${COMMON.SIGNATURE.HTML}`.trim();
+${COMMON.SIGNATURE.HTML}`.trim(),
+      );
 
       return {
         html,
