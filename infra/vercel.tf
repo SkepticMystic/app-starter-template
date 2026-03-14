@@ -6,7 +6,7 @@ resource "vercel_project" "app" {
   name      = var.project_name
   framework = "sveltekit"
 
-  build_command    = "vite build && pnpm db:migrate"
+  build_command    = "pnpm build && pnpm db:migrate"
   output_directory = ".vercel/output"
 
   resource_config = {

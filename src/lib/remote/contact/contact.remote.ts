@@ -26,7 +26,7 @@ export const contact_us_remote = form(
   async (input) => {
     const captcha = await CaptchaService.verify(input.captcha_token);
     if (!captcha.ok) {
-      return captcha
+      return captcha;
     }
 
     try {

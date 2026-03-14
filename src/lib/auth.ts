@@ -166,9 +166,7 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
-        await EmailService.send(
-          EMAIL.TEMPLATES["delete-account-verification"]({ url, user }),
-        );
+        await EmailService.send(EMAIL.TEMPLATES["delete-account-verification"]({ url, user }));
       },
     },
   },
@@ -205,9 +203,7 @@ export const auth = betterAuth({
     sendOnSignIn: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
-      await EmailService.send(
-        EMAIL.TEMPLATES["email-verification"]({ url, user }),
-      );
+      await EmailService.send(EMAIL.TEMPLATES["email-verification"]({ url, user }));
     },
   },
 
@@ -230,7 +226,7 @@ export const auth = betterAuth({
     }),
 
     captcha({
-    provider: 'cloudflare-turnstile',
+      provider: "cloudflare-turnstile",
       secretKey: process.env.CAPTCHA_SECRET_KEY!,
     }),
 
@@ -351,8 +347,7 @@ export const auth = betterAuth({
                 clientId: POCKETID_CLIENT_ID,
                 clientSecret: POCKETID_CLIENT_SECRET,
 
-                discoveryUrl:
-                  POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                discoveryUrl: POCKETID_BASE_URL + "/.well-known/openid-configuration",
                 // ... other config options
 
                 mapProfileToUser: (profile: unknown) => {
@@ -363,9 +358,7 @@ export const auth = betterAuth({
 
                   const name = (
                     typed.name ||
-                    (typed.given_name || "") +
-                      " " +
-                      (typed.family_name || "") ||
+                    (typed.given_name || "") + " " + (typed.family_name || "") ||
                     ""
                   )
                     .trim()
@@ -376,8 +369,7 @@ export const auth = betterAuth({
                     email: typed.email,
                     image: typed.picture,
                     emailVerified:
-                      AUTH.PROVIDERS.MAP[providerId].force_email_verified ||
-                      typed.email_verified,
+                      AUTH.PROVIDERS.MAP[providerId].force_email_verified || typed.email_verified,
                   };
                 },
               };
@@ -441,17 +433,12 @@ const get_active_org = async (
       return null;
     }
 
-    log.debug(
-      { organizationId: member.data.organizationId },
-      "Found existing organization",
-    );
+    log.debug({ organizationId: member.data.organizationId }, "Found existing organization");
 
     const subscription = await SubscriptionService.get_active({
       session: { org_id: member.data.organizationId },
     });
-    const active_plan = subscription.ok
-      ? (subscription.data?.plan ?? "free")
-      : "free";
+    const active_plan = subscription.ok ? (subscription.data?.plan ?? "free") : "free";
 
     return {
       active_plan,

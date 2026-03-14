@@ -22,6 +22,6 @@
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "esModuleInterop": true,
-  },
+    "esModuleInterop": true
+  }
 }
