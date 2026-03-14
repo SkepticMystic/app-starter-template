@@ -1,14 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { Arrays, type Resource } from "./array.util";
 
 describe("Arrays", () => {
   type TestResource = Resource<{ name: string; value: number }>;
 
-  const createResource = (
-    id: string,
-    name: string,
-    value: number,
-  ): TestResource => ({
+  const createResource = (id: string, name: string, value: number): TestResource => ({
     id,
     name,
     value,

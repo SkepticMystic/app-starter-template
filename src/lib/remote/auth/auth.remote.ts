@@ -12,7 +12,6 @@ import { captureException } from "@sentry/sveltekit";
 import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
-import { CaptchaService } from "$lib/services/captcha/captcha.service";
 
 export const signin_credentials_remote = form(
   z.object({
@@ -22,11 +21,6 @@ export const signin_credentials_remote = form(
     redirect_uri: z.string().default("/onboarding"),
   }),
   async (input) => {
-    const captcha = await CaptchaService.verify(input.captcha_token);
-    if (!captcha.ok) {
-      return captcha
-    }
-
     let redirect_uri = input.redirect_uri as ResolvedPathname;
 
     try {
@@ -77,9 +71,7 @@ export const signup_credentials_remote = form(
       .string()
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be at most 100 characters"),
-    email: z
-      .email("Please enter a valid email address")
-      .brand<"EmailAddress">(),
+    email: z.email("Please enter a valid email address").brand<"EmailAddress">(),
     password: password_schema,
     remember: z.boolean().default(false),
     redirect_uri: z.string().default("/onboarding"),
@@ -88,16 +80,14 @@ export const signup_credentials_remote = form(
   async (input, issue) => {
     const captcha = await CaptchaService.verify(input.captcha_token);
     if (!captcha.ok) {
-      return captcha
+      return captcha;
     }
 
     try {
       const captcha = await CaptchaService.verify(input.captcha_token);
       if (!captcha.ok) return captcha;
 
-      const email_valid = await EmailValidationService.has_mx_records(
-        input.email,
-      );
+      const email_valid = await EmailValidationService.has_mx_records(input.email);
       if (!email_valid.ok) {
         return email_valid;
       } else if (email_valid.data === false) {
@@ -125,12 +115,7 @@ export const signup_credentials_remote = form(
         if (is_ba_error_code(error, "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL")) {
           invalid(issue.email(error.message));
         } else if (
-          is_ba_error_code(
-            error,
-            "PASSWORD_TOO_LONG",
-            "PASSWORD_TOO_SHORT",
-            "PASSWORD_COMPROMISED",
-          )
+          is_ba_error_code(error, "PASSWORD_TOO_LONG", "PASSWORD_TOO_SHORT", "PASSWORD_COMPROMISED")
         ) {
           invalid(issue.password(error.message));
         } else {

@@ -9,18 +9,16 @@
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true,
-    "noUncheckedSideEffectImports": true,
 
-    "types": ["node", "umami"],
     "rootDir": "./src",
-
+    "types": ["node", "umami"],
     "noEmit": true,
     "sourceMap": true,
 
     "skipLibCheck": true,
 
     "module": "esnext",
-    "target": "es2024",
+    "target": "es2025",
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,

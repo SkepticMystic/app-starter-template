@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { Strings } from "./strings.util";
 
 describe("Strings", () => {
@@ -33,9 +33,7 @@ describe("Strings", () => {
     });
 
     it("should handle mixed case with special chars", () => {
-      expect(Strings.slugify("The Quick Brown Fox!")).toBe(
-        "the-quick-brown-fox",
-      );
+      expect(Strings.slugify("The Quick Brown Fox!")).toBe("the-quick-brown-fox");
     });
   });
 });
