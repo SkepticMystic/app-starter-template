@@ -13,5 +13,6 @@
     }
   ],
   "tailwindStylesheet": "./src/routes/layout.css",
-  "singleAttributePerLine": true
+  "singleAttributePerLine": true,
+  "svelteBracketNewLine": true
 }

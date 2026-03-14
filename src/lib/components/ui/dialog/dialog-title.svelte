@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Dialog as DialogPrimitive } from "bits-ui";
-  import { cn } from "$lib/utils/shadcn.util.js";
 
   let {
     ref = $bindable(null),
@@ -12,6 +11,6 @@
 <DialogPrimitive.Title
   bind:ref
   data-slot="dialog-title"
-  class={cn("text-lg leading-none font-semibold", className)}
+  class={["text-lg leading-none font-semibold", className]}
   {...restProps}
 />

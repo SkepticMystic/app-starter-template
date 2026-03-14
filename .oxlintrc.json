@@ -7,9 +7,7 @@
   "env": {
     "builtin": true,
     "browser": true,
-    "commonjs": true,
-    "node": true,
-    "shared-node-browser": true
+    "node": true
   },
   "ignorePatterns": [
     "**/.DS_Store",
@@ -21,7 +19,15 @@
     "**/.env.*",
     "!**/.env.example",
     "**/.vercel",
-    "**/.env*.local"
+    "**/.env*.local",
+    "**/tmp",
+    "**/.env.sentry-build-plugin",
+    "**/.sonda",
+    "infra/.terraform/",
+    "infra/.terraform.lock.hcl",
+    "infra/terraform.tfstate",
+    "infra/terraform.tfstate.backup",
+    "infra/terraform.tfvars"
   ],
   "rules": {
     "constructor-super": "error",
@@ -67,6 +73,7 @@
     "no-shadow-restricted-names": "error",
     "no-sparse-arrays": "error",
     "no-this-before-super": "error",
+    "no-unassigned-vars": "error",
     "no-unreachable": "error",
     "no-unsafe-finally": "error",
     "no-unsafe-negation": "error",
@@ -89,6 +96,7 @@
     "no-useless-catch": "error",
     "no-useless-escape": "error",
     "no-with": "error",
+    "preserve-caught-error": "error",
     "require-yield": "error",
     "use-isnan": "error",
     "valid-typeof": "error",
@@ -109,7 +117,57 @@
     "@typescript-eslint/no-wrapper-object-types": "error",
     "@typescript-eslint/prefer-as-const": "error",
     "@typescript-eslint/prefer-namespace-keyword": "error",
-    "@typescript-eslint/triple-slash-reference": "error"
+    "@typescript-eslint/triple-slash-reference": "error",
+    "svelte/comment-directive": "error",
+    "svelte/infinite-reactive-loop": "error",
+    "svelte/no-at-debug-tags": "warn",
+    "svelte/no-at-html-tags": "error",
+    "svelte/no-dom-manipulating": "error",
+    "svelte/no-dupe-else-if-blocks": "error",
+    "svelte/no-dupe-on-directives": "error",
+    "svelte/no-dupe-style-properties": "error",
+    "svelte/no-dupe-use-directives": "error",
+    "svelte/no-export-load-in-svelte-module-in-kit-pages": "error",
+    "svelte/no-immutable-reactive-statements": "error",
+    "svelte/no-inner-declarations": "error",
+    "svelte/no-inspect": "warn",
+    "svelte/no-not-function-handler": "error",
+    "svelte/no-object-in-text-mustaches": "error",
+    "svelte/no-raw-special-elements": "error",
+    "svelte/no-reactive-functions": "error",
+    "svelte/no-reactive-literals": "error",
+    "svelte/no-reactive-reassign": "error",
+    "svelte/no-shorthand-style-property-overrides": "error",
+    "svelte/no-store-async": "error",
+    "svelte/no-svelte-internal": "error",
+    "svelte/no-unknown-style-directive-property": "error",
+    "svelte/no-unnecessary-state-wrap": "error",
+    "svelte/no-unused-props": "error",
+    "svelte/no-unused-svelte-ignore": "error",
+    "svelte/no-useless-children-snippet": "error",
+    "svelte/no-useless-mustaches": "error",
+    "svelte/prefer-svelte-reactivity": "error",
+    "svelte/prefer-writable-derived": "error",
+    "svelte/require-each-key": "error",
+    "svelte/require-event-dispatcher-types": "error",
+    "svelte/require-store-reactive-access": "error",
+    "svelte/system": "error",
+    "svelte/valid-each-key": "error",
+    "svelte/valid-prop-names-in-kit-pages": "error",
+    "better-tailwindcss/enforce-consistent-class-order": "warn",
+    "better-tailwindcss/enforce-consistent-line-wrapping": "off",
+    "better-tailwindcss/no-deprecated-classes": "warn",
+    "better-tailwindcss/no-duplicate-classes": "warn",
+    "better-tailwindcss/no-unnecessary-whitespace": "warn",
+    "better-tailwindcss/enforce-canonical-classes": "warn",
+    "better-tailwindcss/no-conflicting-classes": "error",
+    "better-tailwindcss/no-unknown-classes": "error"
+  },
+  "jsPlugins": ["eslint-plugin-svelte", "eslint-plugin-better-tailwindcss"],
+  "settings": {
+    "better-tailwindcss": {
+      "entryPoint": "src/routes/layout.css"
+    }
   },
   "overrides": [
     {
@@ -132,6 +190,7 @@
         "no-unsafe-negation": "off",
         "no-var": "error",
         "no-with": "off",
+        "prefer-const": "error",
         "prefer-rest-params": "error",
         "prefer-spread": "error"
       }
@@ -141,14 +200,8 @@
       "rules": {
         "no-inner-declarations": "off",
         "no-self-assign": "off"
-      }
-    },
-    {
-      "files": ["*.svelte", "**/*.svelte"],
-      "rules": {
-        "no-inner-declarations": "off",
-        "no-self-assign": "off"
-      }
+      },
+      "jsPlugins": ["eslint-plugin-svelte"]
     }
   ]
 }

@@ -1,4 +1,5 @@
 import type { Result } from "$lib/interfaces/result.type";
+import type { APIError } from "better-auth";
 
 const suc = <D = undefined>(d?: D): Result<D, never> => ({
   ok: true,
@@ -27,4 +28,14 @@ export const result = {
       return e ? err(e(r.error)) : r;
     }
   },
+
+  from_ba_error: (
+    error: APIError,
+    extra?: Partial<App.Error>,
+  ): App.Result<never> =>
+    err({
+      message: error.message,
+      status: error.statusCode,
+      ...extra,
+    }),
 };

@@ -19,7 +19,7 @@
   } = $props();
 
   const sort_dir = $derived(column.getIsSorted());
-  const label = TanstackTable.get_column_label(column);
+  const label = $derived(TanstackTable.get_column_label(column));
 </script>
 
 <DropdownMenuPrimitive.Root>

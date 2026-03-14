@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { ButtonVariant } from "$lib/components/ui/button/button.svelte";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { cn } from "$lib/utils/shadcn.util";
   import type { ClassValue } from "svelte/elements";
   import Anchor from "../anchor/Anchor.svelte";
   import Button, { type ButtonSize } from "../button/button.svelte";
@@ -57,10 +56,10 @@
               {href}
               {icon}
               {target}
-              class={cn(
+              class={[
                 "font-normal no-underline",
                 props.class as ClassValue | undefined,
-              )}
+              ]}
             >
               {title}
             </Anchor>

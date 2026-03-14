@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Icon from "../icon/Icon.svelte";
   import InputRoot from "./input-root.svelte";
@@ -19,7 +18,7 @@
   <InputRoot
     bind:ref
     bind:value
-    class={cn(klass, snippet_class)}
+    class={[klass, snippet_class]}
     {...restProps}
   />
 {/snippet}
@@ -30,7 +29,11 @@
 
     <!-- SOURCE: https://github.com/EpicAlbin03/shadcn-studio-svelte/blob/main/src/lib/components/shadcn-studio/input/input-15.svelte -->
     <div
-      class="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-muted-foreground peer-disabled:opacity-50"
+      class="
+        pointer-events-none absolute inset-y-0 inset-e-0 flex items-center
+        justify-center pe-3 text-muted-foreground
+        peer-disabled:opacity-50
+      "
     >
       <Icon
         {icon}

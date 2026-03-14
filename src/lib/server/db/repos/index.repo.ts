@@ -1,9 +1,11 @@
+import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import type { FullQueryResults } from "@neondatabase/serverless";
 import { captureException } from "@sentry/sveltekit";
 import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
-import { ERROR } from "$lib/const/error.const";
+
+const log = Log.child({ service: "Repo" });
 
 const query = async <D>(promise: Promise<D>): Promise<App.Result<D>> => {
   try {
@@ -12,23 +14,21 @@ const query = async <D>(promise: Promise<D>): Promise<App.Result<D>> => {
     return result.suc(data);
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
-      Log.error(error, "Repo.query.error DrizzleQueryError");
+      log.error(error, "query.error DrizzleQueryError");
 
       captureException(error, {
-        tags: {
-          query: error.query,
-        },
+        extra: { query: error.query },
       });
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else if (error instanceof DrizzleError) {
-      Log.error(error, "Repo.query.error DrizzleError");
+      log.error(error, "query.error DrizzleError");
 
       captureException(error);
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
-      Log.error(error, "Repo.query.error unknown");
+      log.error(error, "query.error unknown");
 
       captureException(error);
 
@@ -44,10 +44,10 @@ const insert = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
     return result.suc(data);
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
-      Log.error(error, "Repo.insert.error DrizzleQueryError");
+      log.error(error, "insert.error DrizzleQueryError");
 
       captureException(error, {
-        tags: { query: error.query },
+        extra: { query: error.query },
       });
 
       if (
@@ -60,13 +60,13 @@ const insert = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
         return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     } else if (error instanceof DrizzleError) {
-      Log.error(error, "Repo.insert.error DrizzleError");
+      log.error(error, "insert.error DrizzleError");
 
       captureException(error);
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
-      Log.error(error, "Repo.insert.error unknown");
+      log.error(error, "insert.error unknown");
 
       captureException(error);
 
@@ -85,9 +85,12 @@ const insert_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
   const [data] = res.data;
 
   if (!data) {
-    Log.error("Repo.insert_one.error no data");
+    log.error("insert_one.error no data");
 
-    return result.err({ message: "Failed to create", status: 500 });
+    return result.err({
+      ...ERROR.INTERNAL_SERVER_ERROR,
+      message: "Failed to create",
+    });
   } else {
     return result.suc(data);
   }
@@ -100,10 +103,10 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
     return result.suc(data);
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
-      Log.error(error, "Repo.update.error DrizzleQueryError");
+      log.error(error, "update.error DrizzleQueryError");
 
       captureException(error, {
-        tags: { query: error.query },
+        extra: { query: error.query },
       });
 
       if (
@@ -116,13 +119,13 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
         return result.err(ERROR.INTERNAL_SERVER_ERROR);
       }
     } else if (error instanceof DrizzleError) {
-      Log.error(error, "Repo.update.error DrizzleError");
+      log.error(error, "update.error DrizzleError");
 
       captureException(error);
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
-      Log.error(error, "Repo.update.error unknown");
+      log.error(error, "update.error unknown");
 
       captureException(error);
 
@@ -132,19 +135,48 @@ const update = async <D>(promise: Promise<D[]>): Promise<App.Result<D[]>> => {
 };
 
 const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
-  const res = await update(promise);
-  if (!res.ok) {
-    return res;
-  }
+  try {
+    const data = await promise;
 
-  const [data] = res.data;
+    const [first] = data;
 
-  if (!data) {
-    Log.error("Repo.update_one.error no data");
+    if (!first) {
+      log.error("update_one.error no data");
+      return result.err(ERROR.NOT_FOUND);
+    }
 
-    return result.err({ message: "Failed to update", status: 500 });
-  } else {
-    return result.suc(data);
+    return result.suc(first);
+  } catch (error) {
+    if (error instanceof DrizzleQueryError) {
+      // Check for duplicate key BEFORE logging to Sentry
+      if (
+        error.cause?.message.includes(
+          "duplicate key value violates unique constraint",
+        )
+      ) {
+        return result.err(ERROR.DUPLICATE);
+      }
+
+      log.error(error, "update_one.error DrizzleQueryError");
+
+      captureException(error, {
+        extra: { query: error.query },
+      });
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else if (error instanceof DrizzleError) {
+      log.error(error, "update_one.error DrizzleError");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else {
+      log.error(error, "update_one.error unknown");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
   }
 };
 
@@ -157,21 +189,71 @@ const del = async (
     return result.suc({ row_count: res.rowCount });
   } catch (error) {
     if (error instanceof DrizzleQueryError) {
-      Log.error(error, "Repo.delete.error DrizzleQueryError");
+      log.error(error, "delete.error DrizzleQueryError");
 
       captureException(error, {
-        tags: { query: error.query },
+        extra: { query: error.query },
       });
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else if (error instanceof DrizzleError) {
-      Log.error(error, "Repo.delete.error DrizzleError");
+      log.error(error, "delete.error DrizzleError");
 
       captureException(error);
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     } else {
-      Log.error(error, "Repo.delete.error unknown");
+      log.error(error, "delete.error unknown");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
+  }
+};
+
+/**
+ * Execute an update without returning data
+ * Validates that exactly 1 row was affected
+ * @returns Result<void>
+ */
+const update_void = async (
+  promise: Promise<{ rowCount: number }>,
+): Promise<App.Result<void>> => {
+  try {
+    const res = await promise;
+
+    if (res.rowCount === 0) {
+      return result.err(ERROR.NOT_FOUND);
+    }
+
+    return result.suc(undefined);
+  } catch (error) {
+    if (error instanceof DrizzleQueryError) {
+      // Check for duplicate key BEFORE logging to Sentry
+      if (
+        error.cause?.message.includes(
+          "duplicate key value violates unique constraint",
+        )
+      ) {
+        return result.err(ERROR.DUPLICATE);
+      }
+
+      log.error(error, "update_void.error DrizzleQueryError");
+
+      captureException(error, {
+        extra: { query: error.query },
+      });
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else if (error instanceof DrizzleError) {
+      log.error(error, "update_void.error DrizzleError");
+
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    } else {
+      log.error(error, "update_void.error unknown");
 
       captureException(error);
 
@@ -182,18 +264,18 @@ const del = async (
 
 const delete_one = async (
   promise: Promise<Omit<FullQueryResults<false>, "rows"> & { rows: never[] }>,
-): Promise<App.Result<null>> => {
+): Promise<App.Result<void>> => {
   const res = await del(promise);
   if (!res.ok) {
     return res;
   }
 
   if (!res.data.row_count) {
-    Log.error("Repo.delete_one.error not found");
+    log.error("delete_one.error not found");
 
-    return result.err({ message: "Not found", status: 404 });
+    return result.err(ERROR.NOT_FOUND);
   } else {
-    return result.suc(null);
+    return result.suc(undefined);
   }
 };
 
@@ -203,6 +285,7 @@ export const Repo = {
   insert_one,
   update,
   update_one,
+  update_void,
   delete: del,
   delete_one,
 };

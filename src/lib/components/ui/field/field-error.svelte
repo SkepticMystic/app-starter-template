@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
 
@@ -40,7 +40,7 @@
     bind:this={ref}
     role="alert"
     data-slot="field-error"
-    class={cn("text-sm font-normal text-destructive", className)}
+    class={["text-sm font-normal text-destructive", className]}
     {...restProps}
   >
     {#if children}

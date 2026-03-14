@@ -3,7 +3,7 @@
   generics="V extends RemoteFormFieldValue"
 >
   import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.types";
+  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
   import type { RemoteFormField, RemoteFormFieldValue } from "@sveltejs/kit";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";

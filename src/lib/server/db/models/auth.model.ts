@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -11,6 +10,8 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import z from "zod";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
 import { ROLES } from "../../../const/auth/role.const";
@@ -42,14 +43,6 @@ export const UserTable = pgTable("user", {
 // Export type for use in application
 export type User = typeof UserTable.$inferSelect;
 export type NewUser = typeof UserTable.$inferInsert;
-
-export const user_relations = relations(UserTable, ({ many }) => ({
-  accounts: many(AccountTable),
-  sessions: many(SessionTable),
-  members: many(MemberTable),
-  passkeys: many(PasskeyTable),
-  invitations: many(InvitationTable),
-}));
 
 export const SessionTable = pgTable(
   "session",
@@ -88,21 +81,6 @@ export const SessionTable = pgTable(
 export type Session = typeof SessionTable.$inferSelect;
 export type NewSession = typeof SessionTable.$inferInsert;
 
-export const session_relations = relations(SessionTable, ({ one }) => ({
-  user: one(UserTable, {
-    fields: [SessionTable.userId],
-    references: [UserTable.id],
-  }),
-  member: one(MemberTable, {
-    fields: [SessionTable.member_id],
-    references: [MemberTable.id],
-  }),
-  organization: one(OrganizationTable, {
-    fields: [SessionTable.activeOrganizationId],
-    references: [OrganizationTable.id],
-  }),
-}));
-
 // Create an enum for provider IDs
 export const provider_id_enum = pgEnum("provider_id", AUTH.PROVIDERS.IDS);
 
@@ -137,13 +115,6 @@ export const AccountTable = pgTable(
 export type Account = typeof AccountTable.$inferSelect;
 export type NewAccount = typeof AccountTable.$inferInsert;
 
-export const account_relations = relations(AccountTable, ({ one }) => ({
-  user: one(UserTable, {
-    fields: [AccountTable.userId],
-    references: [UserTable.id],
-  }),
-}));
-
 export const OrganizationTable = pgTable("organization", {
   ...Schema.id(),
 
@@ -159,13 +130,21 @@ export const OrganizationTable = pgTable("organization", {
 export type Organization = typeof OrganizationTable.$inferSelect;
 export type InsertOrganization = typeof OrganizationTable.$inferInsert;
 
-export const organization_relations = relations(
-  OrganizationTable,
-  ({ many }) => ({
-    members: many(MemberTable),
-    invitations: many(InvitationTable),
+export const OrganizationSchema = {
+  create: createInsertSchema(OrganizationTable, {
+    name: z
+      .string()
+      .trim()
+      .min(2, "Organization name must be at least 2 characters"),
+    logo: z
+      .union([z.url("Logo must be a valid URL"), z.literal("")])
+      .transform((v) => v || undefined)
+      .optional(),
+  }).pick({
+    name: true,
+    logo: true,
   }),
-);
+};
 
 export const member_role_enum = pgEnum("member_role", ORGANIZATION.ROLES.IDS);
 
@@ -195,17 +174,6 @@ export const MemberTable = pgTable(
 export type Member = typeof MemberTable.$inferSelect;
 export type InsertMember = typeof MemberTable.$inferInsert;
 
-export const member_relations = relations(MemberTable, ({ one }) => ({
-  organization: one(OrganizationTable, {
-    fields: [MemberTable.organizationId],
-    references: [OrganizationTable.id],
-  }),
-  user: one(UserTable, {
-    fields: [MemberTable.userId],
-    references: [UserTable.id],
-  }),
-}));
-
 export const PasskeyTable = pgTable(
   "passkey",
   {
@@ -231,13 +199,6 @@ export const PasskeyTable = pgTable(
 
 export type Passkey = typeof PasskeyTable.$inferSelect;
 export type InsertPasskey = typeof PasskeyTable.$inferInsert;
-
-export const passkey_relations = relations(PasskeyTable, ({ one }) => ({
-  user: one(UserTable, {
-    fields: [PasskeyTable.userId],
-    references: [UserTable.id],
-  }),
-}));
 
 export const invitation_status_enum = pgEnum(
   "invitation_status",
@@ -273,16 +234,15 @@ export const InvitationTable = pgTable(
 export type Invitation = typeof InvitationTable.$inferSelect;
 export type NewInvitation = typeof InvitationTable.$inferInsert;
 
-export const invitation_relations = relations(InvitationTable, ({ one }) => ({
-  inviter: one(UserTable, {
-    fields: [InvitationTable.inviterId],
-    references: [UserTable.id],
+export const InvitationSchema = {
+  create: createInsertSchema(InvitationTable, {
+    email: z.email("Please enter a valid email address"),
+    role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
+  }).pick({
+    email: true,
+    role: true,
   }),
-  organization: one(OrganizationTable, {
-    fields: [InvitationTable.organizationId],
-    references: [OrganizationTable.id],
-  }),
-}));
+};
 
 export const VerificationTable = pgTable("verification", {
   ...Schema.id(),
@@ -316,3 +276,31 @@ export const TwoFactorTable = pgTable(
 
 export type TwoFactor = typeof TwoFactorTable.$inferSelect;
 export type NewTwoFactor = typeof TwoFactorTable.$inferInsert;
+
+export const APIKeyTable = pgTable("apiKey", {
+  ...Schema.id(),
+
+  configId: text().notNull(),
+  name: text(),
+  start: text(),
+  prefix: text(),
+  key: text().notNull(),
+  referenceId: text().notNull(),
+  refillInterval: integer(),
+  refillAmount: integer(),
+  lastRefillAt: timestamp({ precision: 6, withTimezone: true }),
+  enabled: boolean().notNull(),
+  rateLimitEnabled: boolean().notNull(),
+  rateLimitTimeWindow: integer(),
+  rateLimitMax: integer(),
+  requestCount: integer().notNull(),
+  remaining: integer(),
+  lastRequest: timestamp({ precision: 6, withTimezone: true }),
+  expiresAt: timestamp({ precision: 6, withTimezone: true }),
+  createdAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+  updatedAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+  permissions: text(),
+  metadata: text(),
+});
+
+export type APIKey = typeof APIKeyTable.$inferSelect;

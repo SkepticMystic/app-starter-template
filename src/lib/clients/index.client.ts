@@ -1,19 +1,14 @@
-import { goto } from "$app/navigation";
-import { resolve } from "$app/paths";
-import { session } from "$lib/stores/session.store";
+import type { MaybePromise } from "$lib/interfaces";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { isHttpError } from "@sveltejs/kit";
 import { toast } from "svelte-sonner";
-import { get } from "svelte/store";
 
 type ClientRequestOptions<I, D> = {
-  optimistic: boolean; // TODO: Implement
   prompt: ((input: I) => string) | string | null;
   confirm: ((input: I) => string) | string | null;
   suc_msg: ((input: I, data: D) => string) | string | null;
-  validate_session: boolean;
   on_success: ((data: D) => MaybePromise<unknown>) | null;
 };
 const DEFAULT_OPTIONS: ClientRequestOptions<unknown, unknown> = {
@@ -21,8 +16,6 @@ const DEFAULT_OPTIONS: ClientRequestOptions<unknown, unknown> = {
   confirm: null,
   suc_msg: null,
   on_success: null,
-  optimistic: false,
-  validate_session: true,
 };
 
 const wrap = <I, D>(
@@ -33,31 +26,11 @@ const wrap = <I, D>(
   client_options?: Partial<ClientRequestOptions<I, D>>,
 ): typeof cb => {
   return async (input, callsite_options) => {
-    toast.dismiss();
-
     const resolved: ClientRequestOptions<I, D> = {
       ...DEFAULT_OPTIONS,
       ...client_options,
       ...callsite_options,
     };
-
-    if (
-      resolved.validate_session && //
-      !get(session).data?.session
-    ) {
-      toast.warning(
-        "Your session has expired. Please signin again to continue.",
-        {
-          action: {
-            label: "Sign in",
-            onClick: () => goto(resolve("/auth/signin")),
-          },
-        },
-      );
-
-      // Don't return a message or level, as we've already shown a toast
-      return result.err();
-    }
 
     if (resolved.confirm) {
       if (

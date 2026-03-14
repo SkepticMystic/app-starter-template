@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { ComponentProps } from "svelte";
   import Textarea from "../textarea/textarea.svelte";
 
@@ -14,10 +13,14 @@
 <Textarea
   bind:ref
   data-slot="input-group-control"
-  class={cn(
-    "flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 dark:bg-transparent",
+  class={[
+    `
+      flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none
+      focus-visible:ring-0
+      dark:bg-transparent
+    `,
     className,
-  )}
+  ]}
   bind:value
   {...props}
 />

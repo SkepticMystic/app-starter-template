@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
 
   let {
     ref = $bindable(null),
@@ -13,7 +13,7 @@
 <div
   bind:this={ref}
   data-slot="card-content"
-  class={cn("px-6", className)}
+  class={["px-6", className]}
   {...restProps}
 >
   {@render children?.()}

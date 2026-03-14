@@ -1,14 +1,13 @@
+import type { RoleId } from "$lib/const/auth/role.const";
 import { createAccessControl } from "better-auth/plugins/access";
 import {
   adminAc,
   defaultStatements,
   userAc,
 } from "better-auth/plugins/admin/access";
-import type { RoleId } from "$lib/const/auth/role.const";
 
 const statement = {
   ...defaultStatements,
-  // project: ["create", "share", "update", "delete"],
 } as const;
 
 const ac = createAccessControl(statement);

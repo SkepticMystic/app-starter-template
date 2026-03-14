@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import type { Separator as SeparatorPrimitive } from "bits-ui";
   import Separator from "../separator/separator.svelte";
 
@@ -13,6 +12,6 @@
 <Separator
   bind:ref
   data-slot="select-separator"
-  class={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
+  class={["pointer-events-none -mx-1 my-1 h-px bg-border", className]}
   {...restProps}
 />

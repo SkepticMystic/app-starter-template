@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util.js";
   import { box, mergeProps } from "svelte-toolbelt";
   import Input from "../input/input.svelte";
   import { usePasswordInput } from "./password.svelte.js";
@@ -30,7 +29,7 @@
     bind:value
     bind:ref
     type={state.root.opts.hidden.current ? "password" : "text"}
-    class={cn(
+    class={[
       "transition-all",
       {
         // either or is mounted (offset 36px)
@@ -43,7 +42,7 @@
           state.root.passwordState.toggleMounted,
       },
       className,
-    )}
+    ]}
   />
   {@render children?.()}
 </div>

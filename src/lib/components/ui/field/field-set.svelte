@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLFieldsetAttributes } from "svelte/elements";
 
   let {
@@ -13,11 +13,14 @@
 <fieldset
   bind:this={ref}
   data-slot="field-set"
-  class={cn(
+  class={[
     "flex flex-col gap-6",
-    "has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
+    `
+      has-[>[data-slot=checkbox-group]]:gap-3
+      has-[>[data-slot=radio-group]]:gap-3
+    `,
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

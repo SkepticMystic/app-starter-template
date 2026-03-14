@@ -1,14 +1,15 @@
 import { form, getRequestEvent } from "$app/server";
 import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "$lib/auth";
-import { AUTH } from "$lib/const/auth/auth.const";
 import { ERROR } from "$lib/const/error.const";
+import { password_schema } from "$lib/schema/password/password.schema";
+import { EmailValidationService } from "$lib/server/services/auth/email/email_validation.service";
+import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
 import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { invalid, redirect } from "@sveltejs/kit";
-import { zxcvbn } from "@zxcvbn-ts/core";
+import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import z from "zod";
 import { CaptchaService } from "$lib/services/captcha/captcha.service";
@@ -18,8 +19,7 @@ export const signin_credentials_remote = form(
     email: z.email("Please enter a valid email address"),
     password: z.string(),
     remember: z.boolean().default(false),
-    redirect_uri: z.string().default("/"),
-    captcha_token: z.string().min(1, 'Please complete the captcha'),
+    redirect_uri: z.string().default("/onboarding"),
   }),
   async (input) => {
     const captcha = await CaptchaService.verify(input.captcha_token);
@@ -49,9 +49,15 @@ export const signin_credentials_remote = form(
       }
     } catch (error) {
       if (error instanceof APIError) {
+        if (is_ba_error_code(error, "INVALID_EMAIL_OR_PASSWORD")) {
+          invalid(error.message);
+        }
+
         Log.info(error.body, "signin_remote.error better-auth");
 
-        return result.err({ message: error.message });
+        captureException(error);
+
+        return result.from_ba_error(error);
       } else {
         Log.error(error, "signin_remote.error unknown");
 
@@ -71,16 +77,13 @@ export const signup_credentials_remote = form(
       .string()
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be at most 100 characters"),
-    email: z.email("Please enter a valid email address"),
-    password: z
-      .string()
-      .refine(
-        (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
-        "Please choose a stronger password",
-      ),
+    email: z
+      .email("Please enter a valid email address")
+      .brand<"EmailAddress">(),
+    password: password_schema,
     remember: z.boolean().default(false),
-    redirect_uri: z.string().default("/"),
-    captcha_token: z.string().min(1, 'Please complete the captcha'),
+    redirect_uri: z.string().default("/onboarding"),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input, issue) => {
     const captcha = await CaptchaService.verify(input.captcha_token);
@@ -89,6 +92,18 @@ export const signup_credentials_remote = form(
     }
 
     try {
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
+      const email_valid = await EmailValidationService.has_mx_records(
+        input.email,
+      );
+      if (!email_valid.ok) {
+        return email_valid;
+      } else if (email_valid.data === false) {
+        invalid(issue.email("Email address is not valid"));
+      }
+
       await auth.api.signUpEmail({
         headers: getRequestEvent().request.headers,
         body: {
@@ -100,6 +115,10 @@ export const signup_credentials_remote = form(
         },
       });
     } catch (error) {
+      if (isValidationError(error)) {
+        throw error;
+      }
+
       if (error instanceof APIError) {
         Log.info(error.body, "signup_remote.error better-auth");
 
@@ -114,9 +133,11 @@ export const signup_credentials_remote = form(
           )
         ) {
           invalid(issue.password(error.message));
-        }
+        } else {
+          captureException(error);
 
-        return result.err({ message: error.message });
+          return result.from_ba_error(error);
+        }
       } else {
         Log.error(error, "signup_remote.error unknown");
 

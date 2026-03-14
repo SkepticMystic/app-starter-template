@@ -12,8 +12,6 @@ export const App = {
 
   url: (
     path: ResolvedPathname,
-    search?:
-      | URLSearchParams
-      | { [key: string]: unknown; },
+    search?: URLSearchParams | { [key: string]: unknown },
   ) => Url.strip_origin(full_url(path, search)) as ResolvedPathname,
 };

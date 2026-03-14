@@ -1,9 +1,13 @@
 import { BetterAuthClient } from "$lib/auth-client";
+import { ERROR } from "$lib/const/error.const";
 import {
   delete_passkey_remote,
-  get_all_passkeys_remote,
+  list_passkeys_remote,
 } from "$lib/remote/auth/passkey.remote";
+import { BetterAuth } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
+import { captureException } from "@sentry/sveltekit";
+import { APIError } from "better-auth";
 import { Client } from "../index.client";
 
 export const PasskeyClient = {
@@ -11,25 +15,39 @@ export const PasskeyClient = {
     async (
       input: Parameters<typeof BetterAuthClient.passkey.addPasskey>[0],
     ) => {
-      // NOTE: Can't use BetterAuth.to_result, because it returns an inconsistent shape to the rest of the client api
-      const res = await BetterAuthClient.passkey.addPasskey(input);
+      try {
+        const res = await BetterAuth.to_result(
+          BetterAuthClient.passkey.addPasskey(input),
+        );
 
-      if (!res) {
-        // NOTE: This seems to be the _success_ case for some reason????
-        console.warn("No response from addPasskey");
+        if (!res.ok) {
+          console.warn("res.error", res.error);
+          return result.err({
+            message:
+              res.error.message ?? "Adding passkey failed. Please try again.",
+          });
+        }
 
-        await get_all_passkeys_remote().refresh();
+        await list_passkeys_remote().refresh();
 
-        return result.suc(null);
-      } else if (res.error) {
-        console.warn("res.error", res.error);
-        return result.err({
-          message:
-            res.error.message ?? "Adding passkey failed. Please try again.",
-        });
-      } else {
-        console.log("res.data", res.data);
         return result.suc(res.data);
+      } catch (error) {
+        if (error instanceof APIError) {
+          console.info(error.body, "add_passkey_remote.error better-auth");
+
+          captureException(error);
+
+          return result.from_ba_error(error);
+        } else {
+          console.error(error, "add_passkey_remote.error unknown");
+
+          captureException(error);
+
+          return result.err({
+            ...ERROR.INTERNAL_SERVER_ERROR,
+            message: "Failed to add passkey",
+          });
+        }
       }
     },
   ),
@@ -37,13 +55,10 @@ export const PasskeyClient = {
   delete: Client.wrap(
     (passkey_id: string) =>
       delete_passkey_remote(passkey_id).updates(
-        get_all_passkeys_remote().withOverride((cur) =>
+        list_passkeys_remote().withOverride((cur) =>
           result.pipe(cur, (d) => d.filter((p) => p.id !== passkey_id)),
         ),
       ),
-    {
-      optimistic: true,
-      confirm: "Are you sure you want to delete this passkey?",
-    },
+    { confirm: "Are you sure you want to delete this passkey?" },
   ),
 };

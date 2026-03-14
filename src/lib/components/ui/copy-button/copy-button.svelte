@@ -1,42 +1,33 @@
 <script lang="ts">
   import { UseClipboard } from "$lib/hooks/use-clipboard.svelte";
-  import { scale } from "svelte/transition";
-  import type { CopyButtonProps } from "./types";
+  import type { ClassValue } from "svelte/elements";
   import Button from "../button/button.svelte";
-  import { cn } from "$lib/utils/shadcn.util";
   import Icon from "../icon/Icon.svelte";
+  import type { CopyButtonPropsWithoutHTML } from "./types";
 
   let {
-    ref = $bindable(null),
     text,
     icon,
-    animationDuration = 500,
+    size,
     variant = "outline",
-    size = "icon",
     onCopy,
     class: className,
     tabindex = -1,
     children,
-    ...rest
-  }: CopyButtonProps = $props();
-
-  // this way if the user passes text then the button will be the default size
-  if (size === "icon" && children) {
-    size = "default";
-  }
+  }: CopyButtonPropsWithoutHTML & {
+    class?: ClassValue;
+    tabindex?: number;
+  } = $props();
 
   const clipboard = new UseClipboard();
 </script>
 
 <Button
-  {...rest}
-  bind:ref
-  {variant}
   {size}
+  {variant}
   {tabindex}
-  class={cn("flex items-center gap-2", className)}
+  class={["flex items-center gap-2", className]}
   type="button"
-  name="copy"
   onclick={async () => {
     const status = await clipboard.copy(text);
 
@@ -44,7 +35,7 @@
   }}
 >
   {#if clipboard.status === "success"}
-    <div in:scale={{ duration: animationDuration, start: 0.85 }}>
+    <div>
       <Icon
         icon="lucide/check"
         tabindex={-1}
@@ -52,7 +43,7 @@
       <span class="sr-only">Copied</span>
     </div>
   {:else if clipboard.status === "failure"}
-    <div in:scale={{ duration: animationDuration, start: 0.85 }}>
+    <div>
       <Icon
         icon="lucide/x"
         tabindex={-1}
@@ -60,7 +51,7 @@
       <span class="sr-only">Failed to copy</span>
     </div>
   {:else}
-    <div in:scale={{ duration: animationDuration, start: 0.85 }}>
+    <div>
       {#if icon}
         {@render icon()}
       {:else}

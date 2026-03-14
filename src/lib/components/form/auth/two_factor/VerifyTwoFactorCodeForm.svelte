@@ -1,0 +1,86 @@
+<script lang="ts">
+  import FormErrors from "$lib/components/form/FormErrors.svelte";
+  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
+  import Field from "$lib/components/ui/field/Field.svelte";
+  import InputOtp from "$lib/components/ui/input-otp/input-otp.svelte";
+  import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
+  import type { ResultData } from "$lib/interfaces/result.type";
+  import { verify_totp_remote } from "$lib/remote/auth/two_factor.remote";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import { toast } from "svelte-sonner";
+  import FormButton from "../../FormButton.svelte";
+
+  let {
+    on_success,
+    hide_trust = false,
+  }: {
+    hide_trust?: boolean;
+    on_success: (data: ResultData<NonNullable<typeof form.result>>) => void;
+  } = $props();
+
+  const form = verify_totp_remote;
+
+  FormUtil.init(form, () => ({
+    code: "",
+    trust_device: false,
+  }));
+</script>
+
+<form
+  class="space-y-3"
+  {...form.enhance(async (e) => {
+    await e.submit();
+
+    FormUtil.count_issue_metrics(form, "verify_two_factor_code_form");
+
+    const res = form.result;
+
+    if (res?.ok) {
+      e.form.reset();
+
+      on_success(res.data);
+    } else if (res?.error) {
+      toast.error(res.error.message);
+    }
+  })}
+>
+  <Field
+    label="Pin code"
+    field={form.fields.code}
+    description="The {TWO_FACTOR.TOTP.DIGITS} digit code from your 2FA app"
+  >
+    {#snippet input({ props, field })}
+      <InputOtp
+        {...props}
+        {...field?.as("text")}
+      />
+    {/snippet}
+  </Field>
+
+  {#if !hide_trust}
+    <Field
+      orientation="horizontal"
+      field={form.fields.trust_device}
+      label="Trust this device for 30 days?"
+    >
+      {#snippet input({ props, field })}
+        <Checkbox
+          {...props}
+          {...field?.as("checkbox")}
+          type="button"
+        />
+      {/snippet}
+    </Field>
+  {/if}
+
+  <FormButton
+    {form}
+    class="w-full"
+    icon="lucide/lock"
+    disabled={form.fields.code.value()?.length !== TWO_FACTOR.TOTP.DIGITS}
+  >
+    Submit
+  </FormButton>
+
+  <FormErrors {form} />
+</form>

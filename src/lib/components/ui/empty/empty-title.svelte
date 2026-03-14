@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,7 +13,7 @@
 <div
   bind:this={ref}
   data-slot="empty-title"
-  class={cn("text-lg font-medium tracking-tight", className)}
+  class={["text-lg font-medium tracking-tight", className]}
   {...restProps}
 >
   {@render children?.()}

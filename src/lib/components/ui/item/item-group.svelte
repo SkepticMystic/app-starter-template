@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -14,7 +14,7 @@
   bind:this={ref}
   role="list"
   data-slot="item-group"
-  class={cn("group/item-group flex flex-col", className)}
+  class={["group/item-group flex flex-col", className]}
   {...restProps}
 >
   {@render children?.()}

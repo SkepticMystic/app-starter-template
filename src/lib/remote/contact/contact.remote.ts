@@ -1,19 +1,27 @@
 import { form } from "$app/server";
 import { EMAIL } from "$lib/const/email.const";
-import { EmailService } from "$lib/services/email.service";
+import { ERROR } from "$lib/const/error.const";
+import { AdapterService } from "$lib/server/services/adapter/adapter.service";
+import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
+import { EmailService } from "$lib/server/services/email.service";
+import { RateLimiter } from "$lib/server/services/rate_limit/rate_limit.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import z from "zod";
-import { ERROR } from "$lib/const/error.const";
-import { CaptchaService } from "$lib/services/captcha/captcha.service";
+
+const rate_limiter = new RateLimiter("contact_us_remote", {
+  max_tokens: 3,
+  refill_rate: 1,
+  refill_interval: 60,
+});
 
 export const contact_us_remote = form(
   z.object({
     name: z.string().min(1, "Please enter your name"),
     email: z.email("Please enter a valid email address"),
     message: z.string().trim().min(1, "Please enter a message"),
-    captcha_token: z.string().min(1, 'Please complete the captcha'),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input) => {
     const captcha = await CaptchaService.verify(input.captcha_token);
@@ -22,6 +30,19 @@ export const contact_us_remote = form(
     }
 
     try {
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
+      const ip = AdapterService.get_ip();
+      if (!ip) {
+        return result.err({
+          ...ERROR.INTERNAL_SERVER_ERROR,
+          message: "Failed to get IP address",
+        });
+      }
+      const rate_limit = await rate_limiter.consume(ip);
+      if (!rate_limit.ok) return rate_limit;
+
       await EmailService.send(EMAIL.TEMPLATES["admin-contact-form"](input));
 
       return result.suc();

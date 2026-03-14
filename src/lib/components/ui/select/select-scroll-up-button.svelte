@@ -1,6 +1,6 @@
 <script lang="ts">
   import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { cn, type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import { type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
   import { Select as SelectPrimitive } from "bits-ui";
 
   let {
@@ -13,7 +13,7 @@
 <SelectPrimitive.ScrollUpButton
   bind:ref
   data-slot="select-scroll-up-button"
-  class={cn("flex cursor-default items-center justify-center py-1", className)}
+  class={["flex cursor-default items-center justify-center py-1", className]}
   {...restProps}
 >
   <Icon

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,10 +13,14 @@
 <div
   bind:this={ref}
   data-slot="empty-description"
-  class={cn(
-    "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+  class={[
+    `
+      text-sm/relaxed text-muted-foreground
+      [&>a]:underline [&>a]:underline-offset-4
+      [&>a:hover]:text-primary
+    `,
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

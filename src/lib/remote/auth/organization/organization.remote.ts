@@ -1,35 +1,58 @@
-import { command } from "$app/server";
-import { db } from "$lib/server/db/drizzle.db";
-import { OrganizationTable } from "$lib/server/db/models/auth.model";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/services/auth.service";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
-import { captureException } from "@sentry/sveltekit";
-import { eq } from "drizzle-orm";
-import z from "zod";
+import { command, form, getRequestEvent } from "$app/server";
+import { auth } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
+import { OrganizationSchema } from "$lib/server/db/models/auth.model";
+import { get_session } from "$lib/server/services/auth.service";
+import { OrganizationService } from "$lib/server/services/auth/organization/organization.service";
+import { result } from "$lib/utils/result.util";
+import { invalid } from "@sveltejs/kit";
+import z from "zod";
+
+export const create_organization_remote = form(
+  OrganizationSchema.create,
+  async (input) => {
+    const event = getRequestEvent();
+    const session = await auth.api.getSession({
+      headers: event.request.headers,
+    });
+    if (!session) {
+      return result.err(ERROR.UNAUTHORIZED);
+    }
+
+    const res = await OrganizationService.create(input, session);
+    if (!res.ok) {
+      if (res.error.path) {
+        invalid(res.error);
+      } else {
+        return res;
+      }
+    }
+
+    return res;
+    // redirect(302, App.url("/organization"));
+  },
+);
+
+export const owner_delete_organization_remote = command(
+  z.uuid(), //
+  async (org_id) => {
+    const session = await get_session();
+    if (!session.ok) return session;
+
+    const res = await OrganizationService.owner_delete(org_id, session.data);
+
+    return res;
+  },
+);
 
 export const admin_delete_organization_remote = command(
   z.uuid(), //
   async (org_id) => {
-    await get_session({ admin: true });
+    const session = await get_session({ admin: true });
+    if (!session.ok) return session;
 
-    try {
-      const res = await Repo.delete_one(
-        db
-          .delete(OrganizationTable)
-          .where(eq(OrganizationTable.id, org_id))
-          .execute(),
-      );
+    const res = await OrganizationService.admin_delete(org_id);
 
-      return res;
-    } catch (error) {
-      Log.error(error, "admin_delete_organization_remote.error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return res;
   },
 );

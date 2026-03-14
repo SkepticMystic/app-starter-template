@@ -3,9 +3,9 @@
   generics="TData extends Resource"
 >
   import Button from "$lib/components/ui/button/button.svelte";
-  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.types";
+  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.type";
+  import type { Resource } from "$lib/utils/array/array.util";
   import { Format } from "$lib/utils/format.util";
-  import type { Resource } from "$lib/utils/resource/resource.util.ts";
   import type { Table } from "@tanstack/table-core";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";
@@ -46,6 +46,7 @@
 >
   {#snippet children(table)}
     {@const state = table.getState()}
+    {@const footer_groups = table.getFooterGroups()}
 
     <div class="space-y-3">
       {@render header?.(table)}
@@ -225,30 +226,32 @@
             {/each}
           </TableBody>
 
-          <TableFooter>
-            {#each table.getFooterGroups() as footer_group (footer_group.id)}
-              <TableRow>
-                {#if states?.selection}
-                  <TableHead colspan={1}></TableHead>
-                {/if}
+          {#if footer_groups.some( (g) => g.headers.some((h) => h.column.columnDef.footer), )}
+            <TableFooter>
+              {#each footer_groups as footer_group (footer_group.id)}
+                <TableRow>
+                  {#if states?.selection}
+                    <TableHead colspan={1}></TableHead>
+                  {/if}
 
-                {#each footer_group.headers as header (header.id)}
-                  <TableHead colspan={header.colSpan}>
-                    {#if !header.isPlaceholder}
-                      <FlexRender
-                        context={header.getContext()}
-                        content={header.column.columnDef.footer}
-                      />
-                    {/if}
-                  </TableHead>
-                {/each}
+                  {#each footer_group.headers as header (header.id)}
+                    <TableHead colspan={header.colSpan}>
+                      {#if !header.isPlaceholder}
+                        <FlexRender
+                          context={header.getContext()}
+                          content={header.column.columnDef.footer}
+                        />
+                      {/if}
+                    </TableHead>
+                  {/each}
 
-                {#if input.actions}
-                  <TableHead colspan={1}></TableHead>
-                {/if}
-              </TableRow>
-            {/each}
-          </TableFooter>
+                  {#if input.actions}
+                    <TableHead colspan={1}></TableHead>
+                  {/if}
+                </TableRow>
+              {/each}
+            </TableFooter>
+          {/if}
         </TableRoot>
       </div>
     </div>

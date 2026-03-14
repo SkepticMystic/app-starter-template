@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -13,7 +13,7 @@
 <thead
   bind:this={ref}
   data-slot="table-header"
-  class={cn("[&_tr]:border-b", className)}
+  class={["[&_tr]:border-b", className]}
   {...restProps}
 >
   {@render children?.()}

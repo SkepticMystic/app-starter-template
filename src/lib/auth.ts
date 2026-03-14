@@ -3,14 +3,19 @@ import {
   BETTER_AUTH_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  PAYSTACK_SECRET_KEY,
   POCKETID_BASE_URL,
   POCKETID_CLIENT_ID,
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
+import { PUBLIC_BASE_URL } from "$env/static/public";
+import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
+import { apiKey } from "@better-auth/api-key";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { passkey } from "@better-auth/passkey";
+import { captureException } from "@sentry/sveltekit";
+import { waitUntil } from "@vercel/functions";
 import type { APIError } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { generateRandomString } from "better-auth/crypto";
 import { betterAuth } from "better-auth/minimal";
 import {
   admin,
@@ -29,35 +34,26 @@ import { AUTH, type IAuth } from "./const/auth/auth.const";
 import { TWO_FACTOR } from "./const/auth/two_factor.const";
 import { EMAIL } from "./const/email.const";
 import { db } from "./server/db/drizzle.db";
-import {
-  AccountTable,
-  InvitationTable,
-  MemberTable,
-  OrganizationTable,
-  PasskeyTable,
-  SessionTable,
-  TwoFactorTable,
-  UserTable,
-  VerificationTable,
-  type Session,
-} from "./server/db/models/auth.model";
+import { type Session } from "./server/db/models/auth.model";
 import { redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
-import { EmailService } from "./services/email.service";
+import { schema } from "./server/db/schema";
+import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
+import { Dicebear } from "./server/services/dicebear/dicebear.service";
+import { EmailService } from "./server/services/email.service";
+import { SubscriptionService } from "./server/services/subscription/subscription.service";
 import { Log } from "./utils/logger.util";
 
 // SECTION: betterAuth init
 export const auth = betterAuth({
   appName: APP.NAME,
+  baseURL: PUBLIC_BASE_URL,
 
-  // NOTE: Can't get this working...
-  // It seems like the behaviour is different when setting baseURL
-  // versus just using the BETTER_AUTH_URL env var
-  // baseURL: APP.URL,
-
-  // .env is not explicitly loaded in prod, so we import it
-  // Rather than running dotenv, or something
-  secret: BETTER_AUTH_SECRET,
+  secrets: [
+    // NOTE: New data is always encrypted with the latest key (first in the array), while decryption automatically tries all configured keys. This lets you roll secrets gradually without downtime or data loss.
+    // {version: 2, value: BETTER_AUTH_SECRET},
+    { version: 1, value: BETTER_AUTH_SECRET }, //
+  ],
 
   logger: {
     level: "debug",
@@ -71,10 +67,13 @@ export const auth = betterAuth({
   },
 
   experimental: {
-    joins: true,
+    // TODO: Enable once BA support dirzzle 1.0
+    joins: false,
   },
 
   advanced: {
+    backgroundTasks: { handler: waitUntil },
+
     database: {
       // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
       // We want UUIDs everywhere, so that the image table can reference resource_id in a generic way
@@ -83,20 +82,9 @@ export const auth = betterAuth({
   },
 
   database: drizzleAdapter(db, {
+    schema,
     provider: "pg",
     debugLogs: false,
-
-    schema: {
-      user: UserTable,
-      account: AccountTable,
-      session: SessionTable,
-      verification: VerificationTable,
-      organization: OrganizationTable,
-      member: MemberTable,
-      invitation: InvitationTable,
-      passkey: PasskeyTable,
-      twoFactor: TwoFactorTable,
-    },
   }),
 
   session: {
@@ -104,12 +92,17 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // Cache duration in seconds
-
-      refreshCache: true,
     },
 
     additionalFields: {
       // NOTE: These are set in the session create hook below
+      org_id: {
+        type: "string",
+        input: false,
+        returned: true,
+        required: false,
+        defaultValue: null,
+      },
       member_id: {
         type: "string",
         input: false,
@@ -124,28 +117,43 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null,
       },
+      active_plan: {
+        type: "string",
+        input: false,
+        returned: true,
+        required: false,
+        defaultValue: null,
+      },
     },
   },
 
-  rateLimit: {
-    // NOTE: defaults to true in production, false in development
-    // enabled: true,
-    // NOTE: defaults to secondary if one is configured
-    // So no need for us to check for redis
-    // storage: redis ? "secondary-storage" : "memory",
-  },
-
   databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          if (!user.image) {
+            const image = Dicebear.get_url({ seed: user.email });
+            if (image.ok) {
+              user.image = image.data;
+            }
+          }
+
+          return { data: user };
+        },
+      },
+    },
     session: {
       create: {
         before: async (session) => {
-          const data = await get_or_create_org_id(session);
+          const data = await get_active_org(session);
 
           return {
             data: {
               ...session,
-
+              org_id: data?.org_id,
               member_id: data?.member_id,
+              member_role: data?.member_role,
+              active_plan: data?.active_plan,
               activeOrganizationId: data?.org_id,
             },
           };
@@ -163,6 +171,11 @@ export const auth = betterAuth({
         );
       },
     },
+  },
+
+  verification: {
+    storeIdentifier: "hashed",
+    storeInDatabase: false,
   },
 
   account: {
@@ -189,8 +202,8 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
+    sendOnSignIn: true,
     autoSignInAfterVerification: true,
-
     sendVerificationEmail: async ({ user, url }) => {
       await EmailService.send(
         EMAIL.TEMPLATES["email-verification"]({ url, user }),
@@ -250,27 +263,80 @@ export const auth = betterAuth({
       },
     }),
 
-    // TODO: Lots of new builtin org features
-    // I probably don't need to be doing so much manually, especially on invites and member roles
     organization({
       allowUserToCreateOrganization: false,
       cancelPendingInvitationsOnReInvite: true,
       requireEmailVerificationOnInvitation: true,
 
-      // schema: {
-      //   session: {
-      //     fields: {
-      //       activeOrganizationId: "org_id",
-      //     },
-      //   },
-      // },
-
-      // Doesn't seem to do anything?
-      // SOURCE: https://github.com/better-auth/better-auth/blob/eb691e213dbe44a3c177d10a2dfd2f39ace0bf98/packages/better-auth/src/plugins/organization/types.ts#L340
-      // autoCreateOrganizationOnSignUp: true,
-
       sendInvitationEmail: async (data) => {
         await EmailService.send(EMAIL.TEMPLATES["org-invite"](data));
+      },
+    }),
+
+    apiKey([
+      {
+        configId: "default",
+        requireName: true,
+        defaultPrefix: "sk_",
+        references: "organization",
+
+        // SOURCE: https://better-auth.com/docs/plugins/api-key/advanced#secondary-storage-with-fallback
+        fallbackToDatabase: true,
+        storage: "secondary-storage",
+      },
+    ]),
+
+    paystack({
+      paystackClient: PaystackClient,
+      paystackWebhookSecret: PAYSTACK_SECRET_KEY,
+
+      organization: {
+        enabled: true,
+        createCustomerOnOrganizationCreate: true,
+      },
+
+      subscription: {
+        enabled: true,
+        requireEmailVerification: true,
+
+        plans: async () => {
+          const plans = await PaystackClient.plan_list({});
+
+          if (plans.error) {
+            Log.error(plans.error, "auth.paystack.subscription.plans.error");
+
+            return [];
+          } else if (plans.data) {
+            return plans.data.data
+              .filter((p) => !p.is_archived && !p.is_deleted)
+              .map((p) => ({
+                name: p.name,
+                amount: p.amount,
+                currency: p.currency,
+                planCode: p.plan_code,
+                invoiceLimit: p.invoice_limit,
+                interval: p.interval as PaystackPlan["interval"],
+              }));
+          } else {
+            Log.error("auth.paystack.subscription.plans no data");
+            return [];
+          }
+        },
+
+        async authorizeReference(data) {
+          const member = await Repo.query(
+            db.query.member.findFirst({
+              columns: { role: true },
+              where: { userId: data.user.id, organizationId: data.referenceId },
+            }),
+          );
+
+          if (!member.ok || !member.data || member.data.role !== "owner") {
+            return false;
+          }
+
+          return true;
+        },
       },
     }),
 
@@ -326,112 +392,78 @@ export const auth = betterAuth({
   ],
 
   // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
-  secondaryStorage: redis
-    ? {
-        get: async (key) => {
-          return redis!.get(key);
-        },
+  secondaryStorage: {
+    get: async (key) => {
+      return redis.get(APP.ID + ":" + key);
+    },
 
-        set: async (key, value, ttl) => {
-          if (ttl) await redis!.set(key, value, { ex: ttl });
-          // or for ioredis:
-          // if (ttl) await redis!.set(key, value, "EX", ttl);
-          else await redis!.set(key, value);
-        },
+    set: async (key, value, ttl) => {
+      if (ttl) await redis.set(APP.ID + ":" + key, value, { ex: ttl });
+      // or for ioredis:
+      // if (ttl) await redis.set(key, value, "EX", ttl);
+      else await redis.set(APP.ID + ":" + key, value);
+    },
 
-        delete: async (key) => {
-          await redis!.del(key);
-        },
-      }
-    : undefined,
+    delete: async (key) => {
+      await redis.del(APP.ID + ":" + key);
+    },
+  },
 });
 // !SECTION
 
 // SECTION: Helper functions
-const get_or_create_org_id = async (
+// NOTE: Renamed from get_or_create_org_id - no longer creates orgs automatically
+// Organizations are now created via the onboarding flow after email verification
+const get_active_org = async (
   session: Pick<Session, "userId">,
 ): Promise<{
   org_id: string;
   member_id: string;
+  member_role: string;
+  active_plan: string;
 } | null> => {
-  // NOTE: Order is preserved when logging, so show ctx first
   const log = Log.child({
     ctx: "[auth.session.create.before]",
     userId: session.userId,
   });
 
-  const member = await Repo.query(
-    db.query.member.findFirst({
-      columns: { id: true, organizationId: true },
-      where: (member, { eq }) => eq(member.userId, session.userId),
-    }),
-  );
+  try {
+    const member = await Repo.query(
+      db.query.member.findFirst({
+        columns: { id: true, organizationId: true, role: true },
+        where: { userId: session.userId },
+        orderBy: { createdAt: "desc" },
+      }),
+    );
 
-  if (!member.ok) {
-    return null;
-  } else if (member.data) {
+    if (!member.ok || !member.data) {
+      log.debug("No organization found for user");
+      return null;
+    }
+
     log.debug(
       { organizationId: member.data.organizationId },
       "Found existing organization",
     );
 
+    const subscription = await SubscriptionService.get_active({
+      session: { org_id: member.data.organizationId },
+    });
+    const active_plan = subscription.ok
+      ? (subscription.data?.plan ?? "free")
+      : "free";
+
     return {
+      active_plan,
       member_id: member.data.id,
+      member_role: member.data.role,
       org_id: member.data.organizationId,
     };
-  }
-
-  log.info("Creating new organization");
-
-  const user = await Repo.query(
-    db.query.user.findFirst({
-      columns: { name: true, email: true },
-      where: (user, { eq }) => eq(user.id, session.userId),
-    }),
-  );
-
-  if (!user.ok || !user.data) {
-    log.error("User not found");
+  } catch (error) {
+    log.error(error, "error unknown");
+    captureException(error);
     return null;
   }
-
-  log.debug({ user }, "User info");
-
-  const org = await Repo.insert_one(
-    db
-      .insert(OrganizationTable)
-      .values({
-        createdAt: new Date(),
-
-        name: `${user.data.name || user.data.email}'s Org`,
-        slug: generateRandomString(8, "a-z", "0-9").toLowerCase(),
-      })
-      .returning(),
-  );
-
-  if (!org.ok) {
-    return null;
-  }
-
-  const new_member = await Repo.insert_one(
-    db
-      .insert(MemberTable)
-      .values({
-        role: "owner",
-        userId: session.userId,
-        organizationId: org.data.id,
-      })
-      .returning(),
-  );
-
-  if (!new_member.ok) {
-    return null;
-  }
-
-  return {
-    org_id: org.data.id,
-    member_id: new_member.data.id,
-  };
 };
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;

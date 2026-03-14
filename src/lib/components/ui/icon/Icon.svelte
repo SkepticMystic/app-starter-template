@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util";
   import type { ClassValue, HTMLAttributes } from "svelte/elements";
 
   let {
@@ -18,7 +17,7 @@
 
 {#snippet icon_snippet()}
   <svg
-    class={cn(bg ? "icon-bg" : "icon", icon, "size-4", klass)}
+    class={[bg ? "icon-bg" : "icon", icon, "size-4", klass]}
     {...rest}
   ></svg>
 {/snippet}

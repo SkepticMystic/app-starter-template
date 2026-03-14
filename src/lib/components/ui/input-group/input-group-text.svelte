@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -12,10 +12,14 @@
 
 <span
   bind:this={ref}
-  class={cn(
-    "flex items-center gap-2 text-sm text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
+  class={[
+    `
+      flex items-center gap-2 text-sm text-muted-foreground
+      [&_svg]:pointer-events-none
+      [&_svg:not([class*='size-'])]:size-4
+    `,
     className,
-  )}
+  ]}
   {...restProps}
 >
   {@render children?.()}

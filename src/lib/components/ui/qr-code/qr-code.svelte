@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn } from "$lib/utils/shadcn.util";
+  import {} from "$lib/utils/shadcn.util";
   import qrcode from "qrcode-generator";
   import type { Snippet } from "svelte";
 
@@ -53,10 +53,10 @@
 </script>
 
 <div
-  class={cn(
+  class={[
     "relative inline-flex shrink-0 items-center justify-center",
     className,
-  )}
+  ]}
   style:width={`${size}px`}
   style:height={`${size}px`}
 >
@@ -64,7 +64,7 @@
     viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
     xmlns="http://www.w3.org/2000/svg"
     shape-rendering="crispEdges"
-    class="h-full w-full"
+    class="size-full"
   >
     <rect
       width={viewBoxSize}
@@ -72,8 +72,8 @@
       fill={backgroundColor}
     />
 
-    {#each matrix as row, r}
-      {#each row as bit, c}
+    {#each matrix as row, r (r)}
+      {#each row as bit, c (c)}
         {#if bit}
           <rect
             x={c + margin}
@@ -89,7 +89,10 @@
 
   {#if logo}
     <div
-      class="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-background p-1 shadow-sm"
+      class="
+        absolute top-1/2 left-1/2 flex -translate-1/2 items-center
+        justify-center rounded-full bg-background p-1 shadow-sm
+      "
       style:width={`${size * logoSize}px`}
       style:height={`${size * logoSize}px`}
     >
@@ -97,7 +100,7 @@
         <img
           src={logo}
           alt="QR Logo"
-          class="h-full w-full object-contain"
+          class="size-full object-contain"
         />
       {:else}
         {@render logo()}
