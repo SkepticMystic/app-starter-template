@@ -20,3 +20,7 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
     vitest: "*"
+
+blockExoticSubdeps: true
+
+trustPolicy: "no-downgrade"
