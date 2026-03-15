@@ -60,12 +60,12 @@ resource "vercel_project_environment_variables" "main" {
     },
     {
       key    = "PUBLIC_BASE_URL"
-      value  = var.app_url
+      value  = "https://${var.app_domain}"
       target = local.prod_only
     },
     {
       key    = "PUBLIC_BASE_URL"
-      value  = var.app_url_dev
+      value  = "http://${var.app_domain_dev}:5173"
       target = local.dev_only
     },
     {
@@ -249,12 +249,7 @@ resource "vercel_project_environment_variables" "main" {
       target    = local.all_envs
       sensitive = false
     },
-    {
-      key       = "CLOUDINARY_UPLOAD_PRESET"
-      value     = var.cloudinary_upload_preset
-      target    = local.all_envs
-      sensitive = false
-    },
+
     {
       key    = "OPENAI_API_KEY"
       value  = var.openai_api_key

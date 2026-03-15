@@ -73,12 +73,6 @@ variable "upstash_region" {
   default     = "af-south-1"
 }
 
-variable "turnstile_domains" {
-  description = "Domains to create Turnstile widgets for"
-  type        = list(string)
-  default     = ["localhost"]
-}
-
 # ---------------------------------------------------------------------------
 # App secrets — passed through to Vercel environment variables
 # ---------------------------------------------------------------------------
@@ -127,16 +121,16 @@ variable "pocketid_base_url" {
   default     = ""
 }
 
-variable "app_url" {
-  description = "URL of the app (e.g. https://app.example.com)"
+variable "app_domain" {
+  description = "Domain of the app (e.g. app.example.com)"
   type        = string
-  default     = "http://localhost:5173"
+  default     = "localhost"
 }
 
-variable "app_url_dev" {
-  description = "URL of the app for local development (e.g. https://app.example.com)"
+variable "app_domain_dev" {
+  description = "Domain of the app for local development (e.g. localhost). No port!"
   type        = string
-  default     = "http://localhost:5173"
+  default     = "localhost"
 }
 
 variable "email_from" {
@@ -233,10 +227,6 @@ variable "cloudinary_cloud_name" {
   type        = string
 }
 
-variable "cloudinary_upload_preset" {
-  description = "Cloudinary upload preset"
-  type        = string
-}
 
 # --- AI services ---
 

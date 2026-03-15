@@ -42,7 +42,10 @@ module "r2_api_token_dev" {
 
 resource "cloudflare_turnstile_widget" "main" {
   account_id = var.cloudflare_account_id
-  domains    = var.turnstile_domains
   mode       = "managed"
   name       = var.project_name
+  domains = [
+    var.app_domain,
+    var.app_domain_dev,
+  ]
 }

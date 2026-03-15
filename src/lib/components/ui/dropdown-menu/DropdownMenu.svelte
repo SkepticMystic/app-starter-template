@@ -85,7 +85,7 @@
     <DropdownMenuGroup>
       <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
 
-      {#each item.items as subaction, i (i)}
+      {#each item.items as subaction}
         {@render item_snippet(subaction)}
       {/each}
     </DropdownMenuGroup>
@@ -108,7 +108,7 @@
   </DropdownMenuTrigger>
 
   <DropdownMenuContent align="end">
-    {#each items as item, i (i)}
+    {#each items as item}
       {@render item_snippet(item)}
     {/each}
   </DropdownMenuContent>
