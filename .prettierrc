@@ -1,12 +1,14 @@
 {
-  "printWidth": 100,
-
-  "svelteBracketNewLine": true,
+  "bracketSameLine": false,
   "singleAttributePerLine": true,
 
   "tailwindStylesheet": "./src/routes/layout.css",
 
-  "plugins": ["@prettier/plugin-oxc", "prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
+  "plugins": [
+    "@prettier/plugin-oxc",
+    "prettier-plugin-svelte",
+    "prettier-plugin-tailwindcss"
+  ],
   "overrides": [
     {
       "files": "*.svelte",

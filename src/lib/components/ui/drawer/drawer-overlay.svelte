@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import { Drawer as DrawerPrimitive } from "vaul-svelte";
 
   let {

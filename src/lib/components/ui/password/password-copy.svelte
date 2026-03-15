@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import CopyButton from "../copy-button/copy-button.svelte";
   import { usePasswordCopy } from "./password.svelte.js";
   import type { PasswordCopyButtonProps } from "./types.js";

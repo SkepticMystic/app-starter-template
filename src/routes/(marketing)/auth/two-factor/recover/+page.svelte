@@ -20,9 +20,9 @@
     {/snippet}
 
     {#snippet footer()}
-      <Anchor href={resolve("/auth/two-factor")}>
-        Found your 2FA device? Enter your code
-      </Anchor>
+      <Anchor href={resolve("/auth/two-factor")}
+        >Found your 2FA device? Enter your code</Anchor
+      >
     {/snippet}
   </Card>
 </article>

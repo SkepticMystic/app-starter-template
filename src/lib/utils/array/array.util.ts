@@ -1,6 +1,6 @@
-export type Resource<
-  T extends Record<string, unknown> = Record<string, unknown>,
-> = T & { id: string };
+export type Resource<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+  id: string;
+};
 
 /** Find an item by its ID */
 const find = <T extends Record<string, unknown>>(

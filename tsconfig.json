@@ -17,6 +17,6 @@
     "useUnknownInCatchVariables": true,
 
     // "rootDir": "./src",
-    "types": ["node", "umami"],
-  },
+    "types": ["node", "umami"]
+  }
 }

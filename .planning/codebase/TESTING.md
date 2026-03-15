@@ -104,7 +104,11 @@ const createResource = (
   id: string,
   name: string,
   value: number,
-): TestResource => ({ id, name, value });
+): TestResource => ({
+  id,
+  name,
+  value,
+});
 
 const testData: TestResource[] = [
   createResource("1", "first", 10),

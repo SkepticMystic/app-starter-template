@@ -1,5 +1,4 @@
 <script lang="ts">
-  
   import qrcode from "qrcode-generator";
   import type { Snippet } from "svelte";
 

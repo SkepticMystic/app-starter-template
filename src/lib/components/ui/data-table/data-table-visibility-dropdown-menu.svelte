@@ -36,9 +36,9 @@
 
   <DropdownMenuContent align="end">
     {#if table.getState().grouping?.length}
-      <DropdownMenuItem onclick={() => table.resetGrouping(true)}>
-        Reset grouping
-      </DropdownMenuItem>
+      <DropdownMenuItem onclick={() => table.resetGrouping(true)}
+        >Reset grouping</DropdownMenuItem
+      >
 
       <DropdownMenuSeparator />
     {/if}
