@@ -1,6 +1,7 @@
 import { sentrySvelteKit } from "@sentry/sveltekit";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
+import devtoolsJson from "vite-plugin-devtools-json";
 import { defineConfig } from "vite-plus";
 
 const SONDA = process.env.SONDA;
@@ -69,7 +70,7 @@ export default defineConfig({
   },
 
   build: { sourcemap: Boolean(SONDA) },
-  plugins: [sentrySvelteKit({ telemetry: false }), tailwindcss(), sveltekit()],
+  plugins: [sentrySvelteKit({ telemetry: false }), tailwindcss(), sveltekit(), devtoolsJson()],
 
   test: {
     expect: { requireAssertions: true },

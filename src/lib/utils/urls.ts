@@ -1,26 +1,18 @@
 import { captureException } from "@sentry/sveltekit";
 
-const add_search = (
-  url: URL,
-  search: URLSearchParams | Record<string, unknown>,
-) => {
-  const resolved =
-    search instanceof URLSearchParams ? Object.fromEntries(search) : search;
+const add_search = (url: URL, search: URLSearchParams | Record<string, unknown>) => {
+  const resolved = search instanceof URLSearchParams ? Object.fromEntries(search) : search;
 
   for (const key in resolved) {
     if (resolved[key] === undefined) continue;
 
-    url.searchParams.set(key, String(resolved[key]));
+    url.searchParams.set(key, JSON.stringify(resolved[key]));
   }
 
   return url;
 };
 
-const build = (
-  base: string,
-  path: string,
-  search?: URLSearchParams | Record<string, unknown>,
-) => {
+const build = (base: string, path: string, search?: URLSearchParams | Record<string, unknown>) => {
   try {
     const url = new URL(base + path);
 

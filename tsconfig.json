@@ -1,27 +1,22 @@
 {
-  "$schema": "https://www.schemastore.org/tsconfig",
-  "_version": "5.0.0",
-
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
-    "strict": true,
+    "rewriteRelativeImportExtensions": true,
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "bundler",
+
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true,
 
-    "rootDir": "./src",
+    // "rootDir": "./src",
     "types": ["node", "umami"],
-    "noEmit": true,
-    "sourceMap": true,
-
-    "skipLibCheck": true,
-
-    "module": "esnext",
-    "target": "es2025",
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "esModuleInterop": true
-  }
+  },
 }
