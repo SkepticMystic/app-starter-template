@@ -2,10 +2,7 @@ import { getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
-import {
-  OrganizationTable,
-  type OrganizationSchema,
-} from "$lib/server/db/models/auth.model";
+import { OrganizationTable, type OrganizationSchema } from "$lib/server/db/models/auth.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
@@ -130,16 +127,14 @@ const owner_delete = async (org_id: string, session: App.Session) => {
 };
 
 const admin_delete = async (org_id: string) => {
-  authorize_event({ admin: true });
+  const check = authorize_event({ admin: true });
+  if (!check.ok) return check;
 
   const l = log.child({ method: "admin_delete" });
 
   try {
     const res = await Repo.delete_one(
-      db
-        .delete(OrganizationTable)
-        .where(eq(OrganizationTable.id, org_id))
-        .execute(),
+      db.delete(OrganizationTable).where(eq(OrganizationTable.id, org_id)).execute(),
     );
 
     return res;
