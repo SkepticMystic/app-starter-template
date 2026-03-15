@@ -9,7 +9,7 @@
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";
-  import Captcha from "../captcha/Captcha.svelte";
+  import CaptchaField from "../captcha/CaptchaField.svelte";
 
   let {
     on_success,
@@ -76,18 +76,10 @@
       {/snippet}
     </Field>
 
-    <Field
-      label=""
-      field={form.fields.captcha_token}
-    >
-      {#snippet input({ props, field })}
-        <Captcha
-          {...props}
-          {...field?.as("text")}
-          bind:reset={reset_captcha}
-        />
-      {/snippet}
-    </Field>
+    <CaptchaField
+      {form}
+      bind:reset={reset_captcha}
+    />
 
     <FormButton
       {form}

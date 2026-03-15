@@ -9,7 +9,7 @@
   import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { toast } from "svelte-sonner";
-  import Captcha from "../auth/captcha/Captcha.svelte";
+  import CaptchaField from "../auth/captcha/CaptchaField.svelte";
   import FormErrors from "../FormErrors.svelte";
 
   let {
@@ -109,18 +109,10 @@
     {/snippet}
   </Field>
 
-  <Field
-    label=""
-    field={form.fields.captcha_token}
-  >
-    {#snippet input({ props, field })}
-      <Captcha
-        {...props}
-        {...field?.as("text")}
-        bind:reset={reset_captcha}
-      />
-    {/snippet}
-  </Field>
+  <CaptchaField
+    {form}
+    bind:reset={reset_captcha}
+  />
 
   <input
     {...form.fields.redirect_uri.as("hidden", redirect_uri ?? "/onboarding")}

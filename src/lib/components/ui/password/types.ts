@@ -1,12 +1,12 @@
+import type { ZxcvbnResult } from "@zxcvbn-ts/core";
 import type {
-  WithChildren,
-  WithoutChildren,
   Meter as MeterPrimitive,
   Toggle as TogglePrimitive,
+  WithChildren,
+  WithoutChildren,
 } from "bits-ui";
 import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
 import type { CopyButtonProps } from "../copy-button/types";
-import type { ZxcvbnResult } from "@zxcvbn-ts/core";
 
 export type PasswordRootPropsWithoutHTML = WithChildren<{
   ref?: HTMLDivElement | null;
@@ -18,9 +18,7 @@ export type PasswordRootPropsWithoutHTML = WithChildren<{
   minScore?: 0 | 1 | 2 | 3 | 4;
 }>;
 
-export type PasswordRootProps = WithoutChildren<
-  HTMLAttributes<HTMLDivElement>
-> &
+export type PasswordRootProps = WithoutChildren<HTMLAttributes<HTMLDivElement>> &
   PasswordRootPropsWithoutHTML;
 
 export type PasswordInputPropsWithoutHTML = WithChildren<{
@@ -39,10 +37,7 @@ export type PasswordToggleVisibilityProps = Omit<
   "children" | "pressed" | "aria-label" | "tabindex"
 >;
 
-export type PasswordCopyButtonProps = Omit<
-  CopyButtonProps,
-  "children" | "text"
->;
+export type PasswordCopyButtonProps = Omit<CopyButtonProps, "children" | "text">;
 
 export type PasswordStrengthPropsWithoutHTML = {
   strength?: ZxcvbnResult;

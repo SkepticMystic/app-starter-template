@@ -53,8 +53,6 @@
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.55.1",
-    "@eslint/compat": "^2.0.3",
-    "@eslint/js": "^10.0.1",
     "@iconify-json/lucide": "^1.2.98",
     "@iconify/tailwind4": "^1.2.3",
     "@internationalized/date": "^3.12.0",
@@ -76,9 +74,6 @@
     "@zxcvbn-ts/language-en": "^3.0.2",
     "cloudinary": "^2.9.0",
     "drizzle-kit": "1.0.0-beta.17-67b1795",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-better-tailwindcss": "^4.3.2",
-    "eslint-plugin-oxlint": "^1.55.0",
     "eslint-plugin-svelte": "^3.15.2",
     "globals": "^17.4.0",
     "isomorphic-dompurify": "2.26.0",

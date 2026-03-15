@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {} from "$lib/utils/shadcn.util";
+  
   import { Drawer as DrawerPrimitive } from "vaul-svelte";
 
   let {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Captcha from "$lib/components/form/auth/captcha/Captcha.svelte";
+  import CaptchaField from "$lib/components/form/auth/captcha/CaptchaField.svelte";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
@@ -53,18 +53,10 @@
           {/snippet}
         </Field>
 
-        <Field
-          label=""
-          field={form.fields.captcha_token}
-        >
-          {#snippet input({ props, field })}
-            <Captcha
-              {...props}
-              {...field?.as("text")}
-              bind:reset={reset_captcha}
-            />
-          {/snippet}
-        </Field>
+        <CaptchaField
+          {form}
+          bind:reset={reset_captcha}
+        />
 
         <FormButton
           {form}

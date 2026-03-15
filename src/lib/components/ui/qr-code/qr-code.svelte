@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {} from "$lib/utils/shadcn.util";
+  
   import qrcode from "qrcode-generator";
   import type { Snippet } from "svelte";
 
