@@ -69,7 +69,10 @@ export default defineConfig({
     },
   },
 
-  build: { sourcemap: Boolean(SONDA) },
+  build: {
+    sourcemap: SONDA ? true : undefined,
+  },
+
   plugins: [sentrySvelteKit({ telemetry: false }), tailwindcss(), sveltekit(), devtoolsJson()],
 
   test: {
