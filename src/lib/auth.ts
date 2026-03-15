@@ -19,12 +19,12 @@ import type { APIError } from "better-auth";
 import { betterAuth } from "better-auth/minimal";
 import {
   admin,
+  captcha,
   genericOAuth,
   haveIBeenPwned,
   lastLoginMethod,
   organization,
   twoFactor,
-  captcha,
   type GenericOAuthConfig,
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
@@ -39,6 +39,7 @@ import { redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
 import { schema } from "./server/db/schema";
 import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
+import { AdapterService } from "./server/services/adapter/adapter.service";
 import { Dicebear } from "./server/services/dicebear/dicebear.service";
 import { EmailService } from "./server/services/email.service";
 import { SubscriptionService } from "./server/services/subscription/subscription.service";
@@ -124,6 +125,14 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null,
       },
+
+      country: {
+        type: "string",
+        input: false,
+        returned: true,
+        required: false,
+        defaultValue: null,
+      },
     },
   },
 
@@ -145,11 +154,15 @@ export const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
+          const geo = AdapterService.get_geo();
+
           const data = await get_active_org(session);
 
           return {
             data: {
               ...session,
+              country: geo.country,
+
               org_id: data?.org_id,
               member_id: data?.member_id,
               member_role: data?.member_role,
