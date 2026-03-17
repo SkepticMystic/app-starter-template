@@ -1,25 +1,24 @@
 blockExoticSubdeps: true
-# trustPolicy: "no-downgrade"
 
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@^0.1.11
-  vite-plus: ^0.1.11
-  vitest: npm:@voidzero-dev/vite-plus-test@^0.1.11
+  vite: npm:@voidzero-dev/vite-plus-core@^0.1.12
+  vite-plus: ^0.1.12
+  vitest: npm:@voidzero-dev/vite-plus-test@^0.1.12
 
 onlyBuiltDependencies:
-  - "@sentry/cli"
+  - '@sentry/cli'
   - esbuild
   - svelte-preprocess
-  - "@tailwindcss/oxide"
+  - '@tailwindcss/oxide'
 
 overrides:
-  vite: "catalog:"
-  vitest: "catalog:"
+  vite: 'catalog:'
+  vitest: 'catalog:'
 
 peerDependencyRules:
   allowAny:
     - vite
     - vitest
   allowedVersions:
-    vite: "*"
-    vitest: "*"
+    vite: '*'
+    vitest: '*'
