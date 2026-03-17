@@ -10,9 +10,7 @@ const log = Log.child({ service: "Account" });
 
 const list = async (
   _session: App.Session,
-): Promise<
-  App.Result<Awaited<ReturnType<typeof auth.api.listUserAccounts>>>
-> => {
+): Promise<App.Result<Awaited<ReturnType<typeof auth.api.listUserAccounts>>>> => {
   const l = log.child({ method: "list" });
 
   try {
@@ -57,7 +55,7 @@ const unlink = async (
     });
 
     if (res.status) {
-      return result.suc();
+      return result.suc(undefined);
     } else {
       return result.err({ message: "Failed to unlink account" });
     }

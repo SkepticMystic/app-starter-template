@@ -52,7 +52,7 @@ const authorize = (session: App.Session | null, options?: Options): App.Result<u
       }
     }
 
-    return result.suc();
+    return result.suc(undefined);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

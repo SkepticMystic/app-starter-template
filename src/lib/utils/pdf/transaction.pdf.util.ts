@@ -7,6 +7,13 @@ import { PDF, rgb } from "@libpdf/core";
 import { captureException } from "@sentry/sveltekit";
 import { Format } from "../format.util";
 
+// Helper to estimate text width (rough approximation)
+// Note: libpdf doesn't expose text measurement, so we estimate
+const measure_text = (text: string, size: number): number => {
+  // Average character width is roughly 0.5-0.6 * fontSize for Helvetica
+  return text.length * size * 0.55;
+};
+
 /**
  * Generate PDF receipt for Paystack transaction using libpdf's drawing API
  *
@@ -52,13 +59,6 @@ export async function generate_transaction_pdf(input: {
     const MARGIN = 50;
     const LINE_HEIGHT = 14;
     let y = PAGE_HEIGHT - MARGIN; // Start from top (libpdf y=0 is bottom, so we flip)
-
-    // Helper to estimate text width (rough approximation)
-    // Note: libpdf doesn't expose text measurement, so we estimate
-    const measure_text = (text: string, size: number): number => {
-      // Average character width is roughly 0.5-0.6 * fontSize for Helvetica
-      return text.length * size * 0.55;
-    };
 
     // ===== APP HEADER =====
     page.drawText(APP.NAME, {
@@ -170,11 +170,9 @@ export async function generate_transaction_pdf(input: {
       size: 10,
       color: rgb(0.4, 0.4, 0.4),
     });
-    const status_color =
-      input.transaction.status === "success" ? rgb(0, 0.6, 0) : rgb(0.8, 0, 0);
+    const status_color = input.transaction.status === "success" ? rgb(0, 0.6, 0) : rgb(0.8, 0, 0);
     page.drawText(
-      input.transaction.status.charAt(0).toUpperCase() +
-        input.transaction.status.slice(1),
+      input.transaction.status.charAt(0).toUpperCase() + input.transaction.status.slice(1),
       {
         x: MARGIN + 120,
         y: y,
@@ -236,15 +234,12 @@ export async function generate_transaction_pdf(input: {
       color: rgb(0.4, 0.4, 0.4),
     });
 
-    page.drawText(
-      "For any questions or concerns, please visit our website or contact support.",
-      {
-        x: MARGIN,
-        y: footer_y,
-        size: 9,
-        color: rgb(0.4, 0.4, 0.4),
-      },
-    );
+    page.drawText("For any questions or concerns, please visit our website or contact support.", {
+      x: MARGIN,
+      y: footer_y,
+      size: 9,
+      color: rgb(0.4, 0.4, 0.4),
+    });
 
     const pdf_buffer = await doc.save();
 

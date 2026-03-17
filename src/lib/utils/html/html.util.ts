@@ -1,7 +1,6 @@
 import type { Branded } from "$lib/interfaces/zod/zod.type";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitize } from "isomorphic-dompurify";
 
 export const HTMLUtil = {
-  sanitize: (dirty: string) =>
-    DOMPurify.sanitize(dirty) as Branded<"SanitizedHTML">,
+  sanitize: (dirty: string) => sanitize(dirty) as Branded<"SanitizedHTML">,
 };

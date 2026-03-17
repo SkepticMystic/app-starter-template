@@ -15,7 +15,7 @@ export default defineConfig({
     plugins: ["oxc", "typescript", "unicorn", "vitest", "promise", "import", "node"],
     categories: {
       correctness: "error",
-      // suspicious: "warn",
+      suspicious: "warn",
       perf: "warn",
       // style: "warn",
       // nursery: "warn",

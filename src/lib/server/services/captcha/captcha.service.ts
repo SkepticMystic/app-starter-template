@@ -1,56 +1,58 @@
 import { CAPTCHA_SECRET_KEY } from "$env/static/private";
 import { ERROR } from "$lib/const/error.const";
+import { AdapterService } from "$lib/server/services/adapter/adapter.service";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { AdapterService } from "../adapter/adapter.service";
+import { z } from "zod";
 
 const log = Log.child({ service: "Captcha" });
 
-type TurnstileResponse = {
-  success: boolean;
-  "error-codes"?: string[] | undefined;
-  challenge_ts?: string | undefined;
-  hostname?: string | undefined;
-  action?: string | undefined;
-  cdata?: string | undefined;
-  metadata?: { interactive: boolean } | undefined;
-  messages?: string[] | undefined;
-};
+const turnstile_response_schema = z.object({
+  cdata: z.string(),
+  action: z.string(),
+  success: z.boolean(),
+  "error-codes": z.array(z.string()),
 
-const verify = async (
-  token: string,
-): Promise<App.Result<TurnstileResponse>> => {
+  hostname: z.string().optional(),
+  challenge_ts: z.string().optional(),
+  messages: z.array(z.string()).optional(),
+  metadata: z.object({ interactive: z.boolean() }).optional(),
+});
+
+type TurnstileResponse = z.output<typeof turnstile_response_schema>;
+
+const verify = async (token: string): Promise<App.Result<TurnstileResponse>> => {
   try {
     const remoteip = AdapterService.get_ip() ?? undefined;
 
-    const response = await fetch(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          remoteip,
-          response: token,
-          secret: CAPTCHA_SECRET_KEY,
-        }),
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        remoteip,
+        response: token,
+        secret: CAPTCHA_SECRET_KEY,
+      }),
+    });
 
-    const data = (await response.json()) as TurnstileResponse;
+    const json = await response.json();
+    const data = turnstile_response_schema.parse(json);
 
     if (data.success) {
       return result.suc(data);
     } else {
-      log.warn(data, "verify.error !data.success");
+      log.warn(data, "Failed to verify captcha token");
       return result.err(ERROR.FORBIDDEN);
     }
   } catch (error) {
-    log.error(error, "verify.error unknown");
+    log.error(error, "error unknown");
 
     captureException(error);
 
-    return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    return result.err(ERROR.FORBIDDEN);
   }
 };
 

@@ -2,15 +2,13 @@ import { command, form } from "$app/server";
 import { get_session } from "$lib/server/services/auth.service";
 import { APIKeyService } from "$lib/server/services/auth/apikey/apikey.service";
 import { invalid } from "@sveltejs/kit";
-import z from "zod";
+import { z } from "zod";
 
 export const create_apikey_remote = form(
   z.object({
     name: z.string().optional(),
     expiresIn: z.union([
-      z.coerce
-        .number<string>()
-        .min(1, "API key expiration must be at least 1 second"),
+      z.coerce.number<string>().min(1, "API key expiration must be at least 1 second"),
       z.literal("").transform(() => undefined),
     ]),
   }),

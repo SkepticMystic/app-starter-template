@@ -6,7 +6,7 @@ import { Repo } from "$lib/server/db/repos/index.repo";
 import { get_session } from "$lib/server/services/auth.service";
 import { TaskService } from "$lib/server/services/task/task.service";
 import { result } from "$lib/utils/result.util";
-import z from "zod";
+import { z } from "zod";
 
 export const get_all_tasks_remote = query(async () => {
   const session = await get_session();
@@ -59,7 +59,7 @@ export const delete_task_remote = command(
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await TaskService.delete(task_id, session.data);
+    const res = await TaskService.del(task_id, session.data);
 
     return res;
   },

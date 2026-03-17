@@ -20,7 +20,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { captureException } from "@sentry/sveltekit";
 import type { Readable } from "stream";
-import type z from "zod";
+import type { z } from "zod";
 
 const log = Log.child({ service: "R2" });
 
@@ -72,10 +72,7 @@ export const R2Service = {
   /**
    * Upload a file to R2 storage
    */
-  async put_file(input: {
-    key: string;
-    file: File;
-  }): Promise<App.Result<PutObjectCommandOutput>> {
+  async put_file(input: { key: string; file: File }): Promise<App.Result<PutObjectCommandOutput>> {
     try {
       const buffer = await input.file.arrayBuffer();
       const body = new Uint8Array(buffer);
@@ -111,7 +108,7 @@ export const R2Service = {
 
       log.debug(delete_res, "delete.delete_res");
 
-      return result.suc();
+      return result.suc(undefined);
     } catch (error) {
       log.error(error, "delete.error unknown");
       captureException(error);
@@ -126,9 +123,7 @@ export const R2Service = {
    */
   async get(
     key: string,
-  ): Promise<
-    App.Result<{ buffer: Uint8Array; content_type: string; size: number }>
-  > {
+  ): Promise<App.Result<{ buffer: Uint8Array; content_type: string; size: number }>> {
     try {
       const response = await r2_client.send(
         new GetObjectCommand({

@@ -19,10 +19,7 @@ const DEFAULT_OPTIONS: ClientRequestOptions<unknown, unknown> = {
 };
 
 const wrap = <I, D>(
-  cb: (
-    input: I,
-    options?: Partial<ClientRequestOptions<I, D>>,
-  ) => Promise<App.Result<D>>,
+  cb: (input: I, options?: Partial<ClientRequestOptions<I, D>>) => Promise<App.Result<D>>,
   client_options?: Partial<ClientRequestOptions<I, D>>,
 ): typeof cb => {
   return async (input, callsite_options) => {
@@ -40,18 +37,20 @@ const wrap = <I, D>(
             : resolved.confirm,
         )
       ) {
-        return result.err();
+        return result.err({
+          message: "Action cancelled",
+        });
       }
     }
 
     if (resolved.prompt) {
       const target =
-        typeof resolved.prompt === "function"
-          ? resolved.prompt(input)
-          : resolved.prompt;
+        typeof resolved.prompt === "function" ? resolved.prompt(input) : resolved.prompt;
 
       if (prompt(`Type "${target}" to confirm`) !== target) {
-        return result.err();
+        return result.err({
+          message: "Action cancelled",
+        });
       }
     }
 
@@ -88,7 +87,9 @@ const wrap = <I, D>(
         console.log("Client.wrap.error.unknown", error);
 
         toast.error("Internal server error");
-        return result.err();
+        return result.err({
+          message: "Internal server error",
+        });
       }
     }
   };

@@ -13,7 +13,7 @@ const log = Log.child({ service: "Session" });
  * @returns session - BA session, not necessarily our overridden shape (not sure)
  */
 const patch = async (
-  patch: Partial<App.Session["session"]>,
+  input: Partial<App.Session["session"]>,
   session: { session: { token: string } },
 ) => {
   const l = log.child({ method: "patch" });
@@ -21,12 +21,12 @@ const patch = async (
   try {
     const res = await (
       await auth.$context
-    ).internalAdapter.updateSession(session.session.token, patch);
+    ).internalAdapter.updateSession(session.session.token, input);
     // NOTE: This new way only allows you to set session fields that have `input: true`
     // But we want to modify non-user fields
     // const res = await auth.api.updateSession({
     //   headers: getRequestEvent().request.headers,
-    //   body: patch,
+    //   body: input,
     // });
 
     if (!res) {

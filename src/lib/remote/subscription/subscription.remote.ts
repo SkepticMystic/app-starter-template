@@ -2,7 +2,7 @@ import { command, form, query } from "$app/server";
 import { get_session } from "$lib/server/services/auth.service";
 import { SubscriptionService } from "$lib/server/services/subscription/subscription.service";
 import { result } from "$lib/utils/result.util";
-import z from "zod";
+import { z } from "zod";
 
 export const get_active_subscription_remote = query(async () => {
   const session = await get_session();
@@ -40,10 +40,7 @@ export const disable_subscription_remote = command(
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await SubscriptionService.disable(
-      input.subscription_id,
-      session.data,
-    );
+    const res = await SubscriptionService.disable(input.subscription_id, session.data);
 
     if (res.ok) {
       await get_active_subscription_remote().refresh();
@@ -61,10 +58,7 @@ export const enable_subscription_remote = command(
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await SubscriptionService.enable(
-      input.subscription_id,
-      session.data,
-    );
+    const res = await SubscriptionService.enable(input.subscription_id, session.data);
 
     if (res.ok) {
       await get_active_subscription_remote().refresh();

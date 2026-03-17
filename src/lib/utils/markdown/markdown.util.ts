@@ -6,7 +6,7 @@ import { marked } from "marked";
  * Returns a branded type for XSS safety
  */
 export const Markdown = {
-  to_html: (markdown: string): Branded<"PrerenderedHTML"> => {
+  to_html: (markdown: string) => {
     return marked.parse(markdown, {
       gfm: true, // GitHub Flavored Markdown
       async: false,

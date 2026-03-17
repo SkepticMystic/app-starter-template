@@ -1,5 +1,6 @@
 import {
   createTable,
+  isFunction,
   type RowData,
   type TableOptions,
   type TableOptionsResolved,
@@ -58,7 +59,7 @@ export function createSvelteTable<TData extends RowData>(options: TableOptions<T
 
         // oxlint-disable-next-line @typescript-eslint/no-explicit-any
         onStateChange: (updater: any) => {
-          if (updater instanceof Function) state = updater(state);
+          if (isFunction(updater)) state = updater(state);
           else state = mergeObjects(state, updater);
 
           options.onStateChange?.(updater);

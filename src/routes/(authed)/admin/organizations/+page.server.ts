@@ -13,7 +13,7 @@ export const load = (async () => {
 
   const orgs = await Repo.query(
     db.query.organization.findMany({
-      orderBy: (orgs, { desc }) => [desc(orgs.createdAt)],
+      orderBy: { createdAt: "desc" },
 
       columns: {
         id: true,

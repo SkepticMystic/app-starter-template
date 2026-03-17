@@ -5,7 +5,7 @@ import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
 import { invalid } from "@sveltejs/kit";
 import { TWO_FACTOR_ERROR_CODES } from "better-auth/plugins";
 import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "bits-ui";
-import z from "zod";
+import { z } from "zod";
 
 export const enable_two_factor_remote = form(
   z.object({ password: z.string().min(1, "Please enter your password") }),
@@ -44,10 +44,7 @@ export const verify_totp_remote = form(
       .string()
       .min(1, TWO_FACTOR_ERROR_CODES.INVALID_CODE)
       .max(TWO_FACTOR.TOTP.DIGITS, TWO_FACTOR_ERROR_CODES.INVALID_CODE)
-      .regex(
-        new RegExp(REGEXP_ONLY_DIGITS),
-        TWO_FACTOR_ERROR_CODES.INVALID_CODE,
-      ),
+      .regex(new RegExp(REGEXP_ONLY_DIGITS), TWO_FACTOR_ERROR_CODES.INVALID_CODE),
   }),
   async (input) => {
     const res = await TwoFactorService.verify_totp(input);
@@ -64,10 +61,7 @@ export const verify_two_factor_backup_code_remote = form(
     code: z
       .string()
       .min(1, TWO_FACTOR_ERROR_CODES.INVALID_BACKUP_CODE)
-      .regex(
-        new RegExp(REGEXP_ONLY_DIGITS_AND_CHARS),
-        TWO_FACTOR_ERROR_CODES.INVALID_BACKUP_CODE,
-      ),
+      .regex(new RegExp(REGEXP_ONLY_DIGITS_AND_CHARS), TWO_FACTOR_ERROR_CODES.INVALID_BACKUP_CODE),
     trust_device: z.boolean().default(false),
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),

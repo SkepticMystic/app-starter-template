@@ -5,7 +5,7 @@ import { Repo } from "$lib/server/db/repos/index.repo";
 import { get_session } from "$lib/server/services/auth.service";
 import { AccountService } from "$lib/server/services/auth/account/account.service";
 import { error } from "@sveltejs/kit";
-import z from "zod";
+import { z } from "zod";
 
 export const get_account_by_provider_id_remote = query.batch(
   z.enum(AUTH.PROVIDERS.IDS),

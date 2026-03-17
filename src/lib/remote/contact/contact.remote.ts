@@ -8,7 +8,7 @@ import { RateLimiter } from "$lib/server/services/rate_limit/rate_limit.service"
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import z from "zod";
+import { z } from "zod";
 
 const rate_limiter = new RateLimiter("contact_us_remote", {
   max_tokens: 3,
@@ -24,11 +24,6 @@ export const contact_us_remote = form(
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input) => {
-    const captcha = await CaptchaService.verify(input.captcha_token);
-    if (!captcha.ok) {
-      return captcha;
-    }
-
     try {
       const captcha = await CaptchaService.verify(input.captcha_token);
       if (!captcha.ok) return captcha;
@@ -45,7 +40,7 @@ export const contact_us_remote = form(
 
       await EmailService.send(EMAIL.TEMPLATES["admin-contact-form"](input));
 
-      return result.suc();
+      return result.suc(undefined);
     } catch (error) {
       Log.error(error, "contact_us_remote.error unknown");
 

@@ -91,17 +91,17 @@ const upload = async (
   const array_buffer = await input.file.arrayBuffer();
   const buffer = Buffer.from(array_buffer);
 
-  const [upload, thumbhash] = await Promise.all([
+  const [upload_res, thumbhash] = await Promise.all([
     ImageHostingService.upload(buffer),
     // NOTE: Calling this second in line seems to help with the timeout issue
     ThumbhashService.generate(buffer),
   ]);
-  if (!upload.ok) return upload;
+  if (!upload_res.ok) return upload_res;
 
-  const moderation = await AIModerationService.image(upload.data.url);
+  const moderation = await AIModerationService.image(upload_res.data.url);
   if (!moderation.ok) return moderation;
   else if (moderation.data.flagged) {
-    await ImageHostingService.delete(upload.data.external_id);
+    await ImageHostingService.delete(upload_res.data.external_id);
 
     return result.err({
       ...ERROR.INTERNAL_SERVER_ERROR,
@@ -109,8 +109,8 @@ const upload = async (
     });
   }
 
-  const res = await ImageRepo.create({
-    ...upload.data,
+  const image = await ImageRepo.create({
+    ...upload_res.data,
     resource_id: input.resource_id,
     resource_kind: input.resource_kind,
 
@@ -121,7 +121,7 @@ const upload = async (
     thumbhash: thumbhash.ok ? thumbhash.data : null,
   });
 
-  return res;
+  return image;
 };
 
 const delete_many = async (
@@ -140,12 +140,8 @@ const delete_many = async (
           o.and(
             o.eq(ImageTable.org_id, session.session.org_id),
             input.id ? o.eq(ImageTable.id, input.id) : undefined,
-            input.resource_id
-              ? o.eq(ImageTable.resource_id, input.resource_id)
-              : undefined,
-            input.resource_kind
-              ? o.eq(ImageTable.resource_kind, input.resource_kind)
-              : undefined,
+            input.resource_id ? o.eq(ImageTable.resource_id, input.resource_id) : undefined,
+            input.resource_kind ? o.eq(ImageTable.resource_kind, input.resource_kind) : undefined,
           ),
         )
         .returning(),
@@ -154,18 +150,14 @@ const delete_many = async (
     if (!images.ok) {
       return images;
     } else if (images.data.length === 0) {
-      return result.suc();
+      return result.suc(undefined);
     }
 
     waitUntil(
-      Promise.all(
-        images.data.map((image) =>
-          ImageHostingService.delete(image.external_id),
-        ),
-      ),
+      Promise.all(images.data.map((image) => ImageHostingService.delete(image.external_id))),
     );
 
-    return result.suc();
+    return result.suc(undefined);
   } catch (error) {
     log.error(error, "delete.error");
 

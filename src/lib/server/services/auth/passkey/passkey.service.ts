@@ -77,7 +77,7 @@ const remove = async (passkey_id: string): Promise<App.Result<undefined>> => {
       headers: getRequestEvent().request.headers,
     });
 
-    return result.suc();
+    return result.suc(undefined);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

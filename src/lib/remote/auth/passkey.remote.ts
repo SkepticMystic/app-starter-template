@@ -2,7 +2,7 @@ import { command, form, query } from "$app/server";
 import { get_session } from "$lib/server/services/auth.service";
 import { PasskeyService } from "$lib/server/services/auth/passkey/passkey.service";
 import { invalid } from "@sveltejs/kit";
-import z from "zod";
+import { z } from "zod";
 
 export const list_passkeys_remote = query(async () => {
   const session = await get_session();

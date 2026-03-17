@@ -1,21 +1,17 @@
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
-import {
-  TaskTable,
-  type Task,
-  type TaskSchema,
-} from "$lib/server/db/models/task.model";
+import { TaskTable, type Task, type TaskSchema } from "$lib/server/db/models/task.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { operators } from "drizzle-orm";
-import type z from "zod";
+import type { z } from "zod";
 
 const log = Log.child({ service: "task" });
 
-export class TaskService {
-  static async create(
+export namespace TaskService {
+  export async function create(
     input: z.output<typeof TaskSchema.insert>,
     session: App.Session,
   ): Promise<App.Result<Task>> {
@@ -47,7 +43,7 @@ export class TaskService {
     }
   }
 
-  static async update(
+  export async function update(
     input: z.output<typeof TaskSchema.update>,
     session: App.Session,
   ): Promise<App.Result<Task>> {
@@ -79,10 +75,7 @@ export class TaskService {
     }
   }
 
-  static async delete(
-    task_id: string,
-    session: App.Session,
-  ): Promise<App.Result<void>> {
+  export async function del(task_id: string, session: App.Session): Promise<App.Result<void>> {
     try {
       if (!session.session.org_id) {
         return result.err(ERROR.FORBIDDEN);

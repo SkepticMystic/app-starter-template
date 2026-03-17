@@ -159,9 +159,7 @@ const verify = async (input: {
       // I _think_ it's because the apikey plugin hasn't updated yet?
       if (data.error.message) {
         const message =
-          typeof data.error.message === "string"
-            ? data.error.message
-            : data.error.message.message;
+          typeof data.error.message === "string" ? data.error.message : data.error.message.message;
 
         return result.err({
           ...ERROR.UNAUTHORIZED,
@@ -227,7 +225,7 @@ const del = async (
     });
 
     if (data.success) {
-      return result.suc();
+      return result.suc(undefined);
     } else {
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,

@@ -12,7 +12,7 @@ describe("result", () => {
     });
 
     it("should create success result without data", () => {
-      const res = result.suc();
+      const res = result.suc(undefined);
       expect(res.ok).toBe(true);
     });
 
@@ -35,7 +35,7 @@ describe("result", () => {
     });
 
     it("should create error result without error data", () => {
-      const res = result.err();
+      const res = result.err(undefined);
       expect(res.ok).toBe(false);
     });
 

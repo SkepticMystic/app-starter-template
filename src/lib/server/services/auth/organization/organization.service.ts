@@ -11,7 +11,7 @@ import { APIError } from "better-auth";
 import { generateRandomString } from "better-auth/crypto";
 import type { Organization } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
-import type z from "zod";
+import type { z } from "zod";
 import { authorize_event } from "../../auth.service";
 import { SessionService } from "../session/session.service";
 

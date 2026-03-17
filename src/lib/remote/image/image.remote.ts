@@ -7,7 +7,7 @@ import { get_session } from "$lib/server/services/auth.service";
 import { ImageService } from "$lib/server/services/image/image.service";
 import { RateLimiter } from "$lib/server/services/rate_limit/rate_limit.service";
 import { result } from "$lib/utils/result.util";
-import z from "zod";
+import { z } from "zod";
 
 const upload_limiter = new RateLimiter("image:upload", {
   max_tokens: 10,
@@ -42,10 +42,7 @@ export const upload_images_remote = form(
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const rate = await upload_limiter.consume(
-      session.data.session.org_id,
-      input.files.length,
-    );
+    const rate = await upload_limiter.consume(session.data.session.org_id, input.files.length);
     if (!rate.ok) return rate;
     else if (!rate.data.allowed) {
       return result.err(ERROR.TOO_MANY_REQUESTS);

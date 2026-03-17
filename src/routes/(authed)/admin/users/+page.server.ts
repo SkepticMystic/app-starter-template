@@ -13,7 +13,7 @@ export const load = (async () => {
 
   const users = await Repo.query(
     db.query.user.findMany({
-      orderBy: (users, { desc }) => [desc(users.createdAt)],
+      orderBy: { createdAt: "desc" },
     }),
   ).then((r) => result.unwrap_or(r, []));
 

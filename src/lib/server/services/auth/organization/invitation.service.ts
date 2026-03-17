@@ -8,7 +8,7 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import type { Invitation } from "better-auth/plugins";
-import type z from "zod";
+import type { z } from "zod";
 import { SessionService } from "../session/session.service";
 
 const log = Log.child({ service: "Invitation" });
@@ -37,12 +37,7 @@ const create = async (
         )
       ) {
         return result.from_ba_error(error, { path: ["email"] });
-      } else if (
-        is_ba_error_code(
-          error,
-          "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
-        )
-      ) {
+      } else if (is_ba_error_code(error, "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE")) {
         return result.from_ba_error(error, { path: ["role"] });
       } else {
         captureException(error);
@@ -77,7 +72,7 @@ const cancel = async (invitation_id: string) => {
       });
     }
 
-    return result.suc();
+    return result.suc(undefined);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

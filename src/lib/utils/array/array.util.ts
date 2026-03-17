@@ -27,9 +27,9 @@ const add = <T extends Record<string, unknown>>(
 const patch = <T extends Record<string, unknown>>(
   items: Resource<T>[],
   id: string,
-  patch: Partial<T>,
+  input: Partial<T>,
 ): Resource<T>[] => {
-  return items.map((item) => (item.id === id ? { ...item, ...patch } : item));
+  return items.map((item) => (item.id === id ? { ...item, ...input } : item));
 };
 
 /** Remove an item by its ID */

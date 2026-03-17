@@ -11,7 +11,7 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
-import z from "zod";
+import { z } from "zod";
 
 export const signin_credentials_remote = form(
   z.object({
@@ -78,11 +78,6 @@ export const signup_credentials_remote = form(
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input, issue) => {
-    const captcha = await CaptchaService.verify(input.captcha_token);
-    if (!captcha.ok) {
-      return captcha;
-    }
-
     try {
       const captcha = await CaptchaService.verify(input.captcha_token);
       if (!captcha.ok) return captcha;
@@ -90,7 +85,7 @@ export const signup_credentials_remote = form(
       const email_valid = await EmailValidationService.has_mx_records(input.email);
       if (!email_valid.ok) {
         return email_valid;
-      } else if (email_valid.data === false) {
+      } else if (!email_valid.data) {
         invalid(issue.email("Email address is not valid"));
       }
 

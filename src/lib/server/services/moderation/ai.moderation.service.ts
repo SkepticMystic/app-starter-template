@@ -4,6 +4,7 @@ import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException, metrics } from "@sentry/sveltekit";
 import { transformUrl } from "unpic";
+import { z } from "zod";
 
 const log = Log.child({ service: "AIModeration" });
 
@@ -17,38 +18,51 @@ type MultiModalInput =
       image_url: { url: string };
     };
 
-type ModerationCategory =
-  | "sexual"
-  | "sexual/minors"
-  | "harassment"
-  | "harassment/threatening"
-  | "hate"
-  | "hate/threatening"
-  | "illicit"
-  | "illicit/violent"
-  | "self-harm"
-  | "self-harm/intent"
-  | "self-harm/instructions"
-  | "violence"
-  | "violence/graphic";
+// type ModerationCategory =
+//   | "sexual"
+//   | "sexual/minors"
+//   | "harassment"
+//   | "harassment/threatening"
+//   | "hate"
+//   | "hate/threatening"
+//   | "illicit"
+//   | "illicit/violent"
+//   | "self-harm"
+//   | "self-harm/intent"
+//   | "self-harm/instructions"
+//   | "violence"
+//   | "violence/graphic";
 
-type ModerationResponse = {
-  /** "modr-970d409ef3bef3b70c73d8232df86e7d"; */
-  id: string;
-  /** "omni-moderation-latest"; */
-  model: string;
-  results: [
-    {
-      flagged: boolean;
-      categories: Record<ModerationCategory, number>;
-      category_scores: Record<ModerationCategory, number>;
-      category_applied_input_types: Record<
-        ModerationCategory,
-        ("image" | "text")[]
-      >;
-    },
-  ];
-};
+// type ModerationResponse = {
+//   /** "modr-970d409ef3bef3b70c73d8232df86e7d"; */
+//   id: string;
+//   /** "omni-moderation-latest"; */
+//   model: string;
+//   results: [
+//     {
+//       flagged: boolean;
+//       categories: Record<ModerationCategory, number>;
+//       category_scores: Record<ModerationCategory, number>;
+//       category_applied_input_types: Record<
+//         ModerationCategory,
+//         ("image" | "text")[]
+//       >;
+//     },
+//   ];
+// };
+
+const response_schema = z.object({
+  id: z.string(),
+  model: z.string(),
+  results: z.array(
+    z.object({
+      flagged: z.boolean(),
+      categories: z.record(z.string(), z.number()),
+      category_scores: z.record(z.string(), z.number()),
+      category_applied_input_types: z.record(z.string(), z.array(z.enum(["image", "text"]))),
+    }),
+  ),
+});
 
 const moderate = async (input: {
   input: string | MultiModalInput[];
@@ -86,24 +100,20 @@ const moderate = async (input: {
       return result.err(ERROR.INVALID_INPUT);
     }
 
-    const data = (await response.json()) as ModerationResponse;
+    const json = await response.json();
+    const data = response_schema.parse(json);
 
     log.info(data.results, "data.results");
 
-    metrics.distribution(
-      "AIModerationService.moderate.latency",
-      Date.now() - start_ms,
-      {
-        unit: "milliseconds",
-        attributes: {
-          provider: "openai",
-          model: data.model,
-          response_id: data.id,
+    metrics.distribution("AIModerationService.moderate.latency", Date.now() - start_ms, {
+      unit: "milliseconds",
+      attributes: {
+        provider: "openai",
+        model: data.model,
 
-          input_count: typeof input.input === "string" ? 1 : input.input.length,
-        },
+        input_count: typeof input.input === "string" ? 1 : input.input.length,
       },
-    );
+    });
 
     return result.suc(data.results.map((r) => ({ flagged: r.flagged })));
   } catch (error) {
@@ -115,9 +125,7 @@ const moderate = async (input: {
   }
 };
 
-const moderate_one = async (
-  input: MultiModalInput,
-): Promise<App.Result<{ flagged: boolean }>> => {
+const moderate_one = async (input: MultiModalInput): Promise<App.Result<{ flagged: boolean }>> => {
   const res = await moderate({ input: [input] });
 
   if (!res.ok) return res;
@@ -130,9 +138,7 @@ const moderate_one = async (
   return result.suc(r);
 };
 
-const image = async (
-  url: string,
-): Promise<App.Result<{ flagged: boolean }>> => {
+const image = async (url: string): Promise<App.Result<{ flagged: boolean }>> => {
   const moderation_url = transformUrl({
     url,
     width: 250,

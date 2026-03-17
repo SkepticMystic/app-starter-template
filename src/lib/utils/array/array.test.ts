@@ -1,15 +1,14 @@
 import { describe, expect, it } from "vite-plus/test";
 import { Arrays, type Resource } from "./array.util";
 
+type TestResource = Resource<{ name: string; value: number }>;
+const createResource = (id: string, name: string, value: number): TestResource => ({
+  id,
+  name,
+  value,
+});
+
 describe("Arrays", () => {
-  type TestResource = Resource<{ name: string; value: number }>;
-
-  const createResource = (id: string, name: string, value: number): TestResource => ({
-    id,
-    name,
-    value,
-  });
-
   const testData: TestResource[] = [
     createResource("1", "first", 10),
     createResource("2", "second", 20),

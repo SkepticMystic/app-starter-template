@@ -31,22 +31,22 @@
     AdminClient.ban_user(
       { userId },
       {
-        on_success: (data) =>
+        on_success: (d) =>
           (users = Arrays.patch(users, userId, {
-            banReason: data.user.banReason,
-            banExpires: data.user.banExpires,
-            banned: data.user.banned ?? false,
+            banReason: d.user.banReason,
+            banExpires: d.user.banExpires,
+            banned: d.user.banned ?? false,
           })),
       },
     );
 
   const unban_user = (user_id: string) =>
     AdminClient.unban_user(user_id, {
-      on_success: (data) =>
+      on_success: (d) =>
         (users = Arrays.patch(users, user_id, {
-          banReason: data.user.banReason,
-          banExpires: data.user.banExpires,
-          banned: data.user.banned ?? false,
+          banReason: d.user.banReason,
+          banExpires: d.user.banExpires,
+          banned: d.user.banned ?? false,
         })),
     });
 

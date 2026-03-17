@@ -11,7 +11,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import z from "zod";
+import { z } from "zod";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
 import { ROLES } from "../../../const/auth/role.const";
@@ -132,10 +132,7 @@ export type InsertOrganization = typeof OrganizationTable.$inferInsert;
 
 export const OrganizationSchema = {
   create: createInsertSchema(OrganizationTable, {
-    name: z
-      .string()
-      .trim()
-      .min(2, "Organization name must be at least 2 characters"),
+    name: z.string().trim().min(2, "Organization name must be at least 2 characters"),
     logo: z
       .union([z.url("Logo must be a valid URL"), z.literal("")])
       .transform((v) => v || undefined)

@@ -3,7 +3,7 @@ import { password_schema } from "$lib/schema/password/password.schema";
 import { UserService } from "$lib/server/services/auth/user/user.service";
 import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
 import { invalid } from "@sveltejs/kit";
-import z from "zod";
+import { z } from "zod";
 
 export const update_user_remote = form(
   z.object({

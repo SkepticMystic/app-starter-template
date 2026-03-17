@@ -50,7 +50,7 @@ const get_by_id = async (
     }
 
     default: {
-      Log.error(`Unsupported resource kind: ${resource_kind}`);
+      Log.error("Unsupported resource kind: " + resource_kind);
 
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
