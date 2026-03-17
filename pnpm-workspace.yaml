@@ -6,19 +6,19 @@ catalog:
   vitest: npm:@voidzero-dev/vite-plus-test@^0.1.12
 
 onlyBuiltDependencies:
-  - '@sentry/cli'
+  - "@sentry/cli"
   - esbuild
   - svelte-preprocess
-  - '@tailwindcss/oxide'
+  - "@tailwindcss/oxide"
 
 overrides:
-  vite: 'catalog:'
-  vitest: 'catalog:'
+  vite: "catalog:"
+  vitest: "catalog:"
 
 peerDependencyRules:
   allowAny:
     - vite
     - vitest
   allowedVersions:
-    vite: '*'
-    vitest: '*'
+    vite: "*"
+    vitest: "*"
