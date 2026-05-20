@@ -41,3 +41,15 @@ infra/terraform.tfvars
 coverage/
 
 .mcp.json
+
+# Editors
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Logs / cache
+*.log
+.cache/
