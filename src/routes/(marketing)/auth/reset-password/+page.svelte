@@ -14,6 +14,13 @@
   const form = reset_password_remote;
 </script>
 
+<svelte:head>
+  <meta
+    name="robots"
+    content="noindex,nofollow"
+  />
+</svelte:head>
+
 <article>
   <header>
     <h1>Reset Password</h1>

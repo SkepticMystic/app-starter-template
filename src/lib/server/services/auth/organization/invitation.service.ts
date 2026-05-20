@@ -9,7 +9,6 @@ import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import type { Invitation } from "better-auth/plugins";
 import type { z } from "zod";
-import { SessionService } from "../session/session.service";
 
 const log = Log.child({ service: "Invitation" });
 
@@ -108,6 +107,9 @@ const accept = async (invitation_id: string) => {
       });
     }
 
+    // BA's acceptInvitation calls setActiveOrganization internally, which
+    // fires our session.update databaseHook to populate org_id, member_id,
+    // member_role, and active_plan.
     const res = await auth.api.acceptInvitation({
       body: { invitationId: invitation_id },
       headers: event.request.headers,
@@ -115,16 +117,6 @@ const accept = async (invitation_id: string) => {
     if (!res) {
       return result.err(ERROR.INTERNAL_SERVER_ERROR);
     }
-
-    await SessionService.patch(
-      {
-        member_id: res.member.id,
-        member_role: res.member.role,
-        org_id: res.invitation.organizationId,
-        activeOrganizationId: res.invitation.organizationId,
-      },
-      session,
-    );
 
     return result.suc(res);
   } catch (error) {

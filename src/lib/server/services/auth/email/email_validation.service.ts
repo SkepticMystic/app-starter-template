@@ -7,9 +7,7 @@ import dns from "dns/promises";
 
 const log = Log.child({ service: "EmailValidation" });
 
-const has_mx_records = async (
-  email: Branded<"EmailAddress">,
-): Promise<App.Result<boolean>> => {
+const has_mx_records = async (email: Branded<"EmailAddress">): Promise<App.Result<boolean>> => {
   try {
     const domain = email.split("@")[1];
     if (!domain)
@@ -25,7 +23,7 @@ const has_mx_records = async (
     if (
       error instanceof Error &&
       "code" in error &&
-      error.code === "ENOTFOUND"
+      (error.code === "ENOTFOUND" || error.code === "ENODATA")
     ) {
       // {
       //   "type": "Error",
@@ -35,13 +33,31 @@ const has_mx_records = async (
       //   "hostname": "{hostname}"
       // }
 
-      log.info("has_mx_records.error ENOTFOUND: " + email);
+      // {
+      //   "type": "Error",
+      //   "message": "queryMx ENODATA t.co",
+      //   "code": "ENODATA",
+      //   "syscall": "queryMx",
+      //   "hostname": "t.co"
+      // }
+
+      log.info(
+        {
+          email,
+          code: error.code,
+          message: error.message,
+        },
+        "has_mx_records.error",
+      );
 
       return result.suc(false);
     } else {
       log.error(error, "has_mx_records.error unknown");
 
-      captureException(error, { extra: { email } });
+      captureException(error, {
+        tags: { email: email },
+        contexts: { has_mx_records: { email } },
+      });
 
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,

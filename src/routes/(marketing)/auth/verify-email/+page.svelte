@@ -10,6 +10,13 @@
   const form = send_verification_email_remote;
 </script>
 
+<svelte:head>
+  <meta
+    name="robots"
+    content="noindex,nofollow"
+  />
+</svelte:head>
+
 <Card
   class="mx-auto max-w-sm"
   title="Verify your email address"

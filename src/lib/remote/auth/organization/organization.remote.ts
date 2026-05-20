@@ -36,7 +36,7 @@ export const owner_delete_organization_remote = command(
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await OrganizationService.owner_delete(org_id, session.data);
+    const res = await OrganizationService.owner_delete(org_id);
 
     return res;
   },

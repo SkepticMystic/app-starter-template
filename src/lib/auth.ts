@@ -1,3 +1,4 @@
+import { dev } from "$app/environment";
 import { getRequestEvent } from "$app/server";
 import {
   BETTER_AUTH_SECRET,
@@ -172,6 +173,49 @@ export const auth = betterAuth({
           };
         },
       },
+
+      update: {
+        // Keep our derived org-scoped fields in sync whenever the active
+        // organization changes. BA's `setActiveOrganization` calls
+        // `updateSession(token, { activeOrganizationId })`, which fires this
+        // hook before re-baking the session cookie via `setSessionCookie`.
+        before: async (session, ctx) => {
+          if (!("activeOrganizationId" in session)) return;
+
+          const userId = ctx?.context?.session?.user?.id;
+          if (!userId) return;
+
+          const raw = session.activeOrganizationId;
+          const next_org_id = typeof raw === "string" ? raw : null;
+
+          if (!next_org_id) {
+            return {
+              data: {
+                ...session,
+                org_id: null,
+                member_id: null,
+                member_role: null,
+                active_plan: null,
+              },
+            };
+          }
+
+          const data = await derive_org_session({
+            userId,
+            org_id: next_org_id,
+          });
+
+          return {
+            data: {
+              ...session,
+              org_id: data?.org_id ?? null,
+              member_id: data?.member_id ?? null,
+              member_role: data?.member_role ?? null,
+              active_plan: data?.active_plan ?? null,
+            },
+          };
+        },
+      },
     },
   },
 
@@ -179,6 +223,8 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
+        if (dev) Log.debug(url);
+
         await EmailService.send(EMAIL.TEMPLATES["delete-account-verification"]({ url, user }));
       },
     },
@@ -207,6 +253,8 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
 
     sendResetPassword: async ({ user, url }) => {
+      if (dev) Log.debug(url);
+
       await EmailService.send(EMAIL.TEMPLATES["password-reset"]({ url, user }));
     },
   },
@@ -216,6 +264,8 @@ export const auth = betterAuth({
     sendOnSignIn: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
+      if (dev) Log.debug(url);
+
       await EmailService.send(EMAIL.TEMPLATES["email-verification"]({ url, user }));
     },
   },
@@ -465,10 +515,7 @@ const get_active_org = async (
 
     log.debug({ organizationId: member.data.organizationId }, "Found existing organization");
 
-    const subscription = await SubscriptionService.get_active({
-      session: { org_id: member.data.organizationId },
-    });
-    const active_plan = subscription.ok ? (subscription.data?.plan ?? "free") : "free";
+    const active_plan = await get_active_plan(member.data.organizationId);
 
     return {
       active_plan,
@@ -481,6 +528,70 @@ const get_active_org = async (
     captureException(error);
     return null;
   }
+};
+
+// Resolve the derived session fields for a known (user, org) pair. Used by
+// the session.update hook when the user switches active organization.
+const derive_org_session = async ({
+  userId,
+  org_id,
+}: {
+  userId: string;
+  org_id: string;
+}): Promise<{
+  org_id: string;
+  member_id: string;
+  member_role: string;
+  active_plan: string;
+} | null> => {
+  const log = Log.child({
+    ctx: "[auth.session.update.before]",
+    userId,
+    org_id,
+  });
+
+  try {
+    const member = await Repo.query(
+      db.query.member.findFirst({
+        columns: { id: true, role: true },
+        where: { userId, organizationId: org_id },
+      }),
+    );
+
+    if (!member.ok || !member.data) {
+      log.warn("Membership not found for active org switch");
+      return null;
+    }
+
+    const active_plan = await get_active_plan(org_id);
+
+    return {
+      active_plan,
+      member_id: member.data.id,
+      member_role: member.data.role,
+      org_id,
+    };
+  } catch (error) {
+    log.error(error, "error unknown");
+    captureException(error);
+    return null;
+  }
+};
+
+const get_active_plan = async (org_id: string): Promise<string> => {
+  const subscription = await SubscriptionService.get_active({
+    session: { org_id },
+  });
+
+  if (!subscription.ok) {
+    Log.warn(
+      { org_id },
+      "Subscription query failed during session derivation — defaulting to free",
+    );
+    return "free";
+  }
+
+  return subscription.data?.plan ?? "free";
 };
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;

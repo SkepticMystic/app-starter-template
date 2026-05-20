@@ -1,3 +1,4 @@
+import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystackClient } from "@alexasomba/better-auth-paystack/client";
 import { apiKeyClient } from "@better-auth/api-key/client";
 import { passkeyClient } from "@better-auth/passkey/client";
@@ -16,6 +17,8 @@ import type { auth } from "./auth";
 import { AccessControl } from "./const/auth/access_control.const";
 
 export const BetterAuthClient = createAuthClient({
+  baseURL: PUBLIC_BASE_URL,
+
   plugins: [
     inferAdditionalFields<typeof auth>(),
     passkeyClient(),
@@ -40,9 +43,7 @@ export const BetterAuthClient = createAuthClient({
       if (ctx.response.status === 429) {
         const retry_after = ctx.response.headers.get("Retry-After");
         if (retry_after) {
-          toast.warning(
-            `Rate limit exceeded. Please try again in ${retry_after} seconds.`,
-          );
+          toast.warning(`Rate limit exceeded. Please try again in ${retry_after} seconds.`);
         }
       }
     },
