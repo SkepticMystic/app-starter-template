@@ -10,9 +10,7 @@ const log = Log.child({ service: "TwoFactor" });
 
 const enable = async (input: {
   password: string;
-}): Promise<
-  App.Result<Awaited<ReturnType<typeof auth.api.enableTwoFactor>>>
-> => {
+}): Promise<App.Result<Awaited<ReturnType<typeof auth.api.enableTwoFactor>>>> => {
   const l = log.child({ method: "enable" });
 
   try {
@@ -43,18 +41,16 @@ const enable = async (input: {
   }
 };
 
-const disable = async (input: {
-  password: string;
-}): Promise<App.Result<undefined>> => {
+const disable = async (input: { password: string }): Promise<App.Result<undefined>> => {
   const l = log.child({ method: "disable" });
 
   try {
-    const res = await auth.api.disableTwoFactor({
+    await auth.api.disableTwoFactor({
       body: { password: input.password },
       headers: getRequestEvent().request.headers,
     });
 
-    return result.suc(res);
+    return result.suc(undefined);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
@@ -83,7 +79,7 @@ const verify_totp = async (input: {
   const l = log.child({ method: "verify_totp" });
 
   try {
-    const res = await auth.api.verifyTOTP({
+    await auth.api.verifyTOTP({
       headers: getRequestEvent().request.headers,
       body: {
         code: input.code,
@@ -91,7 +87,7 @@ const verify_totp = async (input: {
       },
     });
 
-    return result.suc(res);
+    return result.suc(undefined);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
@@ -124,7 +120,7 @@ const verify_backup_code = async (input: {
   const l = log.child({ method: "verify_backup_code" });
 
   try {
-    const res = await auth.api.verifyBackupCode({
+    await auth.api.verifyBackupCode({
       headers: getRequestEvent().request.headers,
       body: {
         code: input.code,
@@ -132,7 +128,7 @@ const verify_backup_code = async (input: {
       },
     });
 
-    return result.suc(res);
+    return result.suc(undefined);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

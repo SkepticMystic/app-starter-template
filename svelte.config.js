@@ -5,6 +5,10 @@ const config = {
   kit: {
     adapter: adapter(),
 
+    version: {
+      pollInterval: 300_000,
+    },
+
     experimental: {
       remoteFunctions: true,
 

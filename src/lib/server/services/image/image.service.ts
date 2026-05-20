@@ -2,7 +2,7 @@ import { format_bytes } from "$lib/components/ui/file-drop-zone";
 import { ERROR } from "$lib/const/error.const";
 import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
 import { db } from "$lib/server/db/drizzle.db";
-import { ImageTable, type Image } from "$lib/server/db/models/image.model";
+import { ImageSchema, ImageTable, type Image } from "$lib/server/db/models/image.model";
 import { ImageRepo } from "$lib/server/db/repos/image.repo";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
@@ -10,6 +10,7 @@ import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 import { count, operators as o } from "drizzle-orm";
+import type { z } from "zod/mini";
 import { AIModerationService } from "../moderation/ai.moderation.service";
 import { ResourceService } from "../resource/resource.service";
 import { ImageHostingService } from "./image_hosting.service";
@@ -57,71 +58,93 @@ const check_count = async (
   } catch (error) {
     l.error(error, "error unknown");
 
-    captureException(error, { extra: { input } });
+    captureException(error, { contexts: { check_count: { input } } });
 
     return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
 };
 
 const upload = async (
-  input: Pick<Image, "resource_id" | "resource_kind"> & {
+  input: z.output<(typeof ImageSchema)["insert"]> & {
     file: File;
   },
   session: App.Session,
 ): Promise<App.Result<Image>> => {
-  if (!session.session.org_id || !session.session.member_id) {
-    return result.err(ERROR.FORBIDDEN);
-  } else if (input.file.size > IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES) {
-    return result.err({
-      ...ERROR.TOO_LARGE,
-      message: `Image exceeds size limit of ${format_bytes(
-        IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES,
-      )}`,
+  try {
+    if (!session.session.org_id || !session.session.member_id) {
+      return result.err(ERROR.FORBIDDEN);
+    } else if (input.file.size > IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES) {
+      return result.err({
+        ...ERROR.TOO_LARGE,
+        message: `Image exceeds size limit of ${format_bytes(
+          IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES,
+        )}`,
+      });
+    }
+
+    const [count_limit, resource] = await Promise.all([
+      check_count(input, session),
+      ResourceService.get_by_id(input.resource_kind, input.resource_id, session),
+    ]);
+
+    if (!resource.ok) return resource;
+    else if (!count_limit.ok) return count_limit;
+
+    const array_buffer = await input.file.arrayBuffer();
+    const buffer = Buffer.from(array_buffer);
+
+    const [upload_res, thumbhash] = await Promise.all([
+      ImageHostingService.upload(buffer),
+      // NOTE: Calling this second in line seems to help with the timeout issue.
+      // sharp doesn't support SVG, so skip thumbhash generation for SVGs.
+      input.file.type.includes("svg")
+        ? result.err(ERROR.INVALID_INPUT)
+        : ThumbhashService.generate(buffer),
+    ]);
+    if (!upload_res.ok) return upload_res;
+
+    const moderation = await AIModerationService.image(upload_res.data.url);
+    if (!moderation.ok) return moderation;
+    else if (moderation.data.flagged) {
+      await ImageHostingService.delete(upload_res.data.external_id);
+
+      return result.err({
+        ...ERROR.INTERNAL_SERVER_ERROR,
+        message: "Image moderation flagged",
+      });
+    }
+
+    const image = await ImageRepo.create({
+      ...upload_res.data,
+      resource_id: input.resource_id,
+      resource_kind: input.resource_kind,
+
+      user_id: session.session.userId,
+      org_id: session.session.org_id,
+      member_id: session.session.member_id,
+
+      thumbhash: thumbhash.ok ? thumbhash.data : null,
     });
-  }
 
-  const [count_limit, resource] = await Promise.all([
-    check_count(input, session),
-    ResourceService.get_by_id(input.resource_kind, input.resource_id, session),
-  ]);
+    return image;
+  } catch (error) {
+    log.error(error, "upload.error unknown");
 
-  if (!resource.ok) return resource;
-  else if (!count_limit.ok) return count_limit;
-
-  const array_buffer = await input.file.arrayBuffer();
-  const buffer = Buffer.from(array_buffer);
-
-  const [upload_res, thumbhash] = await Promise.all([
-    ImageHostingService.upload(buffer),
-    // NOTE: Calling this second in line seems to help with the timeout issue
-    ThumbhashService.generate(buffer),
-  ]);
-  if (!upload_res.ok) return upload_res;
-
-  const moderation = await AIModerationService.image(upload_res.data.url);
-  if (!moderation.ok) return moderation;
-  else if (moderation.data.flagged) {
-    await ImageHostingService.delete(upload_res.data.external_id);
-
-    return result.err({
-      ...ERROR.INTERNAL_SERVER_ERROR,
-      message: "Image moderation flagged",
+    captureException(error, {
+      tags: {
+        resource_id: input.resource_id,
+        resource_kind: input.resource_kind,
+      },
+      contexts: {
+        upload: {
+          resource_id: input.resource_id,
+          resource_kind: input.resource_kind,
+        },
+      },
     });
+
+    return result.err(ERROR.INTERNAL_SERVER_ERROR);
   }
-
-  const image = await ImageRepo.create({
-    ...upload_res.data,
-    resource_id: input.resource_id,
-    resource_kind: input.resource_kind,
-
-    user_id: session.session.userId,
-    org_id: session.session.org_id,
-    member_id: session.session.member_id,
-
-    thumbhash: thumbhash.ok ? thumbhash.data : null,
-  });
-
-  return image;
 };
 
 const delete_many = async (

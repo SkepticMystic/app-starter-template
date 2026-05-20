@@ -7,7 +7,7 @@ Sentry.init({
   dsn: PUBLIC_SENTRY_DSN,
   environment: dev ? "development" : "production",
 
-  tracesSampleRate: 1.0,
+  tracesSampleRate: dev ? 1.0 : 0.2,
 
   // Enable logs to be sent to Sentry
   enableLogs: true,
@@ -19,6 +19,12 @@ Sentry.init({
   spotlight: dev,
 
   integrations: [],
+
+  ignoreErrors: [
+    "NetworkError when attempting to fetch resource",
+    "Failed to fetch",
+    "Load failed",
+  ],
 });
 
 // If you have a custom error handler, pass it to `handleErrorWithSentry`

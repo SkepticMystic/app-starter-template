@@ -1,15 +1,16 @@
 blockExoticSubdeps: true
 
+allowBuilds:
+  "@prisma/engines": false
+  "@sentry/cli": true
+  esbuild: false
+  prisma: false
+  sharp: true
+
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@^0.1.12
-  vite-plus: ^0.1.12
+  vite-plus: ^0.1.21
   vitest: npm:@voidzero-dev/vite-plus-test@^0.1.12
-
-onlyBuiltDependencies:
-  - "@sentry/cli"
-  - esbuild
-  - svelte-preprocess
-  - "@tailwindcss/oxide"
 
 overrides:
   vite: "catalog:"

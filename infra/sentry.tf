@@ -6,9 +6,6 @@ resource "sentry_project" "main" {
 
   platform = "javascript-sveltekit"
 
-  # We make one ourselves, below
-  default_key = false
-
   # Auto resolve issues after this many hours
   resolve_age = 720 # One month
 

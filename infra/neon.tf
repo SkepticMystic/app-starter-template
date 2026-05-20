@@ -22,7 +22,7 @@ resource "neon_project" "main" {
 }
 
 # ---------------------------------------------------------------------------
-# Dev branch — branched from default, scales to zero when idle
+# Dev branch — branched from default
 # ---------------------------------------------------------------------------
 
 resource "neon_branch" "dev" {
@@ -44,6 +44,8 @@ resource "neon_role" "dev" {
   project_id = neon_project.main.id
   branch_id  = neon_branch.dev.id
   name       = "dev"
+
+  depends_on = [neon_endpoint.dev]
 }
 
 resource "neon_database" "dev" {

@@ -165,6 +165,13 @@ variable "sentry_integration_token" {
   default     = ""
 }
 
+variable "sentry_auth_token" {
+  description = "Sentry auth token for uploading source maps from the build plugin"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "umami_base_url" {
   description = "Base URL of your Umami analytics instance (e.g. https://eu.umami.is)"
   type        = string

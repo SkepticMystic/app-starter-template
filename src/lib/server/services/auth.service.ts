@@ -5,7 +5,7 @@ import type { RoleId } from "$lib/const/auth/role.const";
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { captureException } from "@sentry/sveltekit";
+import { captureException, metrics, setUser } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 
 const log = Log.child({ service: "Auth" });
@@ -39,15 +39,35 @@ const authorize = (session: App.Session | null, options?: Options): App.Result<u
         ...ERROR.FORBIDDEN,
         message: "Email not verified",
       });
-    } else if (resolved.admin && session.user.role !== "admin") {
+    }
+
+    if (resolved.admin && session.user.role !== "admin") {
+      metrics.count("auth_admin_forbidden", 1, {
+        attributes: { user_id: session.user.id },
+      });
       return result.err(ERROR.FORBIDDEN);
-    } else if (options?.permissions) {
+    }
+
+    if (options?.permissions) {
+      if (!session.user.role) {
+        metrics.count("auth_permissions_no_role", 1, {
+          attributes: { user_id: session.user.id },
+        });
+        return result.err(ERROR.FORBIDDEN);
+      }
+
       const role_check = BetterAuthClient.admin.checkRolePermission({
         permissions: options.permissions,
-        role: (session.user.role as RoleId | undefined) || "user",
+        role: session.user.role as RoleId,
       });
 
       if (!role_check) {
+        metrics.count("auth_permissions_forbidden", 1, {
+          attributes: {
+            user_id: session.user.id,
+            permissions: options.permissions,
+          },
+        });
         return result.err(ERROR.FORBIDDEN);
       }
     }
@@ -97,10 +117,16 @@ export const get_session = async (options?: Options): Promise<App.Result<App.Ses
 
     event.locals.session = session;
 
+    setUser({
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+    });
+
     return result.suc(session);
   } catch (error) {
     if (error instanceof APIError) {
-      log.info(error.body, "get_session.error better-auth");
+      log.error(error.body, "get_session.error better-auth");
 
       captureException(error);
 

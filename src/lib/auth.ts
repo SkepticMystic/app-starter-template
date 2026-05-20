@@ -297,11 +297,11 @@ export const auth = betterAuth({
 
     paystack({
       paystackClient: PaystackClient,
+      secretKey: PAYSTACK_SECRET_KEY,
       paystackWebhookSecret: PAYSTACK_SECRET_KEY,
 
       organization: {
         enabled: true,
-        createCustomerOnOrganizationCreate: true,
       },
 
       subscription: {
@@ -309,7 +309,23 @@ export const auth = betterAuth({
         requireEmailVerification: true,
 
         plans: async () => {
-          const plans = await PaystackClient.plan_list({});
+          type PlanListResponse = {
+            error?: unknown;
+            data?: {
+              data: Array<{
+                name: string;
+                amount: number;
+                currency: string;
+                plan_code: string;
+                invoice_limit: number;
+                interval: string;
+                is_archived?: boolean;
+                is_deleted?: boolean;
+              }>;
+            };
+          };
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+          const plans = (await PaystackClient.plan.list({})) as PlanListResponse;
 
           if (plans.error) {
             Log.error(plans.error, "auth.paystack.subscription.plans.error");
@@ -324,6 +340,7 @@ export const auth = betterAuth({
                 currency: p.currency,
                 planCode: p.plan_code,
                 invoiceLimit: p.invoice_limit,
+                // oxlint-disable-next-line typescript/no-unsafe-type-assertion
                 interval: p.interval as PaystackPlan["interval"],
               }));
           } else {

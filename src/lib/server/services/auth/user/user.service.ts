@@ -10,21 +10,53 @@ import { AIModerationService } from "../../moderation/ai.moderation.service";
 
 const log = Log.child({ service: "User" });
 
+const TRUSTED_IMAGE_HOSTS = new Set(["api.dicebear.com"]);
+
+const moderate = async (input: {
+  image: string | null | undefined;
+}): Promise<App.Result<undefined>> => {
+  const l = log.child({ method: "moderate" });
+
+  try {
+    if (!input.image) {
+      return result.suc(undefined);
+    }
+
+    const url = new URL(input.image);
+    if (TRUSTED_IMAGE_HOSTS.has(url.host)) {
+      return result.suc(undefined);
+    }
+
+    const moderation = await AIModerationService.image(input.image);
+    if (!moderation.ok) {
+      return moderation;
+    } else if (moderation.data.flagged) {
+      return result.err({
+        ...ERROR.INTERNAL_SERVER_ERROR,
+        path: ["image"],
+        message: "Image moderation flagged",
+      });
+    }
+
+    return result.suc(undefined);
+  } catch (error) {
+    l.error(error, "error unknown");
+
+    captureException(error, { contexts: { moderate: { input } } });
+
+    return result.err({
+      ...ERROR.INTERNAL_SERVER_ERROR,
+      message: "Failed to moderate image",
+    });
+  }
+};
+
 const update = async (input: Pick<User, "name" | "image">): Promise<App.Result<undefined>> => {
   const l = log.child({ method: "update" });
 
   try {
-    if (input.image) {
-      const moderation = await AIModerationService.image(input.image);
-      if (!moderation.ok) return moderation;
-      else if (moderation.data.flagged) {
-        return result.err({
-          ...ERROR.INTERNAL_SERVER_ERROR,
-          path: ["image"],
-          message: "Image moderation flagged",
-        });
-      }
-    }
+    const moderation = await moderate({ image: input.image });
+    if (!moderation.ok) return moderation;
 
     const res = await auth.api.updateUser({
       headers: getRequestEvent().request.headers,
@@ -46,13 +78,13 @@ const update = async (input: Pick<User, "name" | "image">): Promise<App.Result<u
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
 
-      captureException(error, { extra: { input } });
+      captureException(error, { contexts: { update: { input } } });
 
       return result.from_ba_error(error);
     } else {
       l.error(error, "error unknown");
 
-      captureException(error, { extra: { input } });
+      captureException(error, { contexts: { update: { input } } });
 
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,
@@ -206,12 +238,8 @@ const send_verification_email = async (input: {
     });
 
     return res.status
-      ? result.suc({
-          message: res.message ?? "Verification email sent",
-        })
-      : result.err({
-          message: res.message ?? "Failed to send verification email",
-        });
+      ? result.suc({ message: "Verification email sent" })
+      : result.err({ message: "Failed to send verification email" });
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

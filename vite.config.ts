@@ -1,6 +1,7 @@
 import { sentrySvelteKit } from "@sentry/sveltekit";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { SondaVitePlugin as sonda } from "sonda";
 import devtoolsJson from "vite-plugin-devtools-json";
 import { defineConfig } from "vite-plus";
 
@@ -13,17 +14,19 @@ export default defineConfig({
 
   lint: {
     plugins: ["oxc", "typescript", "unicorn", "vitest", "promise", "import", "node"],
+    jsPlugins: ["eslint-plugin-svelte"],
+    options: { typeAware: true, typeCheck: true },
+    env: {
+      builtin: true,
+      browser: true,
+      node: true,
+    },
     categories: {
       correctness: "error",
       suspicious: "warn",
       perf: "warn",
       // style: "warn",
       // nursery: "warn",
-    },
-    env: {
-      builtin: true,
-      browser: true,
-      node: true,
     },
     ignorePatterns: [
       "**/.DS_Store",
@@ -39,6 +42,7 @@ export default defineConfig({
       "**/tmp",
       "**/.env.sentry-build-plugin",
       "**/.sonda",
+      ".planning",
       "infra/.terraform/",
       "infra/.terraform.lock.hcl",
       "infra/terraform.tfstate",
@@ -46,7 +50,13 @@ export default defineConfig({
       "infra/terraform.tfvars",
     ],
     rules: {
+      "oxc/no-map-spread": "off",
+      "import/no-unassigned-import": "off",
       "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/consistent-return": "off",
+      "@typescript-eslint/no-unsafe-type-assertion": "off",
+      "vitest/require-mock-type-parameters": "off",
+      "vitest/no-conditional-expect": "off",
 
       "no-unused-vars": [
         "error",
@@ -61,22 +71,40 @@ export default defineConfig({
         },
       ],
     },
-    jsPlugins: ["eslint-plugin-svelte"],
-
-    options: {
-      typeAware: true,
-      typeCheck: true,
-    },
   },
 
   build: {
     sourcemap: SONDA ? true : undefined,
   },
 
-  plugins: [sentrySvelteKit({ telemetry: false }), tailwindcss(), sveltekit(), devtoolsJson()],
+  plugins: [
+    sentrySvelteKit({
+      telemetry: false,
+      bundleSizeOptimizations: {
+        excludeDebugStatements: true,
+        excludeReplayShadowDom: true,
+        excludeReplayIframe: true,
+        excludeReplayWorker: true,
+      },
+    }),
+    tailwindcss({ optimize: { minify: true } }),
+    sveltekit(),
+    devtoolsJson(),
+    sonda({
+      enabled: Boolean(SONDA),
+      server: true,
+      open: false,
+      deep: true,
+      sources: true,
+    }),
+  ],
 
   test: {
     expect: { requireAssertions: true },
+    coverage: {
+      include: ["src/lib/server/services/**/*.ts"],
+      exclude: ["**/*.test.ts", "**/*.d.ts"],
+    },
     projects: [
       {
         extends: "./vite.config.js",
@@ -84,20 +112,10 @@ export default defineConfig({
           name: "server",
           environment: "node",
           include: ["src/**/*.{test,spec}.{js,ts}"],
-          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}", "src/**/*.itest.{js,ts}"],
+          setupFiles: ["src/test/setup.ts"],
         },
       },
     ],
   },
 });
-
-// if (SONDA) {
-//   config.plugins?.push(
-//     sonda({
-//       server: true,
-//       open: false,
-//       deep: true,
-//       sources: true,
-//     }),
-//   );
-// }
