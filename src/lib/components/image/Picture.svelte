@@ -1,63 +1,67 @@
 <script lang="ts">
-  import { Image } from "@unpic/svelte/base";
+  import { ImageClient } from "$lib/clients/image.client";
+  import type { Image as ImageModel } from "$lib/server/db/models/image.model";
+  import { Image } from "@unpic/svelte";
   import type { ClassValue } from "svelte/elements";
-  import { transform } from "unpic/providers/cloudinary";
   import Anchor from "../ui/anchor/Anchor.svelte";
+
+  const BREAKPOINTS = [640, 750, 828, 960, 1080, 1280];
 
   let {
     src,
+    alt,
     href,
     image,
     width,
     height,
-    loading,
     fallback,
+    layout,
+    loading,
     class: klass,
-    fetchpriority,
-    prioritize = false,
+    priority = false,
   }: {
+    alt: string;
     src?: string;
-    class?: ClassValue;
-    loading?: "lazy" | "eager";
-    fetchpriority?: "high" | "low";
+    image?: Pick<ImageModel, "url" | "thumbhash">;
+    fallback?: string;
+    href?: string;
     width?: number;
     height?: number;
-    href?: string;
-    fallback?: string;
-    prioritize?: boolean;
-    image?: { url: string };
+    layout?: "fixed" | "constrained";
+    loading?: "lazy" | "eager";
+    priority?: boolean;
+    class?: ClassValue;
   } = $props();
 
-  // NOTE: ...rest props are readonly,
-  // so we destructure them above and pass them down to Picture
-  // svelte-ignore state_referenced_locally
-  if (prioritize) {
-    loading ??= "eager";
-    fetchpriority ??= "high";
-  }
-
-  const style = $derived(
-    [width ? `width: ${width}px` : "", height ? `height: ${height}px` : ""]
-      .filter(Boolean)
-      .join("; ")
-      .trim(),
+  const resolved_layout = $derived(
+    layout ?? (width && width <= 96 ? "fixed" : "constrained"),
   );
+  const resolved_src = $derived(image?.url ?? src);
+  const thumbhash_url = $derived(ImageClient.decode_thumbhash(image));
 </script>
 
 {#snippet img()}
-  {#if image || src}
+  {#if resolved_src}
     <Image
-      {style}
+      {alt}
+      {width}
+      {height}
+      {priority}
       {loading}
-      {fetchpriority}
-      src={image?.url ?? src}
-      transformer={transform}
-      class={["size-full rounded-md", klass]}
+      src={resolved_src}
+      layout={resolved_layout}
+      breakpoints={BREAKPOINTS}
+      background={thumbhash_url}
+      operations={{
+        cloudinary: { q: "auto", f: "auto", c: "auto", g: "auto" },
+      }}
+      class={["rounded-md", klass]}
     />
   {:else if fallback}
     <div
-      {style}
       class={["flex items-center justify-center rounded-md bg-muted", klass]}
+      style:width={width ? `${width}px` : undefined}
+      style:height={height ? `${height}px` : undefined}
     >
       {fallback}
     </div>
