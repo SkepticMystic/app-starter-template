@@ -1,5 +1,3 @@
-import { SUBSCRIPTION } from "$lib/const/subscription.const";
-import { TRANSACTION } from "$lib/const/transaction.const";
 import {
   boolean,
   index,
@@ -11,13 +9,12 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { SUBSCRIPTION } from "../../../const/subscription.const";
+import { TRANSACTION } from "../../../const/transaction.const";
 import { UserTable } from "./auth.model";
 import { Schema } from "./index.schema";
 
-export const subscription_status_enum = pgEnum(
-  "subscription_status",
-  SUBSCRIPTION.STATUS.IDS,
-);
+export const subscription_status_enum = pgEnum("subscription_status", SUBSCRIPTION.STATUS.IDS);
 
 export const SubscriptionTable = pgTable("subscription", {
   ...Schema.id(),

@@ -1,27 +1,14 @@
-import { RESOURCE } from "$lib/const/resource/resource.const";
-import {
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { IMAGE_HOSTING } from "../../../const/image/image_hosting.const";
+import { RESOURCE } from "../../../const/resource/resource.const";
 import { MemberTable, OrganizationTable, UserTable } from "./auth.model";
 import { Schema } from "./index.schema";
 
-export const image_provider_enum = pgEnum(
-  "image_providers",
-  IMAGE_HOSTING.PROVIDER.IDS,
-);
+export const image_provider_enum = pgEnum("image_providers", IMAGE_HOSTING.PROVIDER.IDS);
 
 // NOTE: Use the same names as given to the drizzle.schema setup
-export const image_resource_kind_enum = pgEnum(
-  "image_resource_kind",
-  RESOURCE.KINDS,
-);
+export const image_resource_kind_enum = pgEnum("image_resource_kind", RESOURCE.KINDS);
 
 export const ImageTable = pgTable(
   "image",
