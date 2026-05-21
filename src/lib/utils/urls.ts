@@ -44,7 +44,7 @@ const strip_origin = (url: URL) => {
  *   console.log(url.hostname); // "example.com"
  * }
  */
-const safe = (url: string): URL | null => {
+const safe = (url: string | URL): URL | null => {
   try {
     return new URL(url);
   } catch {

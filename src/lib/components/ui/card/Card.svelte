@@ -13,7 +13,7 @@
 
   let {
     title,
-    content,
+    children,
     header,
     action,
     footer,
@@ -25,7 +25,7 @@
     title?: MaybeSnippet;
     description?: MaybeSnippet;
     action?: Snippet;
-    content: MaybeSnippet;
+    children: MaybeSnippet;
     footer?: Snippet;
   } = $props();
 </script>
@@ -35,7 +35,9 @@
     <CardHeader>
       {@render header()}
     </CardHeader>
-  {:else if title || description || action}
+  {/if}
+
+  {#if title || description || action}
     <CardHeader>
       {#if title}
         <CardTitle>
@@ -58,7 +60,7 @@
   {/if}
 
   <CardContent>
-    <ExtractSnippet snippet={content} />
+    <ExtractSnippet snippet={children} />
   </CardContent>
 
   {#if footer}

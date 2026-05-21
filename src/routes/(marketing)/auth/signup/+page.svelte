@@ -16,7 +16,7 @@
   class="mx-auto w-full max-w-xs"
   title="Signup for {APP.NAME}"
 >
-  {#snippet content()}
+  {#snippet children()}
     <div class="space-y-5">
       <div class="flex flex-col gap-2">
         {#each AUTH.PROVIDERS.IDS as provider_id (provider_id)}

@@ -22,7 +22,7 @@
   title="Verify your email address"
   description="A verification link has been sent to your email address. Please check your inbox and click the link to verify your email."
 >
-  {#snippet content()}
+  {#snippet children()}
     <form
       class="space-y-3"
       {...form.enhance(async ({ submit }) => {

@@ -19,7 +19,7 @@
     description="Enter your email to reset it"
     class="mx-auto w-full max-w-xs"
   >
-    {#snippet content()}
+    {#snippet children()}
       <form
         class="space-y-3"
         {...form.enhance(async (e) => {

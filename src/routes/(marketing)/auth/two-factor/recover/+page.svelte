@@ -11,7 +11,7 @@
     title="Two-Factor Recovery"
     class="mx-auto w-full max-w-xs"
   >
-    {#snippet content()}
+    {#snippet children()}
       <VerifyTwoFactorBackupCodeForm
         on_success={() => {
           goto(resolve("/settings/profile"));

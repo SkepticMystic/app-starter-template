@@ -14,6 +14,13 @@
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
+        success: `
+            bg-success/5 text-success
+            border border-success/80
+            *:data-[slot=alert-description]:text-success/90
+            [&>svg]:text-current
+          `,
+
         warning: `
             bg-card text-warning
             *:data-[slot=alert-description]:text-warning/90

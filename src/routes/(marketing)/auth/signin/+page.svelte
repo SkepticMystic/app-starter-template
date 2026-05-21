@@ -22,7 +22,7 @@
   class="mx-auto w-full max-w-xs"
   title="Signin to {APP.NAME}"
 >
-  {#snippet content()}
+  {#snippet children()}
     <div class="space-y-5">
       <ButtonGroup
         class="w-full"

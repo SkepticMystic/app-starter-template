@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "$lib/components/ui/badge/badge.svelte";
+import type { BadgeVariant } from "$lib/components/ui/badge";
 
 const STATUS_IDS = ["active", "trialing", "canceled", "incomplete"] as const;
 type StatusId = (typeof STATUS_IDS)[number];

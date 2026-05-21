@@ -13,7 +13,7 @@
     description="We need to verify your login."
     class="mx-auto w-full max-w-xs"
   >
-    {#snippet content()}
+    {#snippet children()}
       <VerifyTwoFactorCodeForm
         on_success={() => {
           goto(page.url.searchParams.get("redirect_uri") ?? "/home");

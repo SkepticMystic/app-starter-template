@@ -13,13 +13,13 @@
     };
   } = $props();
 
-  const label = $derived(user.name || user.email);
+  const label = $derived(user?.name || user?.email || "");
 </script>
 
 <Avatar
   {...rest}
   title={label}
-  src={user.image}
+  src={user?.image}
   alt="{label} avatar"
-  fallback={label.at(0) || "?"}
+  fallback={label?.[0] || "?"}
 />

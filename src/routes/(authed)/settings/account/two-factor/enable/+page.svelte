@@ -29,7 +29,7 @@
         title="Enable Two-Factor Authentication"
         description="You will need to provide your password."
       >
-        {#snippet content()}
+        {#snippet children()}
           <EnableTwoFactorForm on_success={(data) => (enable_data = data)} />
         {/snippet}
 
@@ -54,7 +54,7 @@
           enter the {TWO_FACTOR.TOTP
           .DIGITS} digit code that the app provides to continue."
       >
-        {#snippet content()}
+        {#snippet children()}
           <div class="flex flex-col items-center gap-5">
             <QrCode
               size={256}
@@ -89,7 +89,7 @@
         title="Two-Factor Recovery"
         description="Save your backups codes. These will allow you to recover your account if you lose access to your 2FA device. Please store them separately and securely. They will only be shown once."
       >
-        {#snippet content()}
+        {#snippet children()}
           <div class="flex flex-col gap-3">
             <CopyButton
               variant="default"

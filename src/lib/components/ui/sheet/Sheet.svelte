@@ -53,10 +53,12 @@
 </script>
 
 <SheetRoot bind:open>
-  <SheetTrigger class={buttonVariants({ variant, size })}>
-    <Icon {icon} />
-    <ExtractSnippet snippet={trigger ?? title} />
-  </SheetTrigger>
+  {#if trigger}
+    <SheetTrigger class={buttonVariants({ variant, size })}>
+      <Icon {icon} />
+      <ExtractSnippet snippet={trigger} />
+    </SheetTrigger>
+  {/if}
 
   <SheetContent {side}>
     <SheetHeader>
@@ -73,7 +75,7 @@
       {/if}
     </SheetHeader>
 
-    <div class="px-4">
+    <div class="overflow-y-auto px-4">
       {@render children?.({ close })}
     </div>
 

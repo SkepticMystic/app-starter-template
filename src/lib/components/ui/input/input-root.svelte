@@ -10,7 +10,7 @@
   type Props = WithElementRef<
     Omit<HTMLInputAttributes, "type"> &
       (
-        | { type: "file"; files?: FileList }
+        | { type: "file"; files?: FileList | null }
         | { type?: InputType; files?: undefined }
       )
   >;

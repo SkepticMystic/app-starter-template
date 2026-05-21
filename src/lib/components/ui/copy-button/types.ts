@@ -1,8 +1,8 @@
-import Button from "$lib/components/ui/button/Button.svelte";
 import type { WithChildren, WithoutChildren } from "bits-ui";
 import type { ComponentProps, Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { UseClipboard } from "../../../hooks/use-clipboard.svelte";
+import type Button from "../button/button.svelte";
 
 export type CopyButtonPropsWithoutHTML = Partial<
   Pick<ComponentProps<typeof Button>, "size" | "variant">

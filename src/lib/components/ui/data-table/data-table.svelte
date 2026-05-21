@@ -57,7 +57,7 @@
             <DataTableVisibilityDropdownMenu {table} />
           </ButtonGroup>
 
-          {#if state.pagination && input.data.length}
+          {#if state.pagination && input.data.length >= state.pagination.pageSize}
             <ButtonGroup>
               <Button
                 variant="outline"

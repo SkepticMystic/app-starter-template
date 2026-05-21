@@ -12,7 +12,7 @@
   </header>
 
   <Card>
-    {#snippet content()}
+    {#snippet children()}
       <DisableTwoFactorForm
         on_success={async () => {
           await goto("/settings/account");

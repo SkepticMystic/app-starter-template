@@ -45,7 +45,7 @@
       </header>
     {/snippet}
 
-    {#snippet content()}
+    {#snippet children()}
       <form
         class="space-y-3"
         {...form.enhance(async (e) => {

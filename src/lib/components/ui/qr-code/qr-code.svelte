@@ -54,6 +54,7 @@
 <div
   class={[
     "relative inline-flex shrink-0 items-center justify-center",
+    "overflow-hidden rounded-md border",
     className,
   ]}
   style:width={`${size}px`}

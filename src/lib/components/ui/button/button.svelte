@@ -2,7 +2,6 @@
   lang="ts"
   module
 >
-  import type { ResolvedPathname } from "$app/types";
   import Icon from "$lib/components/ui/icon/Icon.svelte";
   import { type WithElementRef } from "$lib/utils/shadcn.util.js";
   import type {
@@ -50,6 +49,13 @@
             focus-visible:ring-success/20
             dark:bg-success/60
             dark:focus-visible:ring-success/40
+          `,
+        accent: `
+            bg-accent text-accent-foreground shadow-xs
+            hover:bg-accent/90
+            focus-visible:ring-accent/20
+            dark:bg-accent/60
+            dark:focus-visible:ring-accent/40
           `,
         outline: `
             border bg-background shadow-xs
@@ -102,21 +108,12 @@
     WithElementRef<HTMLAnchorAttributes> & {
       size?: ButtonSize;
       variant?: ButtonVariant;
-    } & {
       // NOTE: Mine
       label?: string;
       loading?: boolean;
       icon?: string | null;
-    } & (
-      | {
-          target?: never;
-          href?: ResolvedPathname | ".";
-        }
-      | {
-          target: "_blank";
-          href: string;
-        }
-    );
+      href?: string;
+    };
 </script>
 
 <script lang="ts">

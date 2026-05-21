@@ -1,6 +1,5 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import SEO from "$lib/components/blocks/head/SEO.svelte";
   import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { APP } from "$lib/const/app.const";
@@ -8,10 +7,6 @@
 
   let { children } = $props();
 </script>
-
-<svelte:head>
-  <SEO />
-</svelte:head>
 
 <div class="flex min-h-screen w-full flex-col">
   <header>

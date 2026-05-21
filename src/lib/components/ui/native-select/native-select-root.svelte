@@ -12,10 +12,10 @@
 </script>
 
 <div
-  class="
-    group/native-select relative w-fit
-    has-[select:disabled]:opacity-50
-  "
+  class={[
+    "group/native-select relative w-fit has-[select:disabled]:opacity-50",
+    "in-[slot=input-group]:w-full", // mine
+  ]}
   data-slot="native-select-wrapper"
 >
   <select
@@ -40,6 +40,13 @@
       `
         aria-invalid:border-destructive aria-invalid:ring-destructive/20
         dark:aria-invalid:ring-destructive/40
+      `,
+      // mine
+      `
+        in-[slot=input-group]:rounded-none
+        in-[slot=input-group]:border-0
+        in-[slot=input-group]:shadow-none
+        in-[slot=input-group]:dark:bg-transparent
       `,
       className,
     ]}

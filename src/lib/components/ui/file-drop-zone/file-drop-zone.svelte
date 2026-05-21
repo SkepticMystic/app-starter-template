@@ -1,3 +1,4 @@
+<!-- svelte-ignore state_referenced_locally -->
 <script lang="ts">
   import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
   import { useId } from "bits-ui";
