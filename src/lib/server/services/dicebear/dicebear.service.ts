@@ -10,14 +10,12 @@ const get_url = (input: {
   version?: string;
 }): App.Result<string> => {
   try {
-    const resolved = Object.assign(
-      {
-        format: "svg",
-        version: "9.x",
-        style: "lorelei",
-      },
-      input,
-    );
+    const resolved = {
+      format: "svg",
+      version: "9.x",
+      style: "lorelei",
+      ...input,
+    };
 
     const url = new URL("https://api.dicebear.com");
 

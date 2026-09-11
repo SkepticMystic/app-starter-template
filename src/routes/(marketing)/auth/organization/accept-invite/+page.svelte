@@ -28,7 +28,7 @@
   const switch_account = async () => {
     await UserClient.signout();
 
-    window.location.href = App.url("/auth/signin", { redirect_uri });
+    globalThis.location.href = App.url("/auth/signin", { redirect_uri });
   };
 
   const accept_invite = async () => {
@@ -39,7 +39,7 @@
     );
     if (res.ok) {
       // NOTE: Hard reload to trigger session update
-      window.location.href = App.url("/settings/organization");
+      globalThis.location.href = App.url("/settings/organization");
     } else {
       Toast.err(res.error);
     }

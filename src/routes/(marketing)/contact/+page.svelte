@@ -26,14 +26,18 @@
       // throws. Nothing is owed — `onDestroy` below unsubscribes regardless.
       try {
         session_listener();
-      } catch {}
+      } catch {
+        // Unsubscribing before the handle exists — nothing to undo.
+      }
     }
   });
 
   onDestroy(() => {
     try {
       session_listener();
-    } catch {}
+    } catch {
+      // Already unsubscribed above.
+    }
   });
 </script>
 

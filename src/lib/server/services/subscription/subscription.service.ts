@@ -1,6 +1,9 @@
 import { getRequestEvent } from "$app/server";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { checkout_url } from "$lib/server/sdk/payment/paystack/paystack.payment.sdk";
+// See the matching note in auth.ts — this pair is deliberate and only ever
+// dereferenced inside functions.
+// oxlint-disable-next-line import/no-cycle
 import { auth } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
@@ -59,8 +62,7 @@ const get_active = async (session: {
     if (!res.ok) {
       return res;
     } else if (
-      res.data &&
-      res.data.cancelAtPeriodEnd &&
+      res.data?.cancelAtPeriodEnd &&
       res.data.periodEnd &&
       res.data.periodEnd < new Date()
     ) {

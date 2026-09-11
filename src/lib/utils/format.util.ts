@@ -172,7 +172,7 @@ export const Format = {
         return bool ? "Yes" : "No";
       }
 
-      case "emoji":
+      // "emoji" is the default rendering, so it needs no case of its own.
       default: {
         return bool ? "✅" : "❌";
       }

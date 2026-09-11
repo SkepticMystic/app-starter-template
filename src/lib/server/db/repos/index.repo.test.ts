@@ -27,7 +27,7 @@ describe("Repo.contains", () => {
   });
 
   it("escapes the backslash first, so it does not escape the escapes", () => {
-    expect(Repo.contains("a\\b")).toBe(String.raw`%a\\b%`);
+    expect(Repo.contains(String.raw`a\b`)).toBe(String.raw`%a\\b%`);
   });
 
   it("handles a term combining all three", () => {

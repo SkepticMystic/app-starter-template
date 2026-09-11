@@ -20,7 +20,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { captureException } from "@sentry/sveltekit";
-import type { Readable } from "stream";
+import type { Readable } from "node:stream";
 import type { z } from "zod";
 
 const log = Log.child({ service: "R2" });

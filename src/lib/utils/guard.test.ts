@@ -40,7 +40,7 @@ describe("Guard", () => {
 
   describe("is_nan", () => {
     it("should return true for NaN", () => {
-      expect(Guard.is_nan(NaN)).toBe(true);
+      expect(Guard.is_nan(Number.NaN)).toBe(true);
     });
 
     it("should return true for result of invalid operations", () => {

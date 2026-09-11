@@ -11,6 +11,9 @@
   const accounts = list_accounts_remote();
 
   let items = $derived(
+    // The in-place alternative the rule suggests would mutate the rows held by
+    // the remote query itself, not a copy of them.
+    // oxlint-disable-next-line oxc/no-map-spread
     result.unwrap_or(accounts.current, []).map((acc) => {
       const provider_id = acc.providerId as IAuth.ProviderId;
       const provider = AUTH.PROVIDERS.MAP[provider_id];

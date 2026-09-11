@@ -3,7 +3,7 @@ import type { Branded } from "$lib/interfaces/zod/zod.type";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import dns from "dns/promises";
+import dns from "node:dns/promises";
 
 const log = Log.child({ service: "EmailValidation" });
 
@@ -57,7 +57,7 @@ const has_mx_records = async (
       log.error(error, "has_mx_records.error unknown");
 
       captureException(error, {
-        tags: { email: email },
+        tags: { email },
         contexts: { has_mx_records: { email } },
       });
 

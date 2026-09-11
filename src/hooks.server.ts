@@ -88,7 +88,7 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 
 export const handle = sequence(
   Sentry.sentryHandle(),
-  async function _handle({ event, resolve }) {
+  async ({ event, resolve }) => {
     return svelteKitHandler({ event, resolve, auth, building });
   },
   handleSecurityHeaders,

@@ -27,7 +27,7 @@ export type TanstackTableInput<TData extends Record<string, unknown>> = {
   // NOTE: I've tried many things, and this is all that works...
   // Creating the columns is still type-safe with column_helper
   // One downside of `any` here is that the children(table) snippet loses TValue type-safety
-  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   columns: ColumnDef<Features, TData, any>[];
   actions?: (row: Row<Features, TData>) => DropdownMenuItemInput[];
   bulk_actions?: (rows: Row<Features, TData>[]) => DropdownMenuItemInput[];

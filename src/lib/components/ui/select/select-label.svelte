@@ -7,7 +7,7 @@
     class: className,
     children,
     ...restProps
-  }: WithElementRef<HTMLAttributes<HTMLDivElement>> & {} = $props();
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
 <div

@@ -54,7 +54,7 @@ export class RateLimiter {
    */
   async consume(
     key: string,
-    tokens: number = 1,
+    tokens = 1,
   ): Promise<
     App.Result<{
       allowed: boolean;

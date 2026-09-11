@@ -26,7 +26,7 @@ describe("redirect_uri_schema", () => {
   });
 
   it("rejects the backslash variant", () => {
-    expect(parse("/\\evil.test")).toBe("/onboarding");
+    expect(parse(String.raw`/\evil.test`)).toBe("/onboarding");
   });
 
   it("rejects whitespace, which is a response-splitting primitive", () => {

@@ -108,7 +108,10 @@ vi.mock("$lib/server/db/redis.db", () => ({
       const chain: Record<string, unknown> = {
         exec: vi.fn(async () => []),
       };
+      // `spyOn` needs an existing implementation to wrap; this chain is being
+      // built from nothing, so assignment is the only option.
       for (const cmd of ["get", "set", "del", "incr", "expire"]) {
+        // oxlint-disable-next-line vitest/prefer-spy-on
         chain[cmd] = vi.fn(() => chain);
       }
       return chain;

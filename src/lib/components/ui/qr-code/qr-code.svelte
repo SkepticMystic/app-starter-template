@@ -41,8 +41,8 @@
         rows.push(row);
       }
       return rows;
-    } catch (e) {
-      console.error("QR Generation failed", e);
+    } catch (error) {
+      console.error("QR Generation failed", error);
       return [];
     }
   });

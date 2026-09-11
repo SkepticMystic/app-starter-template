@@ -42,6 +42,12 @@ import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.s
 import { AdapterService } from "./server/services/adapter/adapter.service";
 import { Dicebear } from "./server/services/dicebear/dicebear.service";
 import { EmailService } from "./server/services/email.service";
+// Mutually recursive with the service, deliberately: better-auth's paystack
+// plugin calls into SubscriptionService from a hook here, and the service calls
+// `auth.api.*` back. ESM resolves it because neither side touches the other at
+// module-evaluation time — only inside functions. Breaking it means splitting
+// the plugin hooks out of this file, which is its own change.
+// oxlint-disable-next-line import/no-cycle
 import { SubscriptionService } from "./server/services/subscription/subscription.service";
 import { Log } from "./utils/logger.util";
 
@@ -379,7 +385,6 @@ export const auth = betterAuth({
               }>;
             };
           };
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion
           const plans = (await PaystackClient.plan.list(
             {},
           )) as PlanListResponse;
@@ -397,7 +402,6 @@ export const auth = betterAuth({
                 currency: p.currency,
                 planCode: p.plan_code,
                 invoiceLimit: p.invoice_limit,
-                // oxlint-disable-next-line typescript/no-unsafe-type-assertion
                 interval: p.interval as PaystackPlan["interval"],
               }));
           } else {
@@ -414,7 +418,7 @@ export const auth = betterAuth({
             }),
           );
 
-          if (!member.ok || !member.data || member.data.role !== "owner") {
+          if (!member.ok || member.data?.role !== "owner") {
             return false;
           }
 
@@ -684,4 +688,4 @@ const get_active_plan = async (org_id: string): Promise<string> => {
 type ErrorCode = keyof typeof auth.$ERROR_CODES;
 
 export const is_ba_error_code = (error: APIError, ...codes: ErrorCode[]) =>
-  codes.includes(error.body?.code as ErrorCode);
+  codes.some((code) => code === error.body?.code);

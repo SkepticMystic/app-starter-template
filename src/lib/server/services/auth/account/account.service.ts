@@ -58,13 +58,13 @@ const unlink = async (
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
 
-      if (is_ba_error_code(error, "FAILED_TO_UNLINK_LAST_ACCOUNT")) {
-        return result.from_ba_error(error);
-      } else {
+      // Refusing to unlink the last account is Better-Auth answering, not a
+      // fault worth filing.
+      if (!is_ba_error_code(error, "FAILED_TO_UNLINK_LAST_ACCOUNT")) {
         captureException(error);
-
-        return result.from_ba_error(error);
       }
+
+      return result.from_ba_error(error);
     } else {
       l.error(error, "error unknown");
 

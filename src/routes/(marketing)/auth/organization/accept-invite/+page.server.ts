@@ -132,7 +132,7 @@ export const load: PageServerLoad = async ({ request, url }) => {
 
         where: {
           userId: session.user.id,
-          organizationId: organizationId,
+          organizationId,
         },
       }),
     ),

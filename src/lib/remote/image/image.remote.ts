@@ -1,5 +1,5 @@
 import { command, form } from "$app/server";
-import { format_bytes } from "$lib/components/ui/file-drop-zone";
+import { format_bytes } from "$lib/components/ui/file-drop-zone/file-drop-zone-utils";
 import { ERROR } from "$lib/const/error.const";
 import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
 import { ImageSchema, type Image } from "$lib/server/db/models/image.model";

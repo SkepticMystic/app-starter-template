@@ -33,18 +33,17 @@ const wrap = <I, D>(
       ...callsite_options,
     };
 
-    if (resolved.confirm) {
-      if (
-        !confirm(
-          typeof resolved.confirm === "function" //
-            ? resolved.confirm(input)
-            : resolved.confirm,
-        )
-      ) {
-        return result.err({
-          message: "Action cancelled",
-        });
-      }
+    if (
+      resolved.confirm &&
+      !confirm(
+        typeof resolved.confirm === "function" //
+          ? resolved.confirm(input)
+          : resolved.confirm,
+      )
+    ) {
+      return result.err({
+        message: "Action cancelled",
+      });
     }
 
     if (resolved.prompt) {

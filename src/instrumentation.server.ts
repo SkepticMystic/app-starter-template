@@ -5,7 +5,7 @@ Sentry.init({
   dsn: PUBLIC_SENTRY_DSN,
   environment: import.meta.env.DEV ? "development" : "production",
 
-  tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.1,
+  tracesSampleRate: import.meta.env.DEV ? 1 : 0.1,
 
   enableLogs: true,
   integrations: [Sentry.pinoIntegration(), Sentry.zodErrorsIntegration()],

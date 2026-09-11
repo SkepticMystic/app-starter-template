@@ -16,7 +16,7 @@ export const ImageClient = {
           new Uint8Array(
             atob(image.thumbhash)
               .split("")
-              .map((x) => x.charCodeAt(0)),
+              .map((x) => x.codePointAt(0) ?? 0),
           ),
         )
       : undefined,

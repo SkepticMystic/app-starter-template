@@ -29,7 +29,10 @@
       open = value;
       onOpenChange(value);
 
-      // This sets the cookie to keep the sidebar state.
+      // This sets the cookie to keep the sidebar state. The Cookie Store API
+      // the rule prefers is not in Safari or Firefox, and this is one
+      // fire-and-forget write with no read-back.
+      // oxlint-disable-next-line unicorn/no-document-cookie
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
   });

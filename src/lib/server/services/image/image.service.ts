@@ -1,4 +1,4 @@
-import { format_bytes } from "$lib/components/ui/file-drop-zone";
+import { format_bytes } from "$lib/components/ui/file-drop-zone/file-drop-zone-utils";
 import { ERROR } from "$lib/const/error.const";
 import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
 import { db } from "$lib/server/db/drizzle.db";

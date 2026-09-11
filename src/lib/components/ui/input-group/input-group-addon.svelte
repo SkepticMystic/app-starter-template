@@ -3,6 +3,7 @@
   module
 >
   import { tv, type VariantProps } from "tailwind-variants";
+
   export const inputGroupAddonVariants = tv({
     base: `
       flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm

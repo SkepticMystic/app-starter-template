@@ -75,7 +75,7 @@ export async function generate_transaction_pdf(input: {
     // ===== APP HEADER =====
     page.drawText(APP.NAME, {
       x: MARGIN,
-      y: y,
+      y,
       size: 18,
       color: rgb(0, 0, 0),
     });
@@ -83,7 +83,7 @@ export async function generate_transaction_pdf(input: {
 
     page.drawText(APP.DESCRIPTION, {
       x: MARGIN,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.2, 0.2, 0.2),
     });
@@ -91,7 +91,7 @@ export async function generate_transaction_pdf(input: {
 
     page.drawText(APP.URL, {
       x: MARGIN,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.2, 0.2, 0.2),
     });
@@ -104,7 +104,7 @@ export async function generate_transaction_pdf(input: {
     const receipt_label_width = measure_text(receipt_label, 16);
     page.drawText(receipt_label, {
       x: PAGE_WIDTH - MARGIN - receipt_label_width,
-      y: y,
+      y,
       size: 16,
       color: rgb(0, 0, 0),
     });
@@ -112,8 +112,8 @@ export async function generate_transaction_pdf(input: {
 
     // ===== DIVIDER LINE =====
     page.drawLine({
-      start: { x: MARGIN, y: y },
-      end: { x: PAGE_WIDTH - MARGIN, y: y },
+      start: { x: MARGIN, y },
+      end: { x: PAGE_WIDTH - MARGIN, y },
       thickness: 1,
       color: rgb(0.8, 0.8, 0.8),
     });
@@ -122,7 +122,7 @@ export async function generate_transaction_pdf(input: {
     // ===== TRANSACTION DETAILS =====
     page.drawText("Transaction Details", {
       x: MARGIN,
-      y: y,
+      y,
       size: 12,
       color: rgb(0, 0, 0),
     });
@@ -131,13 +131,13 @@ export async function generate_transaction_pdf(input: {
     // Reference
     page.drawText("Reference:", {
       x: MARGIN,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.4, 0.4, 0.4),
     });
     page.drawText(input.transaction.reference, {
       x: MARGIN + 120,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.2, 0.2, 0.2),
     });
@@ -146,13 +146,13 @@ export async function generate_transaction_pdf(input: {
     // Date
     page.drawText("Date:", {
       x: MARGIN,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.4, 0.4, 0.4),
     });
     page.drawText(Format.datetime(input.transaction.createdAt), {
       x: MARGIN + 120,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.2, 0.2, 0.2),
     });
@@ -162,13 +162,13 @@ export async function generate_transaction_pdf(input: {
       // Plan
       page.drawText("Subscription Plan:", {
         x: MARGIN,
-        y: y,
+        y,
         size: 10,
         color: rgb(0.4, 0.4, 0.4),
       });
       page.drawText(input.transaction.plan, {
         x: MARGIN + 120,
-        y: y,
+        y,
         size: 10,
         color: rgb(0.2, 0.2, 0.2),
       });
@@ -178,7 +178,7 @@ export async function generate_transaction_pdf(input: {
     // Status
     page.drawText("Status:", {
       x: MARGIN,
-      y: y,
+      y,
       size: 10,
       color: rgb(0.4, 0.4, 0.4),
     });
@@ -189,7 +189,7 @@ export async function generate_transaction_pdf(input: {
         input.transaction.status.slice(1),
       {
         x: MARGIN + 120,
-        y: y,
+        y,
         size: 10,
         color: status_color,
       },
@@ -198,8 +198,8 @@ export async function generate_transaction_pdf(input: {
 
     // ===== DIVIDER LINE =====
     page.drawLine({
-      start: { x: MARGIN, y: y },
-      end: { x: PAGE_WIDTH - MARGIN, y: y },
+      start: { x: MARGIN, y },
+      end: { x: PAGE_WIDTH - MARGIN, y },
       thickness: 1,
       color: rgb(0.8, 0.8, 0.8),
     });

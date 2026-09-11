@@ -18,20 +18,18 @@
   // NOTE: Currently this listener is _just_ for umami analytics
   // We unsub as soon as they're identified
   const session_listener = session.listen(($session) => {
-    if ($session.isRefetching || $session.isPending) {
-      return;
-    } else {
-      if (browser && window.umami && $session.data?.user) {
-        window.umami.identify($session.data.user.id, {
-          name: $session.data.user.name,
-          email: $session.data.user.email,
-          session_id: $session.data.session.id,
-          ip_address: $session.data.session.ipAddress,
-          user_agent: $session.data.session.userAgent,
-        });
+    if ($session.isRefetching || $session.isPending) return;
 
-        session_listener();
-      }
+    if (browser && globalThis.umami && $session.data?.user) {
+      globalThis.umami.identify($session.data.user.id, {
+        name: $session.data.user.name,
+        email: $session.data.user.email,
+        session_id: $session.data.session.id,
+        ip_address: $session.data.session.ipAddress,
+        user_agent: $session.data.session.userAgent,
+      });
+
+      session_listener();
     }
   });
 
