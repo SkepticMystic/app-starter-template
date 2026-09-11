@@ -1,4 +1,3 @@
-import { ERROR } from "$lib/const/error.const";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { db } from "$lib/server/db/drizzle.db";
 import {
@@ -8,7 +7,6 @@ import {
 } from "$lib/server/db/models/task.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
 import { operators } from "drizzle-orm";
 import type { z } from "zod";
 
