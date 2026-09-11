@@ -225,11 +225,36 @@ staged files: format, then lint, then type-check.
 
 ## Deployment (Vercel)
 
-1. Connect repository to Vercel
-2. Set environment variables in Vercel dashboard (see `.env.example`)
-3. Create `.env.production` for production database URL (used by `pnpm db:generate` and `pnpm db:check`)
-4. Edit build command to: `vite build && pnpm db:migrate`
-5. Deploy
+1. Connect the repository to Vercel.
+2. Run `tofu apply` in `infra/`. **Environment variables are managed by
+   OpenTofu, not the dashboard** — `infra/vercel.tf` is the sole writer, so
+   anything set by hand there is overwritten on the next apply.
+3. Create `.env.production` for the production database URL (used by
+   `pnpm db:generate` and `pnpm db:check`).
+4. The build command is set by `infra/vercel.tf` and is
+   `pnpm build && pnpm db:migrate`.
+
+### Tiers
+
+Each tier has its own database, bucket and Redis keyspace:
+
+|             | Database              | Object storage | Redis                   |
+| ----------- | --------------------- | -------------- | ----------------------- |
+| production  | Neon default branch   | prod bucket    | `<APP.ID>:production:`  |
+| preview     | Neon `preview` branch | dev bucket     | `<APP.ID>:preview:`     |
+| development | Neon `dev` branch     | dev bucket     | `<APP.ID>:development:` |
+
+Preview having its own database is **not cosmetic**: the build command runs
+`pnpm db:migrate`, so a preview tier pointed at production would migrate the
+production database on every pull request. That was a live bug in this template
+until `infra/neon.tf` grew a branch per tier.
+
+Redis is the exception — one shared instance, separated only by the key prefix
+that `src/lib/server/db/redis.db.ts` builds from `APP.ID` and `VERCEL_ENV`.
+There is no infrastructure-layer fallback there, so that prefix is load-bearing.
+
+Note that `pnpm db:migrate` running inside the build means a push to `main`
+migrates production with no review gate between merge and schema change.
 
 ## Key Patterns and Conventions
 
