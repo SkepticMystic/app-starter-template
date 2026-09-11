@@ -1,0 +1,174 @@
+{
+  // ── Oxc language servers ────────────────────────────────────────────────────
+  // Same contract as `.vscode/settings.json`: Oxfmt formats, Oxlint lints, and
+  // both read this project's config through the Vite+ LSP wrappers in
+  // `node_modules/.bin/{oxfmt,oxlint}` — the oxc-zed extension finds those by
+  // detecting `vite-plus` in `package.json`, so save output matches `pnpm format`
+  // and the pre-commit hook (`vp staged` → `vp check --fix`).
+  //
+  // Requires the `oxc` extension (oxc-project/oxc-zed) from the Zed marketplace.
+  "lsp": {
+    // Options live in the `fmt` block of `vite.config.ts`, never an
+    // `.oxfmtrc.json`, which `vp fmt` does not read. Pointing `configPath` there
+    // is what makes editor saves apply the Svelte printer, Tailwind class
+    // sorting, `singleAttributePerLine` and `fmt.ignorePatterns`.
+    "oxfmt": {
+      "initialization_options": {
+        "settings": { "fmt.configPath": "./vite.config.ts", "run": "onSave" }
+      }
+    },
+
+    // Rules live in `oxlint.config.ts`, imported by `vite.config.ts` as `lint`.
+    // `typeAware` mirrors `options.typeAware` there (the tsgolint path), and
+    // `unusedDisableDirectives` mirrors the `--report-unused-disable-directives`
+    // flag on `pnpm lint`, so the editor reports exactly what CI does.
+    "oxlint": {
+      "initialization_options": {
+        "settings": {
+          "run": "onType",
+          "fixKind": "safe_fix",
+          "typeAware": true,
+          "unusedDisableDirectives": "deny"
+        }
+      }
+    }
+  },
+
+  // ── Formatting ──────────────────────────────────────────────────────────────
+  // Every language is pinned explicitly, for the same reason the VS Code config
+  // pins each `[language]`: Zed's default formatter is `auto`, which prefers its
+  // bundled Prettier over the language server. `prettier.allowed: false` stops
+  // that server from even starting — Prettier is not a dependency of this
+  // project and would reformat against `vite.config.ts`.
+  //
+  // `language_servers` is also restated on the linted languages. A list without
+  // `"..."` is exhaustive, so a user-level `language_servers` override for e.g.
+  // TypeScript silently excludes `oxfmt`/`oxlint` from that language; naming
+  // them here re-attaches them. `"..."` keeps everything else Zed registers
+  // (tailwindcss-language-server, svelte-language-server).
+  //
+  // `!eslint` because there is no `eslint.config.js` here — ESLint is not used,
+  // and its server otherwise attaches and reports `eslint/noLibrary` on every
+  // file it sees.
+  //
+  // `code_actions_on_format` is restated too, and deliberately drops the
+  // `source.organizeImports` that the user-level config enables globally. Zed
+  // runs code actions *before* the formatter, under one timeout for the whole
+  // save, and svelte-language-server needs ~26s to answer the first
+  // organize-imports request on a `.svelte` buffer — it loads the TS program
+  // first. The save times out, `oxfmt` is never reached, and the file is left
+  // unformatted (`WARN [editor] timed out waiting for formatting` in the Zed log).
+  // It also sorts imports, which nothing else here does: oxfmt does not reorder
+  // imports, so `pnpm format` neither produces nor enforces that order.
+  // `source.fixAll.oxc` on its own answers in ~86ms. Run `editor: organize
+  // imports` by hand on a file that needs it.
+  //
+  // `typescript-ls` is the tsgo extension (TypeScript 7's native server), so the
+  // editor matches `pnpm check` and `pnpm lint`, both of which already run on
+  // tsgo/tsgolint. `!vtsls` and `!typescript-language-server` stop Zed's own
+  // TypeScript servers doubling up on the same buffer.
+  //
+  // The cost, and the reason `.vscode/settings.json` chooses the opposite: tsgo
+  // does not support TSServer plugins, so `typescript-svelte-plugin` is not
+  // loaded and a `./Foo.svelte` import inside a `.ts` file goes untyped here.
+  // `pnpm check` (svelte-check) is what covers them.
+  "languages": {
+    "TypeScript": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }],
+      "language_servers": [
+        "oxfmt",
+        "oxlint",
+        "typescript-ls",
+        "!eslint",
+        "!vtsls",
+        "!typescript-language-server",
+        "..."
+      ],
+      "code_actions_on_format": { "source.fixAll.oxc": true }
+    },
+
+    "JavaScript": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }],
+      "language_servers": [
+        "oxfmt",
+        "oxlint",
+        "typescript-ls",
+        "!eslint",
+        "!vtsls",
+        "!typescript-language-server",
+        "..."
+      ],
+      "code_actions_on_format": { "source.fixAll.oxc": true }
+    },
+
+    // Oxfmt formats `.svelte` through a bundled `prettier-plugin-svelte`, which
+    // is the gap that used to keep Prettier here; svelte-language-server's own
+    // formatter is deliberately not used, so the two cannot disagree. Oxlint has
+    // no Svelte template rules (it lints only the `<script>` AST) — Svelte
+    // correctness comes from `pnpm check`.
+    "Svelte": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }],
+      "language_servers": ["oxfmt", "oxlint", "!eslint", "..."],
+      "code_actions_on_format": { "source.fixAll.oxc": true }
+    },
+
+    "JSON": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+
+    "JSONC": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+
+    "CSS": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+
+    "HTML": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+
+    "Markdown": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+
+    "YAML": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+
+    // `drizzle/` is generated and sits in `fmt.ignorePatterns`, so oxfmt would
+    // decline these anyway — but no formatter should touch them: reformatting a
+    // migration's `snapshot.json` corrupts it.
+    "SQL": { "format_on_save": "off" }
+  },
+
+  // ── Performance ─────────────────────────────────────────────────────────────
+  // Generated trees that no language server or search needs to walk.
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/node_modules",
+    "**/.svelte-kit",
+    "**/.vercel",
+    "**/drizzle",
+    "**/coverage",
+    "**/.claude/worktrees"
+  ]
+}

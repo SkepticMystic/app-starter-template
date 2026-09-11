@@ -1,8 +1,70 @@
 {
-  "editor.defaultFormatter": "oxc.oxc-vscode",
+  // ── Formatting ──────────────────────────────────────────────────────────────
+  // Oxfmt is the single source of truth — see the `fmt` block in vite.config.ts.
+  // It handles `.svelte` and sorts Tailwind classes, which were the two gaps that
+  // kept Prettier here, and it reads its options from that block rather than an
+  // `.oxfmtrc.json`. So save output is identical to `pnpm format` and to what the
+  // pre-commit hook (`vp staged`) runs.
+  //
+  // Each language is pinned explicitly so that user-level `[language]` formatter
+  // overrides cannot leak in and quietly format some file types with another tool.
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[svelte]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[css]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[html]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+
+  // `drizzle/` is generated and is in `fmt.ignorePatterns` — no formatter should
+  // touch it. Formatting a migration's `snapshot.json` would corrupt it.
+  "[sql]": { "editor.formatOnSave": false },
+
+  "oxc.enable.oxfmt": true,
+
+  // ── Linting ─────────────────────────────────────────────────────────────────
+  // The rules live in `oxlint.config.ts`, which oxlint auto-discovers, so the
+  // editor enforces exactly what `pnpm lint` and the pre-commit hook do. That is
+  // the whole reason the config is a file rather than a block in vite.config.ts,
+  // which this extension cannot read. `requireConfig` makes a missing or
+  // unreadable config fail loudly instead of silently falling back to stock
+  // oxlint defaults — which is the failure this setup exists to prevent.
+  "oxc.enable.oxlint": true,
+  "oxc.requireConfig": true,
+
   "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
     "source.fixAll.oxc": "explicit"
+  },
+
+  // ── TypeScript ──────────────────────────────────────────────────────────────
+  // The editor stays on the workspace TypeScript and classic tsserver so the
+  // Svelte TS plugin keeps working: tsgo does not support TSServer plugins, and
+  // that plugin is what types `./Foo.svelte` imports inside `.ts` files. tsgo is
+  // still used where it pays off — `pnpm check` (svelte-check --tsgo) and
+  // `pnpm lint` (tsgolint). Deliberately no `typescript.tsdk` pin, so the SDK
+  // moves with the workspace.
+  "js/ts.experimental.useTsgo": false,
+  "svelte.enable-ts-plugin": true,
+
+  // The Deno LSP must never attach here — this is a Node/SvelteKit project.
+  "deno.enable": false,
+
+  // ── Performance ─────────────────────────────────────────────────────────────
+  // `files.exclude` hides these from the explorer but does not stop the watcher.
+  "files.watcherExclude": {
+    "**/.svelte-kit/**": true,
+    "**/.vercel/**": true,
+    "**/drizzle/**": true
+  },
+  "search.exclude": {
+    "**/.svelte-kit": true,
+    "**/.vercel": true,
+    "**/drizzle": true
   }
 }
