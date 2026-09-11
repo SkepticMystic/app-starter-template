@@ -5,11 +5,8 @@
   import { TaskClient } from "$lib/clients/tasks.client";
   import TaskForm from "$lib/components/form/task/TaskForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import Sheet from "$lib/components/ui/sheet/Sheet.svelte";
   import { TASKS } from "$lib/const/task.const";
   import { get_all_tasks_remote } from "$lib/remote/tasks/tasks.remote";
@@ -86,6 +83,17 @@
 
   <DataTable
     {columns}
+    noun="task"
+    filters={[
+      { kind: "search", id: "title", placeholder: "Title" },
+      {
+        kind: "multi",
+        id: "status",
+        placeholder: "Status",
+        options: TASKS.STATUS.OPTIONS,
+      },
+      { kind: "date_range", id: "due_date", placeholder: "Due date" },
+    ]}
     data={tasks}
     states={{
       sorting: [{ id: "createdAt", desc: true }],
@@ -107,38 +115,5 @@
           }),
       },
     ]}
-  >
-    {#snippet header(table)}
-      <div class="flex gap-1.5">
-        <Input
-          class="max-w-sm"
-          placeholder="Title"
-          bind:value={
-            () => table.getColumn("title")?.getFilterValue() ?? "",
-            (value) => table.getColumn("title")?.setFilterValue(value)
-          }
-        />
-
-        <MultiSelect
-          options={TASKS.STATUS.OPTIONS}
-          placeholder="Status"
-          bind:value={
-            () =>
-              (table.getColumn("status")?.getFilterValue() ?? []) as string[],
-            (value) => table.getColumn("status")?.setFilterValue(value)
-          }
-        />
-
-        {#if table.atoms.columnFilters.get().length}
-          <Button
-            icon="lucide/x"
-            variant="ghost"
-            onclick={() => table.resetColumnFilters()}
-          >
-            Clear
-          </Button>
-        {/if}
-      </div>
-    {/snippet}
-  </DataTable>
+  ></DataTable>
 </article>

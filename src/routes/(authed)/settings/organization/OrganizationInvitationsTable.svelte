@@ -1,8 +1,6 @@
 <script lang="ts">
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { ORGANIZATION } from "$lib/const/auth/organization.const";
   import type { Invitation } from "$lib/server/db/models/auth.model";
   import { column_helper, CellHelpers } from "$lib/utils/tanstack/table.util";
@@ -53,11 +51,27 @@
     sorting: [{ id: "expiresAt", desc: true }],
     column_filters: [{ id: "status", value: ["pending"] }],
   }}
-  empty={{
-    icon: "lucide/mail",
-    title: "No invitations",
-    description: "Invite a new member to your organization",
-  }}
+  noun="invitation"
+  filters={[
+    {
+      kind: "multi",
+      id: "status",
+      label: "Statuses",
+      options: ORGANIZATION.INVITATIONS.STATUSES.OPTIONS,
+    },
+  ]}
+  empty={({ filtering }) =>
+    filtering
+      ? {
+          icon: "lucide/filter",
+          title: "No matching invitations",
+          description: "No invitation has one of the statuses you picked.",
+        }
+      : {
+          icon: "lucide/mail",
+          title: "No invitations",
+          description: "Invite a new member to your organization",
+        }}
   actions={(row) => [
     {
       icon: "lucide/x",
@@ -71,20 +85,4 @@
         }),
     },
   ]}
->
-  {#snippet header(table)}
-    <Field label="Statuses">
-      {#snippet input({ props })}
-        <MultiSelect
-          {...props}
-          options={ORGANIZATION.INVITATIONS.STATUSES.OPTIONS}
-          bind:value={
-            () =>
-              (table.getColumn("status")?.getFilterValue() as string[]) ?? [],
-            (v) => table.getColumn("status")?.setFilterValue(v)
-          }
-        />
-      {/snippet}
-    </Field>
-  {/snippet}
-</DataTable>
+></DataTable>

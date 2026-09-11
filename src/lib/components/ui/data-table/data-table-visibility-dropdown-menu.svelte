@@ -37,9 +37,25 @@
 
   <DropdownMenuContent align="end">
     {#if table.atoms.grouping.get()?.length}
-      <DropdownMenuItem onclick={() => table.resetGrouping(true)}
-        >Reset grouping</DropdownMenuItem
+      <!--
+        Reachable only while grouped, which is also the only time they mean
+        anything: the per-row chevrons open one group at a time, and a table
+        grouped by status is usually one you want either all open or all shut.
+      -->
+      <DropdownMenuItem onSelect={() => table.toggleAllRowsExpanded(true)}>
+        Expand all
+      </DropdownMenuItem>
+
+      <DropdownMenuItem
+        disabled={!table.getIsSomeRowsExpanded()}
+        onSelect={() => table.toggleAllRowsExpanded(false)}
       >
+        Collapse all
+      </DropdownMenuItem>
+
+      <DropdownMenuItem onSelect={() => table.resetGrouping(true)}>
+        Reset grouping
+      </DropdownMenuItem>
 
       <DropdownMenuSeparator />
     {/if}

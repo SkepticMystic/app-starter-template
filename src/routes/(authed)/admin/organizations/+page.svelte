@@ -1,12 +1,9 @@
 <script lang="ts">
   import { OrganizationClient } from "$lib/clients/auth/organization.client.js";
-  import { column_helper } from "$lib/utils/tanstack/table.util";
+  import { CellHelpers, column_helper } from "$lib/utils/tanstack/table.util";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
   import { Arrays } from "$lib/utils/array/array.util.js";
   import { Format } from "$lib/utils/format.util.js";
-  import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
 
   let { data } = $props();
   let orgs = $derived(data.orgs);
@@ -50,7 +47,16 @@
 
   <DataTable
     {columns}
+    noun="organization"
     data={orgs}
+    filters={[
+      {
+        kind: "search",
+        id: "name",
+        label: "Name",
+        placeholder: "Search by name",
+      },
+    ]}
     actions={(row) => [
       {
         icon: "lucide/x",
@@ -59,22 +65,5 @@
         onselect: () => actions.delete(row.id),
       },
     ]}
-  >
-    {#snippet header(table)}
-      <search class="flex flex-wrap gap-2">
-        <Field label="Name">
-          {#snippet input({ props })}
-            <Input
-              {...props}
-              placeholder="Search by name"
-              bind:value={
-                () => table.getColumn("name")?.getFilterValue(),
-                (v) => table.getColumn("name")?.setFilterValue(v)
-              }
-            />
-          {/snippet}
-        </Field>
-      </search>
-    {/snippet}
-  </DataTable>
+  ></DataTable>
 </article>
