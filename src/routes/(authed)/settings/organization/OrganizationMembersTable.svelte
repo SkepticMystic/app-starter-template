@@ -1,5 +1,6 @@
 <script lang="ts">
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
+  import { column_helper } from "$lib/utils/tanstack/table.util";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import { renderComponent } from "$lib/components/ui/data-table";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
@@ -10,7 +11,6 @@
     type IOrganization,
   } from "$lib/const/auth/organization.const";
   import type { Member, User } from "$lib/server/db/models/auth.model";
-  import { createColumnHelper } from "@tanstack/table-core";
 
   let {
     members,
@@ -44,7 +44,7 @@
     );
   };
 
-  const column = createColumnHelper<TData>();
+  const column = column_helper<TData>();
 
   const columns = [
     column.display({

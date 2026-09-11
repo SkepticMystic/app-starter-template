@@ -5,8 +5,7 @@
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import { ORGANIZATION } from "$lib/const/auth/organization.const";
   import type { Invitation } from "$lib/server/db/models/auth.model";
-  import { CellHelpers } from "$lib/utils/tanstack/table.util";
-  import { createColumnHelper } from "@tanstack/table-core";
+  import { column_helper, CellHelpers } from "$lib/utils/tanstack/table.util";
 
   let {
     invitations,
@@ -19,7 +18,7 @@
     on_cancel?: (invitation_id: string) => void;
   } = $props();
 
-  const column = createColumnHelper<NonNullable<typeof invitations>[number]>();
+  const column = column_helper<NonNullable<typeof invitations>[number]>();
 
   const columns = [
     column.accessor("email", {

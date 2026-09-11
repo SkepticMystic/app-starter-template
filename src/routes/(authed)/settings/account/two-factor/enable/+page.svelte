@@ -59,7 +59,7 @@
             <QrCode
               size={256}
               class="rounded-md"
-              value={enable_data.totpURI}
+              value={enable_data?.totpURI ?? ""}
             />
 
             {#if setup_key}
@@ -100,7 +100,7 @@
 
             <output>
               <ul class="flex flex-wrap gap-x-4 gap-y-2">
-                {#each enable_data.backupCodes as code (code)}
+                {#each enable_data?.backupCodes ?? [] as code (code)}
                   <li>
                     <span class="font-mono text-sm">{code}</span>
                   </li>

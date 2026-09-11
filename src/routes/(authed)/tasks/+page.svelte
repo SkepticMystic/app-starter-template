@@ -1,12 +1,13 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import { column_helper } from "$lib/utils/tanstack/table.util";
   import { Client } from "$lib/clients/index.client";
   import { TaskClient } from "$lib/clients/tasks.client";
   import TaskForm from "$lib/components/form/task/TaskForm.svelte";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
+  import { renderComponent } from "$lib/components/ui/data-table";
   import Input from "$lib/components/ui/input/input.svelte";
   import MultiSelect from "$lib/components/ui/select/MultiSelect.svelte";
   import Sheet from "$lib/components/ui/sheet/Sheet.svelte";
@@ -17,13 +18,12 @@
     CellHelpers,
     TanstackTable,
   } from "$lib/utils/tanstack/table.util.js";
-  import { createColumnHelper } from "@tanstack/table-core";
 
   let tasks = $derived(
     await Client.wrap(get_all_tasks_remote)().then((r) => (r.ok ? r.data : [])),
   );
 
-  const column = createColumnHelper<NonNullable<typeof tasks>[number]>();
+  const column = column_helper<NonNullable<typeof tasks>[number]>();
 
   const columns = [
     column.accessor("title", {
@@ -46,7 +46,7 @@
     column.accessor("due_date", {
       meta: { label: "Due date" },
 
-      filterFn: TanstackTable.filter_fns.date_range,
+      filterFn: "date_range",
 
       cell: (c) => CellHelpers.time(c, { show: "datetime" }),
     }),
@@ -129,7 +129,7 @@
           }
         />
 
-        {#if table.getState().columnFilters.length}
+        {#if table.atoms.columnFilters.get().length}
           <Button
             icon="lucide/x"
             variant="ghost"

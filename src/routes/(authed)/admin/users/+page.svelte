@@ -1,15 +1,15 @@
 <script lang="ts">
   import { AdminClient } from "$lib/clients/auth/admin.client.js";
+  import { column_helper } from "$lib/utils/tanstack/table.util";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { renderComponent } from "$lib/components/ui/data-table/render-helpers.js";
+  import { renderComponent } from "$lib/components/ui/data-table";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
   import { ROLES, type RoleId } from "$lib/const/auth/role.const.js";
   import { Arrays } from "$lib/utils/array/array.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
-  import { createColumnHelper } from "@tanstack/table-core";
 
   let { data } = $props();
   let users = $derived(data.users);
@@ -50,7 +50,7 @@
         })),
     });
 
-  const column = createColumnHelper<(typeof users)[number]>();
+  const column = column_helper<(typeof users)[number]>();
 
   const columns = [
     column.display({

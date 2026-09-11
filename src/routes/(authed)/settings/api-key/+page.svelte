@@ -1,17 +1,17 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import { column_helper } from "$lib/utils/tanstack/table.util";
   import { APIKeyClient } from "$lib/clients/auth/apikey.client.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import { Arrays } from "$lib/utils/array/array.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
-  import { createColumnHelper } from "@tanstack/table-core";
 
   let { data } = $props();
 
   let apikeys = $derived(data.apikeys);
 
-  const column = createColumnHelper<(typeof apikeys)[number]>();
+  const column = column_helper<(typeof apikeys)[number]>();
 
   const columns = [
     column.accessor("name", {

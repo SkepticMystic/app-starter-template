@@ -8,6 +8,9 @@
     rename_passkey_remote,
   } from "$lib/remote/auth/passkey.remote";
   import type { Passkey } from "$lib/server/db/models/auth.model";
+  // What Better-Auth hands back, which is not the DB row: 1.7 returns its own
+  // shape, wrapped, and it carries no `updatedAt`.
+  import type { Passkey as BetterAuthPasskey } from "@better-auth/passkey";
   import { Arrays } from "$lib/utils/array/array.util";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { result } from "$lib/utils/result.util";
@@ -19,7 +22,7 @@
     on_success,
   }: {
     passkey: Pick<Passkey, "id" | "name">;
-    on_success?: (d: Passkey) => MaybePromise<void>;
+    on_success?: (d: BetterAuthPasskey) => MaybePromise<void>;
   } = $props();
 
   const form = rename_passkey_remote;
@@ -46,7 +49,8 @@
     if (res?.ok) {
       toast.success("Passkey updated successfully");
 
-      await on_success?.(res.data);
+      // better-auth 1.7 wraps the passkey result rather than returning it flat.
+      await on_success?.(res.data.passkey);
     } else if (res?.error) {
       toast.error(res.error.message);
     }

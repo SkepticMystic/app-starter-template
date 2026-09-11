@@ -1,3 +1,12 @@
-export { default as FlexRender } from "./flex-render.svelte";
-export { renderComponent, renderSnippet } from "./render-helpers.js";
-export { createSvelteTable } from "./data-table.svelte.js";
+/**
+ * v9 ships a real Svelte adapter, so the hand-rolled `createSvelteTable`,
+ * `FlexRender` and render helpers this used to carry are gone — they existed
+ * only because v8 had no Svelte package.
+ */
+export {
+  FlexRender,
+  createTable,
+  createTableState,
+  renderComponent,
+  renderSnippet,
+} from "@tanstack/svelte-table";

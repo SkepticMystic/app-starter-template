@@ -2,7 +2,7 @@
   import type { DialogContentProps } from "bits-ui";
   import DialogContent from "../dialog/dialog-content.svelte";
   import DrawerContent from "../drawer/drawer-content.svelte";
-  import { useModalSub } from "./modal.svelte.js";
+  import { useModalSub } from "./modal-state.svelte.js";
 
   const modal = useModalSub();
 

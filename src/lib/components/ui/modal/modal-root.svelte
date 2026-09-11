@@ -2,7 +2,7 @@
   import type { DialogRootProps } from "bits-ui";
   import DialogRoot from "../dialog/dialog-root.svelte";
   import DrawerRoot from "../drawer/drawer-root.svelte";
-  import { useModal } from "./modal.svelte.js";
+  import { useModal } from "./modal-state.svelte.js";
 
   let {
     open = $bindable(false),

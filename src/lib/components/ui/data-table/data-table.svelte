@@ -3,10 +3,11 @@
   generics="TData extends Resource"
 >
   import Button from "$lib/components/ui/button/button.svelte";
+  import type { Features } from "$lib/utils/tanstack/table.util";
   import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.type";
   import type { Resource } from "$lib/utils/array/array.util";
   import { Format } from "$lib/utils/format.util";
-  import type { Table } from "@tanstack/table-core";
+  import type { Table } from "@tanstack/svelte-table";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";
   import Checkbox from "../checkbox/checkbox.svelte";
@@ -35,7 +36,7 @@
   }: TanstackTableInput<TData> & {
     empty?: EmptyProps;
     loading?: boolean;
-    header?: Snippet<[Table<TData>]>;
+    header?: Snippet<[Table<Features, TData>]>;
   } = $props();
 </script>
 
@@ -45,7 +46,8 @@
   {columns}
 >
   {#snippet children(table)}
-    {@const state = table.getState()}
+    <!-- v9 replaces `getState()` with per-slice atoms. -->
+    {@const pagination = table.atoms.pagination.get()}
     {@const footer_groups = table.getFooterGroups()}
 
     <div class="space-y-3">
@@ -57,7 +59,7 @@
             <DataTableVisibilityDropdownMenu {table} />
           </ButtonGroup>
 
-          {#if state.pagination && input.data.length >= state.pagination.pageSize}
+          {#if pagination && input.data.length >= pagination.pageSize}
             <ButtonGroup>
               <Button
                 variant="outline"
@@ -72,7 +74,7 @@
                 title="Go to first page"
                 onclick={() => table.setPageIndex(0)}
               >
-                {state.pagination.pageIndex + 1} / {table.getPageCount()}
+                {pagination.pageIndex + 1} / {table.getPageCount()}
               </Button>
 
               <Button

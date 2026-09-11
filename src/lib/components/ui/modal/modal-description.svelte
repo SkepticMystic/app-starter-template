@@ -2,7 +2,7 @@
   import type { DialogDescriptionProps } from "bits-ui";
   import DialogDescription from "../dialog/dialog-description.svelte";
   import DrawerDescription from "../drawer/drawer-description.svelte";
-  import { useModalSub } from "./modal.svelte.js";
+  import { useModalSub } from "./modal-state.svelte.js";
 
   const modal = useModalSub();
 

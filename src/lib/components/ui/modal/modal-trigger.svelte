@@ -2,7 +2,7 @@
   import type { DialogTriggerProps } from "bits-ui";
   import DialogTrigger from "../dialog/dialog-trigger.svelte";
   import DrawerTrigger from "../drawer/drawer-trigger.svelte";
-  import { useModalSub } from "./modal.svelte.js";
+  import { useModalSub } from "./modal-state.svelte.js";
 
   const modal = useModalSub();
 

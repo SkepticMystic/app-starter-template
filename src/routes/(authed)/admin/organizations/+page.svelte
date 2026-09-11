@@ -1,17 +1,17 @@
 <script lang="ts">
   import { OrganizationClient } from "$lib/clients/auth/organization.client.js";
+  import { column_helper } from "$lib/utils/tanstack/table.util";
   import DataTable from "$lib/components/ui/data-table/data-table.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { Arrays } from "$lib/utils/array/array.util.js";
   import { Format } from "$lib/utils/format.util.js";
   import { CellHelpers } from "$lib/utils/tanstack/table.util.js";
-  import { createColumnHelper } from "@tanstack/table-core";
 
   let { data } = $props();
   let orgs = $derived(data.orgs);
 
-  const column = createColumnHelper<(typeof orgs)[number]>();
+  const column = column_helper<(typeof orgs)[number]>();
 
   const columns = [
     column.accessor("name", {

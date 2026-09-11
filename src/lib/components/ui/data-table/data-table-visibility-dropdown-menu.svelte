@@ -3,8 +3,9 @@
   generics="TData extends Record<string, unknown>"
 >
   import Button from "$lib/components/ui/button/button.svelte";
+  import type { Features } from "$lib/utils/tanstack/table.util";
   import { TanstackTable } from "$lib/utils/tanstack/table.util";
-  import type { Table } from "@tanstack/table-core";
+  import type { Table } from "@tanstack/svelte-table";
   import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
   import DropdownMenuCheckboxItem from "../dropdown-menu/dropdown-menu-checkbox-item.svelte";
   import DropdownMenuContent from "../dropdown-menu/dropdown-menu-content.svelte";
@@ -17,7 +18,7 @@
   let {
     table,
   }: {
-    table: Table<TData>;
+    table: Table<Features, TData>;
   } = $props();
 </script>
 
@@ -35,7 +36,7 @@
   </DropdownMenuTrigger>
 
   <DropdownMenuContent align="end">
-    {#if table.getState().grouping?.length}
+    {#if table.atoms.grouping.get()?.length}
       <DropdownMenuItem onclick={() => table.resetGrouping(true)}
         >Reset grouping</DropdownMenuItem
       >

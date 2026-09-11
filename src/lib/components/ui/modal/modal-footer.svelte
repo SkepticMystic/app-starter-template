@@ -3,7 +3,7 @@
   import type { HTMLAttributes } from "svelte/elements";
   import DialogFooter from "../dialog/dialog-footer.svelte";
   import DrawerFooter from "../drawer/drawer-footer.svelte";
-  import { useModalSub } from "./modal.svelte.js";
+  import { useModalSub } from "./modal-state.svelte.js";
 
   const modal = useModalSub();
 
