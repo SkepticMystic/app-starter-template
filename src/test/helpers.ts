@@ -6,7 +6,6 @@
  * functions for common test data shapes.
  */
 
-import { getRequestEvent } from "$app/server";
 import { vi } from "vite-plus/test";
 
 /**
@@ -135,17 +134,35 @@ export function mockDbModule(overrides: Record<string, unknown> = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * Configures `getRequestEvent` (mocked globally in setup.ts) to return an
- * event with the given session attached to `locals.session`. Use `null` for
- * unauthenticated requests, or omit `session` entirely when the service only
- * reads `request.headers`.
+ * Builds a `mockRequestEvent` bound to the CALLER's `getRequestEvent`.
+ *
+ * The function has to be handed in rather than imported here, and the reason is
+ * not stylistic: `vi.mock` replaces a module per test FILE, while this helper
+ * module is cached ACROSS them. Importing `getRequestEvent` here would capture
+ * whichever mock instance happened to be live when this module first loaded and
+ * then configure that one forever — so a later file, with its own freshly
+ * re-mocked `$app/server`, would have the service under test read a
+ * `getRequestEvent` that nobody configured, and every session would arrive
+ * `undefined`.
+ *
+ * Each test file therefore does:
+ *
+ * ```ts
+ * import { getRequestEvent } from "$app/server";
+ * const mockRequestEvent = requestEventMocker(getRequestEvent);
+ * ```
+ *
+ * The rule generalises: any future helper in this file that wants a mocked
+ * module must take it from the caller the same way.
+ *
+ * Pass `null` for an unauthenticated request, or omit `session` entirely when
+ * the service only reads `request.headers`.
  */
-export function mockRequestEvent(
-  session?: App.Session | null,
-  headers?: Headers,
-) {
-  vi.mocked(getRequestEvent).mockReturnValue({
-    locals: { session: session ?? null },
-    request: { headers: headers ?? new Headers() },
-  } as unknown as ReturnType<typeof getRequestEvent>);
-}
+export const requestEventMocker =
+  (get_request_event: typeof import("$app/server").getRequestEvent) =>
+  (session?: App.Session | null, headers?: Headers) => {
+    vi.mocked(get_request_event).mockReturnValue({
+      locals: { session: session ?? null },
+      request: { headers: headers ?? new Headers() },
+    } as unknown as ReturnType<typeof get_request_event>);
+  };

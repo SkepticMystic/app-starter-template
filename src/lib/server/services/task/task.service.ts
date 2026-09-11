@@ -2,9 +2,9 @@ import { ERROR } from "$lib/const/error.const";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { db } from "$lib/server/db/drizzle.db";
 import {
+  TaskSchema,
   TaskTable,
   type Task,
-  type TaskSchema,
 } from "$lib/server/db/models/task.model";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
@@ -20,9 +20,11 @@ export namespace TaskService {
     session: App.Session,
   ): Promise<App.Result<Task>> {
     try {
-      if (!session.session.org_id || !session.session.member_id) {
-        return result.err(ERROR.FORBIDDEN);
-      }
+      const org = ServiceUtil.session_org(session);
+      if (!org.ok) return org;
+
+      const member = ServiceUtil.session_member(session);
+      if (!member.ok) return member;
 
       const task = await Repo.insert_one(
         db
@@ -30,9 +32,9 @@ export namespace TaskService {
           .values({
             ...input,
 
-            org_id: session.session.org_id,
+            org_id: org.data,
             user_id: session.session.userId,
-            member_id: session.session.member_id,
+            member_id: member.data,
           })
           .returning(),
       );
@@ -52,18 +54,17 @@ export namespace TaskService {
     session: App.Session,
   ): Promise<App.Result<Task>> {
     try {
-      if (!session.session.org_id) {
-        return result.err(ERROR.FORBIDDEN);
-      }
+      const org = ServiceUtil.session_org(session);
+      if (!org.ok) return org;
 
       const task = await Repo.update_one(
         db
           .update(TaskTable)
-          .set(input)
+          .set(TaskSchema.patch(input))
           .where(
             operators.and(
               operators.eq(TaskTable.id, input.id), //
-              operators.eq(TaskTable.org_id, session.session.org_id),
+              operators.eq(TaskTable.org_id, org.data),
             ),
           )
           .returning(),
@@ -84,9 +85,8 @@ export namespace TaskService {
     session: App.Session,
   ): Promise<App.Result<void>> {
     try {
-      if (!session.session.org_id) {
-        return result.err(ERROR.FORBIDDEN);
-      }
+      const org = ServiceUtil.session_org(session);
+      if (!org.ok) return org;
 
       const res = await Repo.delete_one(
         db
@@ -94,7 +94,7 @@ export namespace TaskService {
           .where(
             operators.and(
               operators.eq(TaskTable.id, task_id), //
-              operators.eq(TaskTable.org_id, session.session.org_id),
+              operators.eq(TaskTable.org_id, org.data),
             ),
           )
           .execute(),

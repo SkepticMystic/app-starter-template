@@ -77,6 +77,15 @@ export const TaskSchema = {
   update: createUpdateSchema(TaskTable, refinements)
     .pick(pick)
     .extend({ id: z.uuid() }),
+
+  /**
+   * Turns validated update input into the column patch to `.set()`.
+   *
+   * Bound to the same `pick` as the schema above, so `id` — which `update`
+   * extends in for the WHERE clause — cannot reach the SET clause, and an
+   * emptied nullable field clears the column instead of being skipped.
+   */
+  patch: Schema.patcher(TaskTable, pick),
 };
 
 export type TaskSchema = {
