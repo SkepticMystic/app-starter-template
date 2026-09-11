@@ -127,6 +127,12 @@ variable "app_domain" {
   default     = "localhost"
 }
 
+variable "app_domain_preview" {
+  type        = string
+  default     = null
+  description = "Hostname for preview deployments. Falls back to app_domain when unset, which sends preview OAuth callbacks to production — set it as soon as there is a hostname."
+}
+
 variable "app_domain_dev" {
   description = "Domain of the app for local development (e.g. localhost). No port!"
   type        = string

@@ -44,8 +44,7 @@ resource "cloudflare_turnstile_widget" "main" {
   account_id = var.cloudflare_account_id
   mode       = "managed"
   name       = var.project_name
-  domains = [
-    var.app_domain,
-    var.app_domain_dev,
-  ]
+  # Reads the same list as Sentry, so the two cannot drift. A hostname missing
+  # here fails captcha verification on that tier only.
+  domains = local.app_domains
 }

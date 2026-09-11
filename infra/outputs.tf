@@ -1,17 +1,37 @@
-# NOTE: This doesn't actually work. The team_id is not the same as the slug
-# output "vercel_project_url" {
-#   description = "Vercel project dashboard URL."
-#   value       = "https://vercel.com/${var.vercel_team_id}/${vercel_project.app.name}"
-# }
+# ---------------------------------------------------------------------------
+# Outputs
+# ---------------------------------------------------------------------------
+#
+# Nothing secret is output. Reading a credential back out with `tofu output`
+# only widens its exposure — it lands in shell history, CI logs and scrollback —
+# and everything here is already readable from the relevant dashboard.
 
-# output "r2_prod_api_token" {
-#   description = "API token with R2 bucket item read/write access for the prod bucket."
-#   value       = cloudflare_account_token.r2_prod.value
-#   sensitive   = true
-# }
+output "vercel_project_id" {
+  description = "Vercel project id."
+  value       = vercel_project.app.id
+}
 
-# output "r2_dev_api_token" {
-#   description = "API token with R2 bucket item read/write access for the dev bucket."
-#   value       = cloudflare_account_token.r2_dev.value
-#   sensitive   = true
-# }
+output "neon_project_id" {
+  description = "Neon project id."
+  value       = neon_project.main.id
+}
+
+output "neon_branch_ids" {
+  description = "Neon branch id per non-production tier."
+  value       = { for k, b in neon_branch.env : k => b.id }
+}
+
+output "r2_bucket_names" {
+  description = "R2 bucket name per tier."
+  value = {
+    prod = cloudflare_r2_bucket.main.name
+    dev  = cloudflare_r2_bucket.dev.name
+  }
+}
+
+# Handy for registering OAuth redirect origins: every origin the app is served
+# from, in one command.
+output "base_urls" {
+  description = "Base URL per Vercel environment."
+  value       = local.base_urls
+}

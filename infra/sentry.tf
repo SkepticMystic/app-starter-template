@@ -10,10 +10,13 @@ resource "sentry_project" "main" {
   resolve_age = 720 # One month
 
   client_security = {
-    allowed_domains = [
-      "https://${var.app_domain}",
-      "http://${var.app_domain_dev}:5173",
-    ]
+    # Bare hostnames, and the full list including preview.
+    #
+    # Sentry matches a scheme-less allowed domain against the hostname alone, so
+    # one entry covers http and https and any port — which is what makes the
+    # local dev origin work without enumerating its port. Omitting preview means
+    # browser errors from preview deploys are rejected at ingest.
+    allowed_domains = local.app_domains
   }
 }
 
