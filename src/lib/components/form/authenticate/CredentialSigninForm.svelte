@@ -27,7 +27,6 @@
     await e.submit();
 
     const res = form.result;
-    console.log("signin_credentials_remote.result", res);
 
     if (!res?.ok && res?.error) {
       Toast.err(res.error);

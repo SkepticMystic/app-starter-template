@@ -18,7 +18,8 @@
       meta: { label: "Name" },
 
       footer: ({ table }) =>
-        Format.number(table.getRowModel().flatRows.length) + " organizations",
+        Format.number(table.getPrePaginatedRowModel().flatRows.length) +
+        " organizations",
     }),
 
     column.accessor("members", {

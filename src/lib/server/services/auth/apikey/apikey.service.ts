@@ -1,6 +1,7 @@
 import { getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import type { ApiKey } from "@better-auth/api-key";
@@ -139,22 +140,10 @@ const update = async (
 
     return result.suc(res);
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Failed to update API key",
-      });
-    }
+    return ServiceUtil.ba_error(error, {
+      log: l,
+      message: "Failed to update API key",
+    });
   }
 };
 
@@ -204,22 +193,10 @@ const verify = async (input: {
       });
     }
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Failed to verify API key",
-      });
-    }
+    return ServiceUtil.ba_error(error, {
+      log: l,
+      message: "Failed to verify API key",
+    });
   }
 };
 
@@ -250,22 +227,10 @@ const del = async (
       });
     }
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Failed to delete API key",
-      });
-    }
+    return ServiceUtil.ba_error(error, {
+      log: l,
+      message: "Failed to delete API key",
+    });
   }
 };
 

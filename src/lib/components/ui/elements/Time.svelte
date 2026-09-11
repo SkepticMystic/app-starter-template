@@ -19,7 +19,16 @@
       | ((dt: Date | number | string | undefined | null) => string);
   } = $props();
 
-  const resolved = $derived(date ? new Date(date) : null);
+  // An unparseable date yields an `Invalid Date`, which is a truthy object —
+  // so a bare `date ? new Date(date) : null` reaches `toISOString()` and throws
+  // a RangeError, taking the whole page's render down over one bad timestamp.
+  const resolved = $derived.by(() => {
+    if (!date) return null;
+
+    const dt = new Date(date);
+
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  });
 
   const format = $derived(typeof show === "string" ? Format[show] : show);
 </script>

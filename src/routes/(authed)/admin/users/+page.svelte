@@ -72,6 +72,10 @@
     column.accessor("role", {
       meta: { label: "Role" },
 
+      // Named, not "auto": auto resolves a string column to `includesString`,
+      // so filtering to `admin` would also match `superadmin`.
+      filterFn: "equals",
+
       cell: ({ row, getValue }) =>
         renderComponent(NativeSelect<RoleId>, {
           value: getValue(),
@@ -82,6 +86,12 @@
 
     column.accessor("banned", {
       meta: { label: "Banned" },
+
+      // Named so the choice survives the column gaining a null: "auto" picks
+      // the fn from the first non-null row value, and would fall to
+      // `weakEquals` if it found none. `equals` keeps a `false` filter, since
+      // `autoRemove` only drops undefined/null/"".
+      filterFn: "equals",
 
       cell: ({ getValue }) => (getValue() ? "Yes" : "No"),
     }),

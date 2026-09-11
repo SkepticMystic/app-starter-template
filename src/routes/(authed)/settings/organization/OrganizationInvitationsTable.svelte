@@ -33,7 +33,7 @@
     column.accessor("status", {
       meta: { label: "Status" },
 
-      filterFn: "arrIncludesSome",
+      filterFn: "arrHas",
 
       cell: (c) => CellHelpers.label(c, ORGANIZATION.INVITATIONS.STATUSES.MAP),
     }),

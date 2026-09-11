@@ -36,7 +36,6 @@
       FormUtil.count_issue_metrics(form, "create_apikey_form");
 
       const res = form.result;
-      console.log(res);
       if (res?.ok) {
         e.element.reset();
         toast.success("API key created", {

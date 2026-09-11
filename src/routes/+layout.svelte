@@ -21,8 +21,6 @@
     if ($session.isRefetching || $session.isPending) {
       return;
     } else {
-      console.log("$session loaded", $session.data);
-
       if (browser && window.umami && $session.data?.user) {
         window.umami.identify($session.data.user.id, {
           name: $session.data.user.name,

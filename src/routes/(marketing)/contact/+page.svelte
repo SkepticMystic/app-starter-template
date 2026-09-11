@@ -21,20 +21,19 @@
       form.fields.name.set($session.data.user.name);
       form.fields.email.set($session.data.user.email);
 
+      // The store emits synchronously during `subscribe`, so on that first
+      // emission `session_listener` is still in its own TDZ and calling it
+      // throws. Nothing is owed — `onDestroy` below unsubscribes regardless.
       try {
         session_listener();
-      } catch (error) {
-        console.log("session_listener.error", error);
-      }
+      } catch {}
     }
   });
 
   onDestroy(() => {
     try {
       session_listener();
-    } catch (error) {
-      console.log("session_listener.error", error);
-    }
+    } catch {}
   });
 </script>
 

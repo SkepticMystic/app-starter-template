@@ -1,6 +1,7 @@
 import { getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -22,22 +23,10 @@ const list = async (
 
     return result.suc(accounts);
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Failed to get accounts",
-      });
-    }
+    return ServiceUtil.ba_error(error, {
+      log: l,
+      message: "Failed to get accounts",
+    });
   }
 };
 
