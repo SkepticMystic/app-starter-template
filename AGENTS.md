@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deployed on Vercel.
 
-**Tech Stack**: Node 24, pnpm 10.23.0, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Resend (email), Pino (logging)
+**Tech Stack**: Node 24, pnpm, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Resend (email), Pino (logging)
 
 ## Development Commands
 
@@ -236,7 +236,7 @@ staged files: format, then lint, then type-check.
 ### Code Organization
 
 - **Naming conventions**:
-  - Database schema files: `*.models.ts`
+  - Database schema files: `*.model.ts`
   - Remote functions: `*.remote.ts`
   - Services: `*.service.ts`
   - Utilities: `*.util.ts`
