@@ -1,4 +1,5 @@
 import { OPENAI_API_KEY } from "$env/static/private";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
@@ -130,11 +131,11 @@ const moderate = async (input: {
 
     return result.suc(data.results.map((r) => ({ flagged: r.flagged })));
   } catch (error) {
-    log.error(error, "moderate.error unknown");
-
-    captureException(error, { extra: { input } });
-
-    return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    return ServiceUtil.internal(error, {
+      log,
+      scope: "moderate",
+      extra: { input },
+    });
   }
 };
 

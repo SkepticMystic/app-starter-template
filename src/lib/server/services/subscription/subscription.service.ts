@@ -1,4 +1,5 @@
 import { getRequestEvent } from "$app/server";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { checkout_url } from "$lib/server/sdk/payment/paystack/paystack.payment.sdk";
 import { auth } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
@@ -32,9 +33,7 @@ const get_by_id = async (subscription_id: string, session: App.Session) => {
 
     return result.suc(res.data);
   } catch (error) {
-    log.error(error, "get_by_id.error unknown");
-    captureException(error);
-    return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    return ServiceUtil.internal(error, { log, scope: "get_by_id" });
   }
 };
 
@@ -181,19 +180,7 @@ const disable = async (subscription_id: string, session: App.Session) => {
 
     return result.suc(res.status);
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 

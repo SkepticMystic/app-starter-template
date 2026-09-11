@@ -1,4 +1,5 @@
 import { ERROR } from "$lib/const/error.const";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { db } from "$lib/server/db/drizzle.db";
 import {
   TaskTable,
@@ -8,7 +9,6 @@ import {
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { captureException } from "@sentry/sveltekit";
 import { operators } from "drizzle-orm";
 import type { z } from "zod";
 
@@ -39,11 +39,11 @@ export namespace TaskService {
 
       return task;
     } catch (error) {
-      log.error(error, "create.error unknown");
-
-      captureException(error, { extra: { input } });
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, {
+        log,
+        scope: "create",
+        extra: { input },
+      });
     }
   }
 
@@ -71,11 +71,11 @@ export namespace TaskService {
 
       return task;
     } catch (error) {
-      log.error(error, "update.error unknown");
-
-      captureException(error, { extra: { input } });
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, {
+        log,
+        scope: "update",
+        extra: { input },
+      });
     }
   }
 
@@ -102,11 +102,11 @@ export namespace TaskService {
 
       return res;
     } catch (error) {
-      log.error(error, "delete.error unknown");
-
-      captureException(error, { extra: { task_id } });
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, {
+        log,
+        scope: "delete",
+        extra: { task_id },
+      });
     }
   }
 }

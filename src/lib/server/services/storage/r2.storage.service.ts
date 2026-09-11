@@ -4,6 +4,7 @@ import {
   R2_BUCKET_NAME,
   R2_SECRET_ACCESS_KEY,
 } from "$env/static/private";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { DOCUMENT } from "$lib/const/document.const";
 import { ERROR } from "$lib/const/error.const";
 import { Dates } from "$lib/utils/dates";
@@ -60,9 +61,7 @@ const put = async (input: {
 
     return result.suc(res);
   } catch (error) {
-    log.error(error, "put.error unknown");
-    captureException(error);
-    return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    return ServiceUtil.internal(error, { log, scope: "put" });
   }
 };
 
@@ -89,9 +88,7 @@ export const R2Service = {
 
       return res;
     } catch (error) {
-      log.error(error, "put_file.error unknown");
-      captureException(error);
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, { log, scope: "put_file" });
     }
   },
 
@@ -113,9 +110,7 @@ export const R2Service = {
 
       return result.suc(undefined);
     } catch (error) {
-      log.error(error, "delete.error unknown");
-      captureException(error);
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, { log, scope: "delete" });
     }
   },
 
@@ -183,9 +178,7 @@ export const R2Service = {
 
       return result.suc(url);
     } catch (error) {
-      log.error(error, "get_download_url.error unknown");
-      captureException(error);
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, { log, scope: "get_download_url" });
     }
   },
 };

@@ -1,4 +1,5 @@
 import { getRequestEvent } from "$app/server";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { App } from "$lib/utils/app";
@@ -118,19 +119,7 @@ const request_password_reset = async (input: {
           message: res.message ?? "Failed to request password reset",
         });
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 
@@ -253,19 +242,7 @@ const send_verification_email = async (input: {
       ? result.suc({ message: "Verification email sent" })
       : result.err({ message: "Failed to send verification email" });
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 

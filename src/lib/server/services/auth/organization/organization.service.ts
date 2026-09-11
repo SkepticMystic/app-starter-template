@@ -1,4 +1,5 @@
 import { getRequestEvent } from "$app/server";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
@@ -117,19 +118,7 @@ const admin_delete = async (org_id: string) => {
 
     return res;
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 

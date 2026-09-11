@@ -1,4 +1,5 @@
 import { getRequestEvent } from "$app/server";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { auth, is_ba_error_code } from "$lib/auth";
 import type { IOrganization } from "$lib/const/auth/organization.const";
 import { ERROR } from "$lib/const/error.const";
@@ -78,19 +79,7 @@ const cancel = async (invitation_id: string) => {
 
     return result.suc(undefined);
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 
@@ -125,19 +114,7 @@ const accept = async (invitation_id: string) => {
 
     return result.suc(res);
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 

@@ -1,8 +1,9 @@
 import { ERROR } from "$lib/const/error.const";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { REDIS_PREFIX, redis } from "$lib/server/db/redis.db";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { captureException, metrics } from "@sentry/sveltekit";
+import { metrics } from "@sentry/sveltekit";
 import { Ratelimit } from "@upstash/ratelimit";
 import { AdapterService } from "../adapter/adapter.service";
 
@@ -101,9 +102,7 @@ export class RateLimiter {
         remaining: res.remaining,
       });
     } catch (error) {
-      log.error(error, "consume.error unknown");
-      captureException(error);
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, { log, scope: "consume" });
     }
   }
 
@@ -198,9 +197,7 @@ export class RateLimiter {
         remaining: res.remaining,
       });
     } catch (error) {
-      log.error(error, "check.error unknown");
-      captureException(error);
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, { log, scope: "check" });
     }
   }
 
@@ -212,9 +209,7 @@ export class RateLimiter {
       await this.ratelimit.resetUsedTokens(key);
       return result.suc(undefined);
     } catch (error) {
-      log.error(error, "reset.error unknown");
-      captureException(error);
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return ServiceUtil.internal(error, { log, scope: "reset" });
     }
   }
 }

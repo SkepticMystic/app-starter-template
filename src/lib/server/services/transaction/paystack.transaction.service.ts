@@ -1,4 +1,5 @@
 import { getRequestEvent } from "$app/server";
+import { ServiceUtil } from "$lib/server/services/service.util";
 import { auth } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import type { PaystackTransaction } from "$lib/server/db/models/subscription.model";
@@ -33,9 +34,7 @@ const get_by_id = async (
 
     return result.suc(res.data);
   } catch (error) {
-    log.error(error, "get_by_id.error unknown");
-    captureException(error);
-    return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    return ServiceUtil.internal(error, { log, scope: "get_by_id" });
   }
 };
 
@@ -54,19 +53,7 @@ const initialize_transaction = async (
 
     return result.suc(data);
   } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error.body, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 
