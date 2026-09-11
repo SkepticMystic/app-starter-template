@@ -3,23 +3,43 @@ import { auth, is_ba_error_code } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { captureException } from "@sentry/sveltekit";
+import { captureException, captureMessage } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 
 const log = Log.child({ service: "TwoFactor" });
 
+/**
+ * Since 1.7 `enableTwoFactor` answers a union discriminated on `method`, and
+ * only the `totp` arm carries the `totpURI` and backup codes the enrolment UI
+ * renders. The method is pinned in the request and the other arm narrowed away
+ * here, so the page keeps one concrete shape instead of every read of
+ * `totpURI` becoming a union access.
+ */
+type EnableTotpResult = Extract<
+  Awaited<ReturnType<typeof auth.api.enableTwoFactor>>,
+  { method: "totp" }
+>;
+
 const enable = async (input: {
   password: string;
-}): Promise<
-  App.Result<Awaited<ReturnType<typeof auth.api.enableTwoFactor>>>
-> => {
+}): Promise<App.Result<EnableTotpResult>> => {
   const l = log.child({ method: "enable" });
 
   try {
     const res = await auth.api.enableTwoFactor({
-      body: { password: input.password },
+      body: { password: input.password, method: "totp" },
       headers: getRequestEvent().request.headers,
     });
+
+    if (res.method !== "totp") {
+      // Unreachable while the body above pins the method; worth reporting
+      // rather than crashing the enrolment page if that ever stops being true.
+      captureMessage("enableTwoFactor returned a non-totp method", {
+        extra: { method: res.method },
+      });
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
 
     return result.suc(res);
   } catch (error) {

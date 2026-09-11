@@ -15,13 +15,16 @@
 
   const provider = $derived(AUTH.PROVIDERS.MAP[provider_id]);
 
+  // better-auth 1.7 registers every `genericOAuth` config as a first-class
+  // social provider and drops the plugin's own `/sign-in/oauth2` endpoint, so
+  // this goes through `signIn.social` like any other provider. Scopes now
+  // belong on the server config in `auth.ts`, not on the call.
   const signin = Client.better_auth(() =>
-    BetterAuthClient.signIn.oauth2({
+    BetterAuthClient.signIn.social({
+      provider: provider_id,
       disableRedirect: false,
-      providerId: provider_id,
       callbackURL: redirect_uri ?? "/home",
       newUserCallbackURL: redirect_uri ?? "/onboarding",
-      scopes: ["openid", "profile", "email"],
     }),
   );
 </script>

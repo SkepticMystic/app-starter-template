@@ -7,6 +7,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -168,6 +169,20 @@ export const MemberTable = pgTable(
   (table) => [
     index("member_user_id_idx").on(table.userId),
     index("member_organization_id_idx").on(table.organizationId),
+    /**
+     * `acceptInvitation` does not check for an existing membership before
+     * inserting — it trusts that an invitation cannot exist for someone who is
+     * already a member. That holds for one invitation and stops holding when
+     * two admins invite the same address concurrently, because
+     * `createInvitation` only cancels the first match. Both rows then survive
+     * as pending and accepting both writes two `member` rows, which is not
+     * merely untidy: `removeMember` deletes one, so the other keeps the access
+     * that was supposed to be revoked.
+     */
+    uniqueIndex("member_user_id_organization_id_uidx").on(
+      table.userId,
+      table.organizationId,
+    ),
   ],
 );
 
@@ -269,6 +284,17 @@ export const TwoFactorTable = pgTable(
     secret: varchar({ length: 255 }).notNull(),
     backupCodes: varchar({ length: 1023 }).notNull(),
 
+    /**
+     * A real security gate, not bookkeeping: Better-Auth admits a factor when
+     * `verified !== false`, so without this column an unconfirmed TOTP secret
+     * satisfies a sign-in challenge. Defaults true so rows enrolled before the
+     * column existed keep working.
+     */
+    verified: boolean().default(true).notNull(),
+    /** Drives `accountLockout`, which is enabled by default in 1.7. */
+    failedVerificationCount: integer().default(0).notNull(),
+    lockedUntil: timestamp({ mode: "date" }),
+
     ...Schema.timestamps,
   },
   (table) => [index("two_factor_user_id_idx").on(table.userId)],
@@ -277,30 +303,46 @@ export const TwoFactorTable = pgTable(
 export type TwoFactor = typeof TwoFactorTable.$inferSelect;
 export type NewTwoFactor = typeof TwoFactorTable.$inferInsert;
 
-export const APIKeyTable = pgTable("apiKey", {
-  ...Schema.id(),
+export const APIKeyTable = pgTable(
+  "apiKey",
+  {
+    ...Schema.id(),
 
-  configId: text().notNull(),
-  name: text(),
-  start: text(),
-  prefix: text(),
-  key: text().notNull(),
-  referenceId: text().notNull(),
-  refillInterval: integer(),
-  refillAmount: integer(),
-  lastRefillAt: timestamp({ precision: 6, withTimezone: true }),
-  enabled: boolean().notNull(),
-  rateLimitEnabled: boolean().notNull(),
-  rateLimitTimeWindow: integer(),
-  rateLimitMax: integer(),
-  requestCount: integer().notNull(),
-  remaining: integer(),
-  lastRequest: timestamp({ precision: 6, withTimezone: true }),
-  expiresAt: timestamp({ precision: 6, withTimezone: true }),
-  createdAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
-  updatedAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
-  permissions: text(),
-  metadata: text(),
-});
+    configId: text().notNull(),
+    name: text(),
+    start: text(),
+    prefix: text(),
+    key: text().notNull(),
+    referenceId: text().notNull(),
+    refillInterval: integer(),
+    refillAmount: integer(),
+    lastRefillAt: timestamp({ precision: 6, withTimezone: true }),
+    enabled: boolean().notNull(),
+    rateLimitEnabled: boolean().notNull(),
+    rateLimitTimeWindow: integer(),
+    rateLimitMax: integer(),
+    requestCount: integer().notNull(),
+    remaining: integer(),
+    lastRequest: timestamp({ precision: 6, withTimezone: true }),
+    expiresAt: timestamp({ precision: 6, withTimezone: true }),
+    createdAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+    updatedAt: timestamp({ precision: 6, withTimezone: true }).notNull(),
+    permissions: text(),
+    metadata: text(),
+  },
+  (table) => [
+    /**
+     * Declared `index: true` by the api-key plugin, and not optional in
+     * practice: `verifyApiKey` ends in `claimUsageInDatabase`, which re-reads
+     * the row on every verified request — so an unindexed `key` is a sequential
+     * scan on the hot path of anything authenticating with one. Plain rather
+     * than unique: hashed keys being collision-free in practice is not the
+     * plugin promising a unique constraint.
+     */
+    index("api_key_key_idx").on(table.key),
+    index("api_key_reference_id_idx").on(table.referenceId),
+    index("api_key_config_id_idx").on(table.configId),
+  ],
+);
 
 export type APIKey = typeof APIKeyTable.$inferSelect;

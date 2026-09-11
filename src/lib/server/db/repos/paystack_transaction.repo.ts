@@ -14,7 +14,7 @@ const get_by_id = async (
   id: string,
 ): Promise<App.Result<PaystackTransaction | undefined>> => {
   return await Repo.query(
-    db.query.paystack_transaction.findFirst({
+    db.query.paystackTransaction.findFirst({
       where: { id },
     }),
   );

@@ -41,14 +41,16 @@ export const list_accounts_remote = query(async () => {
 
 export const unlink_account_remote = command(
   z.object({
-    accountId: z.string().optional(),
+    // The `account` row id — what Better-Auth unlinks by. `providerId` is only
+    // here to name the query cache entry to reset below.
+    id: z.string(),
     providerId: z.enum(AUTH.PROVIDERS.IDS),
   }),
   async (input) => {
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await AccountService.unlink(input, session.data);
+    const res = await AccountService.unlink({ id: input.id }, session.data);
 
     if (res.ok) {
       get_account_by_provider_id_remote(input.providerId).set(undefined);

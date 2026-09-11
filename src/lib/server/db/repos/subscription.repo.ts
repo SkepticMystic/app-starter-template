@@ -18,7 +18,7 @@ const get_by_id = async (
   subscription_id: string,
 ): Promise<App.Result<Subscription | undefined>> => {
   return await Repo.query(
-    db.query.subscription.findFirst({
+    db.query.paystackSubscription.findFirst({
       where: { id: subscription_id },
     }),
   );
@@ -56,7 +56,7 @@ const update_by_reference = async (
     db
       .update(SubscriptionTable)
       .set(input)
-      .where(eq(SubscriptionTable.paystackTransactionReference, reference))
+      .where(eq(SubscriptionTable.transactionReference, reference))
       .returning(),
   );
 };

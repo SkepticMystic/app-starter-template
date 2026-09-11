@@ -1,6 +1,5 @@
-import { APP } from "$lib/const/app.const";
 import { ERROR } from "$lib/const/error.const";
-import { redis } from "$lib/server/db/redis.db";
+import { REDIS_PREFIX, redis } from "$lib/server/db/redis.db";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException, metrics } from "@sentry/sveltekit";
@@ -36,7 +35,7 @@ export class RateLimiter {
       redis,
       analytics: true,
       ephemeralCache: false,
-      prefix: `${APP.ID}:rate_limit:${prefix}`,
+      prefix: `${REDIS_PREFIX}:rate_limit:${prefix}`,
 
       limiter: Ratelimit.tokenBucket(
         refill_rate,

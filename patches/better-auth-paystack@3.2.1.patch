@@ -1,0 +1,103 @@
+diff --git a/dist/index-UJFWzNlh.d.mts b/dist/index-UJFWzNlh.d.mts
+index f958cc5058e60f641f24ee19e3c9d081f16d7440..920db6a5c44b99734ba3382a7a2cfeece62f77ba 100644
+--- a/dist/index-UJFWzNlh.d.mts
++++ b/dist/index-UJFWzNlh.d.mts
+@@ -389,7 +389,7 @@ declare const initializeTransaction: <P extends string = "/initialize-transactio
+     cancelAtPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+     prorateAndCharge: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, PaystackInitializeResult | undefined>;
+ declare const createSubscription: <P extends string = "/create-subscription">(options: AnyPaystackOptions, path?: P) => StrictEndpoint<P, {
+   method: "POST";
+@@ -408,7 +408,7 @@ declare const createSubscription: <P extends string = "/create-subscription">(op
+     cancelAtPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+     prorateAndCharge: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, PaystackInitializeResult | undefined>;
+ declare const upgradeSubscription: <P extends string = "/upgrade-subscription">(options: AnyPaystackOptions, path?: P) => StrictEndpoint<P, {
+   method: "POST";
+@@ -427,7 +427,7 @@ declare const upgradeSubscription: <P extends string = "/upgrade-subscription">(
+     cancelAtPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+     prorateAndCharge: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, PaystackInitializeResult | undefined>;
+ declare const cancelSubscription: <P extends string = "/cancel-subscription">(options: AnyPaystackOptions, path?: P) => StrictEndpoint<P, {
+   method: "POST";
+@@ -437,7 +437,7 @@ declare const cancelSubscription: <P extends string = "/cancel-subscription">(op
+     emailToken: z.ZodOptional<z.ZodString>;
+     atPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   status: string;
+ }>;
+@@ -449,7 +449,7 @@ declare const restoreSubscription: <P extends string = "/restore-subscription">(
+     emailToken: z.ZodOptional<z.ZodString>;
+     atPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   status: string;
+ }>;
+@@ -458,7 +458,7 @@ declare const verifyTransaction: <P extends string = "/verify-transaction">(opti
+   body: z.ZodObject<{
+     reference: z.ZodString;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   status: string;
+   reference: string;
+@@ -549,7 +549,7 @@ declare const listSubscriptions: <P extends string = "/list-subscriptions">(opti
+   query: z.ZodObject<{
+     referenceId: z.ZodOptional<z.ZodString>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   subscriptions: Subscription[];
+ }>;
+@@ -558,7 +558,7 @@ declare const listTransactions: <P extends string = "/list-transactions">(option
+   query: z.ZodObject<{
+     referenceId: z.ZodOptional<z.ZodString>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   transactions: PaystackTransaction[];
+ }>;
+@@ -570,7 +570,7 @@ declare const disablePaystackSubscription: <P extends string = "/disable-subscri
+     emailToken: z.ZodOptional<z.ZodString>;
+     atPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   status: string;
+ }>;
+@@ -582,7 +582,7 @@ declare const enablePaystackSubscription: <P extends string = "/enable-subscript
+     emailToken: z.ZodOptional<z.ZodString>;
+     atPeriodEnd: z.ZodOptional<z.ZodBoolean>;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   status: string;
+ }>;
+@@ -591,7 +591,7 @@ declare const getSubscriptionManageLink: <P extends string = "/subscription-mana
+   query: z.ZodObject<{
+     subscriptionCode: z.ZodString;
+   }, z.core.$strip>;
+-  use: (((getValue: (ctx: GenericEndpointContext) => string | string[]) => (inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<void>) | ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>))[];
++  use: ((inputContext: MiddlewareInputContext<MiddlewareOptions>) => Promise<unknown>)[];
+ }, {
+   link: string | null;
+ }>;

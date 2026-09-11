@@ -1,10 +1,9 @@
 import { PUBLIC_BASE_URL } from "$env/static/public";
-import { paystackClient } from "@alexasomba/better-auth-paystack/client";
+import { paystackClient } from "better-auth-paystack/client";
 import { apiKeyClient } from "@better-auth/api-key/client";
 import { passkeyClient } from "@better-auth/passkey/client";
 import {
   adminClient,
-  genericOAuthClient,
   inferAdditionalFields,
   inferOrgAdditionalFields,
   lastLoginMethodClient,
@@ -23,7 +22,6 @@ export const BetterAuthClient = createAuthClient({
     inferAdditionalFields<typeof auth>(),
     passkeyClient(),
     twoFactorClient(),
-    genericOAuthClient(),
     lastLoginMethodClient(),
     organizationClient({
       schema: inferOrgAdditionalFields<typeof auth>(),

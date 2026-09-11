@@ -38,6 +38,7 @@ vi.mock("$env/static/private", () => ({
   R2_SECRET_ACCESS_KEY: "mock-r2-secret",
   RESEND_API_KEY: "re_test_mock_key",
   UPSTASH_REDIS_REST_TOKEN: "mock-redis-token",
+  VERCEL_ENV: "test",
   UPSTASH_REDIS_REST_URL: "mock://redis",
 }));
 
@@ -81,15 +82,37 @@ vi.mock("$lib/server/db/drizzle.db", () => {
   return { db: new Proxy({}, handler) };
 });
 
+/**
+ * Implementations are passed to `vi.fn(impl)` rather than set afterwards with
+ * `.mockResolvedValue(...)`, because `mockReset` only restores an implementation
+ * given to `vi.fn` itself — and several suites call `vi.resetAllMocks()` in a
+ * `beforeEach`, after which the other form comes back `undefined`.
+ *
+ * The module's every export has to be listed: `vi.mock` replaces the whole
+ * module, so a missing name throws on import rather than degrading.
+ */
 vi.mock("$lib/server/db/redis.db", () => ({
+  REDIS_PREFIX: "test:test",
   redis: {
-    get: vi.fn(),
-    set: vi.fn(),
-    del: vi.fn(),
-    incr: vi.fn(),
-    expire: vi.fn(),
-    eval: vi.fn().mockResolvedValue(1),
-    pipeline: vi.fn().mockReturnValue({ exec: vi.fn() }),
+    get: vi.fn(async () => null),
+    // A real SET answers "OK", and callers read that as "it worked".
+    set: vi.fn(async () => "OK"),
+    del: vi.fn(async () => 1),
+    getdel: vi.fn(async () => null),
+    incr: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    eval: vi.fn(async () => 1),
+    // Chainable: callers queue commands on the pipeline before awaiting exec,
+    // and a bare `{ exec }` makes that a TypeError.
+    pipeline: vi.fn(() => {
+      const chain: Record<string, unknown> = {
+        exec: vi.fn(async () => []),
+      };
+      for (const cmd of ["get", "set", "del", "incr", "expire"]) {
+        chain[cmd] = vi.fn(() => chain);
+      }
+      return chain;
+    }),
   },
 }));
 

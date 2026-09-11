@@ -10,7 +10,7 @@ import {
   POCKETID_CLIENT_SECRET,
 } from "$env/static/private";
 import { PUBLIC_BASE_URL } from "$env/static/public";
-import { paystack, type PaystackPlan } from "@alexasomba/better-auth-paystack";
+import { paystack, type PaystackPlan } from "better-auth-paystack";
 import { apiKey } from "@better-auth/api-key";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { passkey } from "@better-auth/passkey";
@@ -33,10 +33,9 @@ import { APP } from "./const/app.const";
 import { AccessControl } from "./const/auth/access_control.const";
 import { AUTH, type IAuth } from "./const/auth/auth.const";
 import { TWO_FACTOR } from "./const/auth/two_factor.const";
-import { EMAIL } from "./const/email.const";
 import { db } from "./server/db/drizzle.db";
 import { type Session } from "./server/db/models/auth.model";
-import { redis } from "./server/db/redis.db";
+import { REDIS_PREFIX, redis } from "./server/db/redis.db";
 import { Repo } from "./server/db/repos/index.repo";
 import { schema } from "./server/db/schema";
 import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
@@ -226,7 +225,7 @@ export const auth = betterAuth({
         if (dev) Log.debug(url);
 
         await EmailService.send(
-          EMAIL.TEMPLATES["delete-account-verification"]({ url, user }),
+          (await templates())["delete-account-verification"]({ url, user }),
         );
       },
     },
@@ -257,7 +256,9 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       if (dev) Log.debug(url);
 
-      await EmailService.send(EMAIL.TEMPLATES["password-reset"]({ url, user }));
+      await EmailService.send(
+        (await templates())["password-reset"]({ url, user }),
+      );
     },
   },
 
@@ -269,7 +270,7 @@ export const auth = betterAuth({
       if (dev) Log.debug(url);
 
       await EmailService.send(
-        EMAIL.TEMPLATES["email-verification"]({ url, user }),
+        (await templates())["email-verification"]({ url, user }),
       );
     },
   },
@@ -332,7 +333,7 @@ export const auth = betterAuth({
       requireEmailVerificationOnInvitation: true,
 
       sendInvitationEmail: async (data) => {
-        await EmailService.send(EMAIL.TEMPLATES["org-invite"](data));
+        await EmailService.send((await templates())["org-invite"](data));
       },
     }),
 
@@ -435,7 +436,9 @@ export const auth = betterAuth({
 
                 discoveryUrl:
                   POCKETID_BASE_URL + "/.well-known/openid-configuration",
-                // ... other config options
+                // Declared here rather than at the call site: 1.7 registers this
+                // as a social provider, and `signIn.social` takes no `scopes`.
+                scopes: ["openid", "profile", "email"],
 
                 mapProfileToUser: (profile: unknown) => {
                   Log.info(profile, providerId + " profile");
@@ -476,24 +479,84 @@ export const auth = betterAuth({
   // SOURCE: https://www.better-auth.com/docs/concepts/database#secondary-storage
   secondaryStorage: {
     get: async (key) => {
-      return redis.get(APP.ID + ":" + key);
+      return redis.get(ba_key(key));
     },
 
     set: async (key, value, ttl) => {
-      if (ttl) await redis.set(APP.ID + ":" + key, value, { ex: ttl });
-      // or for ioredis:
-      // if (ttl) await redis.set(key, value, "EX", ttl);
-      else await redis.set(APP.ID + ":" + key, value);
+      if (ttl) await redis.set(ba_key(key), value, { ex: ttl });
+      else await redis.set(ba_key(key), value);
     },
 
     delete: async (key) => {
-      await redis.del(APP.ID + ":" + key);
+      await redis.del(ba_key(key));
+    },
+
+    /**
+     * Read-and-delete in one round trip, required since 1.7 — Better-Auth no
+     * longer falls back to `get` then `delete`. Both halves have to land
+     * together for anything single-use (verification values, one-time tokens):
+     * two concurrent requests that each read before either deletes would both
+     * see a live credential and both redeem it.
+     */
+    getAndDelete: async (key) => {
+      return redis.getdel(ba_key(key));
+    },
+
+    /**
+     * Counter bump, also atomic by contract, and the reason the api-key
+     * plugin's `storage: "secondary-storage"` is allowed to keep its rate-limit
+     * and refill state out of Postgres.
+     *
+     * `ttl` applies **only when the key is created**, so the window is fixed
+     * from the first request in it rather than sliding forward on every later
+     * one. `INCR` followed by `EXPIRE` would be two round trips with a gap in
+     * which a crash leaves a counter that never expires, hence the one Lua
+     * call. See {@link INCREMENT_SCRIPT}.
+     */
+    increment: async (key, ttl) => {
+      return redis.eval<[number], number>(
+        INCREMENT_SCRIPT,
+        [ba_key(key)],
+        [ttl],
+      );
     },
   },
 });
 // !SECTION
 
 // SECTION: Helper functions
+/**
+ * `email.const` pulls in `isomorphic-dompurify`, which loads jsdom to sanitise
+ * the attacker-controlled `user.name` interpolated into every template — about
+ * 310ms at module load, and load-bearing, so it is not going away. Importing it
+ * statically charged that to every consumer of this module for four callbacks
+ * that usually never fire. All four call sites are already async and the
+ * dynamic import is cached after the first send, so deferring costs nothing.
+ */
+const templates = async () =>
+  (await import("./const/email.const")).EMAIL.TEMPLATES;
+
+/**
+ * Every Better-Auth secondary-storage key is namespaced through this — see
+ * {@link REDIS_PREFIX} for why a bare key is never correct.
+ */
+const ba_key = (key: string) => `${REDIS_PREFIX}:${key}`;
+
+/**
+ * `INCR`, plus `EXPIRE` on creation only, as one atomic operation.
+ *
+ * `count == 1` is the "key did not exist" signal: `INCR` seeds a missing key at
+ * 1, so the expiry is stamped exactly once per window and never extended by the
+ * requests that follow.
+ */
+const INCREMENT_SCRIPT = `
+local count = redis.call("INCR", KEYS[1])
+if count == 1 then
+  redis.call("EXPIRE", KEYS[1], ARGV[1])
+end
+return count
+`;
+
 // NOTE: Renamed from get_or_create_org_id - no longer creates orgs automatically
 // Organizations are now created via the onboarding flow after email verification
 const get_active_org = async (
@@ -597,9 +660,20 @@ const get_active_plan = async (org_id: string): Promise<string> => {
   });
 
   if (!subscription.ok) {
-    Log.warn(
-      { org_id },
+    /**
+     * Escalated from `warn` with no error attached. This defaults to "free", so
+     * a broken read does not fail the request — it quietly downgrades the plan
+     * on every session minted until somebody notices, and `active_plan` is
+     * written into the Redis-backed session, so the wrong value outlives the
+     * outage that produced it.
+     */
+    Log.error(
+      { org_id, error: subscription.error },
       "Subscription query failed during session derivation — defaulting to free",
+    );
+    captureException(
+      new Error("Subscription query failed during session derivation"),
+      { extra: { org_id, error: subscription.error } },
     );
     return "free";
   }

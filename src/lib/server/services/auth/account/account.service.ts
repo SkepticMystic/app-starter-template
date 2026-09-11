@@ -41,8 +41,15 @@ const list = async (
   }
 };
 
+/**
+ * Better-Auth unlinks by the `account` row id, and since 1.7 that is the only
+ * thing `unlinkAccount` accepts. The old `{ accountId?, providerId }` pair was
+ * both wrong and optional — omitting `accountId` silently unlinked nothing.
+ * `providerId` survives only so the caller can name the query cache entry to
+ * reset.
+ */
 const unlink = async (
-  input: { accountId?: string; providerId: string },
+  input: { id: string },
   _session: App.Session,
 ): Promise<App.Result<undefined>> => {
   const l = log.child({ method: "unlink" });
@@ -50,10 +57,7 @@ const unlink = async (
   try {
     const res = await auth.api.unlinkAccount({
       headers: getRequestEvent().request.headers,
-      body: {
-        accountId: input.accountId,
-        providerId: input.providerId,
-      },
+      body: { accountId: input.id },
     });
 
     if (res.status) {
@@ -66,7 +70,7 @@ const unlink = async (
       l.info(error.body, "error better-auth");
 
       if (is_ba_error_code(error, "FAILED_TO_UNLINK_LAST_ACCOUNT")) {
-        return result.from_ba_error(error, { path: ["providerId"] });
+        return result.from_ba_error(error);
       } else {
         captureException(error);
 

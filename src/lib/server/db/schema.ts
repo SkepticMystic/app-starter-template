@@ -21,8 +21,16 @@ const {
   ...auth_rest
 } = AuthModels;
 
-const { SubscriptionTable, PaystackTransactionTable, ...subscription_rest } =
-  SubscriptionModels;
+const {
+  SubscriptionTable,
+  PaystackTransactionTable,
+  PaystackCustomerTable,
+  PaystackPaymentCredentialTable,
+  PaystackPlanTable,
+  PaystackProductTable,
+  PaystackWebhookEventTable,
+  ...subscription_rest
+} = SubscriptionModels;
 
 const { ImageTable, ...image_rest } = ImageModels;
 
@@ -42,9 +50,17 @@ export const schema = {
   apikey: APIKeyTable,
   ...auth_rest,
 
-  // Subscription
-  subscription: SubscriptionTable,
-  paystack_transaction: PaystackTransactionTable,
+  // Subscription. These keys are the plugin's model names, not ours: the adapter
+  // resolves a model as `schema[model]` and throws when it is absent. The old
+  // `paystack_transaction` key never matched — the plugin has always called it
+  // `paystackTransaction` — so `listTransactions` threw for as long as it existed.
+  paystackSubscription: SubscriptionTable,
+  paystackTransaction: PaystackTransactionTable,
+  paystackCustomer: PaystackCustomerTable,
+  paystackPaymentCredential: PaystackPaymentCredentialTable,
+  paystackPlan: PaystackPlanTable,
+  paystackProduct: PaystackProductTable,
+  paystackWebhookEvent: PaystackWebhookEventTable,
   ...subscription_rest,
 
   // Image

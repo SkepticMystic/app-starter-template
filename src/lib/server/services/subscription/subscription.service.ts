@@ -1,4 +1,5 @@
 import { getRequestEvent } from "$app/server";
+import { checkout_url } from "$lib/server/sdk/payment/paystack/paystack.payment.sdk";
 import { auth } from "$lib/auth";
 import { ERROR } from "$lib/const/error.const";
 import { db } from "$lib/server/db/drizzle.db";
@@ -48,7 +49,7 @@ const get_active = async (session: {
     }
 
     const res = await Repo.query(
-      db.query.subscription.findFirst({
+      db.query.paystackSubscription.findFirst({
         where: {
           status: "active",
           referenceId: session.session.org_id,
@@ -118,14 +119,15 @@ const upgrade = async (
 
     log.info(res, "upgrade.res");
 
-    if (!res.url) {
+    const url = checkout_url(res);
+    if (!url) {
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,
         message: "Failed to get upgrade url",
       });
     }
 
-    return result.suc({ url: res.url });
+    return result.suc({ url });
   } catch (error) {
     if (error instanceof APIError) {
       log.info(error.body, "upgrade.error better-auth");
@@ -158,8 +160,8 @@ const disable = async (subscription_id: string, session: App.Session) => {
         ...ERROR.INVALID_INPUT,
         message: "Subscription is already canceled",
       });
-    } else if (!subscription.data.paystackSubscriptionCode) {
-      l.error(subscription.data, "error no paystackSubscriptionCode");
+    } else if (!subscription.data.subscriptionCode) {
+      l.error(subscription.data, "error no subscriptionCode");
 
       return result.err({
         ...ERROR.INVALID_INPUT,
@@ -171,7 +173,7 @@ const disable = async (subscription_id: string, session: App.Session) => {
       headers: getRequestEvent().request.headers,
       body: {
         referenceId: session.session.org_id,
-        subscriptionCode: subscription.data.paystackSubscriptionCode,
+        subscriptionCode: subscription.data.subscriptionCode,
       },
     });
 
@@ -203,8 +205,8 @@ const enable = async (subscription_id: string, session: App.Session) => {
 
     const subscription = await get_by_id(subscription_id, session);
     if (!subscription.ok) return subscription;
-    else if (!subscription.data.paystackSubscriptionCode) {
-      log.error(subscription.data, "enable.error no paystackSubscriptionCode");
+    else if (!subscription.data.subscriptionCode) {
+      log.error(subscription.data, "enable.error no subscriptionCode");
       return result.err({
         ...ERROR.INVALID_INPUT,
         message: "Subscription has no code",
@@ -215,7 +217,7 @@ const enable = async (subscription_id: string, session: App.Session) => {
       headers: getRequestEvent().request.headers,
       body: {
         referenceId: session.session.org_id,
-        subscriptionCode: subscription.data.paystackSubscriptionCode,
+        subscriptionCode: subscription.data.subscriptionCode,
       },
     });
 
