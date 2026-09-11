@@ -35,7 +35,7 @@
     if (res?.ok) {
       toast.success("Invitation sent");
       on_success?.(res.data);
-      e.form.reset();
+      e.element.reset();
     } else if (res?.error) {
       toast.error(res.error.message);
     }

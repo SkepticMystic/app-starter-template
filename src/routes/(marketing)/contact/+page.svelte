@@ -59,7 +59,7 @@
           if (res?.ok) {
             toast.success("Message sent");
 
-            e.form.reset();
+            e.element.reset();
           } else if (res?.error) {
             toast.error(res.error.message);
           }

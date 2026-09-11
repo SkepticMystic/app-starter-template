@@ -36,7 +36,7 @@
     const res = form.result;
 
     if (res?.ok) {
-      e.form.reset();
+      e.element.reset();
 
       on_success(res.data);
     } else if (res?.error) {

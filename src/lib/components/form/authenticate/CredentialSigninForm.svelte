@@ -36,7 +36,7 @@
       // Instead, we assume that any non-error result is successful, and notify the session signal
       BetterAuthClient.$store.notify("$sessionSignal");
 
-      e.form.reset();
+      e.element.reset();
     }
   })}
 >

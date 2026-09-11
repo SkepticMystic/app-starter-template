@@ -48,7 +48,7 @@
 
     const res = form.result;
     if (res?.ok) {
-      e.form.reset();
+      e.element.reset();
 
       toast.success("Two-Factor Authentication disabled");
 

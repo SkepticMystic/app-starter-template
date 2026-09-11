@@ -5,7 +5,7 @@ export default {
   entry: ["scripts/**/*.ts"],
 
   // Icon sets consumed via @iconify/tailwind4 in CSS
-  ignoreDependencies: ["@iconify-json/lucide"],
+  ignoreDependencies: ["@iconify-json/lucide", "@typescript/native"],
 
   // UI component library — sub-components are re-exported or used ad-hoc
   ignoreFiles: ["src/lib/components/ui/**/*.svelte"],

@@ -48,7 +48,7 @@
 
     const res = form.result;
     if (res?.ok) {
-      e.form.reset();
+      e.element.reset();
     } else if (res?.ok === false) {
       toast.error(res.error.message);
     }

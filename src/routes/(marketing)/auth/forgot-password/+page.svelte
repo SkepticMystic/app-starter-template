@@ -31,7 +31,7 @@
 
           const res = request_password_reset_remote.result;
           if (res?.ok) {
-            e.form.reset();
+            e.element.reset();
             toast.success(res.data.message);
           } else if (res?.error.message) {
             toast.error(res.error.message);

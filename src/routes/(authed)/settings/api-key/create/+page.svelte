@@ -37,7 +37,7 @@
       const res = form.result;
       console.log(res);
       if (res?.ok) {
-        e.form.reset();
+        e.element.reset();
         toast.success("API key created", {
           description:
             "Copy it to your clipboard to use it in your applications.",

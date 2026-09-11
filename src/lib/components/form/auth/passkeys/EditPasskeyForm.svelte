@@ -29,12 +29,14 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async ({ submit, data }) => {
+  {...form.enhance(async ({ submit, fields }) => {
+    // `data` was removed from the enhance instance in SvelteKit 2.70; the
+    // pending values are read off the fields themselves now.
+    const name = fields.name.value();
+
     await submit().updates(
       list_passkeys_remote().withOverride((cur) =>
-        result.pipe(cur, (d) =>
-          Arrays.patch(d, passkey.id, { name: data.name }),
-        ),
+        result.pipe(cur, (d) => Arrays.patch(d, passkey.id, { name })),
       ),
     );
 
