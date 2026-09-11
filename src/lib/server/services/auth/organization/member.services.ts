@@ -31,18 +31,22 @@ const remove = async (member_id: string) => {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
 
+      /**
+       * Leaving as the only owner is a user mistake, not a fault worth
+       * reporting. Written as one negated guard so that intent is visible —
+       * the two branches were otherwise identical apart from the capture,
+       * which read as an oversight.
+       */
       if (
-        is_ba_error_code(
+        !is_ba_error_code(
           error,
           "YOU_CANNOT_LEAVE_THE_ORGANIZATION_AS_THE_ONLY_OWNER",
         )
       ) {
-        return result.from_ba_error(error);
-      } else {
         captureException(error);
-
-        return result.from_ba_error(error);
       }
+
+      return result.from_ba_error(error);
     } else {
       l.error(error, "error unknown");
 

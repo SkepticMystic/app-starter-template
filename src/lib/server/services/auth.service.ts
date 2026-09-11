@@ -104,7 +104,20 @@ export const authorize_event = (options?: Options): App.Result<undefined> => {
   return check;
 };
 
-/** Redirect to signin if not logged in. */
+/**
+ * The current session, or the refusal to return to the caller.
+ *
+ * It RETURNS; it does not redirect — the old wording said "Redirect to signin
+ * if not logged in", and code written against that turned a signed-out caller
+ * into an error page.
+ *
+ * The two refusals mean different things and want different handling:
+ * - `UNAUTHORIZED` — there is no session at all. Safe to answer by sending the
+ *   caller to sign in.
+ * - `FORBIDDEN` — there is a session and it is not allowed to do this
+ *   (unverified email, no member role, a failed permission check). Signing in
+ *   again fixes none of these, so redirecting to sign-in is a loop.
+ */
 export const get_session = async (
   options?: Options,
 ): Promise<App.Result<App.Session>> => {

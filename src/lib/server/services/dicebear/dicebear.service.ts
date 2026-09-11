@@ -25,8 +25,6 @@ const get_url = (input: {
 
     url.searchParams.set("seed", resolved.seed);
 
-    console.log(url.toString());
-
     return result.suc(url.toString());
   } catch (error) {
     Log.error(error, "dicebear.get_url.error");

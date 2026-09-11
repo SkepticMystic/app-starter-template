@@ -9,6 +9,26 @@ import { APIError } from "better-auth";
 
 const log = Log.child({ service: "APIKey" });
 
+/**
+ * A spent quota is not a bad credential.
+ *
+ * Answering every refusal with 401 collapses "this will work again shortly"
+ * into "this credential will never work", which teaches a well-behaved client
+ * to give up permanently the first time it runs hot. Unrecognised codes fall to
+ * 401 rather than 500, because `verifyApiKey` only ever refuses for reasons
+ * about the key.
+ */
+const status_for = (code: string | undefined | null) => {
+  switch (code) {
+    case "USAGE_EXCEEDED":
+    case "RATE_LIMITED":
+    case "RATE_LIMIT_EXCEEDED":
+      return ERROR.TOO_MANY_REQUESTS;
+    default:
+      return ERROR.UNAUTHORIZED;
+  }
+};
+
 const create = async (
   input: {
     name?: string;
@@ -155,23 +175,18 @@ const verify = async (input: {
     });
 
     if (data.error) {
-      // NOTE: These Better-auth return types are crazy...
-      // I _think_ it's because the apikey plugin hasn't updated yet?
-      if (data.error.message) {
-        const message =
-          typeof data.error.message === "string"
-            ? data.error.message
-            : data.error.message.message;
+      /**
+       * The narrowing is needed because `defineErrorCodes` makes every entry a
+       * `{ code, message }` object, and the verify route usually spreads it
+       * flat — except the `customAPIKeyValidator` branch, which puts the whole
+       * object in `message`.
+       */
+      const message =
+        typeof data.error.message === "string"
+          ? data.error.message
+          : (data.error.message?.message ?? "Failed to verify API key");
 
-        return result.err({
-          ...ERROR.UNAUTHORIZED,
-          message,
-        });
-      } else
-        return result.err({
-          ...ERROR.UNAUTHORIZED,
-          message: "Failed to verify API key",
-        });
+      return result.err({ ...status_for(data.error.code), message });
     } else if (data.valid) {
       if (data.key) {
         return result.suc(data.key);

@@ -1,4 +1,5 @@
 import { captureException } from "@sentry/sveltekit";
+import { Json } from "./json";
 
 const add_search = (
   url: URL,
@@ -10,7 +11,9 @@ const add_search = (
   for (const key in resolved) {
     if (resolved[key] === undefined) continue;
 
-    url.searchParams.set(key, JSON.stringify(resolved[key]));
+    // `JSON.stringify` double-quotes every string value, so a search term
+    // arrived as `?q=%22ross%22`. `str_or_stringify` passes strings through.
+    url.searchParams.set(key, Json.str_or_stringify(resolved[key]));
   }
 
   return url;
