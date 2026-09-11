@@ -32,14 +32,14 @@ export const where_schema = {
    * IN clause for array matching
    * @example where: { status: where_schema.in(TaskStatusEnum) }
    */
-  in: <T extends z.ZodTypeAny>(schema: T) =>
+  in: <T extends z.ZodType>(schema: T) =>
     z.object({ in: z.array(schema).optional() }),
 
   /**
    * NOT IN clause for array exclusion
    * @example where: { status: where_schema.nin(TaskStatusEnum) }
    */
-  nin: <T extends z.ZodTypeAny>(schema: T) =>
+  nin: <T extends z.ZodType>(schema: T) =>
     z.object({ nin: z.array(schema).optional() }),
 
   /**

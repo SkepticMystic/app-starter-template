@@ -4,14 +4,14 @@ import {
   integer,
   jsonb,
   pgEnum,
-  pgTable,
   text,
   timestamp,
   uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+import { snakeCase } from "drizzle-orm/pg-core/casing";
+import { createInsertSchema } from "drizzle-orm/zod";
 import { z } from "zod";
 import { AUTH } from "../../../const/auth/auth.const";
 import { ORGANIZATION } from "../../../const/auth/organization.const";
@@ -21,7 +21,7 @@ import { Schema } from "./index.schema";
 export const user_role_enum = pgEnum("user_role", ROLES.IDS);
 
 // Define User table schema
-export const UserTable = pgTable("user", {
+export const UserTable = snakeCase.table("user", {
   ...Schema.id(),
 
   // NOTE: BetterAuth defaults name to ''
@@ -45,7 +45,7 @@ export const UserTable = pgTable("user", {
 export type User = typeof UserTable.$inferSelect;
 export type NewUser = typeof UserTable.$inferInsert;
 
-export const SessionTable = pgTable(
+export const SessionTable = snakeCase.table(
   "session",
   {
     ...Schema.id(),
@@ -85,7 +85,7 @@ export type NewSession = typeof SessionTable.$inferInsert;
 // Create an enum for provider IDs
 export const provider_id_enum = pgEnum("provider_id", AUTH.PROVIDERS.IDS);
 
-export const AccountTable = pgTable(
+export const AccountTable = snakeCase.table(
   "account",
   {
     ...Schema.id(),
@@ -116,7 +116,7 @@ export const AccountTable = pgTable(
 export type Account = typeof AccountTable.$inferSelect;
 export type NewAccount = typeof AccountTable.$inferInsert;
 
-export const OrganizationTable = pgTable("organization", {
+export const OrganizationTable = snakeCase.table("organization", {
   ...Schema.id(),
 
   name: varchar({ length: 255 }).notNull(),
@@ -149,7 +149,7 @@ export const OrganizationSchema = {
 
 export const member_role_enum = pgEnum("member_role", ORGANIZATION.ROLES.IDS);
 
-export const MemberTable = pgTable(
+export const MemberTable = snakeCase.table(
   "member",
   {
     ...Schema.id(),
@@ -189,7 +189,7 @@ export const MemberTable = pgTable(
 export type Member = typeof MemberTable.$inferSelect;
 export type InsertMember = typeof MemberTable.$inferInsert;
 
-export const PasskeyTable = pgTable(
+export const PasskeyTable = snakeCase.table(
   "passkey",
   {
     ...Schema.id(),
@@ -220,7 +220,7 @@ export const invitation_status_enum = pgEnum(
   ORGANIZATION.INVITATIONS.STATUSES.IDS,
 );
 
-export const InvitationTable = pgTable(
+export const InvitationTable = snakeCase.table(
   "invitation",
   {
     ...Schema.id(),
@@ -259,7 +259,7 @@ export const InvitationSchema = {
   }),
 };
 
-export const VerificationTable = pgTable("verification", {
+export const VerificationTable = snakeCase.table("verification", {
   ...Schema.id(),
 
   identifier: varchar({ length: 255 }).notNull().unique(),
@@ -272,7 +272,7 @@ export const VerificationTable = pgTable("verification", {
 export type Verification = typeof VerificationTable.$inferSelect;
 export type NewVerification = typeof VerificationTable.$inferInsert;
 
-export const TwoFactorTable = pgTable(
+export const TwoFactorTable = snakeCase.table(
   "two_factor",
   {
     ...Schema.id(),
@@ -303,7 +303,7 @@ export const TwoFactorTable = pgTable(
 export type TwoFactor = typeof TwoFactorTable.$inferSelect;
 export type NewTwoFactor = typeof TwoFactorTable.$inferInsert;
 
-export const APIKeyTable = pgTable(
+export const APIKeyTable = snakeCase.table(
   "apiKey",
   {
     ...Schema.id(),

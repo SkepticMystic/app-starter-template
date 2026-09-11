@@ -31,6 +31,7 @@ export default defineConfig({
       "drizzle/**",
       "static/**",
       ".claude/**",
+      ".agents/**",
       ".github/**",
       ".vite-hooks/**",
       ".planning/**",

@@ -1,13 +1,13 @@
 import {
   index,
   pgEnum,
-  pgTable,
   text,
   timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
+import { snakeCase } from "drizzle-orm/pg-core/casing";
+import { createInsertSchema, createUpdateSchema } from "drizzle-orm/zod";
 import { z } from "zod";
 import { TASKS } from "../../../const/task.const";
 import { MemberTable, OrganizationTable, UserTable } from "./auth.model";
@@ -16,7 +16,7 @@ import { Schema } from "./index.schema";
 export const task_status_enum = pgEnum("task_status", TASKS.STATUS.IDS);
 
 // Define Task table schema
-export const TaskTable = pgTable(
+export const TaskTable = snakeCase.table(
   "task",
   {
     ...Schema.id(),

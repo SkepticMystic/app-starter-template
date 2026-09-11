@@ -3,12 +3,12 @@ import {
   index,
   integer,
   pgEnum,
-  pgTable,
   text,
   timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { SUBSCRIPTION } from "../../../const/subscription.const";
 import { TRANSACTION } from "../../../const/transaction.const";
 import { UserTable } from "./auth.model";
@@ -28,7 +28,7 @@ export const subscription_status_enum = pgEnum(
   SUBSCRIPTION.STATUS.IDS,
 );
 
-export const SubscriptionTable = pgTable("subscription", {
+export const SubscriptionTable = snakeCase.table("subscription", {
   ...Schema.id(),
 
   /** The ID of the subscription group. */
@@ -87,7 +87,7 @@ export const paystack_transaction_status_enum = pgEnum(
   TRANSACTION.STATUS.IDS,
 );
 
-export const PaystackTransactionTable = pgTable(
+export const PaystackTransactionTable = snakeCase.table(
   "paystack_transaction",
   {
     ...Schema.id(),
@@ -124,7 +124,7 @@ export const PaystackTransactionTable = pgTable(
 export type PaystackTransaction = typeof PaystackTransactionTable.$inferSelect;
 
 /** Maps an owner (user or organization) to its Paystack customer record. */
-export const PaystackCustomerTable = pgTable(
+export const PaystackCustomerTable = snakeCase.table(
   "paystack_customer",
   {
     ...Schema.id(),
@@ -150,7 +150,7 @@ export type PaystackCustomer = typeof PaystackCustomerTable.$inferSelect;
  * `credentialEncryptionKey` is configured; the plugin falls back to the API
  * secret key otherwise.
  */
-export const PaystackPaymentCredentialTable = pgTable(
+export const PaystackPaymentCredentialTable = snakeCase.table(
   "paystack_payment_credential",
   {
     ...Schema.id(),
@@ -170,7 +170,7 @@ export type PaystackPaymentCredential =
   typeof PaystackPaymentCredentialTable.$inferSelect;
 
 /** A recurring plan mirrored from Paystack. */
-export const PaystackPlanTable = pgTable("paystack_plan", {
+export const PaystackPlanTable = snakeCase.table("paystack_plan", {
   ...Schema.id(),
 
   name: text().notNull(),
@@ -189,7 +189,7 @@ export const PaystackPlanTable = pgTable("paystack_plan", {
 export type PaystackPlan = typeof PaystackPlanTable.$inferSelect;
 
 /** A one-off product mirrored from Paystack. */
-export const PaystackProductTable = pgTable("paystack_product", {
+export const PaystackProductTable = snakeCase.table("paystack_product", {
   ...Schema.id(),
 
   name: text().notNull(),
@@ -211,7 +211,7 @@ export type PaystackProduct = typeof PaystackProductTable.$inferSelect;
  * The webhook de-duplication ledger. `eventId` is unique, which is what makes a
  * redelivered Paystack event idempotent rather than double-counted.
  */
-export const PaystackWebhookEventTable = pgTable(
+export const PaystackWebhookEventTable = snakeCase.table(
   "paystack_webhook_event",
   {
     ...Schema.id(),

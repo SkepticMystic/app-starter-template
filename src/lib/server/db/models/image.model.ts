@@ -1,12 +1,6 @@
-import {
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+import { index, integer, pgEnum, uuid, varchar } from "drizzle-orm/pg-core";
+import { snakeCase } from "drizzle-orm/pg-core/casing";
+import { createInsertSchema } from "drizzle-orm/zod";
 import { IMAGE_HOSTING } from "../../../const/image/image_hosting.const";
 import { RESOURCE } from "../../../const/resource/resource.const";
 import { MemberTable, OrganizationTable, UserTable } from "./auth.model";
@@ -23,7 +17,7 @@ export const image_resource_kind_enum = pgEnum(
   RESOURCE.KINDS,
 );
 
-export const ImageTable = pgTable(
+export const ImageTable = snakeCase.table(
   "image",
   {
     ...Schema.id(),

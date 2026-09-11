@@ -93,6 +93,7 @@ export default {
     "**/.sonda",
     ".planning",
     ".claude",
+    ".agents",
     "drizzle/",
     "infra/.terraform/",
     "infra/terraform.tfstate",
