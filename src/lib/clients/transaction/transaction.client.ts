@@ -14,7 +14,9 @@ export const TransactionClient = {
     (transaction_id: string) =>
       get_transaction_invoice_remote(transaction_id).then((r) => {
         if (r.ok) {
-          window.open(r.data, "_blank");
+          // `<a target="_blank">` implies noopener; `window.open` does NOT,
+          // and would hand the opened document a live `window.opener` here.
+          window.open(r.data, "_blank", "noopener");
         }
 
         return r;

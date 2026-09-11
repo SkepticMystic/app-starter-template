@@ -16,7 +16,17 @@
 
   let {
     icon,
-    open,
+    /**
+     * `$bindable`, and bound through to `ModalRoot` below, because `close()`
+     * writes to it.
+     *
+     * Passed one-way it went stale the moment the trigger reopened the dialog:
+     * bits-ui wrote the reopen into `ModalRoot`'s own copy, this one stayed
+     * `false` from the previous close, and assigning `false` over `false` is
+     * not a change Svelte propagates — so every `close()` after the first was
+     * silently a no-op and the dialog stayed open.
+     */
+    open = $bindable(false),
     title,
     description,
     size = "default",
@@ -48,7 +58,7 @@
 
 <ModalRoot
   {...rest_props}
-  {open}
+  bind:open
 >
   {#if trigger_child}
     <ModalTrigger>

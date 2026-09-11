@@ -2,7 +2,7 @@
   lang="ts"
   module
 >
-  import { tv, type VariantProps } from "tailwind-variants";
+  import { cn, tv, type VariantProps } from "tailwind-variants";
 
   export const fieldVariants = tv({
     base: `
@@ -70,7 +70,7 @@
   role="group"
   data-slot="field"
   data-orientation={orientation}
-  class={[fieldVariants({ orientation }), className]}
+  class={cn(fieldVariants({ orientation }), className)}
   {...restProps}
 >
   {@render children?.()}

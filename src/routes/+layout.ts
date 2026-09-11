@@ -1,7 +1,7 @@
 import { APP } from "$lib/const/app.const";
 import type { LayoutLoad } from "./$types";
 
-export const load = (({ url }) => {
+export const load = (({ url, data }) => {
   const href = new URL(url.pathname, url.origin).href;
 
   // TODO: replace with a dedicated 1200x630 og image (e.g. /og-image.png) for social sharing.
@@ -45,6 +45,14 @@ export const load = (({ url }) => {
   }) satisfies App.PageData["seo"];
 
   return {
+    /**
+     * Not optional. A universal load *replaces* the server load's data for its
+     * node rather than merging with it, so anything `+layout.server.ts` returns
+     * is dropped from `page.data` unless it is spread back in here — which
+     * includes the `flash` that `getFlash` reads.
+     */
+    ...data,
+
     base_seo,
   };
 }) satisfies LayoutLoad;

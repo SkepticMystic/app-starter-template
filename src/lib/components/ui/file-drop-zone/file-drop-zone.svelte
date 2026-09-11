@@ -28,6 +28,22 @@
 
   let uploading = $state(false);
 
+  /**
+   * A swallowed click, not `disabled`, is what refuses a pick when the zone is
+   * full. The input has to stay enabled: a caller can spread a form field's
+   * props onto it, and **a disabled input is left out of `FormData`** — so
+   * disabling it on the last accepted file would drop every file already picked
+   * from the request, and the form would come back saying nothing was attached.
+   *
+   * `multiple` likewise follows `maxFiles` alone rather than the remaining
+   * capacity: it has to match what is in `files`, and narrowing the picker on
+   * the second-to-last file only moved the "too many" message from a toast into
+   * a greyed-out entry in the OS dialog.
+   */
+  const click = (e: MouseEvent) => {
+    if (!can_upload) e.preventDefault();
+  };
+
   const drop = async (
     e: DragEvent & {
       currentTarget: EventTarget & HTMLLabelElement;
@@ -75,8 +91,15 @@
     const file_name = file.name.toLowerCase();
 
     const is_accepted = accepted_types.some((pattern) => {
-      // check extension like .mp4
-      if (file_type.startsWith(".")) {
+      /**
+       * Tests the PATTERN, not the file's MIME type. It read `file_type` until
+       * an extension-style accept needed it: a MIME type never begins with ".",
+       * so this branch never ran and an extension pattern fell through to the
+       * exact-match test below, where `file_type === ".csv"` is false for every
+       * file on earth. Nothing noticed because every other ACCEPT_* here is a
+       * wildcard MIME type.
+       */
+      if (pattern.startsWith(".")) {
         return file_name.endsWith(pattern);
       }
 
@@ -190,7 +213,8 @@
     type="file"
     class="hidden"
     onchange={change}
-    disabled={!can_upload}
-    multiple={maxFiles === undefined || maxFiles - (fileCount ?? 0) > 1}
+    {disabled}
+    onclick={click}
+    multiple={maxFiles === undefined || maxFiles > 1}
   />
 </label>

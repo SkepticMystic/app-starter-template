@@ -47,7 +47,9 @@
     {loading}
     class="w-fit max-w-sm"
   >
-    {selected.length === options.length
+    <!-- `options.length > 0` guard: otherwise `0 === 0` reads as "All selected"
+         over an empty option list. -->
+    {options.length > 0 && selected.length === options.length
       ? "All selected"
       : selected.map((option) => option.label).join(", ") || placeholder}
   </SelectTrigger>
