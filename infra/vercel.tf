@@ -34,9 +34,15 @@ resource "vercel_project" "app" {
 
 locals {
   # Environments to apply each variable to
-  all_envs  = toset(["production", "preview", "development"])
-  prod_only = toset(["production", "preview"])
-  dev_only  = toset(["development"])
+  all_envs = toset(["production", "preview", "development"])
+  dev_only = toset(["development"])
+
+  # NOTE: despite the name this has always included `preview`. Renamed so that
+  # is visible at every call site — several values here are genuinely shared
+  # between the two tiers, but DATABASE_URL was NOT one of them.
+  prod_and_preview = toset(["production", "preview"])
+  prod_only        = toset(["production"])
+  preview_only     = toset(["preview"])
 }
 
 # --- Infra-derived vars ---
@@ -45,155 +51,178 @@ resource "vercel_project_environment_variable" "CLOUDFLARE_ACCOUNT_ID" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "CLOUDFLARE_ACCOUNT_ID"
-  value  = var.cloudflare_account_id
-  target = local.all_envs
+  key       = "CLOUDFLARE_ACCOUNT_ID"
+  value     = var.cloudflare_account_id
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "R2_BUCKET_NAME" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "R2_BUCKET_NAME"
-  value  = cloudflare_r2_bucket.main.name
-  target = local.prod_only
+  key       = "R2_BUCKET_NAME"
+  value     = cloudflare_r2_bucket.main.name
+  target    = local.prod_and_preview
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "R2_BUCKET_NAME_DEV" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "R2_BUCKET_NAME"
-  value  = cloudflare_r2_bucket.dev.name
-  target = local.dev_only
+  key       = "R2_BUCKET_NAME"
+  value     = cloudflare_r2_bucket.dev.name
+  target    = local.dev_only
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "PUBLIC_BASE_URL" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "PUBLIC_BASE_URL"
-  value  = "https://${var.app_domain}"
-  target = local.prod_only
+  key       = "PUBLIC_BASE_URL"
+  value     = "https://${var.app_domain}"
+  target    = local.prod_and_preview
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "PUBLIC_BASE_URL_DEV" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "PUBLIC_BASE_URL"
-  value  = "http://${var.app_domain_dev}:5173"
-  target = local.dev_only
+  key       = "PUBLIC_BASE_URL"
+  value     = "http://${var.app_domain_dev}:5173"
+  target    = local.dev_only
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "GOOGLE_CLIENT_ID" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "GOOGLE_CLIENT_ID"
-  value  = var.google_client_id
-  target = local.all_envs
+  key       = "GOOGLE_CLIENT_ID"
+  value     = var.google_client_id
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "POCKETID_CLIENT_ID" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "POCKETID_CLIENT_ID"
-  value  = var.pocketid_client_id
-  target = local.all_envs
+  key       = "POCKETID_CLIENT_ID"
+  value     = var.pocketid_client_id
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "POCKETID_BASE_URL" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "POCKETID_BASE_URL"
-  value  = var.pocketid_base_url
-  target = local.all_envs
+  key       = "POCKETID_BASE_URL"
+  value     = var.pocketid_base_url
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "EMAIL_FROM" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "EMAIL_FROM"
-  value  = var.email_from
-  target = local.all_envs
+  key       = "EMAIL_FROM"
+  value     = var.email_from
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "PUBLIC_SENTRY_DSN" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "PUBLIC_SENTRY_DSN"
-  value  = sentry_key.main.dsn["public"]
-  target = local.all_envs
+  key       = "PUBLIC_SENTRY_DSN"
+  value     = sentry_key.main.dsn["public"]
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "PUBLIC_UMAMI_BASE_URL" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "PUBLIC_UMAMI_BASE_URL"
-  value  = var.umami_base_url
-  target = local.all_envs
+  key       = "PUBLIC_UMAMI_BASE_URL"
+  value     = var.umami_base_url
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "PUBLIC_UMAMI_WEBSITE_ID" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "PUBLIC_UMAMI_WEBSITE_ID"
-  value  = var.umami_website_id
-  target = local.all_envs
+  key       = "PUBLIC_UMAMI_WEBSITE_ID"
+  value     = var.umami_website_id
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "PUBLIC_CAPTCHA_SITE_KEY" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "PUBLIC_CAPTCHA_SITE_KEY"
-  value  = cloudflare_turnstile_widget.main.sitekey
-  target = local.all_envs
+  key       = "PUBLIC_CAPTCHA_SITE_KEY"
+  value     = cloudflare_turnstile_widget.main.sitekey
+  target    = local.all_envs
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "LOG_LEVEL" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "LOG_LEVEL"
-  value  = var.log_level
-  target = local.prod_only
+  key       = "LOG_LEVEL"
+  value     = var.log_level
+  target    = local.prod_and_preview
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "LOG_LEVEL_DEV" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "LOG_LEVEL"
-  value  = "debug"
-  target = local.dev_only
+  key       = "LOG_LEVEL"
+  value     = "debug"
+  target    = local.dev_only
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "NO_COLOR" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "NO_COLOR"
-  value  = var.no_color
-  target = local.prod_only
+  key       = "NO_COLOR"
+  value     = var.no_color
+  target    = local.prod_and_preview
+  sensitive = false
 }
 
 resource "vercel_project_environment_variable" "NO_COLOR_DEV" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
-  key    = "NO_COLOR"
-  value  = "false"
-  target = local.dev_only
+  key       = "NO_COLOR"
+  value     = "false"
+  target    = local.dev_only
+  sensitive = false
 }
 
+# One DATABASE_URL per tier, each pointing at that tier's own Neon branch.
+#
+# This used to be two resources, and the production one targeted
+# `["production", "preview"]` — so preview deployments connected to production,
+# and since the build command is `pnpm build && pnpm db:migrate`, every pull
+# request ran migrations against the production database.
 resource "vercel_project_environment_variable" "DATABASE_URL" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
@@ -205,12 +234,22 @@ resource "vercel_project_environment_variable" "DATABASE_URL" {
   sensitive = false
 }
 
+resource "vercel_project_environment_variable" "DATABASE_URL_PREVIEW" {
+  team_id    = var.vercel_team_id
+  project_id = vercel_project.app.id
+
+  key       = "DATABASE_URL"
+  value     = local.neon_urls["preview"]
+  target    = local.preview_only
+  sensitive = false
+}
+
 resource "vercel_project_environment_variable" "DATABASE_URL_DEV" {
   team_id    = var.vercel_team_id
   project_id = vercel_project.app.id
 
   key       = "DATABASE_URL"
-  value     = "postgresql://${neon_role.dev.name}:${neon_role.dev.password}@${neon_endpoint.dev.host}/${neon_database.dev.name}?sslmode=require"
+  value     = local.neon_urls["dev"]
   target    = local.dev_only
   sensitive = false
 }
@@ -241,7 +280,7 @@ resource "vercel_project_environment_variable" "R2_ACCESS_KEY_ID" {
 
   key    = "R2_ACCESS_KEY_ID"
   value  = module.r2_api_token_prod.id
-  target = local.prod_only
+  target = local.prod_and_preview
   # sensitive = true
   sensitive = false
 }
@@ -252,7 +291,7 @@ resource "vercel_project_environment_variable" "R2_SECRET_ACCESS_KEY" {
 
   key    = "R2_SECRET_ACCESS_KEY"
   value  = module.r2_api_token_prod.secret
-  target = local.prod_only
+  target = local.prod_and_preview
   # sensitive = true
   sensitive = false
 }
@@ -283,7 +322,7 @@ resource "vercel_project_environment_variable" "BETTER_AUTH_SECRET" {
 
   key    = "BETTER_AUTH_SECRET"
   value  = var.better_auth_secret
-  target = local.prod_only
+  target = local.prod_and_preview
   # sensitive = true
   sensitive = false
 }
@@ -344,7 +383,7 @@ resource "vercel_project_environment_variable" "PAYSTACK_SECRET_KEY" {
 
   key    = "PAYSTACK_SECRET_KEY"
   value  = var.paystack_secret_key
-  target = local.prod_only
+  target = local.prod_and_preview
   # sensitive = true
   sensitive = false
 }
