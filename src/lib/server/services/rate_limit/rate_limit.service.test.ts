@@ -236,3 +236,95 @@ describe("RateLimiter.reset", () => {
     if (!res.ok) expect(res.error.code).toBe("INTERNAL_SERVER_ERROR");
   });
 });
+
+// ---------------------------------------------------------------------------
+// RateLimiter.enforce() / precheck()
+// ---------------------------------------------------------------------------
+
+describe("RateLimiter.enforce", () => {
+  it("passes through when the bucket allows it", async () => {
+    mock_limit.mockResolvedValue({ success: true, remaining: 9, reset: 0 });
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const res = await limiter.enforce("user-1");
+
+    expect(res.ok).toBe(true);
+  });
+
+  it("spends the tokens it is asked for", async () => {
+    mock_limit.mockResolvedValue({ success: true, remaining: 5, reset: 0 });
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    await limiter.enforce("user-1", { tokens: 5 });
+
+    expect(mock_limit).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ rate: 5 }),
+    );
+  });
+
+  it("refuses with the caller's message and a wait", async () => {
+    mock_limit.mockResolvedValue({
+      success: false,
+      remaining: 0,
+      reset: Date.now() + 30_000,
+    });
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const res = await limiter.enforce("user-1", {
+      message: "Too many uploads.",
+    });
+
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.error.status).toBe(429);
+      expect(res.error.message).toContain("Too many uploads.");
+      expect(res.error.message).toMatch(/Try again in \d+s\./);
+    }
+  });
+
+  it("falls back to a generic message", async () => {
+    mock_limit.mockResolvedValue({ success: false, remaining: 0, reset: 0 });
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const res = await limiter.enforce("user-1");
+
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error.message).toContain("Too many requests.");
+  });
+
+  it("fails CLOSED when Redis throws", async () => {
+    mock_limit.mockRejectedValue(new Error("redis down"));
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const res = await limiter.enforce("user-1");
+
+    // An outage must not silently remove the limit.
+    expect(res.ok).toBe(false);
+  });
+});
+
+describe("RateLimiter.precheck", () => {
+  it("does not spend a token", async () => {
+    mock_get_remaining.mockResolvedValue({ remaining: 5, reset: 0 });
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const res = await limiter.precheck("user-1");
+
+    expect(res.ok).toBe(true);
+    expect(mock_limit).not.toHaveBeenCalled();
+  });
+
+  it("refuses when the bucket is empty, still without spending", async () => {
+    mock_get_remaining.mockResolvedValue({
+      remaining: 0,
+      reset: Date.now() + 15_000,
+    });
+
+    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const res = await limiter.precheck("user-1");
+
+    expect(res.ok).toBe(false);
+    expect(mock_limit).not.toHaveBeenCalled();
+  });
+});

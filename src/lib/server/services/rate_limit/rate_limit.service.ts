@@ -108,6 +108,61 @@ export class RateLimiter {
   }
 
   /**
+   * Turns a `{ allowed }` report into the refusal a caller can return directly.
+   *
+   * A 429 that does not say when to come back invites an immediate retry, so
+   * the wait is always appended.
+   */
+  private decide(
+    res: { allowed: boolean; retry_after_sec?: number },
+    message?: string,
+  ): App.Result<void> {
+    if (res.allowed) return result.suc(undefined);
+
+    return result.err({
+      ...ERROR.TOO_MANY_REQUESTS,
+      message: `${message ?? "Too many requests."} Try again in ${res.retry_after_sec ?? 60}s.`,
+    });
+  }
+
+  /**
+   * Consume-or-refuse, in one call.
+   *
+   * Folds the two-step `if (!rate.ok) return rate; if (!rate.data.allowed) …`
+   * that every call site was writing into a single guard, so a refusal and a
+   * Redis fault leave by the same door and neither can be forgotten. Failing
+   * closed on a fault is the point: an outage must not silently remove the
+   * limit.
+   */
+  async enforce(
+    key: string,
+    opts: { tokens?: number; message?: string } = {},
+  ): Promise<App.Result<void>> {
+    const res = await this.consume(key, opts.tokens ?? 1);
+    if (!res.ok) return res;
+
+    return this.decide(res.data, opts.message);
+  }
+
+  /**
+   * The same refusal without spending a token.
+   *
+   * For budgets charged on an *outcome* rather than on the attempt — the
+   * sign-in failure bucket, where every caller is checked but only a wrong
+   * password pays. Advisory, not a mutex: two attempts racing on one remaining
+   * token both pass.
+   */
+  async precheck(
+    key: string,
+    opts: { tokens?: number; message?: string } = {},
+  ): Promise<App.Result<void>> {
+    const res = await this.check(key, opts.tokens ?? 1);
+    if (!res.ok) return res;
+
+    return this.decide(res.data, opts.message);
+  }
+
+  /**
    * Returns whether the bucket has at least `tokens` available, without
    * consuming them.
    */

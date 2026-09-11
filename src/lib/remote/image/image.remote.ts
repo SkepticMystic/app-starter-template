@@ -42,14 +42,11 @@ export const upload_images_remote = form(
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const rate = await upload_limiter.consume(
-      session.data.session.org_id,
-      input.files.length,
-    );
+    const rate = await upload_limiter.enforce(session.data.session.org_id, {
+      tokens: input.files.length,
+      message: "Too many uploads.",
+    });
     if (!rate.ok) return rate;
-    else if (!rate.data.allowed) {
-      return result.err(ERROR.TOO_MANY_REQUESTS);
-    }
 
     const results: App.Result<Image>[] = [];
 
@@ -76,11 +73,8 @@ export const delete_image_remote = command(
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const rate = await delete_limiter.consume(session.data.session.org_id);
+    const rate = await delete_limiter.enforce(session.data.session.org_id);
     if (!rate.ok) return rate;
-    else if (!rate.data.allowed) {
-      return result.err(ERROR.TOO_MANY_REQUESTS);
-    }
 
     return await ImageService.delete_many({ id: image_id }, session.data);
   },

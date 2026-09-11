@@ -35,7 +35,12 @@ export const contact_us_remote = form(
           message: "Failed to get IP address",
         });
       }
-      const rate_limit = await rate_limiter.consume(ip);
+      /**
+       * `enforce`, not `consume`: the old call checked only that the limiter
+       * itself had not errored and never read `allowed`, so this bucket spent
+       * tokens and refused nobody.
+       */
+      const rate_limit = await rate_limiter.enforce(ip);
       if (!rate_limit.ok) return rate_limit;
 
       await EmailService.send(EMAIL.TEMPLATES["admin-contact-form"](input));
