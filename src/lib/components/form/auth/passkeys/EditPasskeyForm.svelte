@@ -1,5 +1,6 @@
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import type { MaybePromise } from "$lib/interfaces";
@@ -14,7 +15,6 @@
   import { Arrays } from "$lib/utils/array/array.util";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import { result } from "$lib/utils/result.util";
-  import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";
 
   let {
@@ -47,12 +47,12 @@
 
     const res = form.result;
     if (res?.ok) {
-      toast.success("Passkey updated successfully");
+      Toast.success("Passkey updated");
 
       // better-auth 1.7 wraps the passkey result rather than returning it flat.
       await on_success?.(res.data.passkey);
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
+  import { Toast } from "$lib/utils/toast.util";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import { create_organization_remote } from "$lib/remote/auth/organization/organization.remote";
   import { App } from "$lib/utils/app";
-  import { toast } from "svelte-sonner";
 
   const form = create_organization_remote;
 </script>
@@ -27,14 +27,14 @@
       const res = form.result;
 
       if (res?.ok) {
-        toast.success("Organization created successfully");
+        Toast.success("Organization created");
 
         await OrganizationClient.set_active(res.data.id);
         // BetterAuthClient.$store.notify("$sessionSignal");
 
         window.location.href = App.url("/settings/organization");
       } else if (res?.ok === false) {
-        toast.error(res.error.message);
+        Toast.err(res.error);
       }
     })}
   >

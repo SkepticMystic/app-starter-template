@@ -1,5 +1,6 @@
 <script lang="ts">
   import FormButton from "$lib/components/form/FormButton.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import CopyButton from "$lib/components/ui/copy-button/copy-button.svelte";
   import FieldGroup from "$lib/components/ui/field/field-group.svelte";
@@ -45,7 +46,7 @@
 
         apikey = res.data;
       } else if (res?.error) {
-        toast.error(res.error.message);
+        Toast.err(res.error);
       }
     })}
   >

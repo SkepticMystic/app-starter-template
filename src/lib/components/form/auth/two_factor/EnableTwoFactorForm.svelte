@@ -1,10 +1,10 @@
 <script lang="ts">
   import Field from "$lib/components/ui/field/Field.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import Input from "$lib/components/ui/input/input.svelte";
   import type { ResultData } from "$lib/interfaces/result.type";
   import { enable_two_factor_remote } from "$lib/remote/auth/two_factor.remote";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
-  import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";
   import FormErrors from "../../FormErrors.svelte";
 
@@ -34,7 +34,7 @@
 
       on_success(res.data);
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

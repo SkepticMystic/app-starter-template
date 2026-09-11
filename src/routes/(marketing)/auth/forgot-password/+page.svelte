@@ -1,5 +1,6 @@
 <script lang="ts">
   import CaptchaField from "$lib/components/form/auth/captcha/CaptchaField.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Card from "$lib/components/ui/card/Card.svelte";
@@ -34,7 +35,7 @@
             e.element.reset();
             toast.success(res.data.message);
           } else if (res?.error.message) {
-            toast.error(res.error.message);
+            Toast.err(res.error);
           }
         })}
       >

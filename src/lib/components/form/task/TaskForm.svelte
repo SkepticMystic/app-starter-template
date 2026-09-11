@@ -1,6 +1,7 @@
 <!-- svelte-ignore state_referenced_locally -->
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
@@ -52,7 +53,7 @@
 
       await props.on_success?.(res.data);
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

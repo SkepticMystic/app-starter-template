@@ -1,10 +1,10 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import { Toast } from "$lib/utils/toast.util";
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { App } from "$lib/utils/app.js";
-  import { toast } from "svelte-sonner";
 
   let { data } = $props();
 
@@ -20,7 +20,7 @@
       // NOTE: Hard reload to trigger session update
       window.location.href = App.url("/settings/organization");
     } else {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   };
 </script>

@@ -1,9 +1,9 @@
 <script lang="ts">
   import Field from "$lib/components/ui/field/Field.svelte";
+  import { FormUtil } from "$lib/utils/form/form.util.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
   import Password from "$lib/components/ui/password/Password.svelte";
   import { change_password_remote } from "$lib/remote/auth/user.remote";
-  import { toast } from "svelte-sonner";
   import FormButton from "../FormButton.svelte";
   import FormErrors from "../FormErrors.svelte";
 
@@ -18,16 +18,10 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async ({ submit }) => {
-    await submit();
-
-    const res = form.result;
-    if (res?.ok) {
-      toast.success("Password changed");
-      on_success?.();
-    } else if (res?.error) {
-      toast.error(res.error.message);
-    }
+  {...FormUtil.enhance(form, {
+    metric: "change_password_form",
+    suc_msg: "Password changed",
+    on_success: () => on_success?.(),
   })}
 >
   <Field

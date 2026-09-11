@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
+  import { Toast } from "$lib/utils/toast.util";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
@@ -8,7 +9,6 @@
   import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
   import { signup_credentials_remote } from "$lib/remote/auth/auth.remote";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
-  import { toast } from "svelte-sonner";
   import CaptchaField from "../auth/captcha/CaptchaField.svelte";
   import FormErrors from "../FormErrors.svelte";
 
@@ -50,7 +50,7 @@
     if (res?.ok) {
       e.element.reset();
     } else if (res?.ok === false) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

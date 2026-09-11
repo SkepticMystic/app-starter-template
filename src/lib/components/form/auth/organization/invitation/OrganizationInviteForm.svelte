@@ -1,5 +1,6 @@
 <script lang="ts">
   import FormButton from "$lib/components/form/FormButton.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
@@ -37,7 +38,7 @@
       on_success?.(res.data);
       e.element.reset();
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

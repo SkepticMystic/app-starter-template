@@ -1,5 +1,6 @@
 <script lang="ts">
   import FormErrors from "$lib/components/form/FormErrors.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
   import InputOtp from "$lib/components/ui/input-otp/input-otp.svelte";
@@ -7,7 +8,6 @@
   import type { ResultData } from "$lib/interfaces/result.type";
   import { verify_totp_remote } from "$lib/remote/auth/two_factor.remote";
   import { FormUtil } from "$lib/utils/form/form.util.svelte";
-  import { toast } from "svelte-sonner";
   import FormButton from "../../FormButton.svelte";
 
   let {
@@ -40,7 +40,7 @@
 
       on_success(res.data);
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

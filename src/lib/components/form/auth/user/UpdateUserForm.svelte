@@ -1,5 +1,6 @@
 <script lang="ts">
   import { BetterAuthClient } from "$lib/auth-client";
+  import { Toast } from "$lib/utils/toast.util";
   import FormButton from "$lib/components/form/FormButton.svelte";
   import FormErrors from "$lib/components/form/FormErrors.svelte";
   import Field from "$lib/components/ui/field/Field.svelte";
@@ -42,7 +43,7 @@
 
       await on_success?.();
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
 >

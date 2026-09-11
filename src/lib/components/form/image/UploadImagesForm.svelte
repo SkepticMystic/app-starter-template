@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button/button.svelte";
+  import { Toast } from "$lib/utils/toast.util";
   import FieldError from "$lib/components/ui/field/field-error.svelte";
   import { format_bytes } from "$lib/components/ui/file-drop-zone";
   import FileDropZone from "$lib/components/ui/file-drop-zone/file-drop-zone.svelte";
@@ -75,7 +76,7 @@
       if (res.data.every((r) => r.ok)) {
         form.fields.files.set([]);
 
-        toast.success("Images uploaded successfully");
+        Toast.success("Images uploaded");
       } else {
         for (const r of res.data) {
           if (r.ok === false) {
@@ -84,7 +85,7 @@
         }
       }
     } else if (res?.error) {
-      toast.error(res.error.message);
+      Toast.err(res.error);
     }
   })}
   enctype="multipart/form-data"

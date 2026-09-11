@@ -1,4 +1,5 @@
 import type { MaybePromise } from "$lib/interfaces";
+import { Toast } from "$lib/utils/toast.util";
 import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
@@ -75,7 +76,7 @@ const wrap = <I, D>(
           await resolved.on_success(res.data);
         }
       } else {
-        toast.warning(res.error.message);
+        Toast.err(res.error, "warning");
       }
 
       return res;
@@ -83,15 +84,20 @@ const wrap = <I, D>(
       captureException(error);
 
       if (isHttpError(error)) {
-        console.log("Client.wrap.error.isHttpError", error.body);
-
-        toast[error.body.level ?? "error"](error.body.message);
+        Toast.err(error.body, error.body.level ?? "error");
 
         return result.err(error.body);
       } else {
-        console.log("Client.wrap.error.unknown", error);
+        /**
+         * Deliberately not "Internal server error". That is the shape of the
+         * failure, not something the reader can act on — and it reads as though
+         * they broke it. `captureException` above has already filed it.
+         */
+        Toast.error({
+          title: "Something went wrong",
+          description: "The error has been reported. Try again in a moment.",
+        });
 
-        toast.error("Internal server error");
         return result.err({
           message: "Internal server error",
         });
