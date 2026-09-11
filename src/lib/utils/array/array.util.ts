@@ -1,4 +1,6 @@
-export type Resource<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+export type Resource<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = T & {
   id: string;
 };
 

@@ -1,5 +1,9 @@
 import { EMAIL_FROM } from "$env/static/private";
-import type { Invitation, Organization, User } from "$lib/server/db/models/auth.model";
+import type {
+  Invitation,
+  Organization,
+  User,
+} from "$lib/server/db/models/auth.model";
 import type { SendEmailOptions } from "$lib/server/services/email.service";
 import { App } from "$lib/utils/app";
 import { HTMLUtil } from "$lib/utils/html/html.util";
@@ -100,7 +104,9 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
       };
     },
 
-    "user-deleted": (input: { user: Pick<User, "email" | "name"> }): SendEmailOptions => {
+    "user-deleted": (input: {
+      user: Pick<User, "email" | "name">;
+    }): SendEmailOptions => {
       const html = HTMLUtil.sanitize(
         `
 <p>Hi ${input.user.name},</p>
@@ -153,7 +159,10 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
       email: string;
       message: string;
     }): SendEmailOptions => {
-      const message = HTMLUtil.sanitize(input.message).replaceAll("\n", "<br />");
+      const message = HTMLUtil.sanitize(input.message).replaceAll(
+        "\n",
+        "<br />",
+      );
       const html = HTMLUtil.sanitize(
         `
 <p>You have received a new message from the contact form on ${APP.NAME}.</p>

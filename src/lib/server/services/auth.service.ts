@@ -16,10 +16,15 @@ type Options = {
 
   email_verified?: boolean;
 
-  permissions?: Parameters<typeof BetterAuthClient.admin.checkRolePermission>[0]["permissions"];
+  permissions?: Parameters<
+    typeof BetterAuthClient.admin.checkRolePermission
+  >[0]["permissions"];
 };
 
-const authorize = (session: App.Session | null, options?: Options): App.Result<undefined> => {
+const authorize = (
+  session: App.Session | null,
+  options?: Options,
+): App.Result<undefined> => {
   const l = log.child({ method: "authorize" });
 
   try {
@@ -100,7 +105,9 @@ export const authorize_event = (options?: Options): App.Result<undefined> => {
 };
 
 /** Redirect to signin if not logged in. */
-export const get_session = async (options?: Options): Promise<App.Result<App.Session>> => {
+export const get_session = async (
+  options?: Options,
+): Promise<App.Result<App.Session>> => {
   try {
     const event = getRequestEvent();
 

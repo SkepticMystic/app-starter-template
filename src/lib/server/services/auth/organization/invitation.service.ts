@@ -36,7 +36,12 @@ const create = async (
         )
       ) {
         return result.from_ba_error(error, { path: ["email"] });
-      } else if (is_ba_error_code(error, "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE")) {
+      } else if (
+        is_ba_error_code(
+          error,
+          "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
+        )
+      ) {
         return result.from_ba_error(error, { path: ["role"] });
       } else {
         captureException(error);

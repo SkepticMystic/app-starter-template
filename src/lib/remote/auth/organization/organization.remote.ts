@@ -8,27 +8,30 @@ import { result } from "$lib/utils/result.util";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 
-export const create_organization_remote = form(OrganizationSchema.create, async (input) => {
-  const event = getRequestEvent();
-  const session = await auth.api.getSession({
-    headers: event.request.headers,
-  });
-  if (!session) {
-    return result.err(ERROR.UNAUTHORIZED);
-  }
-
-  const res = await OrganizationService.create(input, session);
-  if (!res.ok) {
-    if (res.error.path) {
-      invalid(res.error);
-    } else {
-      return res;
+export const create_organization_remote = form(
+  OrganizationSchema.create,
+  async (input) => {
+    const event = getRequestEvent();
+    const session = await auth.api.getSession({
+      headers: event.request.headers,
+    });
+    if (!session) {
+      return result.err(ERROR.UNAUTHORIZED);
     }
-  }
 
-  return res;
-  // redirect(302, App.url("/organization"));
-});
+    const res = await OrganizationService.create(input, session);
+    if (!res.ok) {
+      if (res.error.path) {
+        invalid(res.error);
+      } else {
+        return res;
+      }
+    }
+
+    return res;
+    // redirect(302, App.url("/organization"));
+  },
+);
 
 export const owner_delete_organization_remote = command(
   z.uuid(), //

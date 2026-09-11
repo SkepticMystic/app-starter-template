@@ -14,7 +14,10 @@ import { TRANSACTION } from "../../../const/transaction.const";
 import { UserTable } from "./auth.model";
 import { Schema } from "./index.schema";
 
-export const subscription_status_enum = pgEnum("subscription_status", SUBSCRIPTION.STATUS.IDS);
+export const subscription_status_enum = pgEnum(
+  "subscription_status",
+  SUBSCRIPTION.STATUS.IDS,
+);
 
 export const SubscriptionTable = pgTable("subscription", {
   ...Schema.id(),

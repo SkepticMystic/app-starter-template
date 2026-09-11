@@ -27,10 +27,14 @@ const args = process.argv.slice(2);
 const subcommand = args[0];
 
 if (!subcommand) {
-  console.error(`No subcommand provided. Please use one of: ${SUBCOMMANDS.join(", ")}`);
+  console.error(
+    `No subcommand provided. Please use one of: ${SUBCOMMANDS.join(", ")}`,
+  );
   process.exit(1);
 } else if (!SUBCOMMANDS.includes(subcommand)) {
-  console.error(`Invalid subcommand. Please use one of: ${SUBCOMMANDS.join(", ")}`);
+  console.error(
+    `Invalid subcommand. Please use one of: ${SUBCOMMANDS.join(", ")}`,
+  );
   process.exit(1);
 }
 

@@ -7,7 +7,9 @@ import dns from "dns/promises";
 
 const log = Log.child({ service: "EmailValidation" });
 
-const has_mx_records = async (email: Branded<"EmailAddress">): Promise<App.Result<boolean>> => {
+const has_mx_records = async (
+  email: Branded<"EmailAddress">,
+): Promise<App.Result<boolean>> => {
   try {
     const domain = email.split("@")[1];
     if (!domain)

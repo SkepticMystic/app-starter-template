@@ -59,7 +59,10 @@ const response_schema = z.object({
       flagged: z.boolean(),
       categories: z.record(z.string(), z.number()),
       category_scores: z.record(z.string(), z.number()),
-      category_applied_input_types: z.record(z.string(), z.array(z.enum(["image", "text"]))),
+      category_applied_input_types: z.record(
+        z.string(),
+        z.array(z.enum(["image", "text"])),
+      ),
     }),
   ),
 });
@@ -105,15 +108,19 @@ const moderate = async (input: {
 
     log.info(data.results, "data.results");
 
-    metrics.distribution("AIModerationService.moderate.latency", Date.now() - start_ms, {
-      unit: "milliseconds",
-      attributes: {
-        provider: "openai",
-        model: data.model,
+    metrics.distribution(
+      "AIModerationService.moderate.latency",
+      Date.now() - start_ms,
+      {
+        unit: "milliseconds",
+        attributes: {
+          provider: "openai",
+          model: data.model,
 
-        input_count: typeof input.input === "string" ? 1 : input.input.length,
+          input_count: typeof input.input === "string" ? 1 : input.input.length,
+        },
       },
-    });
+    );
 
     return result.suc(data.results.map((r) => ({ flagged: r.flagged })));
   } catch (error) {
@@ -125,7 +132,9 @@ const moderate = async (input: {
   }
 };
 
-const moderate_one = async (input: MultiModalInput): Promise<App.Result<{ flagged: boolean }>> => {
+const moderate_one = async (
+  input: MultiModalInput,
+): Promise<App.Result<{ flagged: boolean }>> => {
   const res = await moderate({ input: [input] });
 
   if (!res.ok) return res;
@@ -138,7 +147,9 @@ const moderate_one = async (input: MultiModalInput): Promise<App.Result<{ flagge
   return result.suc(r);
 };
 
-const image = async (url: string): Promise<App.Result<{ flagged: boolean }>> => {
+const image = async (
+  url: string,
+): Promise<App.Result<{ flagged: boolean }>> => {
   const moderation_url = transformUrl({
     url,
     width: 250,

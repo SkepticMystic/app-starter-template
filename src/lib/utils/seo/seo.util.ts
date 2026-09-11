@@ -44,7 +44,9 @@ const utmify = (href: string | URL, params: UTMData) => {
   return Url.add_search(url, resolved).toString();
 };
 
-const transform = (input: NonNullable<App.PageData["seo"]>): NonNullable<App.PageData["seo"]> => {
+const transform = (
+  input: NonNullable<App.PageData["seo"]>,
+): NonNullable<App.PageData["seo"]> => {
   const title = input.title?.trim();
 
   const description = input.description;

@@ -18,7 +18,9 @@ export type PasswordRootPropsWithoutHTML = WithChildren<{
   minScore?: 0 | 1 | 2 | 3 | 4;
 }>;
 
-export type PasswordRootProps = WithoutChildren<HTMLAttributes<HTMLDivElement>> &
+export type PasswordRootProps = WithoutChildren<
+  HTMLAttributes<HTMLDivElement>
+> &
   PasswordRootPropsWithoutHTML;
 
 export type PasswordInputPropsWithoutHTML = WithChildren<{
@@ -37,7 +39,10 @@ export type PasswordToggleVisibilityProps = Omit<
   "children" | "pressed" | "aria-label" | "tabindex"
 >;
 
-export type PasswordCopyButtonProps = Omit<CopyButtonProps, "children" | "text">;
+export type PasswordCopyButtonProps = Omit<
+  CopyButtonProps,
+  "children" | "text"
+>;
 
 export type PasswordStrengthPropsWithoutHTML = {
   strength?: ZxcvbnResult;

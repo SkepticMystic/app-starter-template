@@ -19,7 +19,10 @@ const DEFAULT_OPTIONS: ClientRequestOptions<unknown, unknown> = {
 };
 
 const wrap = <I, D>(
-  cb: (input: I, options?: Partial<ClientRequestOptions<I, D>>) => Promise<App.Result<D>>,
+  cb: (
+    input: I,
+    options?: Partial<ClientRequestOptions<I, D>>,
+  ) => Promise<App.Result<D>>,
   client_options?: Partial<ClientRequestOptions<I, D>>,
 ): typeof cb => {
   return async (input, callsite_options) => {
@@ -45,7 +48,9 @@ const wrap = <I, D>(
 
     if (resolved.prompt) {
       const target =
-        typeof resolved.prompt === "function" ? resolved.prompt(input) : resolved.prompt;
+        typeof resolved.prompt === "function"
+          ? resolved.prompt(input)
+          : resolved.prompt;
 
       if (prompt(`Type "${target}" to confirm`) !== target) {
         return result.err({

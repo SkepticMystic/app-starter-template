@@ -132,7 +132,10 @@ export type InsertOrganization = typeof OrganizationTable.$inferInsert;
 
 export const OrganizationSchema = {
   create: createInsertSchema(OrganizationTable, {
-    name: z.string().trim().min(2, "Organization name must be at least 2 characters"),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Organization name must be at least 2 characters"),
     logo: z
       .union([z.url("Logo must be a valid URL"), z.literal("")])
       .transform((v) => v || undefined)

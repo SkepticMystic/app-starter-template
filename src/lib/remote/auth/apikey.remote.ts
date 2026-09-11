@@ -8,7 +8,9 @@ export const create_apikey_remote = form(
   z.object({
     name: z.string().optional(),
     expiresIn: z.union([
-      z.coerce.number<string>().min(1, "API key expiration must be at least 1 second"),
+      z.coerce
+        .number<string>()
+        .min(1, "API key expiration must be at least 1 second"),
       z.literal("").transform(() => undefined),
     ]),
   }),

@@ -54,10 +54,16 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   response.headers.set("X-XSS-Protection", "1; mode=block");
 
   // Only allow HTTPS connections going forward
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload",
+  );
 
   // Restrict browser features your app doesn't need
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(self)",
+  );
 
   if (SENTRY_CSP_URL) {
     // Report violations to Sentry
@@ -71,7 +77,10 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
       }),
     );
 
-    response.headers.set("Reporting-Endpoints", `csp-endpoint="${SENTRY_CSP_URL}"`);
+    response.headers.set(
+      "Reporting-Endpoints",
+      `csp-endpoint="${SENTRY_CSP_URL}"`,
+    );
   }
 
   return response;

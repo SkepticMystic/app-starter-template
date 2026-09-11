@@ -72,7 +72,10 @@ export const R2Service = {
   /**
    * Upload a file to R2 storage
    */
-  async put_file(input: { key: string; file: File }): Promise<App.Result<PutObjectCommandOutput>> {
+  async put_file(input: {
+    key: string;
+    file: File;
+  }): Promise<App.Result<PutObjectCommandOutput>> {
     try {
       const buffer = await input.file.arrayBuffer();
       const body = new Uint8Array(buffer);
@@ -123,7 +126,9 @@ export const R2Service = {
    */
   async get(
     key: string,
-  ): Promise<App.Result<{ buffer: Uint8Array; content_type: string; size: number }>> {
+  ): Promise<
+    App.Result<{ buffer: Uint8Array; content_type: string; size: number }>
+  > {
     try {
       const response = await r2_client.send(
         new GetObjectCommand({

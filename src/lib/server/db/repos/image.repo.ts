@@ -11,7 +11,13 @@ const update = async (
   image_id: string,
   input: Partial<typeof ImageTable.$inferInsert>,
 ): Promise<App.Result<Image>> =>
-  Repo.update_one(db.update(ImageTable).set(input).where(eq(ImageTable.id, image_id)).returning());
+  Repo.update_one(
+    db
+      .update(ImageTable)
+      .set(input)
+      .where(eq(ImageTable.id, image_id))
+      .returning(),
+  );
 
 export const ImageRepo = {
   create,

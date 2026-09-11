@@ -43,7 +43,9 @@ export const BetterAuthClient = createAuthClient({
       if (ctx.response.status === 429) {
         const retry_after = ctx.response.headers.get("Retry-After");
         if (retry_after) {
-          toast.warning(`Rate limit exceeded. Please try again in ${retry_after} seconds.`);
+          toast.warning(
+            `Rate limit exceeded. Please try again in ${retry_after} seconds.`,
+          );
         }
       }
     },

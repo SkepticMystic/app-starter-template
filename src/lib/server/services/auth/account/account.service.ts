@@ -10,7 +10,9 @@ const log = Log.child({ service: "Account" });
 
 const list = async (
   _session: App.Session,
-): Promise<App.Result<Awaited<ReturnType<typeof auth.api.listUserAccounts>>>> => {
+): Promise<
+  App.Result<Awaited<ReturnType<typeof auth.api.listUserAccounts>>>
+> => {
   const l = log.child({ method: "list" });
 
   try {

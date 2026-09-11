@@ -19,7 +19,7 @@
   } from "@tanstack/table-core";
   import type { Snippet } from "svelte";
 
-  const resolve_updater = <T,>(updater: T | ((old: T) => T), old: T): T =>
+  const resolve_updater = <T>(updater: T | ((old: T) => T), old: T): T =>
     typeof updater === "function" ? (updater as (old: T) => T)(old) : updater;
 
   /** Rune-y wrapper around createSvelteTable

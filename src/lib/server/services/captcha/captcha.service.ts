@@ -22,21 +22,26 @@ const turnstile_response_schema = z.object({
 
 type TurnstileResponse = z.output<typeof turnstile_response_schema>;
 
-const verify = async (token: string): Promise<App.Result<TurnstileResponse>> => {
+const verify = async (
+  token: string,
+): Promise<App.Result<TurnstileResponse>> => {
   try {
     const remoteip = AdapterService.get_ip() ?? undefined;
 
-    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
+    const response = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          remoteip,
+          response: token,
+          secret: CAPTCHA_SECRET_KEY,
+        }),
       },
-      body: JSON.stringify({
-        remoteip,
-        response: token,
-        secret: CAPTCHA_SECRET_KEY,
-      }),
-    });
+    );
 
     const json = await response.json();
     const data = turnstile_response_schema.parse(json);

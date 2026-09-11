@@ -31,7 +31,12 @@ const remove = async (member_id: string) => {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
 
-      if (is_ba_error_code(error, "YOU_CANNOT_LEAVE_THE_ORGANIZATION_AS_THE_ONLY_OWNER")) {
+      if (
+        is_ba_error_code(
+          error,
+          "YOU_CANNOT_LEAVE_THE_ORGANIZATION_AS_THE_ONLY_OWNER",
+        )
+      ) {
         return result.from_ba_error(error);
       } else {
         captureException(error);

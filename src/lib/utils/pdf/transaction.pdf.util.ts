@@ -170,9 +170,11 @@ export async function generate_transaction_pdf(input: {
       size: 10,
       color: rgb(0.4, 0.4, 0.4),
     });
-    const status_color = input.transaction.status === "success" ? rgb(0, 0.6, 0) : rgb(0.8, 0, 0);
+    const status_color =
+      input.transaction.status === "success" ? rgb(0, 0.6, 0) : rgb(0.8, 0, 0);
     page.drawText(
-      input.transaction.status.charAt(0).toUpperCase() + input.transaction.status.slice(1),
+      input.transaction.status.charAt(0).toUpperCase() +
+        input.transaction.status.slice(1),
       {
         x: MARGIN + 120,
         y: y,
@@ -234,12 +236,15 @@ export async function generate_transaction_pdf(input: {
       color: rgb(0.4, 0.4, 0.4),
     });
 
-    page.drawText("For any questions or concerns, please visit our website or contact support.", {
-      x: MARGIN,
-      y: footer_y,
-      size: 9,
-      color: rgb(0.4, 0.4, 0.4),
-    });
+    page.drawText(
+      "For any questions or concerns, please visit our website or contact support.",
+      {
+        x: MARGIN,
+        y: footer_y,
+        size: 9,
+        color: rgb(0.4, 0.4, 0.4),
+      },
+    );
 
     const pdf_buffer = await doc.save();
 

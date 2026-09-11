@@ -38,7 +38,11 @@ export class RateLimiter {
       ephemeralCache: false,
       prefix: `${APP.ID}:rate_limit:${prefix}`,
 
-      limiter: Ratelimit.tokenBucket(refill_rate, `${config.refill_interval} s`, config.max_tokens),
+      limiter: Ratelimit.tokenBucket(
+        refill_rate,
+        `${config.refill_interval} s`,
+        config.max_tokens,
+      ),
     });
   }
 
@@ -87,7 +91,10 @@ export class RateLimiter {
         },
       });
 
-      const retry_after_sec = Math.max(0, Math.ceil((res.reset - Date.now()) / 1000));
+      const retry_after_sec = Math.max(
+        0,
+        Math.ceil((res.reset - Date.now()) / 1000),
+      );
 
       return result.suc({
         allowed: false,
@@ -126,7 +133,10 @@ export class RateLimiter {
         });
       }
 
-      const retry_after_sec = Math.max(0, Math.ceil((res.reset - Date.now()) / 1000));
+      const retry_after_sec = Math.max(
+        0,
+        Math.ceil((res.reset - Date.now()) / 1000),
+      );
 
       return result.suc({
         allowed: false,

@@ -106,6 +106,9 @@ export function renderComponent<
  * ```
  * @see {@link https://tanstack.com/table/latest/docs/guide/column-defs}
  */
-export function renderSnippet<TProps>(snippet: Snippet<[TProps]>, params: TProps = {} as TProps) {
+export function renderSnippet<TProps>(
+  snippet: Snippet<[TProps]>,
+  params: TProps = {} as TProps,
+) {
   return new RenderSnippetConfig(snippet, params);
 }

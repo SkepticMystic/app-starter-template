@@ -42,7 +42,10 @@ export const upload_images_remote = form(
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const rate = await upload_limiter.consume(session.data.session.org_id, input.files.length);
+    const rate = await upload_limiter.consume(
+      session.data.session.org_id,
+      input.files.length,
+    );
     if (!rate.ok) return rate;
     else if (!rate.data.allowed) {
       return result.err(ERROR.TOO_MANY_REQUESTS);

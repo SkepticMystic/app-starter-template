@@ -4,15 +4,18 @@ import { InvitationService } from "$lib/server/services/auth/organization/invita
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 
-export const create_invitation_remote = form(InvitationSchema.create, async (input) => {
-  const res = await InvitationService.create(input);
+export const create_invitation_remote = form(
+  InvitationSchema.create,
+  async (input) => {
+    const res = await InvitationService.create(input);
 
-  if (!res.ok && res.error.path) {
-    invalid(res.error);
-  }
+    if (!res.ok && res.error.path) {
+      invalid(res.error);
+    }
 
-  return res;
-});
+    return res;
+  },
+);
 
 export const cancel_invitation_remote = command(
   z.uuid(), //

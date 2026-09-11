@@ -140,7 +140,10 @@ export function mockDbModule(overrides: Record<string, unknown> = {}) {
  * unauthenticated requests, or omit `session` entirely when the service only
  * reads `request.headers`.
  */
-export function mockRequestEvent(session?: App.Session | null, headers?: Headers) {
+export function mockRequestEvent(
+  session?: App.Session | null,
+  headers?: Headers,
+) {
   vi.mocked(getRequestEvent).mockReturnValue({
     locals: { session: session ?? null },
     request: { headers: headers ?? new Headers() },

@@ -31,7 +31,15 @@ import type { OxlintConfig } from "vite-plus/lint";
  *    upstream — they fail with "Failed to parse oxlint configuration file."
  */
 export default {
-  plugins: ["oxc", "typescript", "unicorn", "vitest", "promise", "import", "node"],
+  plugins: [
+    "oxc",
+    "typescript",
+    "unicorn",
+    "vitest",
+    "promise",
+    "import",
+    "node",
+  ],
 
   options: { typeAware: true, typeCheck: true },
 

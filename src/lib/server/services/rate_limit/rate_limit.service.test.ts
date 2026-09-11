@@ -4,11 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 // Mock @upstash/ratelimit before importing the service
 // ---------------------------------------------------------------------------
 
-const { mock_limit, mock_get_remaining, mock_reset_used_tokens } = vi.hoisted(() => ({
-  mock_limit: vi.fn(),
-  mock_get_remaining: vi.fn(),
-  mock_reset_used_tokens: vi.fn(),
-}));
+const { mock_limit, mock_get_remaining, mock_reset_used_tokens } = vi.hoisted(
+  () => ({
+    mock_limit: vi.fn(),
+    mock_get_remaining: vi.fn(),
+    mock_reset_used_tokens: vi.fn(),
+  }),
+);
 
 vi.mock("@upstash/ratelimit", () => ({
   Ratelimit: class MockRatelimit {
@@ -72,7 +74,10 @@ describe("RateLimiter.consume", () => {
       expect(res.data.remaining).toBe(9);
       expect(res.data.retry_after_sec).toBeUndefined();
     }
-    expect(mock_limit).toHaveBeenCalledWith("user-1", expect.objectContaining({ rate: 1 }));
+    expect(mock_limit).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ rate: 1 }),
+    );
   });
 
   it("passes token count via rate option", async () => {
@@ -91,7 +96,10 @@ describe("RateLimiter.consume", () => {
       expect(res.data.allowed).toBe(true);
       expect(res.data.remaining).toBe(5);
     }
-    expect(mock_limit).toHaveBeenCalledWith("user-1", expect.objectContaining({ rate: 5 }));
+    expect(mock_limit).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({ rate: 5 }),
+    );
   });
 
   it("denies when limit returns success: false and includes retry_after_sec", async () => {

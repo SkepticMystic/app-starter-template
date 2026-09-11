@@ -30,7 +30,8 @@ export const OrganizationClient = {
 
   leave: Client.wrap(
     async (/** Fallbacks to active org_id */ org_id?: string) => {
-      const organizationId = org_id ?? session.get().data?.session.activeOrganizationId;
+      const organizationId =
+        org_id ?? session.get().data?.session.activeOrganizationId;
 
       if (!organizationId) {
         return result.err({ message: "Organization ID is required" });
@@ -53,9 +54,12 @@ export const OrganizationClient = {
     suc_msg: "Organization deleted",
   }),
 
-  admin_delete: Client.wrap((org_id: string) => admin_delete_organization_remote(org_id), {
-    confirm: "Are you sure you want to delete this organization?",
-  }),
+  admin_delete: Client.wrap(
+    (org_id: string) => admin_delete_organization_remote(org_id),
+    {
+      confirm: "Are you sure you want to delete this organization?",
+    },
+  ),
 
   invitation: {
     accept: Client.wrap(accept_invitation_remote, {
@@ -70,7 +74,11 @@ export const OrganizationClient = {
 
   member: {
     update_role: Client.wrap(
-      async (input: Parameters<typeof BetterAuthClient.organization.updateMemberRole>[0]) => {
+      async (
+        input: Parameters<
+          typeof BetterAuthClient.organization.updateMemberRole
+        >[0],
+      ) => {
         const update_res = await BetterAuth.to_result(
           BetterAuthClient.organization.updateMemberRole(input),
         );

@@ -159,7 +159,9 @@ const verify = async (input: {
       // I _think_ it's because the apikey plugin hasn't updated yet?
       if (data.error.message) {
         const message =
-          typeof data.error.message === "string" ? data.error.message : data.error.message.message;
+          typeof data.error.message === "string"
+            ? data.error.message
+            : data.error.message.message;
 
         return result.err({
           ...ERROR.UNAUTHORIZED,

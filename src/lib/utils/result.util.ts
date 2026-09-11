@@ -14,9 +14,14 @@ export const result = {
   err,
   suc,
 
-  unwrap_or: <D>(res: Result<D, unknown> | undefined, d: D) => (res?.ok ? res.data : d),
+  unwrap_or: <D>(res: Result<D, unknown> | undefined, d: D) =>
+    res?.ok ? res.data : d,
 
-  pipe: <D1, E, D2>(r: Result<D1, E>, s: (d: D1) => D2, e?: (e: E) => E): Result<D2, E> => {
+  pipe: <D1, E, D2>(
+    r: Result<D1, E>,
+    s: (d: D1) => D2,
+    e?: (e: E) => E,
+  ): Result<D2, E> => {
     if (r.ok) {
       return suc(s(r.data));
     } else {
@@ -24,7 +29,10 @@ export const result = {
     }
   },
 
-  from_ba_error: (error: APIError, extra?: Partial<App.Error>): App.Result<never> =>
+  from_ba_error: (
+    error: APIError,
+    extra?: Partial<App.Error>,
+  ): App.Result<never> =>
     err({
       message: error.message,
       status: error.statusCode,

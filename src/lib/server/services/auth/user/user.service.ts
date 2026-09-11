@@ -51,7 +51,9 @@ const moderate = async (input: {
   }
 };
 
-const update = async (input: Pick<User, "name" | "image">): Promise<App.Result<undefined>> => {
+const update = async (
+  input: Pick<User, "name" | "image">,
+): Promise<App.Result<undefined>> => {
   const l = log.child({ method: "update" });
 
   try {
@@ -158,7 +160,12 @@ const reset_password = async (input: {
       l.info(error.body, "error better-auth");
 
       if (
-        is_ba_error_code(error, "PASSWORD_TOO_LONG", "PASSWORD_TOO_SHORT", "PASSWORD_COMPROMISED")
+        is_ba_error_code(
+          error,
+          "PASSWORD_TOO_LONG",
+          "PASSWORD_TOO_SHORT",
+          "PASSWORD_COMPROMISED",
+        )
       ) {
         return result.from_ba_error(error, { path: ["new_password"] });
       } else {
@@ -204,7 +211,12 @@ const change_password = async (input: {
       if (is_ba_error_code(error, "INVALID_PASSWORD")) {
         return result.from_ba_error(error, { path: ["current_password"] });
       } else if (
-        is_ba_error_code(error, "PASSWORD_TOO_LONG", "PASSWORD_TOO_SHORT", "PASSWORD_COMPROMISED")
+        is_ba_error_code(
+          error,
+          "PASSWORD_TOO_LONG",
+          "PASSWORD_TOO_SHORT",
+          "PASSWORD_COMPROMISED",
+        )
       ) {
         return result.from_ba_error(error, { path: ["new_password"] });
       } else {

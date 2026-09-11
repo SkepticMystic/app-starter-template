@@ -4,4 +4,7 @@ import { z } from "zod";
 
 export const password_schema = z
   .string()
-  .refine((s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE, "Please choose a stronger password");
+  .refine(
+    (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
+    "Please choose a stronger password",
+  );

@@ -40,7 +40,10 @@ export const disable_subscription_remote = command(
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await SubscriptionService.disable(input.subscription_id, session.data);
+    const res = await SubscriptionService.disable(
+      input.subscription_id,
+      session.data,
+    );
 
     if (res.ok) {
       await get_active_subscription_remote().refresh();
@@ -58,7 +61,10 @@ export const enable_subscription_remote = command(
     const session = await get_session();
     if (!session.ok) return session;
 
-    const res = await SubscriptionService.enable(input.subscription_id, session.data);
+    const res = await SubscriptionService.enable(
+      input.subscription_id,
+      session.data,
+    );
 
     if (res.ok) {
       await get_active_subscription_remote().refresh();

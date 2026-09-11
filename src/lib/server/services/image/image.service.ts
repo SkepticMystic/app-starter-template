@@ -2,7 +2,11 @@ import { format_bytes } from "$lib/components/ui/file-drop-zone";
 import { ERROR } from "$lib/const/error.const";
 import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
 import { db } from "$lib/server/db/drizzle.db";
-import { ImageSchema, ImageTable, type Image } from "$lib/server/db/models/image.model";
+import {
+  ImageSchema,
+  ImageTable,
+  type Image,
+} from "$lib/server/db/models/image.model";
 import { ImageRepo } from "$lib/server/db/repos/image.repo";
 import { Repo } from "$lib/server/db/repos/index.repo";
 import { Log } from "$lib/utils/logger.util";
@@ -84,7 +88,11 @@ const upload = async (
 
     const [count_limit, resource] = await Promise.all([
       check_count(input, session),
-      ResourceService.get_by_id(input.resource_kind, input.resource_id, session),
+      ResourceService.get_by_id(
+        input.resource_kind,
+        input.resource_id,
+        session,
+      ),
     ]);
 
     if (!resource.ok) return resource;
@@ -163,8 +171,12 @@ const delete_many = async (
           o.and(
             o.eq(ImageTable.org_id, session.session.org_id),
             input.id ? o.eq(ImageTable.id, input.id) : undefined,
-            input.resource_id ? o.eq(ImageTable.resource_id, input.resource_id) : undefined,
-            input.resource_kind ? o.eq(ImageTable.resource_kind, input.resource_kind) : undefined,
+            input.resource_id
+              ? o.eq(ImageTable.resource_id, input.resource_id)
+              : undefined,
+            input.resource_kind
+              ? o.eq(ImageTable.resource_kind, input.resource_kind)
+              : undefined,
           ),
         )
         .returning(),
@@ -177,7 +189,11 @@ const delete_many = async (
     }
 
     waitUntil(
-      Promise.all(images.data.map((image) => ImageHostingService.delete(image.external_id))),
+      Promise.all(
+        images.data.map((image) =>
+          ImageHostingService.delete(image.external_id),
+        ),
+      ),
     );
 
     return result.suc(undefined);

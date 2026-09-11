@@ -226,7 +226,7 @@
             {/each}
           </TableBody>
 
-          {#if footer_groups.some( (g) => g.headers.some((h) => h.column.columnDef.footer), )}
+          {#if footer_groups.some( (g) => g.headers.some((h) => h.column.columnDef.footer) )}
             <TableFooter>
               {#each footer_groups as footer_group (footer_group.id)}
                 <TableRow>

@@ -10,11 +10,42 @@ import lint from "./oxlint.config";
 const SONDA = process.env.SONDA;
 
 export default defineConfig({
-  staged: {
-    "*.{ts,svelte}": "vp check --fix",
+  /**
+   * `vp fmt` does NOT read `.oxfmtrc.json`. With no config it silently formats a
+   * subset — skipping every `.svelte` file — rather than failing, so a sanity check
+   * after changing anything here is that `pnpm format:check` still reports roughly
+   * as many files as the repo has.
+   *
+   * Ignores must live here and not in a `.prettierignore`, so that the pre-commit
+   * hook and the editor LSP honour the same list.
+   */
+  fmt: {
+    bracketSameLine: false,
+    singleAttributePerLine: true,
+    printWidth: 80,
+    sortPackageJson: false,
+    svelte: {},
+    sortTailwindcss: { stylesheet: "./src/routes/layout.css" },
+    ignorePatterns: [
+      "pnpm-lock.yaml",
+      "drizzle/**",
+      "static/**",
+      ".claude/**",
+      ".github/**",
+      ".vite-hooks/**",
+      ".planning/**",
+      "node_modules",
+      "infra/.terraform/**",
+      "infra/terraform.tfstate*",
+    ],
   },
 
   lint,
+
+  // Widened from "*.{ts,svelte}" now that oxfmt handles md/json/css/yaml too.
+  staged: {
+    "*": "vp check --fix",
+  },
 
   build: {
     sourcemap: SONDA ? true : undefined,
@@ -55,7 +86,10 @@ export default defineConfig({
           name: "server",
           environment: "node",
           include: ["src/**/*.{test,spec}.{js,ts}"],
-          exclude: ["src/**/*.svelte.{test,spec}.{js,ts}", "src/**/*.itest.{js,ts}"],
+          exclude: [
+            "src/**/*.svelte.{test,spec}.{js,ts}",
+            "src/**/*.itest.{js,ts}",
+          ],
           setupFiles: ["src/test/setup.ts"],
         },
       },

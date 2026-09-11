@@ -225,7 +225,9 @@ export const auth = betterAuth({
       sendDeleteAccountVerification: async ({ user, url }) => {
         if (dev) Log.debug(url);
 
-        await EmailService.send(EMAIL.TEMPLATES["delete-account-verification"]({ url, user }));
+        await EmailService.send(
+          EMAIL.TEMPLATES["delete-account-verification"]({ url, user }),
+        );
       },
     },
   },
@@ -266,7 +268,9 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       if (dev) Log.debug(url);
 
-      await EmailService.send(EMAIL.TEMPLATES["email-verification"]({ url, user }));
+      await EmailService.send(
+        EMAIL.TEMPLATES["email-verification"]({ url, user }),
+      );
     },
   },
 
@@ -375,7 +379,9 @@ export const auth = betterAuth({
             };
           };
           // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-          const plans = (await PaystackClient.plan.list({})) as PlanListResponse;
+          const plans = (await PaystackClient.plan.list(
+            {},
+          )) as PlanListResponse;
 
           if (plans.error) {
             Log.error(plans.error, "auth.paystack.subscription.plans.error");
@@ -427,7 +433,8 @@ export const auth = betterAuth({
                 clientId: POCKETID_CLIENT_ID,
                 clientSecret: POCKETID_CLIENT_SECRET,
 
-                discoveryUrl: POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                discoveryUrl:
+                  POCKETID_BASE_URL + "/.well-known/openid-configuration",
                 // ... other config options
 
                 mapProfileToUser: (profile: unknown) => {
@@ -438,7 +445,9 @@ export const auth = betterAuth({
 
                   const name = (
                     typed.name ||
-                    (typed.given_name || "") + " " + (typed.family_name || "") ||
+                    (typed.given_name || "") +
+                      " " +
+                      (typed.family_name || "") ||
                     ""
                   )
                     .trim()
@@ -449,7 +458,8 @@ export const auth = betterAuth({
                     email: typed.email,
                     image: typed.picture,
                     emailVerified:
-                      AUTH.PROVIDERS.MAP[providerId].force_email_verified || typed.email_verified,
+                      AUTH.PROVIDERS.MAP[providerId].force_email_verified ||
+                      typed.email_verified,
                   };
                 },
               };
@@ -513,7 +523,10 @@ const get_active_org = async (
       return null;
     }
 
-    log.debug({ organizationId: member.data.organizationId }, "Found existing organization");
+    log.debug(
+      { organizationId: member.data.organizationId },
+      "Found existing organization",
+    );
 
     const active_plan = await get_active_plan(member.data.organizationId);
 
