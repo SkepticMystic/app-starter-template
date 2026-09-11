@@ -1,4 +1,8 @@
 import { getRequestEvent } from "$app/server";
+import { db } from "$lib/server/db/drizzle.db";
+import { InvitationTable } from "$lib/server/db/models/auth.model";
+import { Repo } from "$lib/server/db/repos/index.repo";
+import { operators } from "drizzle-orm";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { auth, is_ba_error_code } from "$lib/auth";
 import type { IOrganization } from "$lib/const/auth/organization.const";
@@ -118,8 +122,47 @@ const accept = async (invitation_id: string) => {
   }
 };
 
+/**
+ * Close an invitation whose recipient is already a member.
+ *
+ * There is no path through Better-Auth that does this. `acceptInvitation` is
+ * the only thing that moves an invitation out of `pending`, and the person
+ * cannot accept — they are already in the organization, so the accept page
+ * shows them the door rather than the button. The row then sits in the
+ * inviter's table as an outstanding invite forever.
+ *
+ * Written as `accepted` rather than `canceled`: cancelled reads as an admin
+ * having withdrawn it, which nobody did. Guarded on `status = 'pending'` so it
+ * is idempotent and two tabs race harmlessly.
+ *
+ * Failure is logged at `warn` and deliberately not surfaced: the caller is a
+ * page load whose job is to tell somebody they are already a member, and it can
+ * do that either way.
+ */
+const settle_for_existing_member = async (invitation_id: string) => {
+  const res = await Repo.update_applied(
+    db
+      .update(InvitationTable)
+      .set({ status: "accepted" })
+      .where(
+        operators.and(
+          operators.eq(InvitationTable.id, invitation_id),
+          operators.eq(InvitationTable.status, "pending"),
+        ),
+      )
+      .returning({ id: InvitationTable.id }),
+  );
+
+  if (!res.ok) {
+    log.warn(res.error, "settle_for_existing_member.error");
+  }
+
+  return res;
+};
+
 export const InvitationService = {
   create,
   cancel,
   accept,
+  settle_for_existing_member,
 };

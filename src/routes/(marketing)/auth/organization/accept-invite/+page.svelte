@@ -4,11 +4,32 @@
   import { OrganizationClient } from "$lib/clients/auth/organization.client";
   import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
+  import { UserClient } from "$lib/clients/auth/user.client";
   import { App } from "$lib/utils/app.js";
 
   let { data } = $props();
 
-  const redirect_uri = resolve("/auth/organization/accept-invite");
+  /**
+   * Keeps `invite_id`. `resolve()` alone dropped it, so signing in landed the
+   * reader back on this page with no invitation to accept — which looked like
+   * the link had expired.
+   */
+  const redirect_uri = $derived(
+    App.url("/auth/organization/accept-invite", {
+      invite_id: data.search.invite_id,
+    }),
+  );
+
+  /**
+   * Signing out and coming back. A plain "Login" link is no use to somebody who
+   * is already signed in as the wrong person, and `goto` will not re-run the
+   * load with the old cookie gone — so this is a hard navigation.
+   */
+  const switch_account = async () => {
+    await UserClient.signout();
+
+    window.location.href = App.url("/auth/signin", { redirect_uri });
+  };
 
   const accept_invite = async () => {
     if (!data.search.invite_id) return;
@@ -54,14 +75,21 @@
     </div>
   {:else if data.prompt === "wrong_account"}
     <p>
-      You are logged in with the wrong account. Please login or signup with the
-      same email address that the invitation was sent to:
+      You are signed in with a different account. This invitation was sent to
+      <strong>{data.invited_email}</strong>.
     </p>
 
     <div class="flex gap-2">
-      <Anchor href={App.url("/auth/signin", { redirect_uri })}>Login</Anchor>
+      <Button onclick={switch_account}>Sign out and switch account</Button>
       <Anchor href={App.url("/auth/signup", { redirect_uri })}>Signup</Anchor>
     </div>
+  {:else if data.prompt === "email_not_verified"}
+    <p class="text-warning">
+      Verify <strong>{data.email}</strong> before accepting this invitation — we sent
+      you a link when you signed up.
+    </p>
+
+    <Anchor href={resolve("/auth/verify-email")}>Resend verification</Anchor>
   {:else if data.prompt === "already_member"}
     <p>You are already a member of the organization.</p>
 
