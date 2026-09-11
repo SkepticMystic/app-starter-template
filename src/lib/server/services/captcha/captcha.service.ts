@@ -8,16 +8,27 @@ import { z } from "zod";
 
 const log = Log.child({ service: "Captcha" });
 
+/**
+ * `cdata`, `action` and `metadata.interactive` are optional because Turnstile
+ * does not always send them — required, a perfectly ordinary response fails
+ * `.parse()` and the verify call reports an internal error instead of an
+ * outcome. `metadata` is widened for the same reason.
+ */
 const turnstile_response_schema = z.object({
-  cdata: z.string(),
-  action: z.string(),
   success: z.boolean(),
   "error-codes": z.array(z.string()),
 
+  cdata: z.string().optional(),
+  action: z.string().optional(),
   hostname: z.string().optional(),
   challenge_ts: z.string().optional(),
   messages: z.array(z.string()).optional(),
-  metadata: z.object({ interactive: z.boolean() }).optional(),
+  metadata: z
+    .object({
+      interactive: z.boolean().optional(),
+      result_with_testing_key: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 type TurnstileResponse = z.output<typeof turnstile_response_schema>;
@@ -40,6 +51,13 @@ const verify = async (
           response: token,
           secret: CAPTCHA_SECRET_KEY,
         }),
+        /**
+         * This fetch carried no signal, so a stalled Turnstile held the request
+         * open until the function itself timed out. Turnstile sits on the
+         * critical path of signup and sign-in, so this is a latency bound
+         * rather than a runaway guard.
+         */
+        signal: AbortSignal.timeout(5_000),
       },
     );
 

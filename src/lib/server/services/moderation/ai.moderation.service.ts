@@ -83,6 +83,12 @@ const moderate = async (input: {
         input: input.input,
         model: "omni-moderation-latest",
       }),
+      /**
+       * No signal before, so a stalled moderation held the whole request open.
+       * Longer than a plain JSON round trip because the image path makes OpenAI
+       * fetch the URL we hand it.
+       */
+      signal: AbortSignal.timeout(15_000),
     });
 
     if (!response.ok) {

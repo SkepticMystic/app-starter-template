@@ -13,7 +13,7 @@ const HTML_SIGNATURE = `
 <p>
   Regards,<br />
   <a href="${APP.URL}">${APP.NAME}</a>
-</p>`.trim();
+</p>`;
 
 const COMMON = {
   SIGNATURE: {
@@ -27,9 +27,7 @@ export const EMAIL = {
       url: string;
       user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
-      const html = HTMLUtil.sanitize(
-        `
-<p>Hi ${input.user.name}</p>
+      const html = HTMLUtil.html`<p>Hi ${input.user.name}</p>
 <p>
   Click <a href="${input.url}">here</a> to reset your ${APP.NAME} password.
 </p>
@@ -37,8 +35,7 @@ export const EMAIL = {
   If you did not request this, you can safely ignore this email.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim(),
-      );
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
@@ -51,9 +48,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
       url: string;
       user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
-      const html = HTMLUtil.sanitize(
-        `
-<p>Hi ${input.user.name},</p>
+      const html = HTMLUtil.html`<p>Hi ${input.user.name},</p>
 <p>
   Click <a href="${input.url}">here</a> to verify your ${APP.NAME} account.
 </p>
@@ -61,8 +56,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
   If you did not request this, you can safely ignore this email.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim(),
-      );
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
@@ -80,9 +74,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
         invite_id: input.invitation.id,
       });
 
-      const html = HTMLUtil.sanitize(
-        `
-<p>Hi,</p>
+      const html = HTMLUtil.html`<p>Hi,</p>
 <p>
   You have been invited by <strong>${input.inviter.user.email}</strong>
   to join the organization <strong>${input.organization.name}</strong>.
@@ -94,8 +86,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
   If you did not request this, you can safely ignore this email.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim(),
-      );
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
@@ -107,9 +98,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
     "user-deleted": (input: {
       user: Pick<User, "email" | "name">;
     }): SendEmailOptions => {
-      const html = HTMLUtil.sanitize(
-        `
-<p>Hi ${input.user.name},</p>
+      const html = HTMLUtil.html`<p>Hi ${input.user.name},</p>
 <p>
   This is to confirm that your account associated with this email address has been successfully deleted from ${APP.NAME}.
 </p>
@@ -117,8 +106,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
   If you did not request this, please contact our support team immediately.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim(),
-      );
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
@@ -131,9 +119,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
       user: Pick<User, "email" | "name">;
       url: string;
     }): SendEmailOptions => {
-      const html = HTMLUtil.sanitize(
-        `
-<p>Hi ${input.user.name},</p>
+      const html = HTMLUtil.html`<p>Hi ${input.user.name},</p>
 <p>
   We've received a request to delete your account associated with this email address from ${APP.NAME}.
 </p>
@@ -144,8 +130,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
   If you did not request this, please contact our support team immediately.
 </p>
 
-${COMMON.SIGNATURE.HTML}`.trim(),
-      );
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
@@ -159,13 +144,15 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
       email: string;
       message: string;
     }): SendEmailOptions => {
-      const message = HTMLUtil.sanitize(input.message).replaceAll(
-        "\n",
-        "<br />",
+      /**
+       * Escaped first, then newlines converted — so `<br />` is inserted into
+       * text that is already safe, rather than being the one piece of markup
+       * that survives a sanitiser pass over attacker-controlled input.
+       */
+      const message = HTMLUtil.raw(
+        HTMLUtil.escape(input.message).replaceAll("\n", "<br />"),
       );
-      const html = HTMLUtil.sanitize(
-        `
-<p>You have received a new message from the contact form on ${APP.NAME}.</p>
+      const html = HTMLUtil.html`<p>You have received a new message from the contact form on ${APP.NAME}.</p>
 
 <p><strong>Name:</strong> ${input.name}</p>
 <p><strong>Email:</strong> ${input.email}</p>
@@ -173,8 +160,7 @@ ${COMMON.SIGNATURE.HTML}`.trim(),
 <p><strong>Message:</strong></p>
 <p>${message}</p>
 
-${COMMON.SIGNATURE.HTML}`.trim(),
-      );
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
