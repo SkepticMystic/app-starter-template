@@ -12,7 +12,10 @@ SvelteKit-based application starter template with TypeScript, TailwindCSS, Bette
 
 ### Package Manager
 
-This project uses **pnpm** (v10.23.0) as the package manager. Always use `pnpm` commands instead of `npm`.
+This project uses **pnpm** as the package manager. Always use `pnpm` commands
+instead of `npm`. The exact version lives in `packageManager` in
+`package.json`, and that is the only place it is written down — do not repeat
+it here, because a second copy is a second thing to get wrong.
 
 ### Core Commands
 
@@ -23,9 +26,12 @@ This project uses **pnpm** (v10.23.0) as the package manager. Always use `pnpm` 
 
 ### Type Checking & Linting
 
-- `pnpm check` - Run svelte-check for type checking
-- `pnpm lint` - Run oxlint (type-aware), eslint, and prettier checks
-- `pnpm format` - Format code with prettier
+- `pnpm check` - svelte-check, via tsgo
+- `pnpm check:slow` - the same on classic tsserver, as an escape hatch
+- `pnpm lint` - oxlint, type-aware
+- `pnpm lint:fix` - the same, applying safe fixes
+- `pnpm format` / `pnpm format:check` - oxfmt
+- `pnpm verify` - format:check, lint, check, test:run and knip in one go
 
 ### Database Commands
 
@@ -33,21 +39,30 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 
 - `pnpm db:push` - Push schema changes to database (development)
 - `pnpm db:generate` - Generate migrations (production env)
-- `pnpm db:check` - Check migration status (production env)
+- `pnpm db:check` - Verify the migrations folder is consistent (it does NOT
+  connect to a database, despite the name)
 - `pnpm db:migrate` - Apply migrations (used in Vercel build)
 - `pnpm db:studio` - Open Drizzle Studio
+- `pnpm db:push:explain` - dry run: print the DDL `db:push` would apply
+- `pnpm _db skills` - regenerate the vendored drizzle agent skills. They are
+  pinned to a drizzle-kit version, so re-run this after a bump; the bundled
+  `drizzle` skill checks for that drift and will say so
 
 ### Other Tools
 
 - `pnpm knip` - Find unused files, dependencies, and exports
+- `pnpm db:sql "select 1"` - real psql against the dev database, from a
+  container. Prefer this over guessing: the schema files say what the schema is
+  _meant_ to be; this says what the database actually contains
+- `rg` (ripgrep) - use for code search instead of `grep`. Respects
+  `.gitignore`, and `rg -P` enables PCRE2 for lookarounds
 
 ## Architecture
 
 ### Authentication Architecture
 
 - **Better-Auth** integration with custom configuration in `src/lib/auth.ts`
-- Uses **Effect** library for dependency injection (email service)
-- Split between client (`auth-client.ts`) and server (`auth/server.ts`)
+- Split between client (`src/lib/auth-client.ts`) and server (`src/lib/auth.ts`)
 - Database session storage disabled in favor of cookie caching
 - Custom session fields for organization membership (`member_id`, `member_role`)
 - Automatic organization creation on first login via database hook
@@ -56,18 +71,32 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   - Google OAuth
   - Generic OAuth (Pocket ID)
   - Passkeys
-- **Permissions** managed through `src/lib/auth/permissions.ts` with AccessControl
+- **Permissions** managed through `src/lib/const/auth/access_control.const.ts`
+  with Better-Auth's AccessControl
+- Email templates are imported lazily in `auth.ts`, because `email.const` pulls
+  in `isomorphic-dompurify` (jsdom, ~310ms at module load) for four callbacks
+  that usually never fire
 
 ### Database Architecture
 
 - **Drizzle ORM** with PostgreSQL (Neon)
-- Schema files use `*.models.ts` naming convention
+- Schema files use the `*.model.ts` naming convention and live in
+  `src/lib/server/db/models/`:
+  - `auth.model.ts` - User, Session, Account, Organization, Member, Invitation,
+    Passkey, Verification, TwoFactor, APIKey
+  - `subscription.model.ts` - Subscription and the Paystack plugin's tables
+  - `task.model.ts` - the worked example of an application table
+  - `index.schema.ts` - shared helpers (`Schema.id()`, `Schema.timestamps`)
 - All tables use UUID primary keys (custom ID generation, not BetterAuth's nanoid)
-- Database schemas in `src/lib/server/db/schema/`:
-  - `auth.models.ts` - User, Session, Account, Organization, Member, Invitation, Passkey, Verification tables
-  - `task.models.ts` - Application-specific tables
-  - `index.schema.ts` - Shared schema utilities (ID generation, timestamps)
-- Uses `snake_case` for database columns (configured in drizzle.config.ts)
+- Tables are declared with `snakeCase.table(...)` from
+  `drizzle-orm/pg-core/casing`, NOT `pgTable`. That is what produces
+  `snake_case` column names; drizzle v1 removed the `casing` config option, so
+  converting a model back to `pgTable` silently renames every one of its
+  columns
+- `schema.ts` keys are matched **exactly** by Better-Auth plugins, so a
+  plugin-owned model must be registered under the plugin's own camelCase name
+  (`paystackTransaction`, not `paystack_transaction`) or the adapter throws
+- Redis configured as secondary storage for Better-Auth (rate limiting, caching)
 - Redis configured as secondary storage for Better-Auth (rate limiting, caching)
 
 ### SvelteKit Configuration
@@ -114,25 +143,77 @@ Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to 
 - Use `Log.info()`, `Log.error()`, `Log.debug()`, etc. throughout codebase
 - Log level controlled by `LOG_LEVEL` environment variable
 
-## Linting Configuration
+## Linting & Formatting
 
-### Oxlint
+### Linting — Oxlint
 
-Primary linter with type-aware checking configured in `.oxlintrc.json`:
+Rules live in **`oxlint.config.ts`** at the repo root, imported by
+`vite.config.ts` as its `lint` option.
 
-- TypeScript and Unicorn plugins enabled
-- Correctness category disabled (relies on TypeScript compiler)
-- Strict unused variable rules with `_` prefix for intentionally unused vars
-- Special rules for Svelte files (no-inner-declarations, no-self-assign disabled)
+The file has to be a standalone `.ts`, and its header says why at length. In
+short: the oxc editor extension can only read an _oxlint_ config file, so while
+the rules lived inline in `vite.config.ts` the editor silently linted with stock
+oxlint defaults and disagreed with the CLI on every file. It cannot be
+`.oxlintrc.json` either, because `vp config` — which runs on every install via
+`prepare` — scans for that name, merges it back into `vite.config.ts`, and
+deletes it.
 
-### ESLint
+- `correctness`, `suspicious` and `perf` are all at **error**. Nothing sits at
+  `warn` on purpose: the only automated gate is `vp check --fix` in the
+  pre-commit hook and it reads errors only, so a warning is a finding nobody is
+  ever required to clear.
+- `style`, `pedantic`, `restriction` and `nursery` are off as categories, to be
+  ratcheted rule by rule rather than switched on wholesale.
+- Svelte's runes are declared in `globals`. They are compiler intrinsics with no
+  import, so without that almost every `no-undef` finding is a rune.
+- There is **no ESLint**. `eslint-plugin-svelte` was removed: oxlint only hands
+  JS plugins the extracted `<script>` AST, never the template, so a quarter of
+  that plugin's rules hard-gate off and the rest found nothing. Svelte
+  correctness comes from `pnpm check`.
 
-Secondary linter in `eslint.config.js` - runs after oxlint in the lint pipeline.
+### Formatting — Oxfmt only
+
+Configured in the `fmt` block of **`vite.config.ts`**. Prettier is gone; oxfmt
+handles `.svelte` through a bundled printer and sorts Tailwind classes.
+
+Two traps:
+
+- `vp fmt` does **not** read `.oxfmtrc.json`. With no config it silently
+  formats a subset, skipping every `.svelte` file, rather than failing. The
+  sanity check is that `pnpm format:check` reports roughly as many files as the
+  repo has.
+- Ignores belong in `fmt.ignorePatterns`, not a `.prettierignore`, so the
+  pre-commit hook and the editor LSP honour the same list.
+
+Note oxfmt does **not** reorder imports, so `pnpm format` neither produces nor
+enforces an import order.
+
+### Editor
+
+`.vscode/settings.json` and `.zed/settings.json` are committed deliberately, so
+the whole team gets the same diagnostics. Both pin the formatter per language,
+because a user-level override otherwise leaks in and formats some file types
+with another tool.
+
+`oxc.requireConfig` is on, so a missing or unreadable config fails loudly
+instead of falling back to stock defaults again.
+
+### TypeScript version
+
+`typescript` is pinned and the editor stays on it with classic tsserver:
+**tsgo does not support TSServer plugins**, and the Svelte TS plugin is what
+types `./Foo.svelte` imports inside `.ts` files. tsgo is still used where it
+pays — `pnpm check` (svelte-check `--tsgo`) and `pnpm lint` (tsgolint).
+
+### Pre-commit
+
+`.vite-hooks/pre-commit` runs `vp staged`, which runs `vp check --fix` over
+staged files: format, then lint, then type-check.
 
 ## Environment Setup
 
-1. Ensure **Node 22** is installed (required by package.json engines)
-2. Install **pnpm 10.23.0** (specified in package.json packageManager)
+1. Install the Node version required by `engines` in `package.json`
+2. Install the pnpm version pinned in `packageManager` in `package.json`
 3. Create `.env` file based on `.env.example`
 4. Set up PostgreSQL database (Neon recommended) with development branch
 5. Add `DATABASE_URL` to `.env`
@@ -166,7 +247,11 @@ Secondary linter in `eslint.config.js` - runs after oxlint in the lint pipeline.
 
 - All tables use UUID primary keys via `Schema.id()` from `index.schema.ts`
 - Timestamps use `Schema.timestamps` helper (createdAt, updatedAt)
-- Database columns in `snake_case`, TypeScript in `camelCase` (Drizzle handles conversion)
+- Database columns in `snake_case`, TypeScript in `camelCase` — produced by
+  declaring tables with `snakeCase.table(...)`
+- Wrap every statement in a `Repo.*` helper so failures become `App.Result`
+  rather than throwing; use `Repo.contains()` for any LIKE/ILIKE search term,
+  which escapes the wildcards
 - Never use BetterAuth's nanoid generation; custom UUID generation is configured
 
 ### Error Handling
