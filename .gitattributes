@@ -1,0 +1,8 @@
+# Drizzle regenerates a full ~324 KB snapshot per migration; collapse it in diffs so
+# the reviewable migration.sql is not buried. Reviewers can still expand it.
+#
+# The glob is deliberately `drizzle/*/snapshot.json` rather than the conventional
+# `drizzle/**/meta/*_snapshot.json`: drizzle v1 writes `drizzle/<timestamp>_<name>/`
+# containing `migration.sql` and `snapshot.json`, with no `meta/` dir and no
+# `_journal.json`. Keep `migration.sql` out of the glob — that is the part to read.
+drizzle/*/snapshot.json linguist-generated=true

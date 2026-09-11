@@ -18,5 +18,28 @@
 
     // "rootDir": "./src",
     "types": ["node", "umami"]
-  }
+  },
+
+  // SvelteKit's generated config only includes `src/**` and `vite.config.*`, which
+  // left `scripts/**` and the root config files outside the TS project entirely:
+  // they were never covered by `pnpm check`, and the moment one was staged
+  // `vp check --fix` failed it with TS2591 "Cannot find name 'process'" — the
+  // `types: ["node"]` above never applied to them.
+  //
+  // Declaring `include` here REPLACES the inherited one rather than adding to it,
+  // so the generated entries are restated. Paths are relative to this file, not to
+  // `.svelte-kit/`, which is why they lose the `../` prefix.
+  "include": [
+    ".svelte-kit/ambient.d.ts",
+    ".svelte-kit/non-ambient.d.ts",
+    ".svelte-kit/types/**/$types.d.ts",
+    "vite.config.js",
+    "vite.config.ts",
+    "src/**/*.js",
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "scripts/**/*.ts",
+    "drizzle.config.ts",
+    "knip.config.ts"
+  ]
 }

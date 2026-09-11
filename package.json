@@ -11,7 +11,6 @@
     "test": "vp test",
     "test:ui": "vp test --ui",
     "test:run": "vp test run",
-    "test:integration": "vp test --project=integration --passWithNoTests",
     "test:coverage": "vp test run --coverage",
     "knip": "knip",
     "scan:secrets": "docker run --rm -v \"$PWD:/pwd\" trufflesecurity/trufflehog:latest git file:///pwd --fail",
@@ -19,7 +18,6 @@
     "sonda": "SONDA=1 pnpm build",
     "check:slow": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\"",
     "check": "svelte-kit sync && svelte-check --tsgo --incremental --tsconfig ./tsconfig.json --compiler-warnings \"state_referenced_locally:ignore\"",
-    "SOURCE": "https://www.sveltepatterns.dev/how-to-access-svelte-specific-api-in-a-script",
     "_db": "vite-node --options.transformMode.ssr='/.*/' ./scripts/drizzle/kit.script.ts",
     "db:push": "pnpm _db push",
     "db:generate": "dotenvx run --env-file=.env.production -- pnpm _db generate",
@@ -113,5 +111,5 @@
   "engines": {
     "node": ">=24.13.0"
   },
-  "packageManager": "pnpm@11.1.3"
+  "packageManager": "pnpm@12.3.4"
 }

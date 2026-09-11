@@ -31,10 +31,12 @@ tmp
 
 # OpenTofu / Terraform
 infra/.terraform/
-infra/.terraform.lock.hcl
+infra/terraform.tfvars
 infra/terraform.tfstate
 infra/terraform.tfstate.backup
-infra/terraform.tfvars
+# NOTE: infra/.terraform.lock.hcl is deliberately NOT ignored. It pins provider
+# versions so every machine and CI run resolves identically; ignoring it defeats
+# the point of having a lock file.
 
 .env*.local
 
@@ -43,8 +45,18 @@ coverage/
 .mcp.json
 
 # Editors
+# Editor config is deliberately shared (it pins the formatter/linter so the
+# whole team gets the same diagnostics), so allowlist the project-level files.
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.zed/*
+!.zed/settings.json
+!.zed/tasks.json
+!.zed/debug.json
 *.code-workspace
 *.swp
 *.swo
@@ -53,3 +65,8 @@ coverage/
 # Logs / cache
 *.log
 .cache/
+
+# Agent scratch — nested git worktrees live here and must never be
+# formatted, linted, or scanned as part of this checkout.
+.claude/worktrees/
+.claude/scheduled_tasks.lock
