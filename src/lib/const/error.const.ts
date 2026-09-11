@@ -5,6 +5,9 @@ const CODES = [
   "NOT_FOUND",
   "TIMEOUT",
   "DUPLICATE",
+  "CONFLICT",
+  "PAYMENT_REQUIRED",
+  "METHOD_NOT_ALLOWED",
   "TOO_LARGE",
   "UNSUPPORTED_MEDIA_TYPE",
   "TOO_MANY_REQUESTS",
@@ -48,6 +51,35 @@ export const ERROR = {
     level: "error",
     code: "DUPLICATE",
     message: "Duplicate",
+  },
+  /**
+   * The request conflicts with the current state of the thing — try again once
+   * that state changes, or change it first.
+   *
+   * Split from {@link ERROR.DUPLICATE} because they tell the caller to do
+   * different things, and sharing a code produced nonsense: deleting a row that
+   * something else still references answered "Duplicate", which reads as having
+   * created it twice.
+   */
+  CONFLICT: {
+    status: 409,
+    level: "error",
+    code: "CONFLICT",
+    message: "Conflict",
+  },
+  /** The action is understood and allowed, but it has to be paid for first. */
+  PAYMENT_REQUIRED: {
+    status: 402,
+    level: "error",
+    code: "PAYMENT_REQUIRED",
+    message: "Payment required",
+  },
+  /** Right resource, wrong verb — the caller should change the method. */
+  METHOD_NOT_ALLOWED: {
+    status: 405,
+    level: "error",
+    code: "METHOD_NOT_ALLOWED",
+    message: "Method not allowed",
   },
   TOO_LARGE: {
     status: 413,

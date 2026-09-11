@@ -124,8 +124,17 @@ vi.mock("$lib/server/db/repos/index.repo", () => ({
     update: vi.fn(),
     update_one: vi.fn(),
     update_void: vi.fn(),
+    update_applied: vi.fn(),
     delete: vi.fn(),
     delete_one: vi.fn(),
+    count: vi.fn(),
+    // Not a mock: `contains` is a pure string transform, and a test asserting a
+    // LIKE pattern wants the real escaping, not `undefined`.
+    contains: (term: string) =>
+      `%${term
+        .replaceAll("\\", String.raw`\\`)
+        .replaceAll("%", String.raw`\%`)
+        .replaceAll("_", String.raw`\_`)}%`,
   },
 }));
 
