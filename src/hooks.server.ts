@@ -1,8 +1,11 @@
-import { building, dev } from "$app/environment";
-import { PUBLIC_SENTRY_DSN } from "$env/static/public";
+import { building, dev } from "$app/env";
+import { PUBLIC_BASE_URL, PUBLIC_SENTRY_DSN } from "$app/env/public";
 import { auth } from "$lib/auth";
+import { db_close } from "$lib/server/db/drizzle.db";
+import { BackgroundService } from "$lib/server/services/background/background.service";
+import { Log } from "$lib/utils/logger.util";
 import * as Sentry from "@sentry/sveltekit";
-import type { Handle, HandleValidationError } from "@sveltejs/kit";
+import type { Handle, HandleValidationError, ServerInit } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 
@@ -84,6 +87,59 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   }
 
   return response;
+};
+
+let shutting_down = false;
+
+/**
+ * Ordering is the whole point: finish the work first, then close the things
+ * the work needs. Closing the pool before draining would fail every in-flight
+ * background write with "Cannot use a pool after calling end".
+ */
+const shutdown = async (reason: string) => {
+  if (shutting_down) return;
+  shutting_down = true;
+
+  Log.info({ reason, pending: BackgroundService.pending() }, "shutdown.start");
+
+  await BackgroundService.drain();
+  await db_close();
+  await Sentry.close(2_000);
+
+  Log.info("shutdown.done");
+};
+
+/**
+ * Runs after `set_env`, before the first request, exactly once — `Server.init`
+ * awaits it and adapter-node top-level-awaits `Server.init`, so anything
+ * thrown here exits the process before the port is bound.
+ */
+export const init: ServerInit = () => {
+  /**
+   * `ORIGIN` is adapter-node's and `PUBLIC_BASE_URL` is the app's, and nothing
+   * keeps them in step. A mismatch does not fail loudly — SvelteKit's CSRF
+   * check rejects every form POST while every page still renders perfectly,
+   * and every absolute URL in an email points at the wrong host. Both are
+   * worth a boot failure rather than a support ticket.
+   */
+  const origin = process.env.ORIGIN;
+
+  if (!building && origin !== PUBLIC_BASE_URL) {
+    throw new Error(
+      `ORIGIN (${origin ?? "unset"}) must equal PUBLIC_BASE_URL (${PUBLIC_BASE_URL})`,
+    );
+  }
+
+  /**
+   * adapter-node emits this from `httpServer.close()`'s callback — after the
+   * last response has gone out — and never calls `process.exit()`. The process
+   * exits when the event loop empties, so the pending work below is what keeps
+   * it alive long enough to finish, and `db_close` is what stops idle pool
+   * sockets keeping it alive forever.
+   */
+  process.on("sveltekit:shutdown", (reason: unknown) => {
+    void shutdown(String(reason));
+  });
 };
 
 export const handle = sequence(

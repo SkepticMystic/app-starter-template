@@ -31,6 +31,11 @@
   // `.svelte-kit/`, which is why they lose the `../` prefix.
   "include": [
     ".svelte-kit/ambient.d.ts",
+    // Generated from src/env.ts; declares `$app/env/private` and
+    // `$app/env/public`. This `include` replaces the one in
+    // .svelte-kit/tsconfig.json rather than extending it, so a file Kit
+    // generates is invisible until it is named here.
+    ".svelte-kit/env.d.ts",
     ".svelte-kit/non-ambient.d.ts",
     ".svelte-kit/types/**/$types.d.ts",
     "vite.config.js",

@@ -12,17 +12,16 @@ import { vi } from "vite-plus/test";
 // SvelteKit virtual modules
 // ---------------------------------------------------------------------------
 
-vi.mock("$env/static/private", () => ({
-  ADMIN_EMAIL: "admin@example.com",
+vi.mock("$app/env/private", () => ({
+  APP_ENV: "development",
   BETTER_AUTH_SECRET: "test-secret-key-for-jwt-signing",
-  BETTER_AUTH_URL: "http://localhost:5173",
   CAPTCHA_SECRET_KEY: "mock-captcha-secret",
   CLOUDFLARE_ACCOUNT_ID: "mock-cf-account-id",
   CLOUDINARY_API_KEY: "mock-cloudinary-key",
   CLOUDINARY_API_SECRET: "mock-cloudinary-secret",
   CLOUDINARY_CLOUD_NAME: "mock-cloudinary-cloud",
   CLOUDINARY_UPLOAD_PRESET: "mock-cloudinary-preset",
-  DATABASE_URL: "mock://neon",
+  DATABASE_URL: "postgres://mock",
   EMAIL_FROM: "test@example.com",
   GOOGLE_CLIENT_ID: "mock-google-id",
   GOOGLE_CLIENT_SECRET: "mock-google-secret",
@@ -38,11 +37,10 @@ vi.mock("$env/static/private", () => ({
   R2_SECRET_ACCESS_KEY: "mock-r2-secret",
   RESEND_API_KEY: "re_test_mock_key",
   UPSTASH_REDIS_REST_TOKEN: "mock-redis-token",
-  VERCEL_ENV: "test",
-  UPSTASH_REDIS_REST_URL: "mock://redis",
+  UPSTASH_REDIS_REST_URL: "https://mock.upstash.io",
 }));
 
-vi.mock("$env/static/public", () => ({
+vi.mock("$app/env/public", () => ({
   PUBLIC_BASE_URL: "http://localhost:5173",
   PUBLIC_CAPTCHA_SITE_KEY: "mock-captcha-site-key",
   PUBLIC_SENTRY_DSN: "",
@@ -50,7 +48,7 @@ vi.mock("$env/static/public", () => ({
   PUBLIC_UMAMI_WEBSITE_ID: "",
 }));
 
-vi.mock("$app/environment", () => ({
+vi.mock("$app/env", () => ({
   dev: true,
   browser: false,
   building: false,
@@ -158,11 +156,15 @@ vi.mock("@sentry/sveltekit", () => ({
   },
 }));
 
-vi.mock("@vercel/functions", () => ({
-  waitUntil: vi.fn((p: Promise<unknown>) => {
-    // Execute the promise so side effects run in tests, but swallow errors
-    void p?.catch?.(() => {});
-  }),
+vi.mock("$lib/server/services/background/background.service", () => ({
+  BackgroundService: {
+    run: vi.fn((p: Promise<unknown>) => {
+      // Execute the promise so side effects run in tests, but swallow errors
+      void p?.catch?.(() => {});
+    }),
+    drain: vi.fn(async () => {}),
+    pending: vi.fn(() => 0),
+  },
 }));
 
 vi.mock("$lib/server/services/email.service", () => ({

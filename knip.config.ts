@@ -1,8 +1,10 @@
 import type { KnipConfig } from "knip";
 
 export default {
-  // Scripts run via pnpm
-  entry: ["scripts/**/*.ts"],
+  // Scripts run via pnpm, plus src/env.ts, which SvelteKit loads by path in an
+  // isolated Vite server (see experimental.explicitEnvironmentVariables) and
+  // which therefore has no importer knip can follow.
+  entry: ["scripts/**/*.ts", "src/env.ts"],
 
   // Icon sets consumed via @iconify/tailwind4 in CSS
   ignoreDependencies: ["@iconify-json/lucide", "@typescript/native"],

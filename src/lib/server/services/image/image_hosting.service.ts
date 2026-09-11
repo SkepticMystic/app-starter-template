@@ -3,7 +3,7 @@ import {
   CLOUDINARY_API_SECRET,
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_UPLOAD_PRESET,
-} from "$env/static/private";
+} from "$app/env/private";
 import { ERROR } from "$lib/const/error.const";
 import type { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
 import type { Result } from "$lib/interfaces/result.type";

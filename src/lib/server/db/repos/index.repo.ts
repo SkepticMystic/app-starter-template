@@ -1,31 +1,95 @@
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import type { FullQueryResults } from "@neondatabase/serverless";
 import { captureException } from "@sentry/sveltekit";
 import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
+import type { DatabaseError } from "pg";
 
 const log = Log.child({ service: "Repo" });
 
 /**
- * Matched as substrings rather than by Postgres error code, because a code is
- * not what reaches us: Postgres puts the constraint name in the sentence and
- * Neon wraps the whole thing, so there is no stable code to switch on.
+ * Postgres SQLSTATEs, replacing the substring matching this file used to do.
+ *
+ * The comment that stood here was correct about its own situation — Postgres
+ * puts the constraint name in the sentence, and the Neon HTTP driver wrapped
+ * the whole thing, leaving no code to switch on. It is simply no longer true:
+ * `pg` surfaces `.code` verbatim, along with `.constraint`, `.table`,
+ * `.column` and `.detail`. That turns "duplicate key" into "duplicate on
+ * user_email_unique", which is the difference between a Sentry issue you can
+ * act on and one you cannot.
  */
-const DUPLICATE_KEY = "duplicate key value violates unique constraint";
-const FOREIGN_KEY = "violates foreign key constraint";
+export const PG_ERROR = {
+  UNIQUE_VIOLATION: "23505",
+  FOREIGN_KEY_VIOLATION: "23503",
+  EXCLUSION_VIOLATION: "23P01",
+  NOT_NULL_VIOLATION: "23502",
+  CHECK_VIOLATION: "23514",
+  STRING_TOO_LONG: "22001",
+  INVALID_TEXT_REPRESENTATION: "22P02",
+  SERIALIZATION_FAILURE: "40001",
+  DEADLOCK_DETECTED: "40P01",
+  QUERY_CANCELED: "57014",
+  ADMIN_SHUTDOWN: "57P01",
+  TOO_MANY_CONNECTIONS: "53300",
+} as const;
 
 type Expected = readonly (readonly [string, App.Error])[];
 
 /** Writes: a unique violation is the caller's answer, not our fault. */
-const ON_DUPLICATE: Expected = [[DUPLICATE_KEY, ERROR.DUPLICATE]];
+const ON_DUPLICATE: Expected = [
+  [PG_ERROR.UNIQUE_VIOLATION, ERROR.DUPLICATE],
+  // The other "that row already exists" constraint, same shape of answer.
+  [PG_ERROR.EXCLUSION_VIOLATION, ERROR.DUPLICATE],
+];
 
 /**
  * Deletes only, deliberately. The same violation on an insert or update means
  * we built a row pointing at nothing, which is our bug and belongs in Sentry.
  * On a delete it means something still references the row — an ordinary answer.
  */
-const ON_RESTRICT: Expected = [[FOREIGN_KEY, ERROR.CONFLICT]];
+const ON_RESTRICT: Expected = [
+  [PG_ERROR.FOREIGN_KEY_VIOLATION, ERROR.CONFLICT],
+];
+
+/**
+ * Not the caller's answer — these are still logged and filed — but a 500 is
+ * the wrong status for them. A cancelled statement is a timeout, and a
+ * serialization failure or deadlock is a conflict the caller can retry.
+ */
+const STATUS_BY_CODE: Readonly<Record<string, App.Error>> = {
+  [PG_ERROR.QUERY_CANCELED]: ERROR.TIMEOUT,
+  [PG_ERROR.SERIALIZATION_FAILURE]: ERROR.CONFLICT,
+  [PG_ERROR.DEADLOCK_DETECTED]: ERROR.CONFLICT,
+};
+
+/**
+ * Duck-typed rather than `instanceof DatabaseError`, for three reasons:
+ * drizzle wraps the driver error in `DrizzleQueryError.cause`, `pg` is CJS and
+ * can end up duplicated in the module graph so constructor identity is not
+ * reliable, and `severity` is a tighter test than a five-character `code`
+ * alone — `EPIPE` is also five uppercase characters, but only Postgres
+ * attaches a `severity`.
+ */
+const pg_error = (error: unknown): DatabaseError | undefined => {
+  let current: unknown = error;
+
+  for (let depth = 0; depth < 4; depth++) {
+    if (
+      current instanceof Error &&
+      "severity" in current &&
+      "code" in current &&
+      typeof current.code === "string"
+    ) {
+      return current as DatabaseError;
+    }
+
+    if (!(current instanceof Error)) return undefined;
+
+    current = current.cause;
+  }
+
+  return undefined;
+};
 
 /**
  * The one error ladder, replacing six copy-pasted ones.
@@ -41,29 +105,39 @@ const to_error = (
   error: unknown,
   expected: Expected = [],
 ): App.Error => {
-  const message =
-    error instanceof DrizzleQueryError
-      ? (error.cause?.message ?? "")
-      : error instanceof Error
-        ? error.message
-        : "";
+  const pg = pg_error(error);
 
-  for (const [needle, answer] of expected) {
-    if (message.includes(needle)) return answer;
+  if (pg?.code) {
+    for (const [code, answer] of expected) {
+      if (code === pg.code) return answer;
+    }
   }
+
+  const tags = pg
+    ? { pg_code: pg.code, pg_constraint: pg.constraint, pg_table: pg.table }
+    : undefined;
 
   if (error instanceof DrizzleQueryError) {
-    log.error(error, `${scope}.error DrizzleQueryError`);
-    captureException(error, { extra: { query: error.query } });
+    log.error(
+      { err: error, pg_code: pg?.code },
+      `${scope}.error DrizzleQueryError`,
+    );
+    captureException(error, {
+      tags,
+      extra: { query: error.query, detail: pg?.detail },
+    });
   } else if (error instanceof DrizzleError) {
-    log.error(error, `${scope}.error DrizzleError`);
-    captureException(error);
+    log.error({ err: error, pg_code: pg?.code }, `${scope}.error DrizzleError`);
+    captureException(error, { tags });
   } else {
-    log.error(error, `${scope}.error unknown`);
-    captureException(error);
+    log.error({ err: error, pg_code: pg?.code }, `${scope}.error unknown`);
+    captureException(error, { tags });
   }
 
-  return ERROR.INTERNAL_SERVER_ERROR;
+  return (
+    (pg?.code ? STATUS_BY_CODE[pg.code] : undefined) ??
+    ERROR.INTERNAL_SERVER_ERROR
+  );
 };
 
 const run = async <D>(
@@ -123,12 +197,13 @@ const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
  * `rowCount === 0` check below actually tests.
  */
 const update_void = async (
-  promise: Promise<{ rowCount: number }>,
+  promise: Promise<{ rowCount: number | null }>,
 ): Promise<App.Result<void>> => {
   const res = await run("update_void", promise, ON_DUPLICATE);
   if (!res.ok) return res;
 
-  if (res.data.rowCount === 0) return result.err(ERROR.NOT_FOUND);
+  // `?? 0` via falsiness: `pg` reports null for statements with no row count.
+  if (!res.data.rowCount) return result.err(ERROR.NOT_FOUND);
 
   return result.suc(undefined);
 };
@@ -148,7 +223,13 @@ const update_applied = async <D>(
   return result.suc({ applied: res.data.length > 0 });
 };
 
-type DeleteResult = Omit<FullQueryResults<false>, "rows"> & { rows: never[] };
+/**
+ * `pg` types `rowCount` as `number | null` — null for statements that report
+ * no count — where `@neondatabase/serverless`'s `FullQueryResults` typed it
+ * `number`. Null is treated as zero throughout, which for a DELETE or UPDATE
+ * reads as "not found": the safe interpretation.
+ */
+type DeleteResult = { rowCount: number | null };
 
 const del = async (
   promise: Promise<DeleteResult>,
@@ -156,7 +237,7 @@ const del = async (
   const res = await run("delete", promise, ON_RESTRICT);
   if (!res.ok) return res;
 
-  return result.suc({ row_count: res.data.rowCount });
+  return result.suc({ row_count: res.data.rowCount ?? 0 });
 };
 
 const delete_one = async (

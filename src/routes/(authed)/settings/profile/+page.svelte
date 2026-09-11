@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dev } from "$app/environment";
+  import { dev } from "$app/env";
   import UpdateUserForm from "$lib/components/form/auth/user/UpdateUserForm.svelte";
   import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
 

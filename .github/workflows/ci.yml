@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # No version pinned here on purpose: the action reads `packageManager`
+      # from package.json, which is the only place it is written down.
+      - uses: pnpm/action-setup@v4
+
+      # Likewise: node-version-file reads `engines.node`.
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      # Not --ignore-scripts, unlike the Dockerfile: here there IS a .git, so
+      # `prepare` (vp config) can install the hooks it wants, and a failure to
+      # do so is worth knowing about.
+      - run: pnpm install --frozen-lockfile
+
+      # format:check && lint && check && test:run && knip.
+      - run: pnpm verify

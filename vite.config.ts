@@ -33,6 +33,10 @@ export default defineConfig({
       ".claude/**",
       ".agents/**",
       ".github/**",
+      // Deployment config is read by docker compose and Caddy, not by us.
+      // oxfmt formats yaml, so without this the pre-commit hook rewraps
+      // compose.yaml at 80 columns on every commit.
+      "deploy/**",
       ".vite-hooks/**",
       ".planning/**",
       "node_modules",

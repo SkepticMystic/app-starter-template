@@ -1,21 +1,22 @@
-import { dev } from "$app/environment";
+import { dev } from "$app/env";
 import { getRequestEvent } from "$app/server";
 import {
   BETTER_AUTH_SECRET,
+  CAPTCHA_SECRET_KEY,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   PAYSTACK_SECRET_KEY,
   POCKETID_BASE_URL,
   POCKETID_CLIENT_ID,
   POCKETID_CLIENT_SECRET,
-} from "$env/static/private";
-import { PUBLIC_BASE_URL } from "$env/static/public";
+} from "$app/env/private";
+import { PUBLIC_BASE_URL } from "$app/env/public";
 import { paystack, type PaystackPlan } from "better-auth-paystack";
 import { apiKey } from "@better-auth/api-key";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { passkey } from "@better-auth/passkey";
 import { captureException } from "@sentry/sveltekit";
-import { waitUntil } from "@vercel/functions";
+import { BackgroundService } from "$lib/server/services/background/background.service";
 import type { APIError } from "better-auth";
 import { betterAuth } from "better-auth/minimal";
 import {
@@ -79,7 +80,11 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    backgroundTasks: { handler: waitUntil },
+    backgroundTasks: {
+      handler: (promise) => {
+        BackgroundService.run(promise, "better_auth");
+      },
+    },
 
     database: {
       // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
@@ -301,7 +306,7 @@ export const auth = betterAuth({
 
     captcha({
       provider: "cloudflare-turnstile",
-      secretKey: process.env.CAPTCHA_SECRET_KEY!,
+      secretKey: CAPTCHA_SECRET_KEY,
     }),
 
     twoFactor({

@@ -1,0 +1,130 @@
+name: app-starter
+
+x-app: &app
+  image: ${APP_IMAGE:?set APP_IMAGE to a digest, e.g. ghcr.io/owner/repo@sha256:...}
+  # docker's bundled init, so PID 1 reaps and forwards signals correctly
+  # without baking anything into the image.
+  init: true
+  restart: unless-stopped
+  env_file:
+    - ${APP_ENV_FILE:?set APP_ENV_FILE}
+  environment:
+    NODE_ENV: production
+    PORT: "3000"
+
+    # adapter-node's CSRF origin check, and the base for absolute URLs. Without
+    # ORIGIN it falls back to the Host header and infers http://, so every POST
+    # from an https page is rejected as cross-origin. This is the single most
+    # common way a Vercel -> adapter-node move breaks in production, and it
+    # breaks only mutations — smoke tests that merely load pages miss it
+    # entirely. hooks.server.ts asserts ORIGIN === PUBLIC_BASE_URL at boot for
+    # exactly this reason.
+    ORIGIN: ${APP_ORIGIN:?}
+
+    # adapter-node defaults to 512K; Vercel allowed 4.5MB. The app's own limit
+    # is 5MiB (IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES) and image.service.ts
+    # reads whole files into a Buffer, so anything lower silently 413s every
+    # upload with adapter-node's raw error instead of the app's friendly one.
+    # Keep this ABOVE the app's limit so users get the friendly message.
+    BODY_SIZE_LIMIT: "10M"
+
+    # Caddy computes the true client IP once, from Cf-Connecting-Ip under
+    # trusted_proxies, and writes it here. See deploy/Caddyfile for why this
+    # rather than x-forwarded-for + XFF_DEPTH.
+    ADDRESS_HEADER: x-real-ip
+
+    # Drain window on SIGTERM. Must stay below stop_grace_period, or docker
+    # SIGKILLs mid-drain.
+    SHUTDOWN_TIMEOUT: "20"
+
+  healthcheck:
+    # Node has global fetch; there is no curl in the image.
+    test:
+      [
+        "CMD",
+        "node",
+        "-e",
+        "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))",
+      ]
+    interval: 10s
+    timeout: 3s
+    retries: 3
+    start_period: 20s
+    start_interval: 1s
+
+  # SHUTDOWN_TIMEOUT (20) + background drain (10) + pool close (5) + slack.
+  stop_grace_period: 45s
+
+  deploy:
+    resources:
+      limits:
+        # sharp decodes into uncompressed pixel buffers — a 6000x4000 JPEG is
+        # ~96MB before any resize — and libvips keeps an operation cache. A
+        # long-lived process accumulates what a serverless invocation threw
+        # away, and sharp allocates OUTSIDE the JS heap, so --max-old-space-size
+        # would not contain it. This limit is a blast radius: an OOM kills one
+        # container, its health check fails, and Caddy sends everything to the
+        # other colour.
+        memory: 1g
+        cpus: "1.5"
+      reservations:
+        memory: 256m
+
+  logging:
+    driver: json-file
+    options:
+      # Not optional. A single box with unrotated JSON logs fills its disk and
+      # takes Caddy, sshd and the database connections down with it.
+      max-size: "10m"
+      max-file: "5"
+      compress: "true"
+
+  networks: [edge]
+
+services:
+  # Two colours of the same service; only ever one is up. The deploy script
+  # starts the idle one, waits for it to be healthy, then stops the live one.
+  # Profiles keep a bare `docker compose up` from starting both.
+  app_blue:
+    <<: *app
+    container_name: app-starter-blue
+    profiles: [blue]
+
+  app_green:
+    <<: *app
+    container_name: app-starter-green
+    profiles: [green]
+
+  caddy:
+    image: caddy:2-alpine
+    init: true
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${TLS_DIR:?}:/etc/caddy/tls:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?}
+      CLOUDFLARE_IPS: ${CLOUDFLARE_IPS:?}
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5", compress: "true" }
+    networks: [edge]
+
+networks:
+  edge:
+    name: app-starter-edge
+
+volumes:
+  caddy_data:
+  caddy_config:

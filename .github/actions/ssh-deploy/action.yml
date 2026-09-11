@@ -1,0 +1,81 @@
+name: ssh-deploy
+description: Ship one tier to the VPS over SSH and run the blue/green deploy.
+
+inputs:
+  tier:
+    description: production | preview
+    required: true
+  image:
+    description: Image reference, by digest
+    required: true
+  host:
+    description: Deploy host (the reserved IP)
+    required: true
+  domain:
+    description: Public hostname for this tier
+    required: true
+  ssh-key:
+    description: Private key for the deploy user
+    required: true
+  known-hosts:
+    description: Pinned SSH host key(s) for the deploy host
+    required: true
+  app-env:
+    description: The tier's dotenv blob, rendered by OpenTofu
+    required: true
+  ghcr-token:
+    description: Short-lived token for `docker login ghcr.io` on the box
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: configure ssh
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh-key }}
+        KNOWN_HOSTS: ${{ inputs.known-hosts }}
+      run: |
+        install -d -m 0700 ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 0600 ~/.ssh/id_ed25519
+        # Pinned, never StrictHostKeyChecking=no: without this, the first
+        # connection of every run trusts whatever answers on that IP.
+        printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+        chmod 0600 ~/.ssh/known_hosts
+
+    - name: ship deploy scripts
+      shell: bash
+      run: |
+        rsync -az --delete \
+          -e "ssh -o StrictHostKeyChecking=yes" \
+          deploy/ "deploy@${{ inputs.host }}:/opt/app-starter/deploy/"
+        ssh "deploy@${{ inputs.host }}" \
+          "chmod +x /opt/app-starter/deploy/*.sh"
+
+    - name: write the tier env file
+      shell: bash
+      env:
+        APP_ENV_BLOB: ${{ inputs.app-env }}
+      run: |
+        # 0600, owned by the deploy user. This protects against a leaked image
+        # and a curious dashboard viewer; it does NOT protect against anyone
+        # with SSH or docker-group access, who can read the same values out of
+        # `docker inspect`. The real control is the SSH key list.
+        printf '%s\n' "$APP_ENV_BLOB" | ssh "deploy@${{ inputs.host }}" \
+          "install -d -m 0700 /opt/app-starter/env && install -m 0600 /dev/stdin /opt/app-starter/env/${{ inputs.tier }}.env"
+
+    - name: deploy
+      shell: bash
+      env:
+        GHCR_TOKEN: ${{ inputs.ghcr-token }}
+      run: |
+        # The job-scoped GITHUB_TOKEN is short-lived, so no long-lived registry
+        # credential ever rests on the box.
+        printf '%s' "$GHCR_TOKEN" | ssh "deploy@${{ inputs.host }}" \
+          "docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+
+        ssh "deploy@${{ inputs.host }}" \
+          "/opt/app-starter/deploy/deploy.sh ${{ inputs.tier }} '${{ inputs.image }}'"
+
+        ssh "deploy@${{ inputs.host }}" "docker logout ghcr.io"

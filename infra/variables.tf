@@ -35,14 +35,37 @@ variable "cloudflare_account_id" {
   type        = string
 }
 
-variable "vercel_api_token" {
-  description = "Vercel API token. Generate at https://vercel.com/account/tokens"
+# The Vercel provider is gone; `vercel_api_token` and `vercel_team_id` went
+# with it. Keep them in terraform.tfvars only until infra/vercel.tf's `removed`
+# blocks have been applied — see the sequence documented in that file.
+
+variable "github_token" {
+  description = <<-EOT
+    GitHub PAT with `repo` scope, used to write the per-tier environment blobs
+    and the deploy key as Actions secrets. This is what keeps OpenTofu the sole
+    writer of environment configuration now that Vercel is not the consumer.
+  EOT
   type        = string
   sensitive   = true
 }
 
-variable "vercel_team_id" {
-  description = "Vercel team ID (e.g. team_xxxx). Found in team settings."
+variable "deploy_host" {
+  description = "Public IP or hostname of the VPS the app is deployed to."
+  type        = string
+}
+
+variable "deploy_ssh_private_key" {
+  description = "Private key for the `deploy` user on the VPS, in OpenSSH format."
+  type        = string
+  sensitive   = true
+}
+
+variable "deploy_known_hosts" {
+  description = <<-EOT
+    The VPS's SSH host key(s), in known_hosts format. Pinned so that CI never
+    needs StrictHostKeyChecking=no, which would trust whatever answers on that
+    address. Get it with: ssh-keyscan -t ed25519 <deploy_host>
+  EOT
   type        = string
 }
 
@@ -237,6 +260,15 @@ variable "cloudinary_api_secret" {
 
 variable "cloudinary_cloud_name" {
   description = "Cloudinary cloud name"
+  type        = string
+}
+
+# Imported by src/lib/server/services/image/image_hosting.service.ts, but it
+# had no variable and no environment-variable resource — so a tier provisioned
+# purely from this configuration could never have started the app. Added here
+# to close that gap.
+variable "cloudinary_upload_preset" {
+  description = "Cloudinary unsigned upload preset name"
   type        = string
 }
 

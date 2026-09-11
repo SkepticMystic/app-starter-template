@@ -6,9 +6,14 @@
 # only widens its exposure — it lands in shell history, CI logs and scrollback —
 # and everything here is already readable from the relevant dashboard.
 
-output "vercel_project_id" {
-  description = "Vercel project id."
-  value       = vercel_project.app.id
+output "app_domains" {
+  description = "Every hostname this app is served from."
+  value       = local.app_domains
+}
+
+output "deploy_host" {
+  description = "The VPS the app is deployed to."
+  value       = var.deploy_host
 }
 
 output "neon_project_id" {

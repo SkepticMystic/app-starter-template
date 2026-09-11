@@ -1,4 +1,4 @@
-import { OPENAI_API_KEY } from "$env/static/private";
+import { OPENAI_API_KEY } from "$app/env/private";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";

@@ -1,5 +1,5 @@
-import { dev } from "$app/environment";
-import { LOG_LEVEL, NO_COLOR } from "$env/static/private";
+import { dev } from "$app/env";
+import { LOG_LEVEL, NO_COLOR } from "$app/env/private";
 import pino from "pino";
 
 export const Log = pino({

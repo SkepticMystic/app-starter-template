@@ -87,6 +87,8 @@ export default {
     "**/.env.*",
     "!**/.env.example",
     "**/.vercel",
+    // Shell and proxy config; oxlint has nothing to say about either.
+    "deploy",
     "**/.env*.local",
     "**/tmp",
     "**/.env.sentry-build-plugin",

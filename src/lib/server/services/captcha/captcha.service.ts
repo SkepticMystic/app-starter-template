@@ -1,4 +1,4 @@
-import { CAPTCHA_SECRET_KEY } from "$env/static/private";
+import { CAPTCHA_SECRET_KEY } from "$app/env/private";
 import { ERROR } from "$lib/const/error.const";
 import { AdapterService } from "$lib/server/services/adapter/adapter.service";
 import { Log } from "$lib/utils/logger.util";

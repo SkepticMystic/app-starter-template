@@ -1,0 +1,40 @@
+# This file is a security control, not a build optimisation. Without it
+# `COPY . .` puts .env, .env.production and infra/terraform.tfvars into an
+# image layer, where anyone who can pull the image can extract them.
+
+# Secrets
+.env
+.env.*
+!.env.example
+infra/terraform.tfvars
+infra/terraform.tfstate*
+.env.sentry-build-plugin
+
+# Rebuilt inside the image, or meaningless to it
+node_modules
+.svelte-kit
+build
+.vercel
+.output
+coverage
+.sonda
+tmp
+
+# Not part of the application
+.git
+.gitignore
+.gitattributes
+.github
+.claude
+.agents
+.planning
+.opencode
+.vite-hooks
+.vscode
+.zed
+infra
+deploy/compose.yaml
+deploy/compose.staging.yaml
+deploy/Caddyfile
+README.md
+AGENTS.md

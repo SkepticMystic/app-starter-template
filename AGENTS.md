@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deployed on Vercel.
+SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deployed as a long-lived Node server in Docker on a VPS, behind Caddy.
 
 **Tech Stack**: Node 24, pnpm, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Resend (email), Pino (logging)
 
@@ -41,7 +41,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - `pnpm db:generate` - Generate migrations (production env)
 - `pnpm db:check` - Verify the migrations folder is consistent (it does NOT
   connect to a database, despite the name)
-- `pnpm db:migrate` - Apply migrations (used in Vercel build)
+- `pnpm db:migrate` - Apply migrations (run as a one-shot container before each deploy)
 - `pnpm db:studio` - Open Drizzle Studio
 - `pnpm db:push:explain` - dry run: print the DDL `db:push` would apply
 - `pnpm _db skills` - regenerate the vendored drizzle agent skills. They are
@@ -104,7 +104,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - **Experimental features enabled**:
   - `remoteFunctions: true` - Server functions callable from client (see Remote Functions pattern below)
   - `async: true` - Async components in Svelte 5
-- Vercel adapter for deployment
+- adapter-node for deployment; every environment variable is declared in `src/env.ts`
 - Build command includes database migration: `vite build && pnpm db migrate`
 
 ### Remote Functions Pattern
@@ -223,16 +223,33 @@ staged files: format, then lint, then type-check.
 9. Configure auth provider credentials as needed (Google, Pocket ID)
 10. Configure email service (Resend) with `RESEND_API_KEY` and `EMAIL_FROM`
 
-## Deployment (Vercel)
+## Deployment (Docker on a VPS)
 
-1. Connect the repository to Vercel.
-2. Run `tofu apply` in `infra/`. **Environment variables are managed by
-   OpenTofu, not the dashboard** — `infra/vercel.tf` is the sole writer, so
-   anything set by hand there is overwritten on the next apply.
-3. Create `.env.production` for the production database URL (used by
+1. Run `tofu apply` in `infra/`. **Environment variables are managed by
+   OpenTofu, not by hand** — `infra/app_env.tf` renders one dotenv blob per
+   tier and `infra/github.tf` writes it to a GitHub Actions secret, so anything
+   edited on the box survives exactly until the next deploy.
+2. Create `.env.production` for the production database URL (used by
    `pnpm db:generate` and `pnpm db:check`).
-4. The build command is set by `infra/vercel.tf` and is
-   `pnpm build && pnpm db:migrate`.
+3. Push to `main`. `.github/workflows/deploy.yml` runs the CI gate, builds one
+   image, deploys it to staging, and then **waits for a human to approve the
+   `production` GitHub Environment** before touching production.
+4. Migrations run as a one-shot container from the image being deployed, before
+   it serves traffic — not in the build, and not in the entrypoint.
+
+### Environment variables
+
+Every variable is declared in `src/env.ts` via `defineEnvVars`, and validated
+inside `Server.init()`. They are read at RUNTIME, not inlined at build time,
+which is what lets one image be promoted dev → preview → production instead of
+baking production secrets into image layers.
+
+The four tier-invariant `PUBLIC_*` values are build args. `PUBLIC_BASE_URL` is
+not: it differs per tier, so it is read at runtime like everything else.
+
+A missing or malformed value exits the process before the port is bound, so a
+misconfigured container never serves a request. `deploy/env.required` is the
+blunter, earlier half of the same guarantee.
 
 ### Tiers
 
@@ -244,17 +261,31 @@ Each tier has its own database, bucket and Redis keyspace:
 | preview     | Neon `preview` branch | dev bucket     | `<APP.ID>:preview:`     |
 | development | Neon `dev` branch     | dev bucket     | `<APP.ID>:development:` |
 
-Preview having its own database is **not cosmetic**: the build command runs
-`pnpm db:migrate`, so a preview tier pointed at production would migrate the
-production database on every pull request. That was a live bug in this template
-until `infra/neon.tf` grew a branch per tier.
+Preview having its own database is **not cosmetic**, and the reason survived
+the move off Vercel even though the mechanism changed. Migrations now run as a
+one-shot container before each tier's deploy, so a staging deploy pointed at
+production's `DATABASE_URL` would migrate production on every push to `main`.
+The separation moved from a build command to `APP_ENV_PREVIEW`; it did not
+become optional.
 
 Redis is the exception — one shared instance, separated only by the key prefix
-that `src/lib/server/db/redis.db.ts` builds from `APP.ID` and `VERCEL_ENV`.
-There is no infrastructure-layer fallback there, so that prefix is load-bearing.
+that `src/lib/server/db/redis.db.ts` builds from `APP.ID` and `APP_ENV` (was
+`VERCEL_ENV`). There is no infrastructure-layer fallback there, so that prefix
+is load-bearing, and its VALUES are frozen: sessions are Redis-only
+(`storeSessionInDatabase: false`), so changing one is an instant, total logout
+plus every pending verification link.
 
-Note that `pnpm db:migrate` running inside the build means a push to `main`
-migrates production with no review gate between merge and schema change.
+The review gate that used to be missing now exists: production is a GitHub
+Environment with required reviewers, and what it gates is the exact image
+already proven against a migrated copy of the schema on staging.
+
+**There are no down migrations.** drizzle does not generate them, so
+`deploy/rollback.sh` rolls back CODE ONLY. Every schema change must be
+backward-compatible with the previous image — expand/contract: add nullable
+columns and new tables in one deploy, backfill, switch reads, drop in a later
+one. Never rename or drop a column in the same deploy that changes the code
+using it. Vercel's instant-rollback button hid this constraint; nothing hides
+it now.
 
 ## Key Patterns and Conventions
 

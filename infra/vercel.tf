@@ -1,442 +1,346 @@
 # ---------------------------------------------------------------------------
-# Vercel project
+# Vercel, on the way out
 # ---------------------------------------------------------------------------
-resource "vercel_project" "app" {
-  team_id   = var.vercel_team_id
-  name      = var.project_name
-  framework = "sveltekit"
+#
+# The project and its 38 environment variables have moved to
+# infra/app_env.tf and infra/github.tf. What is left here is the safe way to
+# stop managing them.
+#
+# DO NOT simply delete this file. A resource that disappears from the
+# configuration is a resource OpenTofu plans to DESTROY — which would tear down
+# the running Vercel project while it is still serving production and still the
+# rollback target. `removed` with `destroy = false` tells OpenTofu to forget
+# the resources instead: they leave state, and nothing happens to them.
+#
+# Sequence:
+#
+#   1. Apply the rest of this migration while the Vercel project keeps running.
+#      Both stacks are live; the cutover is a DNS change and the rollback is
+#      changing it back.
+#   2. Once the box has been serving production long enough to trust — the
+#      runbook says T+30 days — apply this file.
+#   3. Then disconnect the Git integration in the Vercel dashboard so pushes
+#      stop triggering builds, and delete the project by hand when ready.
+#      Deleting it is deliberately NOT automated: while it exists, rollback is
+#      a 60-second DNS flip.
+#
+# Step 2 is also when `vercel_api_token` and `vercel_team_id` can come out of
+# variables.tf and terraform.tfvars.
+#
+# The provider is already gone from main.tf; `removed` blocks need no provider,
+# because forgetting a resource requires no API call.
 
-  build_command    = "pnpm build && pnpm db:migrate"
-  output_directory = ".vercel/output"
+removed {
+  from = vercel_project.app
 
-  resource_config = {
-    function_default_regions = ["cpt1"]
+  lifecycle {
+    destroy = false
   }
+}
 
-  automatically_expose_system_environment_variables = true
+# The environment variables, each forgotten rather than deleted. They live
+# inside the project, which is itself being left alone.
 
-  git_repository = {
-    type              = "github"
-    repo              = var.github_repo
-    production_branch = "main"
+removed {
+  from = vercel_project_environment_variable.CLOUDFLARE_ACCOUNT_ID
+
+  lifecycle {
+    destroy = false
   }
 }
 
-# ---------------------------------------------------------------------------
-# Environment variables
-#
-# One `vercel_project_environment_variable` resource per env var so that
-# adding/changing a single variable produces a small, targeted plan diff.
-#
-# Sensitive vars are encrypted at rest in Vercel.
-# They are also stored in terraform.tfstate — keep that file secure.
-# ---------------------------------------------------------------------------
+removed {
+  from = vercel_project_environment_variable.R2_BUCKET_NAME
 
-locals {
-  # Environments to apply each variable to
-  all_envs = toset(["production", "preview", "development"])
-  dev_only = toset(["development"])
-
-  # NOTE: despite the name this has always included `preview`. Renamed so that
-  # is visible at every call site — several values here are genuinely shared
-  # between the two tiers, but DATABASE_URL was NOT one of them.
-  prod_and_preview = toset(["production", "preview"])
-  prod_only        = toset(["production"])
-  preview_only     = toset(["preview"])
+  lifecycle {
+    destroy = false
+  }
 }
 
-# --- Infra-derived vars ---
+removed {
+  from = vercel_project_environment_variable.R2_BUCKET_NAME_DEV
 
-resource "vercel_project_environment_variable" "CLOUDFLARE_ACCOUNT_ID" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
-
-  key       = "CLOUDFLARE_ACCOUNT_ID"
-  value     = var.cloudflare_account_id
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "R2_BUCKET_NAME" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PUBLIC_BASE_URL
 
-  key       = "R2_BUCKET_NAME"
-  value     = cloudflare_r2_bucket.main.name
-  target    = local.prod_and_preview
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "R2_BUCKET_NAME_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PUBLIC_BASE_URL_DEV
 
-  key       = "R2_BUCKET_NAME"
-  value     = cloudflare_r2_bucket.dev.name
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PUBLIC_BASE_URL" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.GOOGLE_CLIENT_ID
 
-  key       = "PUBLIC_BASE_URL"
-  value     = "https://${var.app_domain}"
-  target    = local.prod_and_preview
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PUBLIC_BASE_URL_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.POCKETID_CLIENT_ID
 
-  key       = "PUBLIC_BASE_URL"
-  value     = "http://${var.app_domain_dev}:5173"
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "GOOGLE_CLIENT_ID" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.POCKETID_BASE_URL
 
-  key       = "GOOGLE_CLIENT_ID"
-  value     = var.google_client_id
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "POCKETID_CLIENT_ID" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.EMAIL_FROM
 
-  key       = "POCKETID_CLIENT_ID"
-  value     = var.pocketid_client_id
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "POCKETID_BASE_URL" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PUBLIC_SENTRY_DSN
 
-  key       = "POCKETID_BASE_URL"
-  value     = var.pocketid_base_url
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "EMAIL_FROM" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PUBLIC_UMAMI_BASE_URL
 
-  key       = "EMAIL_FROM"
-  value     = var.email_from
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PUBLIC_SENTRY_DSN" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PUBLIC_UMAMI_WEBSITE_ID
 
-  key       = "PUBLIC_SENTRY_DSN"
-  value     = sentry_key.main.dsn["public"]
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PUBLIC_UMAMI_BASE_URL" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PUBLIC_CAPTCHA_SITE_KEY
 
-  key       = "PUBLIC_UMAMI_BASE_URL"
-  value     = var.umami_base_url
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PUBLIC_UMAMI_WEBSITE_ID" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.LOG_LEVEL
 
-  key       = "PUBLIC_UMAMI_WEBSITE_ID"
-  value     = var.umami_website_id
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PUBLIC_CAPTCHA_SITE_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.LOG_LEVEL_DEV
 
-  key       = "PUBLIC_CAPTCHA_SITE_KEY"
-  value     = cloudflare_turnstile_widget.main.sitekey
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "LOG_LEVEL" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.NO_COLOR
 
-  key       = "LOG_LEVEL"
-  value     = var.log_level
-  target    = local.prod_and_preview
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "LOG_LEVEL_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.NO_COLOR_DEV
 
-  key       = "LOG_LEVEL"
-  value     = "debug"
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "NO_COLOR" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.DATABASE_URL
 
-  key       = "NO_COLOR"
-  value     = var.no_color
-  target    = local.prod_and_preview
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "NO_COLOR_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.DATABASE_URL_PREVIEW
 
-  key       = "NO_COLOR"
-  value     = "false"
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-# One DATABASE_URL per tier, each pointing at that tier's own Neon branch.
-#
-# This used to be two resources, and the production one targeted
-# `["production", "preview"]` — so preview deployments connected to production,
-# and since the build command is `pnpm build && pnpm db:migrate`, every pull
-# request ran migrations against the production database.
-resource "vercel_project_environment_variable" "DATABASE_URL" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.DATABASE_URL_DEV
 
-  key    = "DATABASE_URL"
-  value  = neon_project.main.connection_uri
-  target = local.prod_only
-  # sensitive = true
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "DATABASE_URL_PREVIEW" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.UPSTASH_REDIS_REST_URL
 
-  key       = "DATABASE_URL"
-  value     = local.neon_urls["preview"]
-  target    = local.preview_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "DATABASE_URL_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.UPSTASH_REDIS_REST_TOKEN
 
-  key       = "DATABASE_URL"
-  value     = local.neon_urls["dev"]
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "UPSTASH_REDIS_REST_URL" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.R2_ACCESS_KEY_ID
 
-  key       = "UPSTASH_REDIS_REST_URL"
-  value     = "https://${upstash_redis_database.main.endpoint}"
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "UPSTASH_REDIS_REST_TOKEN" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.R2_SECRET_ACCESS_KEY
 
-  key       = "UPSTASH_REDIS_REST_TOKEN"
-  value     = upstash_redis_database.main.rest_token
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "R2_ACCESS_KEY_ID" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.R2_ACCESS_KEY_ID_DEV
 
-  key    = "R2_ACCESS_KEY_ID"
-  value  = module.r2_api_token_prod.id
-  target = local.prod_and_preview
-  # sensitive = true
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "R2_SECRET_ACCESS_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.R2_SECRET_ACCESS_KEY_DEV
 
-  key    = "R2_SECRET_ACCESS_KEY"
-  value  = module.r2_api_token_prod.secret
-  target = local.prod_and_preview
-  # sensitive = true
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "R2_ACCESS_KEY_ID_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.BETTER_AUTH_SECRET
 
-  key       = "R2_ACCESS_KEY_ID"
-  value     = module.r2_api_token_dev.id
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "R2_SECRET_ACCESS_KEY_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.BETTER_AUTH_SECRET_DEV
 
-  key       = "R2_SECRET_ACCESS_KEY"
-  value     = module.r2_api_token_dev.secret
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "BETTER_AUTH_SECRET" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.GOOGLE_CLIENT_SECRET
 
-  key    = "BETTER_AUTH_SECRET"
-  value  = var.better_auth_secret
-  target = local.prod_and_preview
-  # sensitive = true
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "BETTER_AUTH_SECRET_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.POCKETID_CLIENT_SECRET
 
-  key       = "BETTER_AUTH_SECRET"
-  value     = var.better_auth_secret_dev
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "GOOGLE_CLIENT_SECRET" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.RESEND_API_KEY
 
-  key       = "GOOGLE_CLIENT_SECRET"
-  value     = var.google_client_secret
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "POCKETID_CLIENT_SECRET" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.CAPTCHA_SECRET_KEY
 
-  key       = "POCKETID_CLIENT_SECRET"
-  value     = var.pocketid_client_secret
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "RESEND_API_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PAYSTACK_SECRET_KEY
 
-  key       = "RESEND_API_KEY"
-  value     = var.resend_api_key
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "CAPTCHA_SECRET_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.PAYSTACK_SECRET_KEY_DEV
 
-  key       = "CAPTCHA_SECRET_KEY"
-  value     = cloudflare_turnstile_widget.main.secret
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PAYSTACK_SECRET_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.CLOUDINARY_API_KEY
 
-  key    = "PAYSTACK_SECRET_KEY"
-  value  = var.paystack_secret_key
-  target = local.prod_and_preview
-  # sensitive = true
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "PAYSTACK_SECRET_KEY_DEV" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.CLOUDINARY_API_SECRET
 
-  key       = "PAYSTACK_SECRET_KEY"
-  value     = var.paystack_secret_key_dev
-  target    = local.dev_only
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-# --- Image hosting ---
+removed {
+  from = vercel_project_environment_variable.CLOUDINARY_CLOUD_NAME
 
-resource "vercel_project_environment_variable" "CLOUDINARY_API_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
-
-  key       = "CLOUDINARY_API_KEY"
-  value     = var.cloudinary_api_key
-  target    = local.all_envs
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }
 
-resource "vercel_project_environment_variable" "CLOUDINARY_API_SECRET" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
+removed {
+  from = vercel_project_environment_variable.OPENAI_API_KEY
 
-  key       = "CLOUDINARY_API_SECRET"
-  value     = var.cloudinary_api_secret
-  target    = local.all_envs
-  sensitive = false
-}
-
-resource "vercel_project_environment_variable" "CLOUDINARY_CLOUD_NAME" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
-
-  key       = "CLOUDINARY_CLOUD_NAME"
-  value     = var.cloudinary_cloud_name
-  target    = local.all_envs
-  sensitive = false
-}
-
-resource "vercel_project_environment_variable" "OPENAI_API_KEY" {
-  team_id    = var.vercel_team_id
-  project_id = vercel_project.app.id
-
-  key    = "OPENAI_API_KEY"
-  value  = var.openai_api_key
-  target = local.all_envs
-  # sensitive = true
-  sensitive = false
+  lifecycle {
+    destroy = false
+  }
 }

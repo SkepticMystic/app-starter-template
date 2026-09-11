@@ -1,4 +1,4 @@
-import { PAYSTACK_SECRET_KEY } from "$env/static/private";
+import { PAYSTACK_SECRET_KEY } from "$app/env/private";
 import { createPaystack } from "@alexasomba/paystack-node";
 import type { PaystackInitializeResult } from "better-auth-paystack";
 

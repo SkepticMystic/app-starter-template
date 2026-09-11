@@ -1,5 +1,5 @@
-import { dev } from "$app/environment";
-import { PUBLIC_SENTRY_DSN } from "$env/static/public";
+import { dev } from "$app/env";
+import { PUBLIC_SENTRY_DSN } from "$app/env/public";
 import * as Sentry from "@sentry/sveltekit";
 import { handleErrorWithSentry } from "@sentry/sveltekit";
 

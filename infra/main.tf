@@ -25,9 +25,13 @@ terraform {
       source  = "jianyuan/sentry"
       version = "0.14.9"
     }
-    vercel = {
-      source  = "vercel/vercel"
-      version = "~> 4.6"
+    # Writes the per-tier environment blobs and the deploy key as repository
+    # secrets. This is what preserves the property AGENTS.md insists on —
+    # OpenTofu is the sole writer of environment configuration — now that the
+    # Vercel project is no longer the consumer. See infra/app_env.tf.
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.6"
     }
   }
 }
@@ -49,7 +53,7 @@ provider "sentry" {
   token = var.sentry_integration_token
 }
 
-provider "vercel" {
-  api_token = var.vercel_api_token
-  team      = var.vercel_team_id
+provider "github" {
+  token = var.github_token
+  owner = split("/", var.github_repo)[0]
 }

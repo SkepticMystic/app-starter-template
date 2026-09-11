@@ -3,7 +3,7 @@ import {
   R2_ACCESS_KEY_ID,
   R2_BUCKET_NAME,
   R2_SECRET_ACCESS_KEY,
-} from "$env/static/private";
+} from "$app/env/private";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { DOCUMENT } from "$lib/const/document.const";
 import { ERROR } from "$lib/const/error.const";

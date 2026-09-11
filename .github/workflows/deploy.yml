@@ -1,0 +1,182 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Image digest to deploy (defaults to building HEAD)"
+        required: false
+
+# cancel-in-progress: false is not a style choice. Cancelling a deploy that is
+# mid-migration leaves a half-applied schema with no down migration to undo it.
+# Deploys queue; they never interrupt each other.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      image: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # engines.node is the authority; the Dockerfile's ARG default is only for
+      # local builds.
+      - id: node
+        run: |
+          version=$(node -p "require('./package.json').engines.node.replace(/[^0-9.]/g, '')")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          provenance: false
+          tags: |
+            ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            NODE_VERSION=${{ steps.node.outputs.version }}
+            PUBLIC_SENTRY_DSN=${{ vars.PUBLIC_SENTRY_DSN }}
+            PUBLIC_UMAMI_BASE_URL=${{ vars.PUBLIC_UMAMI_BASE_URL }}
+            PUBLIC_UMAMI_WEBSITE_ID=${{ vars.PUBLIC_UMAMI_WEBSITE_ID }}
+            PUBLIC_CAPTCHA_SITE_KEY=${{ vars.PUBLIC_CAPTCHA_SITE_KEY }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_PROJECT=${{ vars.SENTRY_PROJECT }}
+            SENTRY_RELEASE=${{ github.sha }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          # Registry cache rather than type=gha: the deps layer (pnpm install
+          # plus sharp and the oxc/vite-plus native bindings) is the expensive
+          # one, and a registry cache survives longer and is shared across
+          # branches. BuildKit `--mount=type=cache` contents do NOT survive
+          # between GHA runs at all, which is why the Dockerfile is ordered so
+          # that layer caching carries the install rather than the store mount.
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
+
+      # The check that catches an entire class of bug: a build can succeed while
+      # the image cannot start, because the SSR output carries bare imports of
+      # transitive packages that must resolve from the app root at runtime.
+      # Booting it here is the only thing that proves the runtime node_modules
+      # layout is right.
+      - name: boot the image
+        run: |
+          docker run -d --name boot-check -p 3999:3000 \
+            -e APP_ENV=preview \
+            -e ORIGIN=http://localhost:3999 \
+            -e PUBLIC_BASE_URL=http://localhost:3999 \
+            -e DATABASE_URL=postgres://u:p@127.0.0.1:5432/db \
+            -e BETTER_AUTH_SECRET=0123456789012345678901234567890123 \
+            -e UPSTASH_REDIS_REST_URL=https://example.invalid \
+            -e UPSTASH_REDIS_REST_TOKEN=t \
+            -e CAPTCHA_SECRET_KEY=t -e PUBLIC_CAPTCHA_SITE_KEY=t \
+            -e CLOUDFLARE_ACCOUNT_ID=t \
+            -e CLOUDINARY_API_KEY=t -e CLOUDINARY_API_SECRET=t \
+            -e CLOUDINARY_CLOUD_NAME=t -e CLOUDINARY_UPLOAD_PRESET=t \
+            -e EMAIL_FROM=a@b.com -e OPENAI_API_KEY=t \
+            -e PAYSTACK_SECRET_KEY=t \
+            -e R2_ACCESS_KEY_ID=t -e R2_BUCKET_NAME=t -e R2_SECRET_ACCESS_KEY=t \
+            -e RESEND_API_KEY=t -e LOG_LEVEL=info \
+            "${{ env.IMAGE_NAME }}:sha-${{ github.sha }}"
+
+          for _ in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3999/healthz; then
+              echo "booted"
+              # Exercise the auth path too — it pulls in the crypto chunks.
+              curl -fsS -o /dev/null http://127.0.0.1:3999/auth/signin
+              docker rm -f boot-check
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "image failed to boot" >&2
+          docker logs boot-check >&2
+          docker rm -f boot-check
+          exit 1
+
+  staging:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://${{ vars.STAGING_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/ssh-deploy
+        with:
+          tier: preview
+          image: ${{ needs.build.outputs.image }}
+          host: ${{ vars.DEPLOY_HOST }}
+          domain: ${{ vars.STAGING_DOMAIN }}
+          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          app-env: ${{ secrets.APP_ENV_PREVIEW }}
+          ghcr-token: ${{ secrets.GITHUB_TOKEN }}
+
+  production:
+    needs: [build, staging]
+    runs-on: ubuntu-latest
+    # The review gate AGENTS.md asks for. Configure required reviewers on this
+    # Environment in repo settings; the job then blocks on a human click, and
+    # what it gates is the exact image already proven against a migrated copy
+    # of the schema on staging.
+    environment:
+      name: production
+      url: https://${{ vars.APP_DOMAIN }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/ssh-deploy
+        id: deploy
+        with:
+          tier: production
+          image: ${{ github.event.inputs.image || needs.build.outputs.image }}
+          host: ${{ vars.DEPLOY_HOST }}
+          domain: ${{ vars.APP_DOMAIN }}
+          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          app-env: ${{ secrets.APP_ENV_PRODUCTION }}
+          ghcr-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: smoke
+        run: |
+          curl -fsS --retry 6 --retry-delay 5 --retry-all-errors \
+            "https://${{ vars.APP_DOMAIN }}/healthz"
+
+      - name: roll back
+        if: failure()
+        run: |
+          ssh "deploy@${{ vars.DEPLOY_HOST }}" \
+            /opt/app-starter/deploy/rollback.sh production
+          curl -fsS --retry 6 --retry-delay 5 --retry-all-errors \
+            "https://${{ vars.APP_DOMAIN }}/healthz"

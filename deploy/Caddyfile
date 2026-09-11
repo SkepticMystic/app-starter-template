@@ -1,0 +1,99 @@
+{
+	admin off
+
+	# Cloudflare terminates the client's TLS, so the peer Caddy sees is always a
+	# Cloudflare edge address. Only those addresses are allowed to speak for
+	# someone else. CLOUDFLARE_IPS is rendered by OpenTofu from
+	# https://www.cloudflare.com/ips-v4 and ips-v6 at apply time, so the list
+	# cannot rot.
+	#
+	# trusted_proxies_strict discards X-Forwarded-* that arrived from an
+	# untrusted peer rather than passing it on.
+	servers {
+		trusted_proxies static {$CLOUDFLARE_IPS}
+		trusted_proxies_strict
+		client_ip_headers Cf-Connecting-Ip
+	}
+}
+
+(common) {
+	# Caddy skips responses that already carry Content-Encoding, so this does
+	# not double-compress adapter-node's precompressed immutable assets.
+	encode zstd gzip
+
+	# Keep in step with BODY_SIZE_LIMIT in compose.yaml.
+	request_body {
+		max_size 10MB
+	}
+
+	header {
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
+
+(app_upstream) {
+	# Both colours are permanent upstreams; only one is ever running. `first`
+	# prefers the earliest AVAILABLE upstream, so the moment the freshly started
+	# colour passes its health check, traffic moves to it — and the moment a
+	# colour stops, it is skipped. No config reload is involved in a deploy,
+	# which is the whole point of this arrangement.
+	#
+	# lb_retries retries a failed DIAL against the other upstream, covering the
+	# instant between the old container closing its listener and Caddy's next
+	# health probe. A request whose body was already streamed to the dying
+	# upstream cannot be retried — that is the one residual failure case.
+	lb_policy first
+	lb_retries 2
+	lb_try_duration 5s
+	fail_duration 10s
+
+	health_uri /healthz
+	health_interval 5s
+	health_timeout 2s
+	health_status 2xx
+
+	# The app trusts these verbatim.
+	#
+	# {client_ip} is computed from Cf-Connecting-Ip ONLY when the peer is in
+	# trusted_proxies, so it cannot be forged by anyone who reaches the origin
+	# directly. Overwriting Cf-Connecting-Ip closes the same hole for
+	# adapter.service.ts's fallback chain.
+	#
+	# Why not ADDRESS_HEADER=x-forwarded-for with XFF_DEPTH: that counts
+	# positions from the RIGHT, so its correct value is a function of the proxy
+	# topology. Add a hop, or change this block from append to replace, and it
+	# silently becomes wrong — and wrong here means either trivially bypassable
+	# rate limiting or bucketing every user in the world behind one Cloudflare
+	# edge IP. Doing the arithmetic once, here, in the proxy that actually knows
+	# the topology, is the durable arrangement.
+	header_up X-Real-IP {client_ip}
+	header_up Cf-Connecting-Ip {client_ip}
+}
+
+{$APP_DOMAIN} {
+	import common
+
+	# Cloudflare Origin CA, issued by OpenTofu. Trusted only by Cloudflare,
+	# which is exactly the traffic that reaches here, and valid 15 years with no
+	# renewal ops. Requires the zone's SSL mode to be Full (strict) — on
+	# "Flexible" every request 526s.
+	#
+	# ACME is deliberately not used: with the proxy on (which it must be, since
+	# it is the CDN and DDoS absorption now), HTTP-01 challenges get 301'd by
+	# "Always Use HTTPS" into a chicken-and-egg on first issuance, and DNS-01
+	# needs a custom Caddy build via xcaddy. If the record is ever grey-clouded,
+	# replace this line with Caddy's default ACME and it just works.
+	tls /etc/caddy/tls/origin.crt /etc/caddy/tls/origin.key
+
+	# HSTS and the rest of the security headers are set by the app itself in
+	# src/hooks.server.ts, so they are not duplicated here — one writer.
+
+	reverse_proxy app_blue:3000 app_green:3000 {
+		import app_upstream
+	}
+}

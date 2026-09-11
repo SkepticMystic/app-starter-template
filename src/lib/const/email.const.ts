@@ -1,4 +1,4 @@
-import { EMAIL_FROM } from "$env/static/private";
+import { EMAIL_FROM } from "$app/env/private";
 import type {
   Invitation,
   Organization,

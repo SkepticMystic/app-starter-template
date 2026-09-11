@@ -25,7 +25,7 @@ locals {
     var.app_domain_dev,
   ])
 
-  # The base URL per Vercel environment.
+  # The base URL per tier.
   base_urls = {
     production  = "https://${var.app_domain}"
     preview     = "https://${local.app_domain_preview}"

@@ -1,5 +1,5 @@
-import { dev } from "$app/environment";
-import { EMAIL_FROM, RESEND_API_KEY } from "$env/static/private";
+import { dev } from "$app/env";
+import { EMAIL_FROM, RESEND_API_KEY } from "$app/env/private";
 import { APP } from "$lib/const/app.const";
 import type { Branded } from "$lib/interfaces/zod/zod.type";
 import { Log } from "$lib/utils/logger.util";

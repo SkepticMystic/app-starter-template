@@ -1,5 +1,5 @@
 import { asset } from "$app/paths";
-import { PUBLIC_BASE_URL } from "$env/static/public";
+import { PUBLIC_BASE_URL } from "$app/env/public";
 
 export const APP = {
   // NOTE: Intention is that this never changes

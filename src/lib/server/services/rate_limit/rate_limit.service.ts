@@ -28,6 +28,13 @@ export class RateLimiter {
   private readonly prefix: string;
   private readonly ratelimit: InstanceType<typeof Ratelimit>;
 
+  /**
+   * Identifiers Redis has already refused, with the reset timestamp it gave.
+   * Held here rather than left to the map Upstash would create on its own, so
+   * that {@link reset} can clear it.
+   */
+  private readonly cache = new Map<string, number>();
+
   constructor(prefix: string, config: RateLimitConfig) {
     const refill_rate = config.refill_rate ?? config.max_tokens;
 
@@ -35,7 +42,22 @@ export class RateLimiter {
     this.ratelimit = new Ratelimit({
       redis,
       analytics: true,
-      ephemeralCache: false,
+
+      /**
+       * `false` was the right serverless answer: there was no process memory
+       * to share, so the map could only ever be a per-invocation liability.
+       * On a long-lived server every limiter is a module-scope singleton and
+       * the map lives for the life of the process.
+       *
+       * What it changes: an identifier Redis has ALREADY refused is refused
+       * again from memory, with no round trip, until its reset time. It can
+       * never allow more than Redis would — nothing is cached until Redis
+       * itself has said no — so the only effect is that abusive traffic, the
+       * traffic you most want to shed, stops costing an Upstash command each.
+       * With more than one replica the cache is per-replica and therefore
+       * less effective, never wrong.
+       */
+      ephemeralCache: this.cache,
       prefix: `${REDIS_PREFIX}:rate_limit:${prefix}`,
 
       limiter: Ratelimit.tokenBucket(
@@ -206,6 +228,13 @@ export class RateLimiter {
    */
   async reset(key: string): Promise<App.Result<void>> {
     try {
+      /**
+       * The local cache has to go too. `resetUsedTokens` clears Redis, but a
+       * key blocked in memory would stay blocked in THIS process until its
+       * original reset time — a support unblock that appears not to work.
+       */
+      this.cache.delete(key);
+
       await this.ratelimit.resetUsedTokens(key);
       return result.suc(undefined);
     } catch (error) {
