@@ -44,7 +44,7 @@
 <footer class="border-t bg-background">
   <div
     class="
-    mx-auto max-w-4xl px-2 py-6
+    mx-auto max-w-7xl px-2 py-6
     sm:px-3
     md:px-5
   "

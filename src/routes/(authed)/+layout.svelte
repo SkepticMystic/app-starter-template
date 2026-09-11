@@ -17,7 +17,7 @@
 
     <main
       class="
-      mx-auto mt-1 mb-12 w-full max-w-4xl grow px-2
+      mx-auto mt-1 mb-12 w-full max-w-7xl grow px-2
       sm:px-3
       md:px-5
     "

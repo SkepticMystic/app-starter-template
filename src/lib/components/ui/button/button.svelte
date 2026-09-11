@@ -157,13 +157,9 @@
 {:else}
   <button
     {type}
-    class={[
-      buttonVariants({ variant, size }),
-      // We call it something besides 'loading' cause daisy is clashing with it
-      loading && "btn-loading",
-      klass,
-    ]}
+    class={[buttonVariants({ variant, size }), klass]}
     data-slot="button"
+    aria-busy={loading || undefined}
     disabled={disabled || loading}
     bind:this={ref}
     {...restProps}

@@ -1,5 +1,17 @@
 import { tv, type VariantProps } from "tailwind-variants";
 
+/**
+ * The variants are a LOUDNESS LADDER, not a palette.
+ *
+ * `outline` is the default and the right answer for most status columns:
+ * `default`, `warning`, `caution` and `destructive` escalate, and something
+ * that shouts on every row stops being a signal.
+ *
+ * `success` is deliberately reserved and left out of the status maps. Green
+ * distinguishes nothing in a column of mostly-successful rows — it is for the
+ * one place where success is the exception worth spotting.
+ */
+
 export const badgeVariants = tv({
   base: `
     inline-flex w-fit shrink-0 items-center justify-center gap-1
@@ -32,6 +44,10 @@ export const badgeVariants = tv({
           border-transparent bg-warning text-warning-foreground
           [a&]:hover:bg-warning/90
         `,
+      caution: `
+          border-transparent bg-caution text-caution-foreground
+          [a&]:hover:bg-caution/90
+        `,
       success: `
           border-transparent bg-success text-success-foreground
           [a&]:hover:bg-success/90
@@ -43,7 +59,8 @@ export const badgeVariants = tv({
     },
   },
   defaultVariants: {
-    variant: "default",
+    // See the ladder note above: the quiet one is the sensible default.
+    variant: "outline",
   },
 });
 

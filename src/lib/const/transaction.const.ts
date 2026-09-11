@@ -27,7 +27,7 @@ const STATUS_MAP: Record<
 > = {
   success: {
     label: "Success",
-    variant: "success",
+    variant: "outline",
   },
   pending: {
     label: "Pending",

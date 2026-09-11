@@ -35,10 +35,9 @@
     "inline-block underline underline-offset-4",
     // Mine
     "font-medium",
-    // We call it something besides 'loading' cause daisy is clashing with it
-    loading && "btn-loading",
     klass,
   ]}
+  aria-busy={loading || undefined}
   bind:this={ref}
   {...rest_props}
 >

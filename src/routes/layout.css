@@ -184,6 +184,11 @@
 
   --success: oklch(0.41 0.11 146);
   --success-foreground: oklch(0.99 0.02 95);
+
+  /* Between --warning (hue 84) and --destructive (hue 25): for the state that
+     is worse than "look at this" but is not a failure. */
+  --caution: oklch(0.75 0.17 55);
+  --caution-foreground: oklch(0.28 0.07 40);
 }
 
 .dark {
@@ -192,11 +197,17 @@
 
   --success: oklch(0.84 0.16 146);
   --success-foreground: oklch(0.28 0.07 95);
+
+  --caution: oklch(0.45 0.12 55);
+  --caution-foreground: oklch(0.99 0.02 95);
 }
 
 @theme inline {
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+
+  --color-caution: var(--caution);
+  --color-caution-foreground: var(--caution-foreground);
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -236,13 +247,27 @@ h4 {
   @apply scroll-m-20 text-lg font-semibold tracking-tight;
 }
 
-/* NOTE: In Anchor.svelte and Button.svelte, we add the .loading class to the button when loading starts
-  This triggers the Loading.svelte component to show the spinner icon
-  We hide all other icons except the first one (the spinner) when loading
-*/
-a.btn-loading > .icon:not(:first-child),
-button.btn-loading > .icon:not(:first-child) {
+/* Anchor.svelte and Button.svelte set `aria-busy` while loading, which shows the
+   spinner as the first icon; everything after it is hidden.
+
+   Keyed on `aria-busy` rather than a private `.btn-loading` class so the
+   styling and the accessibility announcement cannot drift apart — assistive
+   technology now hears "busy" for exactly the controls that look busy. */
+a[aria-busy="true"] > .icon:not(:first-child),
+button[aria-busy="true"] > .icon:not(:first-child) {
   display: none !important;
+}
+
+/* Keyed on [data-state] so it reaches every bits-ui and vaul component at once.
+
+   `1ms`, NOT `animation: none`: bits-ui waits for `animationend` before
+   unmounting an exiting element, so removing the animation outright leaves the
+   element mounted forever. */
+@media (prefers-reduced-motion: reduce) {
+  [data-state="open"],
+  [data-state="closed"] {
+    animation-duration: 1ms !important;
+  }
 }
 
 @view-transition {

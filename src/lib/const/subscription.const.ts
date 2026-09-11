@@ -12,7 +12,7 @@ const STATUS_MAP: Record<
 > = {
   active: {
     label: "Active",
-    variant: "success",
+    variant: "outline",
   },
   trialing: {
     label: "Trial",
