@@ -245,7 +245,7 @@ describe("RateLimiter.enforce", () => {
   it("passes through when the bucket allows it", async () => {
     mock_limit.mockResolvedValue({ success: true, remaining: 9, reset: 0 });
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     const res = await limiter.enforce("user-1");
 
     expect(res.ok).toBe(true);
@@ -254,7 +254,7 @@ describe("RateLimiter.enforce", () => {
   it("spends the tokens it is asked for", async () => {
     mock_limit.mockResolvedValue({ success: true, remaining: 5, reset: 0 });
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     await limiter.enforce("user-1", { tokens: 5 });
 
     expect(mock_limit).toHaveBeenCalledWith(
@@ -270,7 +270,7 @@ describe("RateLimiter.enforce", () => {
       reset: Date.now() + 30_000,
     });
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     const res = await limiter.enforce("user-1", {
       message: "Too many uploads.",
     });
@@ -286,7 +286,7 @@ describe("RateLimiter.enforce", () => {
   it("falls back to a generic message", async () => {
     mock_limit.mockResolvedValue({ success: false, remaining: 0, reset: 0 });
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     const res = await limiter.enforce("user-1");
 
     expect(res.ok).toBe(false);
@@ -296,7 +296,7 @@ describe("RateLimiter.enforce", () => {
   it("fails CLOSED when Redis throws", async () => {
     mock_limit.mockRejectedValue(new Error("redis down"));
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     const res = await limiter.enforce("user-1");
 
     // An outage must not silently remove the limit.
@@ -308,7 +308,7 @@ describe("RateLimiter.precheck", () => {
   it("does not spend a token", async () => {
     mock_get_remaining.mockResolvedValue({ remaining: 5, reset: 0 });
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     const res = await limiter.precheck("user-1");
 
     expect(res.ok).toBe(true);
@@ -321,7 +321,7 @@ describe("RateLimiter.precheck", () => {
       reset: Date.now() + 15_000,
     });
 
-    const limiter = new RateLimiter("test", { limit: 10, window: "60 s" });
+    const limiter = new RateLimiter("test", CONFIG);
     const res = await limiter.precheck("user-1");
 
     expect(res.ok).toBe(false);

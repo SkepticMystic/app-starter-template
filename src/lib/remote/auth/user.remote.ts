@@ -1,4 +1,5 @@
 import { form } from "$app/server";
+import { redirect_uri_schema } from "$lib/schema/auth/redirect_uri.schema";
 import { password_schema } from "$lib/schema/password/password.schema";
 import { UserService } from "$lib/server/services/auth/user/user.service";
 import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
@@ -67,7 +68,7 @@ export const reset_password_remote = form(
 export const send_verification_email_remote = form(
   z.object({
     email: z.email("Please enter a valid email address"),
-    redirect_uri: z.string().default("/onboarding"),
+    redirect_uri: redirect_uri_schema(),
   }),
   async (input) => {
     const res = await UserService.send_verification_email(input);
