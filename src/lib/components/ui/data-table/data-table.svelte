@@ -24,7 +24,7 @@
   import TanstackTable from "../tanstack/TanstackTable.svelte";
   import DataTableColumnHeaderDropdownMenu from "./data-table-column-header-dropdown-menu.svelte";
   import DataTableVisibilityDropdownMenu from "./data-table-visibility-dropdown-menu.svelte";
-  import FlexRender from "./flex-render.svelte";
+  import { FlexRender } from "@tanstack/svelte-table";
 
   let {
     empty,
@@ -144,10 +144,7 @@
                           column={header.column}
                         />
                       {:else}
-                        <FlexRender
-                          context={header.getContext()}
-                          content={header.column.columnDef.header}
-                        />
+                        <FlexRender {header} />
                       {/if}
                     {/if}
                   </TableHead>
@@ -180,23 +177,12 @@
                 {#each row.getVisibleCells() as cell (cell.id)}
                   <TableCell id={cell.id}>
                     {#if cell.getIsGrouped()}
-                      <FlexRender
-                        context={cell.getContext()}
-                        content={cell.column.columnDef.aggregatedCell ??
-                          cell.column.columnDef.cell}
-                      />
+                      <FlexRender {cell} />
                       ({Format.number(row.subRows.length)})
                     {:else if cell.getIsAggregated()}
-                      <FlexRender
-                        context={cell.getContext()}
-                        content={cell.column.columnDef.aggregatedCell ??
-                          cell.column.columnDef.cell}
-                      />
+                      <FlexRender {cell} />
                     {:else}
-                      <FlexRender
-                        context={cell.getContext()}
-                        content={cell.column.columnDef.cell}
-                      />
+                      <FlexRender {cell} />
                     {/if}
                   </TableCell>
                 {/each}
@@ -239,10 +225,7 @@
                   {#each footer_group.headers as header (header.id)}
                     <TableHead colspan={header.colSpan}>
                       {#if !header.isPlaceholder}
-                        <FlexRender
-                          context={header.getContext()}
-                          content={header.column.columnDef.footer}
-                        />
+                        <FlexRender footer={header} />
                       {/if}
                     </TableHead>
                   {/each}
