@@ -75,13 +75,18 @@ export default defineConfig({
 
   test: {
     expect: { requireAssertions: true },
+    /**
+     * So a `vi.stubGlobal` cannot bleed into the next test — which it did, since a
+     * failing assertion returns before any per-file un-stub hook gets to run.
+     */
+    unstubGlobals: true,
     coverage: {
       include: ["src/lib/server/services/**/*.ts"],
       exclude: ["**/*.test.ts", "**/*.d.ts"],
     },
     projects: [
       {
-        extends: "./vite.config.js",
+        extends: true,
         test: {
           name: "server",
           environment: "node",
