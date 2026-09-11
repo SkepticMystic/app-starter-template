@@ -104,8 +104,10 @@ export const ImageHostingService = {
         log.debug(res, "res");
 
         if (res?.result !== "ok" && res?.result !== "not found") {
-          return Promise.reject(res);
+          throw res;
         }
+
+        return res;
       });
 
       Sentry.metrics.distribution("ImageHostingService.delete", performance.now() - start_ms, {

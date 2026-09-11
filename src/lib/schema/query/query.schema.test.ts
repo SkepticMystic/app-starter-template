@@ -48,7 +48,7 @@ describe("query_schema", () => {
         where: { name: { ilike: "test" } },
         limit: 200,
       });
-    }).toThrow();
+    }).toThrow(z.ZodError);
   });
 });
 

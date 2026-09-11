@@ -82,7 +82,7 @@ export function makeSession(
       member_role: overrides?.orgId ? "owner" : null,
       activeOrganizationId: overrides?.orgId ?? null,
     },
-  } as App.Session;
+  };
 }
 
 // ---------------------------------------------------------------------------

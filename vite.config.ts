@@ -5,6 +5,8 @@ import { SondaVitePlugin as sonda } from "sonda";
 import devtoolsJson from "vite-plugin-devtools-json";
 import { defineConfig } from "vite-plus";
 
+import lint from "./oxlint.config";
+
 const SONDA = process.env.SONDA;
 
 export default defineConfig({
@@ -12,66 +14,7 @@ export default defineConfig({
     "*.{ts,svelte}": "vp check --fix",
   },
 
-  lint: {
-    plugins: ["oxc", "typescript", "unicorn", "vitest", "promise", "import", "node"],
-    jsPlugins: ["eslint-plugin-svelte"],
-    options: { typeAware: true, typeCheck: true },
-    env: {
-      builtin: true,
-      browser: true,
-      node: true,
-    },
-    categories: {
-      correctness: "error",
-      suspicious: "warn",
-      perf: "warn",
-      // style: "warn",
-      // nursery: "warn",
-    },
-    ignorePatterns: [
-      "**/.DS_Store",
-      "**/node_modules",
-      "build",
-      ".svelte-kit",
-      "package",
-      "**/.env",
-      "**/.env.*",
-      "!**/.env.example",
-      "**/.vercel",
-      "**/.env*.local",
-      "**/tmp",
-      "**/.env.sentry-build-plugin",
-      "**/.sonda",
-      ".planning",
-      "infra/.terraform/",
-      "infra/.terraform.lock.hcl",
-      "infra/terraform.tfstate",
-      "infra/terraform.tfstate.backup",
-      "infra/terraform.tfvars",
-    ],
-    rules: {
-      "oxc/no-map-spread": "off",
-      "import/no-unassigned-import": "off",
-      "@typescript-eslint/unbound-method": "off",
-      "@typescript-eslint/consistent-return": "off",
-      "@typescript-eslint/no-unsafe-type-assertion": "off",
-      "vitest/require-mock-type-parameters": "off",
-      "vitest/no-conditional-expect": "off",
-
-      "no-unused-vars": [
-        "error",
-        {
-          args: "all",
-          argsIgnorePattern: "^_",
-          caughtErrors: "all",
-          caughtErrorsIgnorePattern: "^_",
-          destructuredArrayIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          ignoreRestSiblings: true,
-        },
-      ],
-    },
-  },
+  lint,
 
   build: {
     sourcemap: SONDA ? true : undefined,

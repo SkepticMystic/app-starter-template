@@ -50,8 +50,11 @@ export const upload_images_remote = form(
 
     const results: App.Result<Image>[] = [];
 
-    // One at a time to avoid racing the count check
+    // One at a time to avoid racing the count check. `Promise.all` here would let
+    // every upload read the same pre-upload count and collectively overshoot the
+    // per-org limit, so the sequencing is the point rather than an oversight.
     for (const file of input.files) {
+      // oxlint-disable-next-line no-await-in-loop
       const res = await ImageService.upload({ ...input, file }, session.data);
 
       results.push(res);

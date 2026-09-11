@@ -79,7 +79,7 @@ export const OrganizationClient = {
       },
       {
         suc_msg: "Member role updated",
-        confirm: (input) => `Are you sure you want to update this member's role to ${input.role}?`,
+        confirm: "Are you sure you want to update this member's role?",
       },
     ),
 

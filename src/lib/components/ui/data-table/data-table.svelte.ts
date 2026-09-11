@@ -41,9 +41,9 @@ export function createSvelteTable<TData extends RowData>(options: TableOptions<T
       renderFallbackValue: null,
       mergeOptions: (
         defaultOptions: TableOptions<TData>,
-        options: Partial<TableOptions<TData>>,
+        overrides: Partial<TableOptions<TData>>,
       ) => {
-        return mergeObjects(defaultOptions, options);
+        return mergeObjects(defaultOptions, overrides);
       },
     },
     options,
@@ -88,13 +88,13 @@ type Intersection<T extends readonly unknown[]> = (T extends [infer H, ...infer 
  *
  * Proxy-based to avoid known WebKit recursion issue.
  */
+const resolve = <T extends object>(src: MaybeThunk<T>): T | undefined =>
+  typeof src === "function" ? (src() ?? undefined) : src;
+
 // oxlint-disable-next-line @typescript-eslint/no-explicit-any
 export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
   ...sources: Sources
 ): Intersection<{ [K in keyof Sources]: Sources[K] }> {
-  const resolve = <T extends object>(src: MaybeThunk<T>): T | undefined =>
-    typeof src === "function" ? (src() ?? undefined) : src;
-
   const findSourceWithKey = (key: PropertyKey) => {
     for (let i = sources.length - 1; i >= 0; i--) {
       const obj = resolve(sources[i]);

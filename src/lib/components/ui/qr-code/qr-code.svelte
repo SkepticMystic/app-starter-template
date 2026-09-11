@@ -1,5 +1,5 @@
 <script lang="ts">
-  import qrcode from "qrcode-generator";
+  import qrcode_generator from "qrcode-generator";
   import type { Snippet } from "svelte";
 
   let {
@@ -27,7 +27,7 @@
   let matrix = $derived.by(() => {
     if (!value) return [];
     try {
-      const qr = qrcode(0, errorCorrection);
+      const qr = qrcode_generator(0, errorCorrection);
       qr.addData(value);
       qr.make();
 

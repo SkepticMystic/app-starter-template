@@ -20,13 +20,14 @@
   );
 
   onMount(() => {
-    PublicKeyCredential?.isConditionalMediationAvailable?.().then(
-      (available) => {
-        if (available) {
-          BetterAuthClient.signIn.passkey({ autoFill: true }, { onSuccess });
-        }
-      },
-    );
+    void (async () => {
+      const available =
+        await PublicKeyCredential?.isConditionalMediationAvailable?.();
+
+      if (available) {
+        BetterAuthClient.signIn.passkey({ autoFill: true }, { onSuccess });
+      }
+    })();
   });
 </script>
 
