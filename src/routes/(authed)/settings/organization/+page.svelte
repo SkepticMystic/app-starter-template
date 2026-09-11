@@ -56,7 +56,24 @@
           <OrganizationInviteForm
             on_success={(d) => {
               close();
-              invitations = Arrays.add(invitations, d);
+
+              /**
+               * Drop any pending invite already held by this address before
+               * adding the new one. `cancelPendingInvitationsOnReInvite` is on
+               * server-side, so the old row IS cancelled — but nothing told the
+               * table, which went on rendering two live-looking invites for one
+               * person until a reload.
+               */
+              invitations = [
+                ...invitations.filter(
+                  (i) =>
+                    !(
+                      i.status === "pending" &&
+                      i.email.toLowerCase() === d.email.toLowerCase()
+                    ),
+                ),
+                d,
+              ];
             }}
           />
         {/snippet}
