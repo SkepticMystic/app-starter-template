@@ -140,8 +140,8 @@ importers:
         specifier: ^1.7.3
         version: 1.7.3(d1d555fa97e3a49534ed57428fe25c6a)
       '@libpdf/core':
-        specifier: ^0.3.6
-        version: 0.3.6
+        specifier: ^0.4.2
+        version: 0.4.2
       '@neondatabase/serverless':
         specifier: ^1.1.0
         version: 1.1.0
@@ -188,8 +188,8 @@ importers:
         specifier: ^0.37.1
         version: 0.37.1(@sveltejs/kit@2.70.3(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.0(@voidzero-dev/vite-plus-core@0.3.1(@types/node@26.5.1)(esbuild@0.28.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(svelte@5.57.0(@typescript-eslint/types@8.59.4)))(@voidzero-dev/vite-plus-core@0.3.1(@types/node@26.5.1)(esbuild@0.28.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(svelte@5.57.0(@typescript-eslint/types@8.59.4))(typescript@6.0.3))(svelte@5.57.0(@typescript-eslint/types@8.59.4))(zod@4.6.1)
       svelte-meta-tags:
-        specifier: ^4.7.0
-        version: 4.7.0(svelte@5.57.0(@typescript-eslint/types@8.59.4))
+        specifier: ^5.0.2
+        version: 5.0.2(svelte@5.57.0(@typescript-eslint/types@8.59.4))(typescript@6.0.3)
       svelte-sonner:
         specifier: ^1.2.1
         version: 1.2.1(svelte@5.57.0(@typescript-eslint/types@8.59.4))
@@ -1213,8 +1213,8 @@ packages:
   '@levischuck/tiny-cbor@0.2.11':
     resolution: {integrity: sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow==}
 
-  '@libpdf/core@0.3.6':
-    resolution: {integrity: sha512-VzRUXaDq+M9qrroKiipCgePK2mwKM3M6DY7B0yfXnxD4aYnUxD/nUtkcsHCBUUnJpkX9rWikdEhYa5vU8ZlReg==}
+  '@libpdf/core@0.4.2':
+    resolution: {integrity: sha512-lbkIqLDZCCxjLpiC+8/Xvaru/ME7iVVoihl9tLqbp/CDUWZNF0q3u7s2tBJB9wRW/SzUWID6YPFvBWws770hrQ==}
     engines: {node: '>=20'}
     peerDependencies:
       '@google-cloud/kms': ^5.0.0
@@ -3695,6 +3695,10 @@ packages:
     resolution: {integrity: sha512-W+R+kFL4HgVxONq2bhXPi3bGpzGe/yEhVOp233qw9wCRtgncJ15P3bC+e4zZMu4Cq7d+WAJjXGW0uUkifhcatA==}
     engines: {node: 20 || >=22}
 
+  lru-cache@11.5.2:
+    resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
+    engines: {node: 20 || >=22}
+
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
@@ -4117,8 +4121,14 @@ packages:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
 
-  schema-dts@1.1.5:
-    resolution: {integrity: sha512-RJr9EaCmsLzBX2NDiO5Z3ux2BVosNZN5jo0gWgsyKvxKIUL5R3swNvoorulAeL9kLB0iTSX7V6aokhla2m7xbg==}
+  schema-dts-lib@1.0.0:
+    resolution: {integrity: sha512-9MEO5vpQH9JdBioUupqluzxSYxPLjhmqRUudk15adUl/ypnRsM2/M1kN3AmVJQeG7nZqcL68H8JlGqQQT6vy9A==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      typescript: '>=4.9.5'
+
+  schema-dts@2.0.0:
+    resolution: {integrity: sha512-t7NoCy3Rn5GHGx6p7s1qIYK/AeIb8ZxJNR9WUNFkwMv2CiiGZBmqqYWc2FlZVm5ZbiHMY4OvBWhj7QtyrFO2Jw==}
 
   secure-json-parse@4.1.0:
     resolution: {integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==}
@@ -4234,8 +4244,8 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: ^5.0.0 || ^6.0.0
 
-  svelte-meta-tags@4.7.0:
-    resolution: {integrity: sha512-H65QB8UAeS8eSt9CIa0jMoVbT7igtuCQP6itC+tqGoybxITl1Xb9m2nLNCwaS53UTeGyGtT7MGgwgsuhAJpfnQ==}
+  svelte-meta-tags@5.0.2:
+    resolution: {integrity: sha512-OkAcO7JKBzNGsRY8RE1mlVZYzuL9tS9S1zsV2PDp5cRhVJ4EN+Bu+bpNFHcMP3mBQAnpIRpsEteuBzlfiYjq1w==}
     peerDependencies:
       svelte: ^5.0.0
 
@@ -5437,13 +5447,13 @@ snapshots:
 
   '@levischuck/tiny-cbor@0.2.11': {}
 
-  '@libpdf/core@0.3.6':
+  '@libpdf/core@0.4.2':
     dependencies:
       '@noble/ciphers': 2.2.0
       '@noble/hashes': 2.2.0
       '@scure/base': 2.2.0
       asn1js: 3.0.10
-      lru-cache: 11.4.0
+      lru-cache: 11.5.2
       pako: 2.1.0
       pkijs: 3.4.0
 
@@ -7454,6 +7464,8 @@ snapshots:
 
   lru-cache@11.4.0: {}
 
+  lru-cache@11.5.2: {}
+
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
@@ -7899,7 +7911,15 @@ snapshots:
     dependencies:
       xmlchars: 2.2.0
 
-  schema-dts@1.1.5: {}
+  schema-dts-lib@1.0.0(typescript@6.0.3):
+    dependencies:
+      typescript: 6.0.3
+
+  schema-dts@2.0.0(typescript@6.0.3):
+    dependencies:
+      schema-dts-lib: 1.0.0(typescript@6.0.3)
+    transitivePeerDependencies:
+      - typescript
 
   secure-json-parse@4.1.0: {}
 
@@ -8023,10 +8043,12 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
-  svelte-meta-tags@4.7.0(svelte@5.57.0(@typescript-eslint/types@8.59.4)):
+  svelte-meta-tags@5.0.2(svelte@5.57.0(@typescript-eslint/types@8.59.4))(typescript@6.0.3):
     dependencies:
-      schema-dts: 1.1.5
+      schema-dts: 2.0.0(typescript@6.0.3)
       svelte: 5.57.0(@typescript-eslint/types@8.59.4)
+    transitivePeerDependencies:
+      - typescript
 
   svelte-sonner@1.2.1(svelte@5.57.0(@typescript-eslint/types@8.59.4)):
     dependencies:

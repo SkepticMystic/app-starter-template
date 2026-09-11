@@ -3,16 +3,28 @@ import { ERROR } from "$lib/const/error.const";
 import type { PaystackTransaction } from "$lib/server/db/models/subscription.model";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
-import { PDF, rgb } from "@libpdf/core";
+import { PDF, Standard14Font, StandardFonts, rgb } from "@libpdf/core";
 import { captureException } from "@sentry/sveltekit";
 import { Format } from "../format.util";
 
-// Helper to estimate text width (rough approximation)
-// Note: libpdf doesn't expose text measurement, so we estimate
-const measure_text = (text: string, size: number): number => {
-  // Average character width is roughly 0.5-0.6 * fontSize for Helvetica
-  return text.length * size * 0.55;
-};
+/**
+ * Real glyph metrics, not the `length * size * 0.55` estimate this used to
+ * carry — @libpdf/core exposes measurement as of 0.4, which the old comment
+ * predates.
+ *
+ * The estimate was not close enough for the two things measured here. It reads
+ * "Receipt" at 16pt as 61.6pt against an actual 54.24pt, so every right-aligned
+ * string sat ~7pt off its margin; and because `Format.currency` output is
+ * neither a fixed width nor a fixed character count (the symbol, the grouping
+ * separators and the digits all move), the error grew with the amount.
+ *
+ * Resolved once at module load: constructing the font is the expensive part,
+ * `widthOfTextAtSize` is cheap.
+ */
+const HELVETICA = Standard14Font.of(StandardFonts.Helvetica);
+
+const measure_text = (text: string, size: number): number =>
+  HELVETICA.widthOfTextAtSize(text, size);
 
 /**
  * Generate PDF receipt for Paystack transaction using libpdf's drawing API
@@ -204,23 +216,37 @@ export async function generate_transaction_pdf(input: {
     const amount_label_width = measure_text(amount_label, 16);
     const amount_width = measure_text(amount_str, 16);
 
+    /**
+     * Sized to what it holds rather than pinned at 250pt, which cropped a long
+     * amount — the label, a gap, the amount, and padding at each end. Clamped
+     * to the content width so a very large figure cannot push the panel past
+     * the left margin.
+     */
+    const PANEL_PADDING = 12;
+    const PANEL_GAP = 24;
+    const content_width = PAGE_WIDTH - MARGIN * 2;
+    const panel_width = Math.min(
+      content_width,
+      amount_label_width + PANEL_GAP + amount_width + PANEL_PADDING * 2,
+    );
+
     // Background rectangle for emphasis
     page.drawRectangle({
-      x: PAGE_WIDTH - MARGIN - 250,
+      x: PAGE_WIDTH - MARGIN - panel_width,
       y: y - 6,
-      width: 250,
+      width: panel_width,
       height: 30,
       color: rgb(0.94, 0.94, 0.94),
     });
 
     page.drawText(amount_label, {
-      x: PAGE_WIDTH - MARGIN - 180 - amount_label_width,
+      x: PAGE_WIDTH - MARGIN - amount_width - PANEL_GAP - amount_label_width,
       y: y + 6,
       size: 16,
       color: rgb(0, 0, 0),
     });
     page.drawText(amount_str, {
-      x: PAGE_WIDTH - MARGIN - amount_width,
+      x: PAGE_WIDTH - MARGIN - PANEL_PADDING - amount_width,
       y: y + 6,
       size: 16,
       color: rgb(0, 0, 0),

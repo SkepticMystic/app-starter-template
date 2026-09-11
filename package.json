@@ -39,7 +39,7 @@
     "@better-auth/api-key": "^1.7.3",
     "@better-auth/drizzle-adapter": "^1.7.3",
     "@better-auth/passkey": "^1.7.3",
-    "@libpdf/core": "^0.3.6",
+    "@libpdf/core": "^0.4.2",
     "@neondatabase/serverless": "^1.1.0",
     "@sentry/sveltekit": "^10.73.0",
     "@unpic/svelte": "^1.0.1",
@@ -55,7 +55,7 @@
     "qrcode-generator": "^2.0.4",
     "resend": "^6.26.0",
     "runed": "^0.37.1",
-    "svelte-meta-tags": "^4.7.0",
+    "svelte-meta-tags": "^5.0.2",
     "svelte-sonner": "^1.2.1",
     "unpic": "^4.2.2",
     "zod": "^4.5.4"
