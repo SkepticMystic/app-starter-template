@@ -12,7 +12,13 @@ import {
 import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystack, type PaystackPlan } from "better-auth-paystack";
 import { apiKey } from "@better-auth/api-key";
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+// `/relations-v2`, not the package root: the adapter reads its relation
+// registry from `db._.schema` at the root entrypoint (drizzle 0.x, the old
+// `relations()` helper) and from `db._.relations` here (drizzle 1.x
+// `defineRelations`). `drizzle.db.ts` passes `relations` and no `schema`, so
+// the root entrypoint resolves zero relation keys — joins would silently
+// return nothing rather than fail.
+import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { passkey } from "@better-auth/passkey";
 import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
@@ -81,8 +87,12 @@ export const auth = betterAuth({
       // We want UUIDs everywhere, so that the image table can reference resource_id in a generic way
       generateId: false,
 
-      // TODO: Enable once BA supports drizzle 1.0
-      joins: false,
+      // Fetch related rows in one query instead of the N+1 fallback. Better-Auth
+      // only joins from core (session/account -> user, user -> accounts) and the
+      // organization plugin (member -> user/organization, organization ->
+      // members/invitations, invitation -> organization); every one of those
+      // relation keys is defined in `relations.ts`.
+      joins: true,
     },
   },
 
