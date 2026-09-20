@@ -73,11 +73,6 @@ export const auth = betterAuth({
     enabled: false,
   },
 
-  experimental: {
-    // TODO: Enable once BA support dirzzle 1.0
-    joins: false,
-  },
-
   advanced: {
     backgroundTasks: { handler: waitUntil },
 
@@ -85,6 +80,9 @@ export const auth = betterAuth({
       // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
       // We want UUIDs everywhere, so that the image table can reference resource_id in a generic way
       generateId: false,
+
+      // TODO: Enable once BA supports drizzle 1.0
+      joins: false,
     },
   },
 

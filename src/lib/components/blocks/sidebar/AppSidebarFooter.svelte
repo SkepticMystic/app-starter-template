@@ -16,7 +16,6 @@
   import SidebarMenuButton from "$lib/components/ui/sidebar/sidebar-menu-button.svelte";
   import SidebarMenuItem from "$lib/components/ui/sidebar/sidebar-menu-item.svelte";
   import SidebarMenu from "$lib/components/ui/sidebar/sidebar-menu.svelte";
-  import { get_active_subscription_remote } from "$lib/remote/subscription/subscription.remote";
   import { user } from "$lib/stores/session.store";
 
   const sidebar = useSidebar();
@@ -125,37 +124,6 @@
               >
                 <Icon icon="lucide/key" />
                 <span>API Keys</span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/(authed)/settings/subscription/upgrade")}
-              >
-                <Icon icon="lucide/sparkles" />
-                <span>
-                  {get_active_subscription_remote().current
-                    ? "View plan"
-                    : "Upgrade to Pro"}
-                </span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/settings/subscription")}
-              >
-                <Icon icon="lucide/credit-card" />
-                <span>Billing</span>
               </a>
             {/snippet}
           </DropdownMenuItem>

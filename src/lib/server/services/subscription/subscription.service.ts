@@ -109,9 +109,15 @@ const upgrade = async (
         plan: input.plan,
         referenceId: session.session.org_id,
 
-        callbackURL: App.full_url("/settings/subscription/verify").toString(),
+        // NOTE: There is no billing UI yet. Both of these pointed at
+        // `/settings/subscription{,/verify}`, which have never existed, so
+        // Paystack redirected the user to a 404 on both paths. Subscriptions
+        // are org-scoped (`referenceId` is the org), so org settings is the
+        // nearest real page — it does not render subscription state, so a
+        // completed payment currently lands without confirmation.
+        callbackURL: App.full_url("/settings/organization").toString(),
         metadata: {
-          cancel_action: App.full_url("/settings/subscription", {
+          cancel_action: App.full_url("/settings/organization", {
             cancel: true,
           }).toString(),
         },
