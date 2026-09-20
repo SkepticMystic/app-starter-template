@@ -1,14 +1,6 @@
 import { dev } from "$app/environment";
 import { getRequestEvent } from "$app/server";
-import {
-  BETTER_AUTH_SECRET,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  PAYSTACK_SECRET_KEY,
-  POCKETID_BASE_URL,
-  POCKETID_CLIENT_ID,
-  POCKETID_CLIENT_SECRET,
-} from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { PUBLIC_BASE_URL } from "$env/static/public";
 import { paystack, type PaystackPlan } from "better-auth-paystack";
 import { apiKey } from "@better-auth/api-key";
@@ -21,7 +13,6 @@ import { apiKey } from "@better-auth/api-key";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { passkey } from "@better-auth/passkey";
 import { captureException } from "@sentry/sveltekit";
-import { waitUntil } from "@vercel/functions";
 import type { APIError } from "better-auth";
 import { betterAuth } from "better-auth/minimal";
 import {
@@ -64,8 +55,8 @@ export const auth = betterAuth({
 
   secrets: [
     // NOTE: New data is always encrypted with the latest key (first in the array), while decryption automatically tries all configured keys. This lets you roll secrets gradually without downtime or data loss.
-    // {version: 2, value: BETTER_AUTH_SECRET},
-    { version: 1, value: BETTER_AUTH_SECRET }, //
+    // {version: 2, value: env.BETTER_AUTH_SECRET},
+    { version: 1, value: env.BETTER_AUTH_SECRET }, //
   ],
 
   logger: {
@@ -80,7 +71,7 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    backgroundTasks: { handler: waitUntil },
+    backgroundTasks: { handler: AdapterService.wait_until },
 
     database: {
       // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
@@ -291,12 +282,12 @@ export const auth = betterAuth({
 
   socialProviders: {
     google:
-      GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+      env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
         ? {
             // Always prompt the user to select an account
             prompt: "select_account",
-            clientId: GOOGLE_CLIENT_ID,
-            clientSecret: GOOGLE_CLIENT_SECRET,
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
           }
         : undefined,
   },
@@ -309,7 +300,7 @@ export const auth = betterAuth({
 
     captcha({
       provider: "cloudflare-turnstile",
-      secretKey: process.env.CAPTCHA_SECRET_KEY!,
+      secretKey: env.CAPTCHA_SECRET_KEY,
     }),
 
     twoFactor({
@@ -366,8 +357,8 @@ export const auth = betterAuth({
 
     paystack({
       paystackClient: PaystackClient,
-      secretKey: PAYSTACK_SECRET_KEY,
-      paystackWebhookSecret: PAYSTACK_SECRET_KEY,
+      secretKey: env.PAYSTACK_SECRET_KEY,
+      paystackWebhookSecret: env.PAYSTACK_SECRET_KEY,
 
       organization: {
         enabled: true,
@@ -437,17 +428,19 @@ export const auth = betterAuth({
 
     genericOAuth({
       config: [
-        POCKETID_CLIENT_ID && POCKETID_CLIENT_SECRET && POCKETID_BASE_URL
+        env.POCKETID_CLIENT_ID &&
+        env.POCKETID_CLIENT_SECRET &&
+        env.POCKETID_BASE_URL
           ? ((): GenericOAuthConfig => {
               const providerId = "pocket-id" satisfies IAuth.ProviderId;
 
               return {
                 providerId,
-                clientId: POCKETID_CLIENT_ID,
-                clientSecret: POCKETID_CLIENT_SECRET,
+                clientId: env.POCKETID_CLIENT_ID,
+                clientSecret: env.POCKETID_CLIENT_SECRET,
 
                 discoveryUrl:
-                  POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                  env.POCKETID_BASE_URL + "/.well-known/openid-configuration",
                 // Declared here rather than at the call site: 1.7 registers this
                 // as a social provider, and `signIn.social` takes no `scopes`.
                 scopes: ["openid", "profile", "email"],

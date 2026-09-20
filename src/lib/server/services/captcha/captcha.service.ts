@@ -1,4 +1,4 @@
-import { CAPTCHA_SECRET_KEY } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { ERROR } from "$lib/const/error.const";
 import { AdapterService } from "$lib/server/services/adapter/adapter.service";
 import { Log } from "$lib/utils/logger.util";
@@ -49,7 +49,7 @@ const verify = async (
         body: JSON.stringify({
           remoteip,
           response: token,
-          secret: CAPTCHA_SECRET_KEY,
+          secret: env.CAPTCHA_SECRET_KEY,
         }),
         /**
          * This fetch carried no signal, so a stalled Turnstile held the request

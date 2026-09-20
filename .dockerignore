@@ -1,0 +1,25 @@
+node_modules
+.git
+.github
+.svelte-kit
+.vercel
+.netlify
+.wrangler
+build
+.output
+coverage
+.sonda
+
+# Secrets must come from the runtime environment, never an image layer.
+.env
+.env.*
+!.env.example
+
+infra
+drizzle/meta
+*.md
+.claude
+.agents
+.vscode
+.zed
+.vite-hooks

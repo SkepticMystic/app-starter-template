@@ -4,10 +4,10 @@
 
 - SvelteKit, TypeScript
 - shadcn-svelte
-- ESLint, Prettier
+- Oxlint, Oxfmt (via Vite+)
 - Better-Auth
 - Drizzle, Redis
-- Vercel
+- Deploys to Vercel, or to any Node host / Docker
 
 ## Usage
 
@@ -22,7 +22,7 @@
 2. Install dependencies
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Set up environment variables
@@ -34,24 +34,61 @@
    Then run the following command to create the necessary tables:
 
    ```bash
-   npm run db push
+   pnpm db:push
    ```
 
 4. Run the development server
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 5. Open your browser and navigate to `http://localhost:5173` to see the app in action.
 
 ### Deployment
 
+Vercel is the default target. Nothing in `src/` reads a `VERCEL_*` variable, so
+the same code also runs as a standalone Node server — `svelte.config.js` picks
+`adapter-vercel` or `adapter-node` based on whether `VERCEL` is set in the build
+environment.
+
+#### Vercel
+
 1. Push your code to a Git repository (e.g., GitHub, GitLab).
 2. Connect your repository to Vercel.
-3. Set up the environment variables in the Vercel dashboard.
-4. Edit the build command to `vite build && npm run db migrate` in the Vercel dashboard.
-5. Deploy the app using Vercel.
+3. Run `tofu apply` in `infra/`. **Environment variables and the build command
+   are managed by OpenTofu, not the dashboard** — anything set by hand there is
+   overwritten on the next apply.
+
+#### Docker / any Node host
+
+```bash
+docker build \
+  --build-arg PUBLIC_BASE_URL=https://your.domain \
+  --build-arg APP_ENV=production \
+  -t app .
+
+# Migrations are a separate one-shot step, never the entrypoint: replicas
+# starting together would race, and neon-http has no transactions to lock with.
+docker run --rm --env-file .env app pnpm db:migrate:run
+
+docker run -p 3000:3000 --env-file .env -e ORIGIN=https://your.domain app
+```
+
+> **`--env-file` and quotes.** Docker does not strip quotes from an env file —
+> `FOO="bar"` becomes the six-character value `"bar"`. `.env.example` is
+> unquoted for that reason, but a `.env` from `vercel env pull` is quoted, so
+> strip them first:
+>
+> ```bash
+> sed -E 's/^([A-Z0-9_]+)="(.*)"$/\1=\2/' .env > .env.docker
+> ```
+
+Only `APP_ENV` and the `PUBLIC_*` variables are build args — they are compiled
+in. Every secret is read at runtime, so none of them end up in an image layer.
+See the Deployment section of `AGENTS.md` for the `adapter-node` runtime
+variables (`ORIGIN`, `ADDRESS_HEADER`, `XFF_DEPTH`, `BODY_SIZE_LIMIT`) and why
+each one matters.
 
 ## Infrastructure
 
@@ -66,10 +103,18 @@ Resources managed:
 | [Cloudflare](https://cloudflare.com) | `cloudflare/cloudflare` | R2 bucket                                      |
 | [Vercel](https://vercel.com)         | `vercel/vercel`         | Project config + all environment variables     |
 
+The Vercel resources sit behind `deploy_vercel` (default `true`) in
+`infra/modules/vercel`. Set it to `false` to provision only the shared services
+for a container deploy; the environment manifest itself lives in
+`infra/app_env.tf` and is target-agnostic.
+
 **Note:**
 
-- Cloudflare Turnstile widgets must be created manually in the Cloudflare dashboard. Add the resulting site key and secret key to `terraform.tfvars`.
-- Cloudflare R2 buckets are allocated by TOFU, but we have
+- Cloudflare Turnstile widgets are provisioned by OpenTofu
+  (`cloudflare_turnstile_widget.main` in `infra/cloudflare.tf`); the site key
+  and secret are wired into the env manifest automatically.
+- Cloudflare R2 buckets and their scoped API tokens are allocated by OpenTofu,
+  one bucket per tier (`<project>-prod` and `<project>-dev`).
 
 ### Prerequisites
 
@@ -92,14 +137,17 @@ tofu plan
 # 4. Apply
 tofu apply
 
-# 5. Initialise Vercel project
-vercel link
+# 5. Local env vars — .env.example lists every variable the app reads
+cp .env.example .env
+# edit .env with your real values (tofu output has most of them)
 
-# 6. Pull local env vars from Vercel
-vercel env pull --environment=development .env.local
-
-# 7. Migrate database
+# 6. Migrate database
 pnpm db:push
+
+# Optional, for the Vercel target: link the project and pull env vars instead
+# of maintaining .env by hand.
+vercel link
+vercel env pull --environment=development .env.local
 
 ```
 

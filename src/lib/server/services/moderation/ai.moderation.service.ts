@@ -1,4 +1,4 @@
-import { OPENAI_API_KEY } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { ServiceUtil } from "$lib/server/services/service.util";
 import { ERROR } from "$lib/const/error.const";
 import { Log } from "$lib/utils/logger.util";
@@ -78,7 +78,7 @@ const moderate = async (input: {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         input: input.input,

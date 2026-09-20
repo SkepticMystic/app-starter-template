@@ -2,6 +2,18 @@
 # Provider credentials
 # ---------------------------------------------------------------------------
 
+variable "deploy_vercel" {
+  description = "Provision the Vercel project and write its env vars. Turn off to provision only the shared services (Neon, Upstash, Cloudflare, Sentry) for a container deploy."
+  type        = bool
+  default     = true
+}
+
+variable "cloudinary_upload_preset" {
+  description = "Cloudinary unsigned upload preset. Read by image_hosting.service.ts."
+  type        = string
+  default     = ""
+}
+
 variable "neon_api_key" {
   description = "Neon API key. Generate at https://console.neon.tech/app/settings/api-keys"
   type        = string
@@ -39,11 +51,15 @@ variable "vercel_api_token" {
   description = "Vercel API token. Generate at https://vercel.com/account/tokens"
   type        = string
   sensitive   = true
+  # Defaulted so `deploy_vercel = false` does not demand Vercel credentials.
+  default = ""
 }
 
 variable "vercel_team_id" {
   description = "Vercel team ID (e.g. team_xxxx). Found in team settings."
   type        = string
+  # Defaulted so `deploy_vercel = false` does not demand Vercel credentials.
+  default = ""
 }
 
 variable "github_repo" {

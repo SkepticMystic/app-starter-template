@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deployed on Vercel.
+SvelteKit-based application starter template with TypeScript, TailwindCSS, Better-Auth for authentication, Drizzle ORM for database management, and Redis for caching. Uses Svelte 5 with experimental async components and remote functions. Deploys to Vercel by default, and runs as a plain Node
+server anywhere else (see `Dockerfile`).
 
 **Tech Stack**: Node 24, pnpm, Svelte 5, SvelteKit, TypeScript, Drizzle ORM, PostgreSQL (Neon), Redis (Upstash), Better-Auth, Resend (email), Pino (logging)
 
@@ -41,7 +42,12 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - `pnpm db:generate` - Generate migrations (production env)
 - `pnpm db:check` - Verify the migrations folder is consistent (it does NOT
   connect to a database, despite the name)
-- `pnpm db:migrate` - Apply migrations (used in Vercel build)
+- `pnpm db:migrate` - Apply migrations via drizzle-kit (used in the Vercel
+  build)
+- `pnpm db:migrate:run` - the same migrations via the runtime driver, with no
+  drizzle-kit and so no devDependencies. This is the one to run as a one-shot
+  step before rolling out containers — never from a container entrypoint, since
+  replicas would race and neon-http has no transactions to lock with
 - `pnpm db:studio` - Open Drizzle Studio
 - `pnpm db:push:explain` - dry run: print the DDL `db:push` would apply
 - `pnpm _db skills` - regenerate the vendored drizzle agent skills. They are
@@ -104,7 +110,10 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - **Experimental features enabled**:
   - `remoteFunctions: true` - Server functions callable from client (see Remote Functions pattern below)
   - `async: true` - Async components in Svelte 5
-- Vercel adapter for deployment
+- Adapter is chosen in `svelte.config.js` by whether `VERCEL` is set in the
+  build environment: `adapter-vercel` on Vercel, `adapter-node` everywhere
+  else. Not `adapter-auto` — it takes no options and has no fallback for a
+  plain container, so off-platform it warns and emits no server at all
 - Build command includes database migration: `vite build && pnpm db migrate`
 
 ### Remote Functions Pattern
@@ -214,25 +223,65 @@ staged files: format, then lint, then type-check.
 
 1. Install the Node version required by `engines` in `package.json`
 2. Install the pnpm version pinned in `packageManager` in `package.json`
-3. Create `.env` file based on `.env.example`
+3. Create `.env` file based on `.env.example`, which lists every variable the
+   app reads. `src/test/env.test.ts` fails if the code reads one that is not
+   documented there, so it cannot quietly drift
 4. Set up PostgreSQL database (Neon recommended) with development branch
 5. Add `DATABASE_URL` to `.env`
-6. Optional: Configure Redis with `REDIS_URL` (for Better-Auth rate limiting and caching)
+6. Configure Redis with `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`
+   (for Better-Auth session storage, rate limiting and caching), and set
+   `APP_ENV` — it namespaces every Redis key and the build fails without it
 7. Run `pnpm install` to install dependencies
 8. Run `pnpm db:push` to create tables
 9. Configure auth provider credentials as needed (Google, Pocket ID)
 10. Configure email service (Resend) with `RESEND_API_KEY` and `EMAIL_FROM`
 
-## Deployment (Vercel)
+## Deployment
+
+Vercel is the default target and the only one wired up end to end. The app is
+not _bound_ to it, though: nothing in `src/` reads a `VERCEL_*` variable, and
+`pnpm build` with no `VERCEL` in the environment produces a standalone Node
+server in `build/`.
+
+### Vercel
 
 1. Connect the repository to Vercel.
 2. Run `tofu apply` in `infra/`. **Environment variables are managed by
-   OpenTofu, not the dashboard** — `infra/vercel.tf` is the sole writer, so
+   OpenTofu, not the dashboard** — `infra/app_env.tf` is the sole writer, so
    anything set by hand there is overwritten on the next apply.
 3. Create `.env.production` for the production database URL (used by
    `pnpm db:generate` and `pnpm db:check`).
-4. The build command is set by `infra/vercel.tf` and is
+4. The build command is set by `infra/modules/vercel/main.tf` and is
    `pnpm build && pnpm db:migrate`.
+
+### Container
+
+`pnpm build` → `build/`, started with `node build`. The `Dockerfile` does this
+in two stages on a Debian-slim base (not Alpine — `sharp` ships glibc prebuilts).
+
+Build args are the build-time variables only: `APP_ENV` and the `PUBLIC_*` set.
+Everything else is read at runtime through `$env/dynamic/private`, so **no
+secret ends up in an image layer** — and the image is per-origin, not per-tier,
+because `PUBLIC_BASE_URL` is compiled into the client bundle.
+
+`adapter-node` needs these at run time, beyond the app's own variables:
+
+| Var                            | Why                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ORIGIN`                       | Set it to the same value as `PUBLIC_BASE_URL`. Without it SvelteKit cannot derive the request URL and every form POST fails the CSRF origin check with "Cross-site POST form submissions are forbidden".                                                                                                                        |
+| `ADDRESS_HEADER` + `XFF_DEPTH` | `event.getClientAddress()` otherwise returns the socket peer — the reverse proxy — for every request, which collapses all users into one rate-limit bucket. `XFF_DEPTH` is the real number of trusted proxies. Do not "fix" this by reordering the header chain in `adapter.service.ts`: that lets any client spoof its own IP. |
+| `PORT` / `HOST`                | Default `0.0.0.0:3000`.                                                                                                                                                                                                                                                                                                         |
+| `BODY_SIZE_LIMIT`              | Default 512kb, which image uploads exceed.                                                                                                                                                                                                                                                                                      |
+
+Run `pnpm db:migrate:run` as a separate one-shot step before rolling out, not
+from the entrypoint.
+
+### The platform seam
+
+`src/lib/server/services/adapter/adapter.service.ts` is the only file allowed to
+touch host-specific APIs — client IP, coarse geo, and scheduling work that
+outlives the response. Keep it that way: it is what makes the two targets a
+config switch instead of a port.
 
 ### Tiers
 
@@ -244,14 +293,24 @@ Each tier has its own database, bucket and Redis keyspace:
 | preview     | Neon `preview` branch | dev bucket     | `<APP.ID>:preview:`     |
 | development | Neon `dev` branch     | dev bucket     | `<APP.ID>:development:` |
 
+The Redis column is `<APP.ID>:<APP_ENV>:`, and `APP_ENV` holds exactly those
+three strings.
+
 Preview having its own database is **not cosmetic**: the build command runs
 `pnpm db:migrate`, so a preview tier pointed at production would migrate the
 production database on every pull request. That was a live bug in this template
 until `infra/neon.tf` grew a branch per tier.
 
 Redis is the exception — one shared instance, separated only by the key prefix
-that `src/lib/server/db/redis.db.ts` builds from `APP.ID` and `VERCEL_ENV`.
+that `src/lib/server/db/redis.db.ts` builds from `APP.ID` and `APP_ENV`.
 There is no infrastructure-layer fallback there, so that prefix is load-bearing.
+
+`APP_ENV` was `VERCEL_ENV` until it was renamed to mean something off Vercel
+too. The three _values_ were kept byte-identical precisely so the prefix string
+did not change — renaming them would have orphaned every session and
+rate-limit bucket on a shared, `eviction = false` instance. It is the one
+variable still read through `$env/static/private`, so a missing value fails the
+build instead of silently merging two tiers' keyspaces.
 
 Note that `pnpm db:migrate` running inside the build means a push to `main`
 migrates production with no review gate between merge and schema change.

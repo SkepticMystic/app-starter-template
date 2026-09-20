@@ -14,7 +14,7 @@ import { App } from "$lib/utils/app";
 import { Log } from "$lib/utils/logger.util";
 import { result } from "$lib/utils/result.util";
 import { captureException } from "@sentry/sveltekit";
-import { waitUntil } from "@vercel/functions";
+import { AdapterService } from "../adapter/adapter.service";
 import { APIError } from "better-auth";
 
 const log = Log.child({ service: "SubscriptionService" });
@@ -66,7 +66,7 @@ const get_active = async (session: {
       res.data.periodEnd &&
       res.data.periodEnd < new Date()
     ) {
-      waitUntil(
+      AdapterService.wait_until(
         SubscriptionRepo.update_by_id(res.data.id, {
           status: "canceled",
           cancelAtPeriodEnd: false,

@@ -26,6 +26,7 @@ vi.mock("$lib/server/services/adapter/adapter.service", () => ({
     get_ip: vi.fn().mockReturnValue("127.0.0.1"),
     get_geo: vi.fn().mockReturnValue(undefined),
     get_user_agent: vi.fn().mockReturnValue("test-agent"),
+    wait_until: vi.fn(),
   },
 }));
 

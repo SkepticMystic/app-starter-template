@@ -1,4 +1,4 @@
-import { EMAIL_FROM } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import type {
   Invitation,
   Organization,
@@ -164,7 +164,7 @@ ${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
-        to: EMAIL_FROM,
+        to: env.EMAIL_FROM,
         subject: `New contact form submission from ${input.name}`,
       };
     },

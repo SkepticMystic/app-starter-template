@@ -27,16 +27,6 @@ project_name   = "app-starter-template"
 neon_region    = "aws-eu-west-2"
 upstash_region = "eu-west-1"
 
-# R2 API token keys — create under R2 > Manage API tokens in the Cloudflare dashboard
-r2_access_key_id     = "your_r2_access_key_id"
-r2_secret_access_key = "your_r2_secret_access_key"
-## NOTE: Create different _user_ API tokens for local bucket
-r2_access_key_id_dev     = "your_r2_access_key_id"
-r2_secret_access_key_dev = "your_r2_secret_access_key"
-
-# Turnstile
-turnstile_domains = ["localhost"]
-
 # ---------------------------------------------------------------------------
 # App secrets
 # ---------------------------------------------------------------------------
@@ -66,3 +56,23 @@ paystack_secret_key = "sk_live_your_paystack_secret_key"
 paystack_secret_key_dev = "sk_test_your_paystack_secret_key"
 
 log_level = "info"
+
+# ---------------------------------------------------------------------------
+# Deploy target
+# ---------------------------------------------------------------------------
+# Leave true for Vercel. Set false to provision only the shared services
+# (Neon, Upstash, Cloudflare, Sentry) for a container deploy.
+deploy_vercel = true
+
+# ---------------------------------------------------------------------------
+# Cloudinary (required — no defaults)
+# ---------------------------------------------------------------------------
+cloudinary_cloud_name    = "your_cloudinary_cloud_name"
+cloudinary_api_key       = "your_cloudinary_api_key"
+cloudinary_api_secret    = "your_cloudinary_api_secret"
+cloudinary_upload_preset = "your_cloudinary_unsigned_preset"
+
+# ---------------------------------------------------------------------------
+# OpenAI (required — no default). Used for content moderation.
+# ---------------------------------------------------------------------------
+openai_api_key = "sk-your_openai_api_key"

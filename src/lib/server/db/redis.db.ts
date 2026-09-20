@@ -1,15 +1,12 @@
-import {
-  UPSTASH_REDIS_REST_TOKEN,
-  UPSTASH_REDIS_REST_URL,
-  VERCEL_ENV,
-} from "$env/static/private";
+import { APP_ENV } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { APP } from "$lib/const/app.const";
 import { Redis } from "@upstash/redis";
 
 // NOTE: Starts connecting immediately
 const redis = new Redis({
-  url: UPSTASH_REDIS_REST_URL,
-  token: UPSTASH_REDIS_REST_TOKEN,
+  url: env.UPSTASH_REDIS_REST_URL,
+  token: env.UPSTASH_REDIS_REST_TOKEN,
 });
 
 /**
@@ -23,15 +20,22 @@ const redis = new Redis({
  * load-bearing:
  *
  * - `APP.ID` separates this app from the others on the instance.
- * - `VERCEL_ENV` separates prod / preview / development from each other.
- *   Without it a local dev run shares production's sessions and rate-limit
- *   buckets, so a dev loop can exhaust a production limit.
+ * - `APP_ENV` separates prod / preview / development from each other. Without
+ *   it a local dev run shares production's sessions and rate-limit buckets, so
+ *   a dev loop can exhaust a production limit.
  *
- * VERCEL_ENV is injected by Vercel on the deployed tiers and supplied locally
- * through `.env.local`. It is imported statically on purpose: if it is ever
- * missing the build fails outright, which is what we want. A runtime fallback
- * would quietly default production into some other tier's keyspace.
+ * This used to be `VERCEL_ENV`, auto-injected by Vercel. It is now written
+ * explicitly per tier by `infra/`, with the SAME three values
+ * (`production` / `preview` / `development`) — the prefix string is unchanged
+ * by that rename, so no keys were orphaned and no sessions were dropped. Do not
+ * "tidy" these values into `prod`/`dev`: that silently moves every session and
+ * rate-limit bucket to a new keyspace.
+ *
+ * It stays a `$env/static/private` import while the rest of this file has moved
+ * to `$env/dynamic/private`. That is deliberate: a missing value fails the
+ * build outright, which is what we want. A runtime fallback would quietly
+ * default production into some other tier's keyspace.
  */
-export const REDIS_PREFIX = `${APP.ID}:${VERCEL_ENV}`;
+export const REDIS_PREFIX = `${APP.ID}:${APP_ENV}`;
 
 export { redis };

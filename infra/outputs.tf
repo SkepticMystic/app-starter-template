@@ -7,8 +7,10 @@
 # and everything here is already readable from the relevant dashboard.
 
 output "vercel_project_id" {
-  description = "Vercel project id."
-  value       = vercel_project.app.id
+  description = "Vercel project id, or null when deploy_vercel is false."
+  # `one()` yields null when the module is disabled. Deliberately not `try()`,
+  # which would also swallow a genuine error.
+  value = one(module.vercel[*].project_id)
 }
 
 output "neon_project_id" {
@@ -32,6 +34,6 @@ output "r2_bucket_names" {
 # Handy for registering OAuth redirect origins: every origin the app is served
 # from, in one command.
 output "base_urls" {
-  description = "Base URL per Vercel environment."
+  description = "Base URL per tier."
   value       = local.base_urls
 }

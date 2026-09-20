@@ -1,0 +1,63 @@
+# Until now nothing validated a push except Vercel's own build. That was
+# tolerable while Vercel was the only way to build this app; it is not once the
+# node/container path has to keep working too.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reads the pinned version from `packageManager` in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Reads `engines.node`. .npmrc sets engine-strict=true, so a mismatch
+          # fails at install rather than somewhere confusing later.
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # NOTE: deliberately not `pnpm verify`, which also runs knip. knip is
+      # already failing on main for pre-existing reasons (unused template
+      # scaffolding: @aws-sdk/*, @libpdf/core, marked, sharp, cloudinary,
+      # thumbhash and friends are reported unused because the components that
+      # would use them are not wired into any route). Add `pnpm knip` back here
+      # once that backlog is cleared, so CI starts green rather than being
+      # ignored from day one.
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm check
+      - run: pnpm test:run
+
+      # The build needs the PUBLIC_* vars and APP_ENV present or it fails at
+      # prerender. .env.example is that manifest, which makes this step the
+      # thing that keeps the manifest honest.
+      - run: cp .env.example .env
+
+      # No VERCEL in the environment, so this exercises the adapter-node path —
+      # the one Vercel's own builds never cover.
+      - run: pnpm build
+
+      # adapter-node does NOT load .env in production, hence --env-file. This is
+      # the step that exercises instrumentation.server.ts's required-variable
+      # guard, so .env.example's placeholders have to be non-empty.
+      - name: Check the built server boots
+        run: |
+          ORIGIN=http://localhost:3000 PORT=3000 node --env-file=.env build &
+          for i in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://localhost:3000/; then
+              echo "server responded"; exit 0
+            fi
+            sleep 1
+          done
+          echo "server did not respond within 30s"; exit 1

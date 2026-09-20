@@ -1,9 +1,9 @@
-import { DATABASE_URL } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { relations } from "./relations";
 
-const client = neon(DATABASE_URL);
+const client = neon(env.DATABASE_URL);
 
 /**
  * `schema` is no longer passed — drizzle v1 takes `relations` alone, and the

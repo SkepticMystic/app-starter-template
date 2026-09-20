@@ -1,9 +1,9 @@
-import { PAYSTACK_SECRET_KEY } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { createPaystack } from "@alexasomba/paystack-node";
 import type { PaystackInitializeResult } from "better-auth-paystack";
 
 export const PaystackClient = createPaystack({
-  secretKey: PAYSTACK_SECRET_KEY,
+  secretKey: env.PAYSTACK_SECRET_KEY,
 });
 
 /**
