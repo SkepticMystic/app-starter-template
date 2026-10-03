@@ -122,6 +122,8 @@ export const OrganizationTable = snakeCase.table("organization", {
   name: varchar({ length: 255 }).notNull(),
   slug: varchar({ length: 255 }).notNull().unique(),
   logo: varchar({ length: 2048 }),
+  /** better-auth-paystack's billing email; null falls back to the owner's. */
+  email: varchar({ length: 255 }),
 
   metadata: text(),
 

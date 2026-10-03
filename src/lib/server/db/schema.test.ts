@@ -53,12 +53,7 @@ const options = () => ({
  * Fields a plugin asks for that have no column yet, by `model.field`, each
  * with its reason. Same ratchet as `UNINDEXED` below: a stale entry fails.
  */
-const MISSING: Record<string, string> = {
-  // Only ever read (the checkout email for an org), and an absent value falls
-  // back to the owner's email, so nothing breaks — the override just can't be set.
-  "organization.email":
-    "better-auth-paystack's billing email; pre-existing, add the column in a follow-up migration",
-};
+const MISSING: Record<string, string> = {};
 
 /** Every `model.field` Better-Auth asks for that the model's table lacks. */
 const missing_fields = () =>
