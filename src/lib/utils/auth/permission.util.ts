@@ -9,7 +9,7 @@ import { Authz } from "./authz.util";
  * `useSession()`, which are empty during SSR and stale after a server-side
  * change.
  *
- * A page whose UI asks returns `org` from its load (see `App.PageData.org`).
+ * `org` comes from the root layout's server load, so every page has it.
  */
 export const can = (permissions: OrgPermissions): boolean =>
   Authz.can({ org: page.data.org ?? null }, permissions);

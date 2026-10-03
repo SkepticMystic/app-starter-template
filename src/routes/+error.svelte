@@ -2,10 +2,10 @@
   import { resolve } from "$app/paths";
   import ErrorPanel from "#lib/components/blocks/error/ErrorPanel.svelte";
   import { APP } from "#lib/const/app.const.js";
-  import { user } from "#lib/stores/session.store.js";
+  import { page } from "$app/state";
 
   /** `/home` sends a session wherever it lands; the marketing page is the only home without one. */
-  const home = $derived($user ? resolve("home") : resolve(""));
+  const home = $derived(page.data.user ? resolve("home") : resolve(""));
 </script>
 
 <!-- Outside both shells, so it brings its own mark. `(authed)/+error.svelte` handles a signed-in

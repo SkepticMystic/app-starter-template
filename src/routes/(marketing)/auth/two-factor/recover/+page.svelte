@@ -14,7 +14,7 @@
     {#snippet children()}
       <VerifyTwoFactorBackupCodeForm
         on_success={() => {
-          goto(resolve("settings/profile"));
+          goto(resolve("settings/profile"), { refreshAll: true });
         }}
       />
     {/snippet}

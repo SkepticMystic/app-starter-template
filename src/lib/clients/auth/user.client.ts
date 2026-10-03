@@ -34,7 +34,8 @@ export const UserClient = {
       fetchOptions: {
         onSuccess: () => {
           Toast.info("Signed out");
-          return goto(resolve("auth/signin"));
+          // `refreshAll`: the root layout's `page.data.user` would otherwise outlive the session.
+          return goto(resolve("auth/signin"), { refreshAll: true });
         },
         onError: (error: unknown) => {
           console.error("Error signing out:", error);

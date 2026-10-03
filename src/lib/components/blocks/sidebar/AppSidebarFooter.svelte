@@ -1,5 +1,7 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
+  import { AdminClient } from "#lib/clients/auth/admin.client.js";
   import { UserClient } from "#lib/clients/auth/user.client.js";
   import AvatarFallback from "#lib/components/ui/avatar/avatar-fallback.svelte";
   import AvatarImage from "#lib/components/ui/avatar/avatar-image.svelte";
@@ -16,9 +18,11 @@
   import SidebarMenuButton from "#lib/components/ui/sidebar/sidebar-menu-button.svelte";
   import SidebarMenuItem from "#lib/components/ui/sidebar/sidebar-menu-item.svelte";
   import SidebarMenu from "#lib/components/ui/sidebar/sidebar-menu.svelte";
-  import { user } from "#lib/stores/session.store.js";
 
   const sidebar = useSidebar();
+
+  // The server read it, so the name and avatar are there on first paint.
+  const user = $derived(page.data.user);
 </script>
 
 <SidebarMenu>
@@ -36,18 +40,18 @@
           >
             <AvatarRoot class="size-8 rounded-md">
               <AvatarImage
-                src={$user?.image}
-                alt={$user?.name}
+                src={user?.image}
+                alt={user?.name}
               />
 
               <AvatarFallback class="rounded-md">
-                {$user?.name.at(0) ?? ""}
+                {user?.name.at(0) ?? ""}
               </AvatarFallback>
             </AvatarRoot>
 
             <div class="grid flex-1 text-start text-sm/tight">
-              <span class="truncate font-medium">{$user?.name}</span>
-              <span class="truncate text-xs">{$user?.email}</span>
+              <span class="truncate font-medium">{user?.name}</span>
+              <span class="truncate text-xs">{user?.email}</span>
             </div>
 
             <Icon
@@ -74,18 +78,18 @@
           >
             <AvatarRoot class="size-8 rounded-md">
               <AvatarImage
-                src={$user?.image}
-                alt={$user?.name}
+                src={user?.image}
+                alt={user?.name}
               />
 
               <AvatarFallback class="rounded-md">
-                {$user?.name.at(0) ?? ""}
+                {user?.name.at(0) ?? ""}
               </AvatarFallback>
             </AvatarRoot>
 
             <div class="grid flex-1 text-start text-sm/tight">
-              <span class="truncate font-medium">{$user?.name}</span>
-              <span class="truncate text-xs">{$user?.email}</span>
+              <span class="truncate font-medium">{user?.name}</span>
+              <span class="truncate text-xs">{user?.email}</span>
             </div>
           </a>
         </DropdownMenuLabel>
@@ -130,9 +134,18 @@
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
 
+        {#if user?.is_impersonating}
+          <DropdownMenuItem
+            onSelect={() => AdminClient.stop_impersonating(undefined)}
+          >
+            <Icon icon="lucide/user-x" />
+            <span>Stop impersonating</span>
+          </DropdownMenuItem>
+        {/if}
+
         <DropdownMenuItem onSelect={() => UserClient.signout()}>
           <Icon icon="lucide/log-out" />
-          <span>Log out</span>
+          <span>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenuRoot>

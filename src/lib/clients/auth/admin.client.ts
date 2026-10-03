@@ -1,5 +1,6 @@
 import { BetterAuthClient } from "#lib/auth-client.js";
 import { TIME } from "#lib/const/time.const.js";
+import { App } from "#lib/utils/app.js";
 import { Format } from "#lib/utils/format.util.js";
 import { Client } from "../index.client";
 import { type RoleId, ROLES } from "#lib/const/auth/role.const.js";
@@ -16,13 +17,18 @@ export const AdminClient = {
     },
   ),
 
-  impersonate_user: (userId: string) =>
-    Client.better_auth(
-      () => BetterAuthClient.admin.impersonateUser({ userId }),
-      {
-        suc_msg: "Impersonation started",
+  // A full load both ways, not `goto`: the session changes hands, so every client cache (remote
+  // queries, the Better-Auth store, `page.data.user`) belongs to the identity being left. This
+  // was a factory before, and the admin page called it without calling what it returned, so the
+  // menu item did nothing.
+  impersonate_user: Client.better_auth(
+    (userId: string) => BetterAuthClient.admin.impersonateUser({ userId }),
+    {
+      on_success: () => {
+        globalThis.location.href = App.url("/home");
       },
-    ),
+    },
+  ),
 
   stop_impersonating: Client.better_auth(
     () => BetterAuthClient.admin.stopImpersonating(),
@@ -30,6 +36,9 @@ export const AdminClient = {
       confirm:
         "Stop impersonating this user? You'll be switched back to your own account.",
       action_label: "Stop impersonating",
+      on_success: () => {
+        globalThis.location.href = App.url("/admin/users");
+      },
     },
   ),
 

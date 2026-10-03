@@ -1,3 +1,4 @@
+import { invalidate } from "$app/navigation";
 import { BetterAuthClient } from "#lib/auth-client.js";
 import {
   accept_invitation_remote,
@@ -21,6 +22,9 @@ const set_active_org = async (organizationId: string | undefined) => {
   );
 
   BetterAuthClient.$store.notify("$sessionSignal");
+
+  // The UI reads the new org and role through `page.data.org`, not the store above.
+  await invalidate("app:session");
 
   return res;
 };

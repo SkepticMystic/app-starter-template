@@ -14,7 +14,7 @@
 
   let { data } = $props();
 
-  let user = $derived(data.user);
+  let user = $derived(data.account);
 
   let has_credential_account = $derived(
     get_account_by_provider_id_remote("credential").current,

@@ -1,17 +1,17 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import Button from "#lib/components/ui/button/button.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import Modal from "#lib/components/ui/modal/modal.svelte";
   import Textarea from "#lib/components/ui/textarea/textarea.svelte";
-  import { user } from "#lib/stores/session.store.js";
   import { Toast } from "#lib/utils/toast.util.js";
   import { captureFeedback } from "@sentry/sveltekit";
   import { preventDefault } from "svelte/legacy";
 
   let form = $state({
-    name: $user?.name ?? "",
-    email: $user?.email ?? "",
+    name: page.data.user?.name ?? "",
+    email: page.data.user?.email ?? "",
     message: "",
   });
 </script>

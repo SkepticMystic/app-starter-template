@@ -1,7 +1,7 @@
 import { APP } from "#lib/const/app.const.js";
 import type { LayoutLoad } from "./$types";
 
-export const load = (({ url }) => {
+export const load = (({ url, data }) => {
   const href = new URL(url.pathname, url.origin).href;
 
   // TODO: replace with a dedicated 1200x630 og image (e.g. /og-image.png) for social sharing.
@@ -44,5 +44,11 @@ export const load = (({ url }) => {
     },
   }) satisfies App.PageData["seo"];
 
-  return { base_seo };
+  return {
+    // Required: a universal load replaces the server load's data rather than merging with it, so
+    // `user` and `org` must be spread back, or every `can()` answers `false`.
+    ...data,
+
+    base_seo,
+  };
 }) satisfies LayoutLoad;

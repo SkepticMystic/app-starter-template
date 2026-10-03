@@ -16,7 +16,10 @@
     {#snippet children()}
       <VerifyTwoFactorCodeForm
         on_success={() => {
-          goto(page.url.searchParams.get("redirect_uri") ?? "/home");
+          // `refreshAll`: the session is new, and the root layout's `page.data.user` is not.
+          goto(page.url.searchParams.get("redirect_uri") ?? "/home", {
+            refreshAll: true,
+          });
         }}
       />
     {/snippet}

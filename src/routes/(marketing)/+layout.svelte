@@ -1,9 +1,9 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import { page } from "$app/state";
   import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
   import { APP } from "#lib/const/app.const.js";
-  import { user } from "#lib/stores/session.store.js";
 
   let { children } = $props();
 </script>
@@ -19,7 +19,7 @@
       </Button>
 
       <ButtonGroup>
-        {#if $user}
+        {#if page.data.user}
           <ButtonGroup>
             <Button href={resolve("home")}>Home</Button>
           </ButtonGroup>

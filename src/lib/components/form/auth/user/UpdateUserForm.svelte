@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { invalidate } from "$app/navigation";
   import { BetterAuthClient } from "#lib/auth-client.js";
   import { Toast } from "#lib/utils/toast.util.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
@@ -39,6 +40,8 @@
       Toast.success("Profile updated");
 
       BetterAuthClient.$store.notify("$sessionSignal");
+      // The sidebar reads `page.data.user`.
+      await invalidate("app:session");
 
       await on_success?.();
     } else if (res?.error) {

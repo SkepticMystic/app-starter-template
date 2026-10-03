@@ -47,9 +47,5 @@ export const load = (async () => {
     ).then((r) => result.unwrap_or(r, [])),
   ]);
 
-  return {
-    members,
-    invitations,
-    org: { role: session.data.session.member_role ?? null },
-  };
+  return { members, invitations };
 }) satisfies PageServerLoad;

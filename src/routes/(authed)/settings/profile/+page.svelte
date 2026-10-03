@@ -6,7 +6,7 @@
 
   let { data } = $props();
 
-  let user = $derived(data.user);
+  let user = $derived(data.account);
 </script>
 
 <article>

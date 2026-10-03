@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import CaptchaField from "#lib/components/form/auth/captcha/CaptchaField.svelte";
   import { Toast } from "#lib/utils/toast.util.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
@@ -8,36 +9,16 @@
   import Input from "#lib/components/ui/input/input.svelte";
   import Textarea from "#lib/components/ui/textarea/textarea.svelte";
   import { contact_us_remote } from "#lib/remote/contact/contact.remote.js";
-  import { session } from "#lib/stores/session.store.js";
-  import { onDestroy } from "svelte";
 
   const form = contact_us_remote;
 
   let reset_captcha = $state<() => void>();
 
-  const session_listener = session.subscribe(($session) => {
-    if ($session.data?.user) {
-      form.fields.name.set($session.data.user.name);
-      form.fields.email.set($session.data.user.email);
-
-      // The store emits synchronously during `subscribe`, so on that first
-      // emission `session_listener` is still in its own TDZ and calling it
-      // throws. Nothing is owed — `onDestroy` below unsubscribes regardless.
-      try {
-        session_listener();
-      } catch {
-        // Unsubscribing before the handle exists — nothing to undo.
-      }
-    }
-  });
-
-  onDestroy(() => {
-    try {
-      session_listener();
-    } catch {
-      // Already unsubscribed above.
-    }
-  });
+  // Seeded once, so a later session change cannot overwrite what the visitor typed.
+  if (page.data.user) {
+    form.fields.name.set(page.data.user.name);
+    form.fields.email.set(page.data.user.email);
+  }
 </script>
 
 <article class="mx-auto max-w-xs">

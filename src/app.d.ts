@@ -3,8 +3,22 @@ declare global {
     interface PageData {
       seo?: import("svelte-meta-tags").MetaTagsProps;
       base_seo?: import("svelte-meta-tags").MetaTagsProps;
-      /** The active org as the server read it, for `#lib/utils/auth/permission.util`'s `can()`. */
-      org?: { role: string | null } | null;
+      /**
+       * The signed-in user as the root layout's server load read it, `null` signed out. Read this,
+       * not `BetterAuthClient.useSession()`, which is empty during SSR.
+       */
+      user?: {
+        name: string;
+        email: string;
+        image: string | null;
+        is_admin: boolean;
+        is_impersonating: boolean;
+      } | null;
+      /**
+       * The active org as the root layout's server load read it, fresh per request, for
+       * `#lib/utils/auth/permission.util`'s `can()`. `null` with no active org.
+       */
+      org?: { id: string; role: string | null } | null;
     }
 
     type Session = {

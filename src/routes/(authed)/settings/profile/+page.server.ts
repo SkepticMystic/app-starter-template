@@ -9,6 +9,7 @@ export const load = (async () => {
   }
 
   return {
-    user: session.data.user,
+    // Not `user`: that key is the root layout's, and this would shadow it for the whole page.
+    account: session.data.user,
   };
 }) satisfies PageServerLoad;
