@@ -40,7 +40,9 @@ import { z } from "zod";
 const required = (description: string, placeholder?: string) => ({
   description,
   placeholder,
-  schema: z.string().min(1, "must be set — see .env.example"),
+  schema: z
+    .string({ error: "must be set — see .env.example" })
+    .min(1, "must be set — see .env.example"),
 });
 
 /**
