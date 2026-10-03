@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { AvatarRootProps } from "bits-ui";
+  import type { ComponentProps } from "svelte";
   import Avatar from "./avatar.svelte";
 
   let {
     user,
     ...rest
-  }: AvatarRootProps & {
+  }: Omit<ComponentProps<typeof Avatar>, "src" | "alt" | "fallback"> & {
     user: {
       email: string;
       name?: string | null | undefined;

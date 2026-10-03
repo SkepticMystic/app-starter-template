@@ -24,12 +24,17 @@
   } = $props();
 </script>
 
+<!-- `ItemGroup` is `role="list"`, so each row is wrapped as its `listitem` and the rules between
+  them are decorative — a list whose children were rows and separators announced neither the
+  count nor the position. -->
 <ItemGroup class={["rounded-md border border-border bg-card shadow-sm", klass]}>
   {#each items as row, i (row.id)}
-    {@render item(row, i)}
+    <div role="listitem">
+      {@render item(row, i)}
+    </div>
 
     {#if separator && i < items.length - 1}
-      <ItemSeparator />
+      <ItemSeparator decorative />
     {/if}
   {:else}
     <Empty {...empty}></Empty>

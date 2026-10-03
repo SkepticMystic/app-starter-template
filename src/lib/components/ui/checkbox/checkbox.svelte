@@ -8,8 +8,20 @@
     checked = $bindable(false),
     indeterminate = $bindable(false),
     class: className,
+    /*
+     * Taken and dropped. The root is a `<button>`, and a remote form's `field.as("checkbox")`
+     * carries `type: "checkbox"`, which a button reads as an invalid type and so as `submit`:
+     * every tick submitted the form. Left out of the spread, bits' own `type="button"` stands.
+     *
+     * It posts through bits' hidden input, but that input fires no `input` event, so
+     * `field.value()` does not follow a tick. Where a caller reads the value live, keep a
+     * native checkbox.
+     */
+    type: _type,
     ...restProps
-  }: WithoutChildrenOrChild<CheckboxPrimitive.RootProps> = $props();
+  }: Omit<WithoutChildrenOrChild<CheckboxPrimitive.RootProps>, "type"> & {
+    type?: "checkbox";
+  } = $props();
 </script>
 
 <CheckboxPrimitive.Root

@@ -16,7 +16,7 @@
   <section class="flex items-center gap-3">
     <UserAvatar
       {user}
-      class="size-14"
+      size={56}
     />
 
     <div>

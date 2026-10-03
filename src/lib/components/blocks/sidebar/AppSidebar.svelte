@@ -24,7 +24,8 @@
       href: ResolvedPathname;
       icon: string;
 
-      action?: { kind: "href"; href: string; icon: string };
+      /** `label` names the icon-only link: it is a screen reader's only word for it. */
+      action?: { kind: "href"; href: string; icon: string; label: string };
     }[];
   }[] = [
     {
@@ -37,8 +38,9 @@
 
           action: {
             kind: "href",
-            href: "/task#create",
+            href: "/tasks",
             icon: "lucide/plus",
+            label: "New task",
           },
         },
       ],
@@ -75,17 +77,19 @@
 
         <SidebarGroupContent>
           {#each group.items as item (item.href)}
-            <SidebarMenuItem class="group">
-              <SidebarMenuButton isActive={item.href === page.url.pathname}>
+            <SidebarMenuItem>
+              <!-- `tooltipContent` shows only while the sidebar is collapsed to icons, which is
+                   when the label is gone; a native `title` on the icon showed always, or never on touch. -->
+              <SidebarMenuButton
+                isActive={item.href === page.url.pathname}
+                tooltipContent={item.label}
+              >
                 {#snippet child({ props })}
                   <a
                     {...props}
                     href={item.href}
                   >
-                    <Icon
-                      icon={item.icon}
-                      title={item.label}
-                    />
+                    <Icon icon={item.icon} />
 
                     <span>{item.label}</span>
                   </a>
@@ -93,21 +97,18 @@
               </SidebarMenuButton>
 
               {#if item.action}
-                <SidebarMenuAction
-                  class="
-                  hidden
-                  group-hover:inline
-                "
-                >
+                {@const action = item.action}
+                <!-- `showOnHover` fades rather than `hidden`s it, and shows it on focus-within too:
+                     a `display: none` link is out of the tab order, so keyboards never reached it. -->
+                <SidebarMenuAction showOnHover>
                   {#snippet child({ props })}
-                    {#if item.action?.kind === "href"}
-                      <a
-                        {...props}
-                        href={item.action.href}
-                      >
-                        <Icon icon={item.action.icon} />
-                      </a>
-                    {:else}{/if}
+                    <a
+                      {...props}
+                      href={action.href}
+                      aria-label={action.label}
+                    >
+                      <Icon icon={action.icon} />
+                    </a>
                   {/snippet}
                 </SidebarMenuAction>
               {/if}

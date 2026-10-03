@@ -73,7 +73,6 @@
         <Checkbox
           {...props}
           {...field?.as("checkbox")}
-          type="button"
         />
       {/snippet}
     </Field>

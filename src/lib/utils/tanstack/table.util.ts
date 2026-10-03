@@ -78,7 +78,11 @@ const date_range: FilterFn<TableFeatures, RowData> = (
 
   const tz = getLocalTimeZone();
 
-  return value >= filter.start.toDate(tz) && value <= filter.end.toDate(tz);
+  // Up to the next midnight: `end.toDate` is the *start* of the last day, which left it out.
+  return (
+    value >= filter.start.toDate(tz) &&
+    value < filter.end.add({ days: 1 }).toDate(tz)
+  );
 };
 
 /**

@@ -131,10 +131,39 @@
     loading,
     icon,
     label,
+    onclick,
 
     children,
     ...restProps
   }: ButtonProps = $props();
+
+  /**
+   * While an `onclick` that returned a promise is still running, so an async
+   * handler gets a spinner without threading a `loading` flag of its own.
+   *
+   * Its own state rather than a write to `loading`: assigning a prop overrides
+   * the caller's value until the caller next changes it, so a handler that
+   * settled before the caller's own work did would clear a spinner the caller
+   * still wanted. A handler that returns nothing — a bits-ui trigger's, a
+   * toggle's — leaves it alone, so those buttons are never disabled mid-click.
+   */
+  let pending = $state(false);
+  const busy = $derived(Boolean(loading) || pending);
+
+  async function click(e: MouseEvent) {
+    // A caller's `onclick` has to accept a button's event *and* an anchor's.
+    // TS can only call that overload pair with one of the two, hence the cast.
+    const handler = onclick as ((e: MouseEvent) => unknown) | null | undefined;
+    const result = handler?.(e);
+    if (!(result instanceof Promise)) return;
+
+    pending = true;
+    try {
+      await result;
+    } finally {
+      pending = false;
+    }
+  }
 
   // svelte-ignore state_referenced_locally
   if (size === "default" && icon && !children && !label) {
@@ -149,6 +178,7 @@
     {loading}
     {disabled}
     {children}
+    {onclick}
     class={[buttonVariants({ variant, size }), "no-underline!", klass]}
     data-slot="button"
     bind:ref
@@ -159,17 +189,13 @@
     {type}
     class={[buttonVariants({ variant, size }), klass]}
     data-slot="button"
-    aria-busy={loading || undefined}
-    disabled={disabled || loading}
+    aria-busy={busy || undefined}
+    disabled={disabled || busy}
     bind:this={ref}
     {...restProps}
-    onclick={async (e) => {
-      loading = true;
-      await restProps.onclick?.(e);
-      loading = false;
-    }}
+    onclick={click}
   >
-    <Loading {loading} />
+    <Loading loading={busy} />
     <Icon {icon} />
 
     {#if children}
