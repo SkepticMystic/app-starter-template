@@ -4,12 +4,11 @@ import type { LayoutLoad } from "./$types";
 export const load = (({ url, data }) => {
   const href = new URL(url.pathname, url.origin).href;
 
-  // TODO: replace with a dedicated 1200x630 og image (e.g. /og-image.png) for social sharing.
   const image = {
     type: "image/png",
-    alt: APP.NAME + " Logo",
-    url: APP.URL + APP.LOGO,
-    secureUrl: APP.URL + APP.LOGO,
+    alt: APP.NAME,
+    url: APP.URL + APP.OG_IMAGE,
+    secureUrl: APP.URL + APP.OG_IMAGE,
     width: 1200,
     height: 630,
   };

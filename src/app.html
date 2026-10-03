@@ -4,23 +4,30 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width"
+      content="width=device-width, initial-scale=1"
     />
 
+    <!-- Rendered from favicon.svg by `pnpm brand:generate`. The .ico is for whatever ignores SVG. -->
     <link
       rel="icon"
-      href="%sveltekit.assets%/favicon.png"
+      href="%sveltekit.assets%/favicon.ico"
+      sizes="48x48"
+    />
+    <link
+      rel="icon"
+      href="%sveltekit.assets%/favicon.svg"
+      type="image/svg+xml"
     />
     <link
       rel="apple-touch-icon"
-      href="%sveltekit.assets%/favicon.png"
+      href="%sveltekit.assets%/apple-touch-icon.png"
     />
     <link
       rel="manifest"
       href="%sveltekit.assets%/site.webmanifest"
     />
 
-    <!-- TODO: keep this in sync with APP.NAME in src/lib/const/app.const.ts -->
+    <!-- Keep in sync with APP.NAME in src/lib/const/app.const.ts, which cannot reach this file. -->
     <meta
       name="apple-mobile-web-app-title"
       content="App Starter"
@@ -39,10 +46,20 @@
       content="default"
     />
 
-    <!-- TODO: keep this in sync with theme_color in static/site.webmanifest -->
+    <!--
+      The browser chrome matches the page: --background in layout.css, light and dark. Follows
+      the OS rather than mode-watcher's choice, which this template cannot see before paint.
+      Keep the light value in step with theme_color in static/site.webmanifest.
+    -->
     <meta
       name="theme-color"
-      content="#000000"
+      content="#f8f8f8"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0f182b"
+      media="(prefers-color-scheme: dark)"
     />
 
     %sveltekit.head%

@@ -7,7 +7,8 @@ export const APP = {
   ID: "app-starter",
   NAME: "App Starter",
   URL: PUBLIC_BASE_URL,
-  LOGO: asset("favicon.png"),
+  /** 1200×630, rendered by `pnpm brand:generate` with the name and description on it. */
+  OG_IMAGE: asset("og-image.png"),
   DOMAIN: new URL(PUBLIC_BASE_URL).hostname,
   DESCRIPTION: "An awesome app built with SvelteKit and BetterAuth",
 };

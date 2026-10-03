@@ -1,7 +1,7 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
   import ErrorPanel from "#lib/components/blocks/error/ErrorPanel.svelte";
-  import { APP } from "#lib/const/app.const.js";
+  import Logo from "#lib/components/ui/image/Logo.svelte";
   import { page } from "$app/state";
 
   /** `/home` sends a session wherever it lands; the marketing page is the only home without one. */
@@ -17,9 +17,12 @@
 >
   <a
     href={home}
-    class="rounded-md text-lg font-semibold"
+    class="rounded-md text-lg"
   >
-    {APP.NAME}
+    <Logo
+      size="size-8"
+      show_name
+    />
   </a>
 
   <ErrorPanel

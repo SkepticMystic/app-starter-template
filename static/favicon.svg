@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- A placeholder mark: two stacked tiles on the brand colour. Replace it with your own, keep
+    ui/image/Logo.svelte's inline copy in step, then run `pnpm brand:generate`. Solid fills
+    only: ImageMagick's SVG renderer ignores opacity. -->
+  <rect width="64" height="64" rx="14" fill="#6468f0"/>
+  <rect x="15" y="15" width="22" height="22" fill="#b9bbf8"/>
+  <rect x="27" y="27" width="22" height="22" fill="#ffffff"/>
+</svg>

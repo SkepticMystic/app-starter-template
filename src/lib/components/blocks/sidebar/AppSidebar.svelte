@@ -4,6 +4,7 @@
   import { page } from "$app/state";
   import type { ResolvedPathname } from "$app/types";
   import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import Logo from "#lib/components/ui/image/Logo.svelte";
   import { useSidebar } from "#lib/components/ui/sidebar/context.svelte.js";
   import SidebarContent from "#lib/components/ui/sidebar/sidebar-content.svelte";
   import SidebarFooter from "#lib/components/ui/sidebar/sidebar-footer.svelte";
@@ -118,14 +119,21 @@
 <SidebarRoot collapsible="icon">
   <SidebarHeader>
     <SidebarMenuItem>
-      <SidebarMenuButton>
+      <!-- `lg` so the mark is exactly the collapsed rail's `size-8` (that size drops its padding). -->
+      <SidebarMenuButton
+        size="lg"
+        tooltipContent={APP.NAME}
+      >
         {#snippet child({ props })}
           <a
             {...props}
             href={resolve("home")}
           >
-            <Icon icon="lucide/home" />
-            <span> {APP.NAME} </span>
+            <Logo
+              size="size-8"
+              show_name
+              class="text-base"
+            />
           </a>
         {/snippet}
       </SidebarMenuButton>

@@ -1,11 +1,11 @@
 {
   "short_name": "App",
-  "name": "App Starter Template",
-  "description": "A starter template for building web applications.",
+  "name": "App Starter",
+  "description": "An awesome app built with SvelteKit and BetterAuth",
   "categories": ["utilities", "productivity"],
 
-  "theme_color": "black",
-  "background_color": "white",
+  "theme_color": "#f8f8f8",
+  "background_color": "#f8f8f8",
 
   "display": "minimal-ui",
   "start_url": "/?source=pwa",
@@ -15,10 +15,28 @@
 
   "icons": [
     {
-      "src": "/favicon.png",
-      "sizes": "128x128",
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

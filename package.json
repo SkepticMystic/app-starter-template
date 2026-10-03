@@ -12,6 +12,7 @@
     "test:ui": "vp test --ui",
     "test:run": "vp test run",
     "test:coverage": "vp test run --coverage",
+    "brand:generate": "bash scripts/brand/generate.sh",
     "knip": "knip",
     "scan:secrets": "docker run --rm -v \"$PWD:/pwd\" trufflesecurity/trufflehog:latest git file:///pwd --fail",
     "lint": "vp lint --report-unused-disable-directives",
