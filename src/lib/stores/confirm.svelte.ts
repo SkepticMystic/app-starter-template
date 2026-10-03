@@ -1,6 +1,6 @@
 import { browser } from "$app/env";
 
-export type ConfirmRequest = {
+type ConfirmRequest = {
   /** The question, sentence case: "Delete this script?" */
   title: string;
   /** What follows from saying yes. Never restates the title. */
