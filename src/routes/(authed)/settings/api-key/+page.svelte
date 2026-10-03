@@ -47,9 +47,10 @@
     }),
 
     column.accessor("lastRequest", {
-      meta: { label: "Last Request" },
+      meta: { label: "Last request" },
 
-      cell: CellHelpers.time,
+      // "20 minutes ago" answers "is this key still in use?" better than a clock time.
+      cell: (c) => CellHelpers.time(c, { show: "auto", fallback: "Never" }),
     }),
   ];
 </script>
