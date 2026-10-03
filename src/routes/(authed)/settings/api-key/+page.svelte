@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import {
     CellHelpers,
     column_helper,
@@ -54,16 +55,16 @@
 </script>
 
 <article>
-  <header class="flex items-center justify-between gap-3">
-    <h1>API Keys</h1>
-
-    <Button
-      icon="lucide/plus"
-      href={resolve("/(authed)/settings/api-key/create")}
-    >
-      Create API Key
-    </Button>
-  </header>
+  <Header title="API Keys">
+    {#snippet actions()}
+      <Button
+        icon="lucide/plus"
+        href={resolve("/(authed)/settings/api-key/create")}
+      >
+        Create API Key
+      </Button>
+    {/snippet}
+  </Header>
 
   <section>
     <DataTable

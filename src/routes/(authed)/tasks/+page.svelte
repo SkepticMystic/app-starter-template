@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import { Client } from "#lib/clients/index.client.js";
   import { TaskClient } from "#lib/clients/tasks.client.js";
   import TaskForm from "#lib/components/form/task/TaskForm.svelte";
@@ -57,29 +58,29 @@
 </script>
 
 <article>
-  <header class="flex items-center justify-between">
-    <h1>Tasks</h1>
-
-    <Sheet
-      icon="lucide/plus"
-      title="New Task"
-      description="Create a new task"
-    >
-      {#snippet children({ close })}
-        <TaskForm
-          mode="create"
-          initial={{
-            title: "",
-            description: "",
-            status: "pending",
-            due_date: undefined,
-            assigned_member_id: undefined,
-          }}
-          on_success={close}
-        />
-      {/snippet}
-    </Sheet>
-  </header>
+  <Header title="Tasks">
+    {#snippet actions()}
+      <Sheet
+        icon="lucide/plus"
+        title="New Task"
+        description="Create a new task"
+      >
+        {#snippet children({ close })}
+          <TaskForm
+            mode="create"
+            initial={{
+              title: "",
+              description: "",
+              status: "pending",
+              due_date: undefined,
+              assigned_member_id: undefined,
+            }}
+            on_success={close}
+          />
+        {/snippet}
+      </Sheet>
+    {/snippet}
+  </Header>
 
   <DataTable
     {columns}

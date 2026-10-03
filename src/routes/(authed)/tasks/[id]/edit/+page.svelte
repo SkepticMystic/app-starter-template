@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import TaskForm from "#lib/components/form/task/TaskForm.svelte";
   import { Dates } from "#lib/utils/dates.js";
 
@@ -8,9 +9,17 @@
 </script>
 
 <article>
-  <header>
-    <h1>Edit task: {data.task.title}</h1>
-  </header>
+  <Header
+    title="Edit task"
+    head_title={`Edit ${data.task.title}`}
+    back={[
+      { href: resolve("/(authed)/tasks"), label: "Tasks" },
+      {
+        href: resolve("/(authed)/tasks/[id]", data.task),
+        label: data.task.title,
+      },
+    ]}
+  />
 
   <TaskForm
     mode="update"

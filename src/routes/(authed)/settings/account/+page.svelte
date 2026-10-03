@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import { PasskeyClient } from "#lib/clients/auth/passkey.client.js";
   import { UserClient } from "#lib/clients/auth/user.client.js";
   import ChangePasswordForm from "#lib/components/form/account/ChangePasswordForm.svelte";
@@ -21,9 +22,7 @@
 </script>
 
 <article>
-  <header>
-    <h1>Account</h1>
-  </header>
+  <Header title="Account" />
 
   <section>
     <h2>Login Methods</h2>

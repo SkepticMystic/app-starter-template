@@ -1,5 +1,6 @@
 <script lang="ts">
   import { dev } from "$app/env";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import UpdateUserForm from "#lib/components/form/auth/user/UpdateUserForm.svelte";
   import UserAvatar from "#lib/components/ui/avatar/UserAvatar.svelte";
 
@@ -9,9 +10,7 @@
 </script>
 
 <article>
-  <header>
-    <h1>Profile</h1>
-  </header>
+  <Header title="Profile" />
 
   <section class="flex items-center gap-3">
     <UserAvatar

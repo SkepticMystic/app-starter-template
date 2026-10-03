@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Header from "#lib/components/ui/header/Header.svelte";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import OrganizationInviteForm from "#lib/components/form/auth/organization/invitation/OrganizationInviteForm.svelte";
   import OrganizationSelector from "#lib/components/selector/OrganizationSelector.svelte";
@@ -19,9 +20,7 @@
 </script>
 
 <article>
-  <header>
-    <h1>Organization</h1>
-  </header>
+  <Header title="Organization" />
 
   <section>
     <OrganizationSelector />

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import {
     CellHelpers,
@@ -44,9 +46,10 @@
 </script>
 
 <article>
-  <header>
-    <h1>Organizations</h1>
-  </header>
+  <Header
+    title="Organizations"
+    back={{ href: resolve("/(authed)/admin"), label: "Admin" }}
+  />
 
   <DataTable
     {columns}

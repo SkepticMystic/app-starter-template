@@ -5,6 +5,11 @@
   import { APP } from "#lib/const/app.const.js";
 </script>
 
+<!-- A hero rather than a `Header`, so it names its own tab: `SEO` leaves signed-in titles to the page. -->
+<svelte:head>
+  <title>Home · {APP.NAME}</title>
+</svelte:head>
+
 <article class="mx-auto mt-32 flex max-w-lg flex-col gap-y-7">
   <header class="flex flex-col items-center gap-4">
     <Logo size="size-16" />

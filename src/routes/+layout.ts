@@ -18,7 +18,7 @@ export const load = (({ url }) => {
 
   const base_seo = Object.freeze({
     title,
-    titleTemplate: "%s | " + APP.NAME,
+    titleTemplate: `%s · ${APP.NAME}`,
     description: APP.DESCRIPTION,
 
     robots: "index,follow",

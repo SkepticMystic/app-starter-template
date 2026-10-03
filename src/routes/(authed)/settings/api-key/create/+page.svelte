@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import { Toast } from "#lib/utils/toast.util.js";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
@@ -25,9 +27,10 @@
 </script>
 
 <article>
-  <header>
-    <h1>Create an API Key</h1>
-  </header>
+  <Header
+    title="Create an API Key"
+    back={{ href: resolve("/(authed)/settings/api-key"), label: "API Keys" }}
+  />
 
   <form
     {...form.enhance(async (e) => {

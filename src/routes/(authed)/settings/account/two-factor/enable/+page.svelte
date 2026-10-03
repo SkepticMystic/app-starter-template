@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import EnableTwoFactorForm from "#lib/components/form/auth/two_factor/EnableTwoFactorForm.svelte";
   import VerifyTwoFactorCodeForm from "#lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
@@ -19,9 +20,10 @@
 </script>
 
 <article>
-  <header>
-    <h1>Enable Two-Factor Authentication</h1>
-  </header>
+  <Header
+    title="Enable Two-Factor Authentication"
+    back={{ href: resolve("/(authed)/settings/account"), label: "Account" }}
+  />
 
   <section>
     {#if !enable_data}

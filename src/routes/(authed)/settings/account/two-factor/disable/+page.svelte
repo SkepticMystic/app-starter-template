@@ -1,15 +1,17 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import DisableTwoFactorForm from "#lib/components/form/auth/two_factor/DisableTwoFactorForm.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
   import Card from "#lib/components/ui/card/Card.svelte";
 </script>
 
 <article>
-  <header>
-    <h1>Disable Two-Factor Authentication</h1>
-  </header>
+  <Header
+    title="Disable Two-Factor Authentication"
+    back={{ href: resolve("/(authed)/settings/account"), label: "Account" }}
+  />
 
   <Card>
     {#snippet children()}

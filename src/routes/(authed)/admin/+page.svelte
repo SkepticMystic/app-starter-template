@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
+  import Header from "#lib/components/ui/header/Header.svelte";
   import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
 
   type Route = {
@@ -21,9 +22,7 @@
 </script>
 
 <article>
-  <header>
-    <h1>Admin</h1>
-  </header>
+  <Header title="Admin" />
 
   <ul class="list-inside list-disc">
     {#each routes as route (route.href)}
