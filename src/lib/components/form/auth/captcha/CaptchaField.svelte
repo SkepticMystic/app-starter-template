@@ -2,8 +2,8 @@
   lang="ts"
   generics="F extends RemoteFormInput"
 >
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import type { RemoteForm, RemoteFormInput } from "@sveltejs/kit";
+  import type { RemoteForm, RemoteFormInput } from "$app/server";
+  import Field from "#lib/components/ui/field/Field.svelte";
   import Captcha from "./Captcha.svelte";
 
   let {

@@ -2,13 +2,10 @@
   lang="ts"
   generics="V extends RemoteFormFieldValue"
 >
-  import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
-  import type {
-    RemoteFormField,
-    RemoteFormFieldValue,
-    ValidationError,
-  } from "@sveltejs/kit";
+  import type { RemoteFormField, RemoteFormFieldValue } from "$app/server";
+  import type { ValidationError } from "@sveltejs/kit";
+  import ExtractSnippet from "#lib/components/util/ExtractSnippet.svelte";
+  import type { MaybeSnippet } from "#lib/interfaces/svelte/svelte.type.js";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
   import FieldContent from "./field-content.svelte";
@@ -43,7 +40,6 @@
   } = $props();
 
   const id = $props.id();
-
   const issues = $derived([
     ...(field?.issues() ?? []),
     ...(outer_issues ?? []),

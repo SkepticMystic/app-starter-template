@@ -1,17 +1,17 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { BetterAuthClient } from "$lib/auth-client.js";
-  import CredentialSigninForm from "$lib/components/form/authenticate/CredentialSigninForm.svelte";
-  import GenericOAuthSigninButton from "$lib/components/form/authenticate/GenericOAuthSigninButton.svelte";
-  import PasskeySigninButton from "$lib/components/form/authenticate/PasskeySigninButton.svelte";
-  import SocialSigninButton from "$lib/components/form/authenticate/SocialSigninButton.svelte";
-  import Badge from "$lib/components/ui/badge/badge.svelte";
-  import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
-  import Separator from "$lib/components/ui/separator/separator.svelte";
-  import { APP } from "$lib/const/app.const";
-  import { AUTH, type IAuth } from "$lib/const/auth/auth.const";
+  import { BetterAuthClient } from "#lib/auth-client.js";
+  import CredentialSigninForm from "#lib/components/form/authenticate/CredentialSigninForm.svelte";
+  import GenericOAuthSigninButton from "#lib/components/form/authenticate/GenericOAuthSigninButton.svelte";
+  import PasskeySigninButton from "#lib/components/form/authenticate/PasskeySigninButton.svelte";
+  import SocialSigninButton from "#lib/components/form/authenticate/SocialSigninButton.svelte";
+  import Badge from "#lib/components/ui/badge/badge.svelte";
+  import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
+  import Separator from "#lib/components/ui/separator/separator.svelte";
+  import { APP } from "#lib/const/app.const.js";
+  import { AUTH, type IAuth } from "#lib/const/auth/auth.const.js";
 
   let { data } = $props();
 
@@ -73,7 +73,7 @@
         <ButtonGroup>
           <Button
             variant="link"
-            href={resolve("/auth/forgot-password")}
+            href={resolve("auth/forgot-password")}
           >
             Forgot password?
           </Button>
@@ -82,7 +82,7 @@
         <ButtonGroup>
           <Button
             variant="link"
-            href={resolve("/auth/signup")}
+            href={resolve("auth/signup")}
           >
             Don't have an account? Sign up
           </Button>

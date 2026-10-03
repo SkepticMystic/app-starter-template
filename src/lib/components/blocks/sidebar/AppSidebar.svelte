@@ -2,19 +2,19 @@
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
   import type { ResolvedPathname } from "$app/types";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import SidebarContent from "$lib/components/ui/sidebar/sidebar-content.svelte";
-  import SidebarFooter from "$lib/components/ui/sidebar/sidebar-footer.svelte";
-  import SidebarGroupContent from "$lib/components/ui/sidebar/sidebar-group-content.svelte";
-  import SidebarGroupLabel from "$lib/components/ui/sidebar/sidebar-group-label.svelte";
-  import SidebarGroup from "$lib/components/ui/sidebar/sidebar-group.svelte";
-  import SidebarHeader from "$lib/components/ui/sidebar/sidebar-header.svelte";
-  import SidebarMenuAction from "$lib/components/ui/sidebar/sidebar-menu-action.svelte";
-  import SidebarMenuButton from "$lib/components/ui/sidebar/sidebar-menu-button.svelte";
-  import SidebarMenuItem from "$lib/components/ui/sidebar/sidebar-menu-item.svelte";
-  import SidebarRail from "$lib/components/ui/sidebar/sidebar-rail.svelte";
-  import SidebarRoot from "$lib/components/ui/sidebar/sidebar-root.svelte";
-  import { APP } from "$lib/const/app.const";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import SidebarContent from "#lib/components/ui/sidebar/sidebar-content.svelte";
+  import SidebarFooter from "#lib/components/ui/sidebar/sidebar-footer.svelte";
+  import SidebarGroupContent from "#lib/components/ui/sidebar/sidebar-group-content.svelte";
+  import SidebarGroupLabel from "#lib/components/ui/sidebar/sidebar-group-label.svelte";
+  import SidebarGroup from "#lib/components/ui/sidebar/sidebar-group.svelte";
+  import SidebarHeader from "#lib/components/ui/sidebar/sidebar-header.svelte";
+  import SidebarMenuAction from "#lib/components/ui/sidebar/sidebar-menu-action.svelte";
+  import SidebarMenuButton from "#lib/components/ui/sidebar/sidebar-menu-button.svelte";
+  import SidebarMenuItem from "#lib/components/ui/sidebar/sidebar-menu-item.svelte";
+  import SidebarRail from "#lib/components/ui/sidebar/sidebar-rail.svelte";
+  import SidebarRoot from "#lib/components/ui/sidebar/sidebar-root.svelte";
+  import { APP } from "#lib/const/app.const.js";
   import AppSidebarFooter from "./AppSidebarFooter.svelte";
 
   const groups: {
@@ -56,7 +56,7 @@
         {#snippet child({ props })}
           <a
             {...props}
-            href={resolve("/home")}
+            href={resolve("home")}
           >
             <Icon icon="lucide/home" />
             <span> {APP.NAME} </span>

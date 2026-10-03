@@ -1,15 +1,15 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import EnableTwoFactorForm from "$lib/components/form/auth/two_factor/EnableTwoFactorForm.svelte";
-  import VerifyTwoFactorCodeForm from "$lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
-  import CopyButton from "$lib/components/ui/copy-button/copy-button.svelte";
-  import QrCode from "$lib/components/ui/qr-code/qr-code.svelte";
-  import Separator from "$lib/components/ui/separator/separator.svelte";
-  import { TWO_FACTOR } from "$lib/const/auth/two_factor.const.js";
-  import type { ResultData } from "$lib/interfaces/result.type.js";
-  import type { enable_two_factor_remote } from "$lib/remote/auth/two_factor.remote.js";
+  import EnableTwoFactorForm from "#lib/components/form/auth/two_factor/EnableTwoFactorForm.svelte";
+  import VerifyTwoFactorCodeForm from "#lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
+  import CopyButton from "#lib/components/ui/copy-button/copy-button.svelte";
+  import QrCode from "#lib/components/ui/qr-code/qr-code.svelte";
+  import Separator from "#lib/components/ui/separator/separator.svelte";
+  import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
+  import type { ResultData } from "#lib/interfaces/result.type.js";
+  import type { enable_two_factor_remote } from "#lib/remote/auth/two_factor.remote.js";
 
   let enable_data: ResultData<
     NonNullable<typeof enable_two_factor_remote.result>
@@ -37,7 +37,7 @@
           <Button
             variant="outline"
             icon="lucide/arrow-left"
-            href={resolve("/settings/account")}
+            href={resolve("settings/account")}
           >
             Go Back
           </Button>
@@ -114,7 +114,7 @@
           <Button
             variant="outline"
             icon="lucide/arrow-left"
-            href={resolve("/settings/account")}
+            href={resolve("settings/account")}
           >
             Go Back
           </Button>

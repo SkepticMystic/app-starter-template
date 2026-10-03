@@ -1,8 +1,13 @@
 import type { KnipConfig } from "knip";
 
 export default {
-  // Scripts run via pnpm
-  entry: ["scripts/**/*.ts"],
+  entry: [
+    // Scripts run via pnpm
+    "scripts/**/*.ts",
+    // SvelteKit 3 entry points knip's sveltekit plugin does not know yet (it
+    // still looks for matchers in `src/params/*`)
+    "src/params.{js,ts}",
+  ],
 
   // Icon sets consumed via @iconify/tailwind4 in CSS
   ignoreDependencies: ["@iconify-json/lucide", "@typescript/native"],

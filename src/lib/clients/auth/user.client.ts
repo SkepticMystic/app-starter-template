@@ -1,9 +1,9 @@
 import { goto } from "$app/navigation";
-import { Toast } from "$lib/utils/toast.util";
+import { Toast } from "#lib/utils/toast.util.js";
 import { resolve } from "$app/paths";
 import { page } from "$app/state";
-import { BetterAuthClient } from "$lib/auth-client";
-import { App } from "$lib/utils/app";
+import { BetterAuthClient } from "#lib/auth-client.js";
+import { App } from "#lib/utils/app.js";
 import { getFlash } from "sveltekit-flash-message";
 import { Client } from "../index.client";
 
@@ -32,7 +32,7 @@ export const UserClient = {
       fetchOptions: {
         onSuccess: () => {
           Toast.info("Signed out");
-          return goto(resolve("/auth/signin"));
+          return goto(resolve("auth/signin"));
         },
         onError: (error: unknown) => {
           console.error("Error signing out:", error);

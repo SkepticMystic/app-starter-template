@@ -1,15 +1,15 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import Alert from "$lib/components/ui/alert/Alert.svelte";
-  import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import Modal from "$lib/components/ui/modal/modal.svelte";
-  import Textarea from "$lib/components/ui/textarea/textarea.svelte";
-  import { user } from "$lib/stores/session.store";
+  import Alert from "#lib/components/ui/alert/Alert.svelte";
+  import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import Modal from "#lib/components/ui/modal/modal.svelte";
+  import Textarea from "#lib/components/ui/textarea/textarea.svelte";
+  import { user } from "#lib/stores/session.store.js";
   import { captureFeedback } from "@sentry/sveltekit";
   import { toast } from "svelte-sonner";
   import { preventDefault } from "svelte/legacy";
@@ -56,7 +56,7 @@
           <Button
             class="grow"
             variant="outline"
-            href={resolve("/")}
+            href={resolve("")}
           >
             Go Home
             <Icon icon="lucide/home" />

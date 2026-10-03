@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RemoteFormIssue } from "@sveltejs/kit";
+  import type { RemoteFormIssue } from "$app/server";
   import FieldError from "../ui/field/field-error.svelte";
 
   let {

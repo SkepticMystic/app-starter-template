@@ -1,9 +1,9 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import DisableTwoFactorForm from "$lib/components/form/auth/two_factor/DisableTwoFactorForm.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
+  import DisableTwoFactorForm from "#lib/components/form/auth/two_factor/DisableTwoFactorForm.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
 </script>
 
 <article>
@@ -23,7 +23,7 @@
     {#snippet footer()}
       <Button
         variant="outline"
-        href={resolve("/settings/account")}
+        href={resolve("settings/account")}
         icon="lucide/arrow-left"
       >
         Go Back

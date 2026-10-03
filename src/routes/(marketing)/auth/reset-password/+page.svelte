@@ -1,13 +1,13 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Toast } from "$lib/utils/toast.util";
+  import { Toast } from "#lib/utils/toast.util.js";
   import { resolve } from "$app/paths";
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Alert from "$lib/components/ui/alert/Alert.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Password from "$lib/components/ui/password/Password.svelte";
-  import { reset_password_remote } from "$lib/remote/auth/user.remote";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Alert from "#lib/components/ui/alert/Alert.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Password from "#lib/components/ui/password/Password.svelte";
+  import { reset_password_remote } from "#lib/remote/auth/user.remote.js";
 
   let { data } = $props();
 
@@ -35,7 +35,7 @@
         const res = form.result;
         if (res?.ok) {
           Toast.success("Password reset");
-          await goto(resolve("/auth/signin"));
+          await goto(resolve("auth/signin"));
         } else if (res?.error) {
           Toast.err(res.error);
         }

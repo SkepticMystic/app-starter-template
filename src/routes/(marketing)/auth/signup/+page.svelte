@@ -1,13 +1,13 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import CredentialSignupForm from "$lib/components/form/authenticate/CredentialSignupForm.svelte";
-  import GenericOAuthSigninButton from "$lib/components/form/authenticate/GenericOAuthSigninButton.svelte";
-  import SocialSigninButton from "$lib/components/form/authenticate/SocialSigninButton.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
-  import Separator from "$lib/components/ui/separator/separator.svelte";
-  import { APP } from "$lib/const/app.const";
-  import { AUTH } from "$lib/const/auth/auth.const";
+  import CredentialSignupForm from "#lib/components/form/authenticate/CredentialSignupForm.svelte";
+  import GenericOAuthSigninButton from "#lib/components/form/authenticate/GenericOAuthSigninButton.svelte";
+  import SocialSigninButton from "#lib/components/form/authenticate/SocialSigninButton.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
+  import Separator from "#lib/components/ui/separator/separator.svelte";
+  import { APP } from "#lib/const/app.const.js";
+  import { AUTH } from "#lib/const/auth/auth.const.js";
 
   let { data } = $props();
 </script>
@@ -47,7 +47,7 @@
           <Button
             size="sm"
             variant="link"
-            href={resolve("/auth/signin")}
+            href={resolve("auth/signin")}
           >
             Sign in instead
           </Button>

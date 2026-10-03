@@ -1,8 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
-  import TaskForm from "$lib/components/form/task/TaskForm.svelte";
-  import { Dates } from "$lib/utils/dates.js";
+  import TaskForm from "#lib/components/form/task/TaskForm.svelte";
+  import { Dates } from "#lib/utils/dates.js";
 
   let { data } = $props();
 </script>
@@ -24,6 +24,6 @@
         ? Dates.to_datetime_local_string(data.task.due_date)
         : "",
     }}
-    on_success={() => goto(resolve("/tasks"))}
+    on_success={() => goto(resolve("tasks"))}
   />
 </article>

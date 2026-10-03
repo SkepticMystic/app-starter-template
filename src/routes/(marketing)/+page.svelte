@@ -1,8 +1,8 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Logo from "$lib/components/ui/image/Logo.svelte";
-  import { APP } from "$lib/const/app.const";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Logo from "#lib/components/ui/image/Logo.svelte";
+  import { APP } from "#lib/const/app.const.js";
 </script>
 
 <article class="mx-auto mt-32 flex max-w-lg flex-col gap-y-7">
@@ -19,7 +19,7 @@
     <Button
       size="lg"
       icon="lucide/mail"
-      href={resolve("/contact")}
+      href={resolve("contact")}
     >
       Contact Us
     </Button>

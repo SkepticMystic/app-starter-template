@@ -2,9 +2,9 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import { page } from "$app/state";
-  import VerifyTwoFactorCodeForm from "$lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
-  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
+  import VerifyTwoFactorCodeForm from "#lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
+  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
 </script>
 
 <article>
@@ -22,7 +22,7 @@
     {/snippet}
 
     {#snippet footer()}
-      <Anchor href={resolve("/auth/two-factor/recover")}>
+      <Anchor href={resolve("auth/two-factor/recover")}>
         Lost your 2FA device? Recover your account
       </Anchor>
     {/snippet}

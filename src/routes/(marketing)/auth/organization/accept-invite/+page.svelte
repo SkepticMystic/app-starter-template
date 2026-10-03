@@ -1,11 +1,11 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { Toast } from "$lib/utils/toast.util";
-  import { OrganizationClient } from "$lib/clients/auth/organization.client";
-  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import { UserClient } from "$lib/clients/auth/user.client";
-  import { App } from "$lib/utils/app.js";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
+  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import { UserClient } from "#lib/clients/auth/user.client.js";
+  import { App } from "#lib/utils/app.js";
 
   let { data } = $props();
 
@@ -89,11 +89,11 @@
       you a link when you signed up.
     </p>
 
-    <Anchor href={resolve("/auth/verify-email")}>Resend verification</Anchor>
+    <Anchor href={resolve("auth/verify-email")}>Resend verification</Anchor>
   {:else if data.prompt === "already_member"}
     <p>You are already a member of the organization.</p>
 
-    <Anchor href={resolve("/settings/organization")}>View Organization</Anchor>
+    <Anchor href={resolve("settings/organization")}>View Organization</Anchor>
   {:else if data.prompt === "invite_not_pending"}
     <p class="text-warning">
       The invitation is no longer pending. Please contact the inviter for more
