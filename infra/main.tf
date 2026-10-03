@@ -32,24 +32,34 @@ terraform {
   }
 }
 
-provider "neon" {
-  api_key = var.neon_api_key
-}
+# ---------------------------------------------------------------------------
+# Provider credentials
+#
+# Every provider token comes from the environment, so none is in a variable,
+# terraform.tfvars, or the plan output. (A variable or data source would also
+# persist it into terraform.tfstate.) Export them before `tofu plan`/`apply`:
+#
+#   neon        NEON_API_KEY
+#   upstash     UPSTASH_EMAIL, UPSTASH_API_KEY
+#   cloudflare  CLOUDFLARE_API_TOKEN (R2:Edit, Turnstile:Edit, Zone:Read)
+#   sentry      SENTRY_AUTH_TOKEN — the integration token that may create
+#               projects, NOT the source-map token in var.sentry_auth_token.
+#               An unrelated SENTRY_AUTH_TOKEN in your shell (sentry-cli reads
+#               the same name) would be picked up here instead.
+#   vercel      VERCEL_API_TOKEN
+#
+# The Vercel team is not a credential and the provider reads it from no
+# variable, so it stays `var.vercel_team_id`.
+# ---------------------------------------------------------------------------
 
-provider "upstash" {
-  email   = var.upstash_email
-  api_key = var.upstash_api_key
-}
+provider "neon" {}
 
-provider "cloudflare" {
-  api_token = var.cloudflare_api_token
-}
+provider "upstash" {}
 
-provider "sentry" {
-  token = var.sentry_integration_token
-}
+provider "cloudflare" {}
+
+provider "sentry" {}
 
 provider "vercel" {
-  api_token = var.vercel_api_token
-  team      = var.vercel_team_id
+  team = var.vercel_team_id
 }

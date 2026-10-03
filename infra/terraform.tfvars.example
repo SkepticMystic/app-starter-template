@@ -2,20 +2,16 @@
 # terraform.tfvars is git-ignored — never commit real credentials.
 
 # ---------------------------------------------------------------------------
-# Provider credentials
+# Provider config. Provider TOKENS are not set here: export NEON_API_KEY,
+# UPSTASH_EMAIL, UPSTASH_API_KEY, CLOUDFLARE_API_TOKEN, SENTRY_AUTH_TOKEN and
+# VERCEL_API_TOKEN instead (see main.tf).
 # ---------------------------------------------------------------------------
 
-neon_api_key = "your_neon_api_key"
-neon_org_id  = "your_neon_org_id" # Settings → Organization → General
+neon_org_id = "your_neon_org_id" # Settings → Organization → General
 
-upstash_email   = "you@example.com"
-upstash_api_key = "your_upstash_api_key"
-
-cloudflare_api_token  = "your_cloudflare_api_token"
 cloudflare_account_id = "your_cloudflare_account_id"
 
-vercel_api_token = "your_vercel_api_token"
-vercel_team_id   = "team_xxxxxxxxxxxxxxxxxxxxxxxx"
+vercel_team_id = "team_xxxxxxxxxxxxxxxxxxxxxxxx"
 
 
 # ---------------------------------------------------------------------------
@@ -47,7 +43,6 @@ resend_api_key = "re_your_resend_api_key"
 
 sentry_org_slug = "your_sentry_org_slug"
 sentry_team_slug = "your_sentry_team_slug"
-sentry_integration_token = "your_sentry_integration_token"
 
 umami_base_url   = "https://eu.umami.is"
 umami_website_id = "your_umami_website_uuid"
