@@ -385,8 +385,13 @@ server in `build/`.
 
 ### Container
 
-`pnpm build` → `build/`, started with `node build`. The `Dockerfile` does this
-in two stages on a Debian-slim base (not Alpine — `sharp` ships glibc prebuilts).
+`pnpm build` → `build/`, started with `node build`. The `Dockerfile` builds on
+a Debian-slim base (not Alpine — `sharp` ships glibc prebuilts), installs
+`--prod` dependencies in a separate stage, and ships a runtime stage with no
+pnpm in it. adapter-node bundles everything except `dependencies`, so a package
+the server imports at run time must be a dependency, not a devDependency —
+check the bare specifiers under `build/` before moving one. `compose.yaml`
+runs the image locally against `.env` and waits on `/api/health`.
 
 Build args are the build-time variables only: `APP_ENV` and the `PUBLIC_*` set.
 Everything else is read at runtime through `$app/env/private`, so **no
@@ -402,10 +407,12 @@ origin SvelteKit trusts for CSRF checks: `adapter-node` 6 dropped the runtime
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ADDRESS_HEADER` + `XFF_DEPTH` | `event.getClientAddress()` otherwise returns the socket peer — the reverse proxy — for every request, which collapses all users into one rate-limit bucket. `XFF_DEPTH` is the real number of trusted proxies. Do not "fix" this by reordering the header chain in `adapter.service.ts`: that lets any client spoof its own IP. It feeds Better-Auth too: `handle` pins the resolved address onto `x-app-client-ip` (`AdapterService.pin_client_ip`), the only header `advanced.ipAddress` reads, so its rate limiter keys on the same address. |
 | `PORT` / `HOST`                | Default `0.0.0.0:3000`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `BODY_SIZE_LIMIT`              | Default 512kb, which image uploads exceed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `BODY_SIZE_LIMIT`              | Default 512kb, which image uploads exceed. The image sets `6M`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `SHUTDOWN_TIMEOUT`             | Seconds to close connections before `sveltekit:shutdown` starts the background-work drain (up to 30s more). The image sets 20, so the stop grace period must exceed 50s — docker's default is 10.                                                                                                                                                                                                                                                                                                                                               |
 
 Run `pnpm db:migrate:run` as a separate one-shot step before rolling out, not
-from the entrypoint.
+from the entrypoint. The runtime image has no pnpm, so there it is
+`node scripts/db/migrate.script.ts` (or `docker compose run --rm migrate`).
 
 ### The platform seam
 

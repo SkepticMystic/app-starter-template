@@ -1,0 +1,59 @@
+# Runs the production image locally: `docker compose up --build`.
+#
+# A check of the artefact that ships, not a dev environment. It reads `.env`
+# and `.env.local`, the files `pnpm dev` does, so it talks to whatever tier
+# those point at — usually the dev database and bucket — and writes land there.
+# Compose strips their quotes, unlike `docker run --env-file`.
+x-app: &app
+  build:
+    context: .
+    # Compiled in, so changing one needs `--build`. `PUBLIC_BASE_URL` is also
+    # kit's `paths.origin` (the CSRF origin), so it must be the URL you open:
+    # plain HTTP on the published port below. Not `${PUBLIC_BASE_URL}`:
+    # compose interpolates from `.env`, whose value is the dev server's 5173.
+    args:
+      APP_ENV: ${APP_ENV:-development}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL_DOCKER:-http://localhost:3000}
+      PUBLIC_SENTRY_DSN: ${PUBLIC_SENTRY_DSN:-}
+      PUBLIC_CAPTCHA_SITE_KEY: ${PUBLIC_CAPTCHA_SITE_KEY:-}
+      PUBLIC_UMAMI_BASE_URL: ${PUBLIC_UMAMI_BASE_URL:-}
+      PUBLIC_UMAMI_WEBSITE_ID: ${PUBLIC_UMAMI_WEBSITE_ID:-}
+
+  image: app-starter-template:local
+
+  env_file:
+    - .env
+    - path: .env.local
+      required: false
+
+services:
+  web:
+    <<: *app
+
+    ports:
+      - "3000:3000"
+
+    # Over the image's SHUTDOWN_TIMEOUT (20s) plus RuntimeService's 30s drain;
+    # compose's 10s default would SIGKILL the drain.
+    stop_grace_period: 60s
+
+    # Neither curl nor wget is in `node:*-slim`.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/api/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+
+  # `docker compose run --rm migrate` — the one-shot release step, against
+  # whatever `DATABASE_URL` in `.env` points at. Behind a profile so `up`
+  # never migrates.
+  migrate:
+    <<: *app
+    profiles: [tools]
+    command: ["node", "scripts/db/migrate.script.ts"]

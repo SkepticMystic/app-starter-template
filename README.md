@@ -66,14 +66,23 @@ environment.
 docker build \
   --build-arg PUBLIC_BASE_URL=https://your.domain \
   --build-arg APP_ENV=production \
+  --build-arg SENTRY_RELEASE="$(git rev-parse HEAD)" \
+  --secret id=SENTRY_AUTH_TOKEN,env=SENTRY_AUTH_TOKEN \
   -t app .
 
 # Migrations are a separate one-shot step, never the entrypoint: replicas
 # starting together would race, and neon-http has no transactions to lock with.
-docker run --rm --env-file .env app pnpm db:migrate:run
+# The runtime image has no pnpm; this is what `pnpm db:migrate:run` runs.
+docker run --rm --env-file .env app node scripts/db/migrate.script.ts
 
-docker run -p 3000:3000 --env-file .env app
+# Over SHUTDOWN_TIMEOUT (20s) plus the 30s background-work drain.
+docker run -p 3000:3000 --stop-timeout 60 --env-file .env app
 ```
+
+The Sentry secret is optional: without it the build skips the source-map
+upload. To check the production image locally against your `.env`, run
+`docker compose up --build` (it waits on `/api/health`), and
+`docker compose run --rm migrate` for the migration step.
 
 > **`--env-file` and quotes.** Docker does not strip quotes from an env file —
 > `FOO="bar"` becomes the six-character value `"bar"`. `.env.example` is
