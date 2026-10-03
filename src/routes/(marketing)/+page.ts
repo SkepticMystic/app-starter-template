@@ -1,5 +1,5 @@
-import { APP } from "$lib/const/app.const";
-import { SEOUtil } from "$lib/utils/seo/seo.util";
+import { APP } from "#lib/const/app.const.js";
+import { SEOUtil } from "#lib/utils/seo/seo.util.js";
 import type { PageLoad } from "./$types";
 
 export const load = (() => {

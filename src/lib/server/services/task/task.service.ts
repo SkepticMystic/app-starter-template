@@ -1,12 +1,12 @@
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { db } from "$lib/server/db/drizzle.db";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { db } from "#lib/server/db/drizzle.db.js";
 import {
   TaskSchema,
   TaskTable,
   type Task,
-} from "$lib/server/db/models/task.model";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { Log } from "$lib/utils/logger.util";
+} from "#lib/server/db/models/task.model.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { Log } from "#lib/utils/logger.util.js";
 import { operators } from "drizzle-orm";
 import type { z } from "zod";
 

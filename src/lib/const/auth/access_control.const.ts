@@ -1,4 +1,4 @@
-import type { RoleId } from "$lib/const/auth/role.const";
+import type { RoleId } from "#lib/const/auth/role.const.js";
 import { createAccessControl } from "better-auth/plugins/access";
 import {
   adminAc,

@@ -1,4 +1,4 @@
-import { TIME } from "$lib/const/time.const";
+import { TIME } from "#lib/const/time.const.js";
 import { Guard } from "./guard.util";
 
 /** The empty-value sentinel, so the dash is written down once. */

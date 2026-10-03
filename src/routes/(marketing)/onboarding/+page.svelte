@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { OrganizationClient } from "$lib/clients/auth/organization.client";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import { create_organization_remote } from "$lib/remote/auth/organization/organization.remote";
-  import { App } from "$lib/utils/app";
+  import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import { create_organization_remote } from "#lib/remote/auth/organization/organization.remote.js";
+  import { App } from "#lib/utils/app.js";
 
   const form = create_organization_remote;
 </script>

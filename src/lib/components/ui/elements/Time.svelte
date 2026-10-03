@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Format } from "$lib/utils/format.util";
+  import { Format } from "#lib/utils/format.util.js";
   import type { ClassValue } from "svelte/elements";
 
   let {

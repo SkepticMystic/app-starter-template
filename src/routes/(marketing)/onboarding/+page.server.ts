@@ -1,5 +1,5 @@
-import { auth } from "$lib/auth";
-import { App } from "$lib/utils/app";
+import { auth } from "#lib/auth.js";
+import { App } from "#lib/utils/app.js";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 

@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { AdminClient } from "$lib/clients/auth/admin.client.js";
-  import { CellHelpers, column_helper } from "$lib/utils/tanstack/table.util";
-  import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
-  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { renderComponent } from "$lib/components/ui/data-table";
-  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import { ROLES, type RoleId } from "$lib/const/auth/role.const.js";
-  import { Arrays } from "$lib/utils/array/array.util.js";
+  import { AdminClient } from "#lib/clients/auth/admin.client.js";
+  import {
+    CellHelpers,
+    column_helper,
+  } from "#lib/utils/tanstack/table.util.js";
+  import UserAvatar from "#lib/components/ui/avatar/UserAvatar.svelte";
+  import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import { renderComponent } from "#lib/components/ui/data-table/index.js";
+  import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
+  import { ROLES, type RoleId } from "#lib/const/auth/role.const.js";
+  import { Arrays } from "#lib/utils/array/array.util.js";
 
   let { data } = $props();
   let users = $derived(data.users);

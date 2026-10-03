@@ -1,5 +1,5 @@
 import { command } from "$app/server";
-import { MemberService } from "$lib/server/services/auth/organization/member.services";
+import { MemberService } from "#lib/server/services/auth/organization/member.services.js";
 import { z } from "zod";
 
 export const remove_member_remote = command(

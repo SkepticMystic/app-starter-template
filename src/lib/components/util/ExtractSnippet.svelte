@@ -1,7 +1,7 @@
 <!-- Keyword 'extract' taken from runed.dev extract util -->
 
 <script lang="ts">
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
+  import type { MaybeSnippet } from "#lib/interfaces/svelte/svelte.type.js";
 
   let {
     snippet,

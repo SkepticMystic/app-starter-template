@@ -1,11 +1,11 @@
 import { command, form, query } from "$app/server";
-import { ERROR } from "$lib/const/error.const";
-import { db } from "$lib/server/db/drizzle.db";
-import { TaskSchema, type Task } from "$lib/server/db/models/task.model";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/server/services/auth.service";
-import { TaskService } from "$lib/server/services/task/task.service";
-import { result } from "$lib/utils/result.util";
+import { ERROR } from "#lib/const/error.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { TaskSchema, type Task } from "#lib/server/db/models/task.model.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { TaskService } from "#lib/server/services/task/task.service.js";
+import { result } from "#lib/utils/result.util.js";
 import { z } from "zod";
 
 export const get_all_tasks_remote = query(async () => {

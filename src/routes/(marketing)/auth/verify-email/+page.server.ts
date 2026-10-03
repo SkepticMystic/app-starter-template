@@ -1,5 +1,5 @@
 import type { ResolvedPathname } from "$app/types";
-import { get_session } from "$lib/server/services/auth.service";
+import { get_session } from "#lib/server/services/auth.service.js";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 

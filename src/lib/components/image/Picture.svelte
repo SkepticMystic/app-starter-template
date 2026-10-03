@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { ImageClient } from "$lib/clients/image.client";
-  import type { Image as ImageModel } from "$lib/server/db/models/image.model";
+  import { ImageClient } from "#lib/clients/image.client.js";
+  import type { Image as ImageModel } from "#lib/server/db/models/image.model.js";
   import { Image } from "@unpic/svelte";
   import type { ClassValue } from "svelte/elements";
   import Anchor from "../ui/anchor/Anchor.svelte";

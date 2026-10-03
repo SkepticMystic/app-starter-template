@@ -1,8 +1,8 @@
 <script lang="ts">
-  import ButtonGroup from "$lib/components/ui/button-group/button-group.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Logo from "$lib/components/ui/image/Logo.svelte";
-  import { APP } from "$lib/const/app.const";
+  import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Logo from "#lib/components/ui/image/Logo.svelte";
+  import { APP } from "#lib/const/app.const.js";
 </script>
 
 <article class="mx-auto mt-32 flex max-w-lg flex-col gap-y-7">

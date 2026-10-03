@@ -1,4 +1,4 @@
-import { BetterAuthClient } from "$lib/auth-client";
+import { BetterAuthClient } from "#lib/auth-client.js";
 import { derived } from "svelte/store";
 
 export const session = BetterAuthClient.useSession();

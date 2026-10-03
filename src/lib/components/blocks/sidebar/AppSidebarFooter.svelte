@@ -1,22 +1,22 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { UserClient } from "$lib/clients/auth/user.client";
-  import AvatarFallback from "$lib/components/ui/avatar/avatar-fallback.svelte";
-  import AvatarImage from "$lib/components/ui/avatar/avatar-image.svelte";
-  import AvatarRoot from "$lib/components/ui/avatar/avatar-root.svelte";
-  import DropdownMenuContent from "$lib/components/ui/dropdown-menu/dropdown-menu-content.svelte";
-  import DropdownMenuGroup from "$lib/components/ui/dropdown-menu/dropdown-menu-group.svelte";
-  import DropdownMenuItem from "$lib/components/ui/dropdown-menu/dropdown-menu-item.svelte";
-  import DropdownMenuLabel from "$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte";
-  import DropdownMenuRoot from "$lib/components/ui/dropdown-menu/dropdown-menu-root.svelte";
-  import DropdownMenuSeparator from "$lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte";
-  import DropdownMenuTrigger from "$lib/components/ui/dropdown-menu/dropdown-menu-trigger.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { useSidebar } from "$lib/components/ui/sidebar/context.svelte";
-  import SidebarMenuButton from "$lib/components/ui/sidebar/sidebar-menu-button.svelte";
-  import SidebarMenuItem from "$lib/components/ui/sidebar/sidebar-menu-item.svelte";
-  import SidebarMenu from "$lib/components/ui/sidebar/sidebar-menu.svelte";
-  import { user } from "$lib/stores/session.store";
+  import { UserClient } from "#lib/clients/auth/user.client.js";
+  import AvatarFallback from "#lib/components/ui/avatar/avatar-fallback.svelte";
+  import AvatarImage from "#lib/components/ui/avatar/avatar-image.svelte";
+  import AvatarRoot from "#lib/components/ui/avatar/avatar-root.svelte";
+  import DropdownMenuContent from "#lib/components/ui/dropdown-menu/dropdown-menu-content.svelte";
+  import DropdownMenuGroup from "#lib/components/ui/dropdown-menu/dropdown-menu-group.svelte";
+  import DropdownMenuItem from "#lib/components/ui/dropdown-menu/dropdown-menu-item.svelte";
+  import DropdownMenuLabel from "#lib/components/ui/dropdown-menu/dropdown-menu-label.svelte";
+  import DropdownMenuRoot from "#lib/components/ui/dropdown-menu/dropdown-menu-root.svelte";
+  import DropdownMenuSeparator from "#lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte";
+  import DropdownMenuTrigger from "#lib/components/ui/dropdown-menu/dropdown-menu-trigger.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import { useSidebar } from "#lib/components/ui/sidebar/context.svelte.js";
+  import SidebarMenuButton from "#lib/components/ui/sidebar/sidebar-menu-button.svelte";
+  import SidebarMenuItem from "#lib/components/ui/sidebar/sidebar-menu-item.svelte";
+  import SidebarMenu from "#lib/components/ui/sidebar/sidebar-menu.svelte";
+  import { user } from "#lib/stores/session.store.js";
 
   const sidebar = useSidebar();
 </script>

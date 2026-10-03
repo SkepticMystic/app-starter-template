@@ -1,7 +1,7 @@
 <script lang="ts">
   import { RangeCalendar as RangeCalendarPrimitive } from "bits-ui";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import { type WithoutChildrenOrChild } from "#lib/utils/shadcn.util.js";
 
   let {
     ref = $bindable(null),

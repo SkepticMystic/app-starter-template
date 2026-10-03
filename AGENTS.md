@@ -330,7 +330,11 @@ migrates production with no review gate between merge and schema change.
   - Remote functions: `*.remote.ts`
   - Services: `*.service.ts`
   - Utilities: `*.util.ts`
-- **Import aliases**: Use `$lib`, `$app`, `$env` SvelteKit aliases
+- **Import aliases**: `#lib/...` for `src/lib`, a `package.json` subpath import
+  that replaced `$lib` in SvelteKit 3. Imports carry an extension:
+  `#lib/utils/result.util.js` (`.js` for a `.ts` file) and
+  `#lib/components/ui/button/button.svelte`. `tsconfig.json` restates it under
+  `paths`, which `svelte-check --tsgo` needs to type `.svelte` imports
 - **TypeScript namespaces**: Preferred for organizing related types (e.g., `IAuth.ProviderId`)
 
 ### Database Patterns
@@ -349,7 +353,7 @@ migrates production with no review gate between merge and schema change.
 - Use `result.err({ message })` utility for consistent error responses
 - Log errors with context: `Log.error(error, "context_identifier")`
 - Better-Auth API errors are instances of `APIError` with `body.code` for error types
-- Custom error codes defined in `$lib/auth-client` as `$ERROR_CODES`
+- Custom error codes defined in `#lib/auth-client.ts` as `$ERROR_CODES`
 
 <!--VITE PLUS START-->
 

@@ -1,7 +1,7 @@
-import type { DropdownMenuItemInput } from "$lib/components/ui/dropdown-menu/dropdown-menu.types";
-import type { SelectOption } from "$lib/interfaces";
-import type { Features } from "$lib/utils/tanstack/table.util";
-import type { SearchParamValue } from "$lib/utils/urls";
+import type { DropdownMenuItemInput } from "#lib/components/ui/dropdown-menu/dropdown-menu.types.js";
+import type { SelectOption } from "#lib/interfaces/index.js";
+import type { Features } from "#lib/utils/tanstack/table.util.js";
+import type { SearchParamValue } from "#lib/utils/urls.js";
 import type { DateRange } from "bits-ui";
 import type {
   ColumnDef,

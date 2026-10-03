@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type WithoutChild } from "$lib/utils/shadcn.util.js";
+  import { type WithoutChild } from "#lib/utils/shadcn.util.js";
   import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
   import Icon from "../icon/Icon.svelte";
 

@@ -1,8 +1,8 @@
-import { APP } from "$lib/const/app.const";
-import { ERROR } from "$lib/const/error.const";
-import type { PaystackTransaction } from "$lib/server/db/models/subscription.model";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { APP } from "#lib/const/app.const.js";
+import { ERROR } from "#lib/const/error.const.js";
+import type { PaystackTransaction } from "#lib/server/db/models/subscription.model.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { PDF, Standard14Font, StandardFonts, rgb } from "@libpdf/core";
 import { captureException } from "@sentry/sveltekit";
 import { Format } from "../format.util";

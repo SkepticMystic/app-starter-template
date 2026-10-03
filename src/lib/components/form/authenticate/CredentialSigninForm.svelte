@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
-  import { Toast } from "$lib/utils/toast.util";
-  import { BetterAuthClient } from "$lib/auth-client";
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import { AUTH, type IAuth } from "$lib/const/auth/auth.const.js";
-  import { signin_credentials_remote } from "$lib/remote/auth/auth.remote";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import { BetterAuthClient } from "#lib/auth-client.js";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import { AUTH, type IAuth } from "#lib/const/auth/auth.const.js";
+  import { signin_credentials_remote } from "#lib/remote/auth/auth.remote.js";
   import FormErrors from "../FormErrors.svelte";
 
   let {

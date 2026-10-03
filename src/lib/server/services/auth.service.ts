@@ -1,11 +1,11 @@
 import { getRequestEvent } from "$app/server";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { auth } from "$lib/auth";
-import { BetterAuthClient } from "$lib/auth-client";
-import type { RoleId } from "$lib/const/auth/role.const";
-import { ERROR } from "$lib/const/error.const";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { auth } from "#lib/auth.js";
+import { BetterAuthClient } from "#lib/auth-client.js";
+import type { RoleId } from "#lib/const/auth/role.const.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException, metrics, setUser } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 

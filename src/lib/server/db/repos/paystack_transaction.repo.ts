@@ -1,4 +1,4 @@
-import { db } from "$lib/server/db/drizzle.db";
+import { db } from "#lib/server/db/drizzle.db.js";
 import { type PaystackTransaction } from "../models/subscription.model";
 import { Repo } from "./index.repo";
 

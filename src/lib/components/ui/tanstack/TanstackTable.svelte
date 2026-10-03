@@ -3,14 +3,14 @@
   lang="ts"
   generics="TData extends Record<string, unknown>"
 >
-  import type { TanstackTableInput } from "$lib/interfaces/tanstack/table.type";
+  import type { TanstackTableInput } from "#lib/interfaces/tanstack/table.type.js";
   import {
     DEFAULT_COLUMN,
     features,
     TanstackTable as TanstackTableUtil,
     type Features,
-  } from "$lib/utils/tanstack/table.util";
-  import { TableFilters } from "$lib/utils/tanstack/table_filter.util";
+  } from "#lib/utils/tanstack/table.util.js";
+  import { TableFilters } from "#lib/utils/tanstack/table_filter.util.js";
   import {
     createTable,
     createTableState,

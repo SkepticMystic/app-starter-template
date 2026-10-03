@@ -2,8 +2,8 @@
   lang="ts"
   generics="V"
 >
-  import type { MaybePromise, SelectOption } from "$lib/interfaces";
-  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { MaybePromise, SelectOption } from "#lib/interfaces/index.js";
+  import { type WithElementRef } from "#lib/utils/shadcn.util.js";
   import type { HTMLSelectAttributes } from "svelte/elements";
   import Skeleton from "../skeleton/skeleton.svelte";
   import NativeSelectOption from "./native-select-option.svelte";

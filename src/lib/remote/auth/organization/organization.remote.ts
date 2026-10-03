@@ -1,10 +1,10 @@
 import { command, form, getRequestEvent } from "$app/server";
-import { auth } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { OrganizationSchema } from "$lib/server/db/models/auth.model";
-import { get_session } from "$lib/server/services/auth.service";
-import { OrganizationService } from "$lib/server/services/auth/organization/organization.service";
-import { result } from "$lib/utils/result.util";
+import { auth } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { OrganizationSchema } from "#lib/server/db/models/auth.model.js";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { OrganizationService } from "#lib/server/services/auth/organization/organization.service.js";
+import { result } from "#lib/utils/result.util.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 

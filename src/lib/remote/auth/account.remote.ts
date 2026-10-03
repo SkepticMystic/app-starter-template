@@ -1,9 +1,9 @@
 import { command, query } from "$app/server";
-import { AUTH } from "$lib/const/auth/auth.const";
-import { db } from "$lib/server/db/drizzle.db";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/server/services/auth.service";
-import { AccountService } from "$lib/server/services/auth/account/account.service";
+import { AUTH } from "#lib/const/auth/auth.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { AccountService } from "#lib/server/services/auth/account/account.service.js";
 import { error } from "@sveltejs/kit";
 import { z } from "zod";
 

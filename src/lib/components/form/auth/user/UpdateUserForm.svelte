@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { BetterAuthClient } from "$lib/auth-client";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import type { MaybePromise } from "$lib/interfaces";
-  import { update_user_remote } from "$lib/remote/auth/user.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import { BetterAuthClient } from "#lib/auth-client.js";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import type { MaybePromise } from "#lib/interfaces/index.js";
+  import { update_user_remote } from "#lib/remote/auth/user.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import type { User } from "better-auth";
   import { toast } from "svelte-sonner";
 

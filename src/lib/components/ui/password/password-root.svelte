@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AUTH } from "$lib/const/auth/auth.const.js";
+  import { AUTH } from "#lib/const/auth/auth.const.js";
   import { box } from "svelte-toolbelt";
   import { usePassword } from "./password.svelte.js";
   import type { PasswordRootProps } from "./types.js";

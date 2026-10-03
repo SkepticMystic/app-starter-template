@@ -1,6 +1,6 @@
 import { command, form, query } from "$app/server";
-import { get_session } from "$lib/server/services/auth.service";
-import { PasskeyService } from "$lib/server/services/auth/passkey/passkey.service";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { PasskeyService } from "#lib/server/services/auth/passkey/passkey.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 

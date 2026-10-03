@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { ButtonVariant } from "$lib/components/ui/button/button.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import type { ButtonVariant } from "#lib/components/ui/button/button.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
   import type { ClassValue } from "svelte/elements";
   import Anchor from "../anchor/Anchor.svelte";
   import Button, { type ButtonSize } from "../button/button.svelte";

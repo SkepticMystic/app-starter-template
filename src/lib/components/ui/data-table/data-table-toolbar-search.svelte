@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { debounce } from "$lib/utils/timer.util";
+  import { debounce } from "#lib/utils/timer.util.js";
   import { onDestroy } from "svelte";
   import type { HTMLInputAttributes } from "svelte/elements";
   import Input from "../input/input.svelte";

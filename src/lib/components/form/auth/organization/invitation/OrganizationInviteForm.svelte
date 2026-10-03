@@ -1,14 +1,14 @@
 <script lang="ts">
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import { ORGANIZATION } from "$lib/const/auth/organization.const";
-  import type { ResultData } from "$lib/interfaces/result.type";
-  import { create_invitation_remote } from "$lib/remote/auth/organization/invitation.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
+  import { ORGANIZATION } from "#lib/const/auth/organization.const.js";
+  import type { ResultData } from "#lib/interfaces/result.type.js";
+  import { create_invitation_remote } from "#lib/remote/auth/organization/invitation.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import { toast } from "svelte-sonner";
 
   let {

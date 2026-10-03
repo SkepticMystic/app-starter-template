@@ -1,16 +1,16 @@
 <script lang="ts">
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import CopyButton from "$lib/components/ui/copy-button/copy-button.svelte";
-  import FieldGroup from "$lib/components/ui/field/field-group.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Fieldset from "$lib/components/ui/field/Fieldset.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import Item from "$lib/components/ui/item/Item.svelte";
-  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import { create_apikey_remote } from "$lib/remote/auth/apikey.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import CopyButton from "#lib/components/ui/copy-button/copy-button.svelte";
+  import FieldGroup from "#lib/components/ui/field/field-group.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Fieldset from "#lib/components/ui/field/Fieldset.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import Item from "#lib/components/ui/item/Item.svelte";
+  import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
+  import { create_apikey_remote } from "#lib/remote/auth/apikey.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import type { ApiKey } from "@better-auth/api-key";
   import { toast } from "svelte-sonner";
 

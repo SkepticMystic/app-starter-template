@@ -1,7 +1,7 @@
-import type { BadgeVariant } from "$lib/components/ui/badge";
-import Badge from "$lib/components/ui/badge/badge.svelte";
-import { renderComponent } from "$lib/components/ui/data-table";
-import Time from "$lib/components/ui/elements/Time.svelte";
+import type { BadgeVariant } from "#lib/components/ui/badge/index.js";
+import Badge from "#lib/components/ui/badge/badge.svelte";
+import { renderComponent } from "#lib/components/ui/data-table/index.js";
+import Time from "#lib/components/ui/elements/Time.svelte";
 import { getLocalTimeZone } from "@internationalized/date";
 import {
   aggregationFn_count,

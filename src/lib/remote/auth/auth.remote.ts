@@ -1,19 +1,19 @@
 import { form, getRequestEvent } from "$app/server";
-import { redirect_uri_schema } from "$lib/schema/auth/redirect_uri.schema";
+import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
 import type { ResolvedPathname } from "$app/types";
-import { auth, is_ba_error_code } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { password_schema } from "$lib/schema/password/password.schema";
-import { EmailValidationService } from "$lib/server/services/auth/email/email_validation.service";
-import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
-import { App } from "$lib/utils/app";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { auth, is_ba_error_code } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { password_schema } from "#lib/schema/password/password.schema.js";
+import { EmailValidationService } from "#lib/server/services/auth/email/email_validation.service.js";
+import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
+import { App } from "#lib/utils/app.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
-import { RateLimiter } from "$lib/server/services/rate_limit/rate_limit.service";
-import { AdapterService } from "$lib/server/services/adapter/adapter.service";
+import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
+import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
 import { z } from "zod";
 
 /**

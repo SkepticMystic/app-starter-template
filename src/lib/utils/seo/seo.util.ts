@@ -1,4 +1,4 @@
-import { APP } from "$lib/const/app.const";
+import { APP } from "#lib/const/app.const.js";
 import { transformUrl } from "unpic";
 import { Url } from "../urls";
 

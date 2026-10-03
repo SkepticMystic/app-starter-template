@@ -1,5 +1,5 @@
 import type { ResolvedPathname } from "$app/types";
-import type { MaybePromise } from "$lib/interfaces";
+import type { MaybePromise } from "#lib/interfaces/index.js";
 import type { DropdownMenuItemPropsWithoutHTML } from "bits-ui";
 import type { HTMLAttributeAnchorTarget } from "svelte/elements";
 

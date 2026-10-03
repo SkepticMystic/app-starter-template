@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import type { WithoutChildrenOrChild } from "#lib/utils/shadcn.util.js";
   import { Tooltip as TooltipPrimitive } from "bits-ui";
   import type { ComponentProps } from "svelte";
   import TooltipPortal from "./tooltip-portal.svelte";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { WithElementRef } from "$lib/utils/shadcn.util.js";
+  import type { WithElementRef } from "#lib/utils/shadcn.util.js";
   import type { HTMLOptgroupAttributes } from "svelte/elements";
 
   let {

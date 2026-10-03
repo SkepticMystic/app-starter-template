@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
+  import ExtractSnippet from "#lib/components/util/ExtractSnippet.svelte";
+  import type { MaybeSnippet } from "#lib/interfaces/svelte/svelte.type.js";
   import type { Snippet } from "svelte";
   import {
     buttonVariants,

@@ -2,9 +2,9 @@
   lang="ts"
   generics="TData extends Record<string, unknown>"
 >
-  import Button from "$lib/components/ui/button/button.svelte";
-  import type { Features } from "$lib/utils/tanstack/table.util";
-  import { TanstackTable } from "$lib/utils/tanstack/table.util";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import type { Features } from "#lib/utils/tanstack/table.util.js";
+  import { TanstackTable } from "#lib/utils/tanstack/table.util.js";
   import type { Table } from "@tanstack/svelte-table";
   import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
   import DropdownMenuCheckboxItem from "../dropdown-menu/dropdown-menu-checkbox-item.svelte";

@@ -1,20 +1,20 @@
 <script lang="ts">
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import type { MaybePromise } from "$lib/interfaces";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import type { MaybePromise } from "#lib/interfaces/index.js";
   import {
     list_passkeys_remote,
     rename_passkey_remote,
-  } from "$lib/remote/auth/passkey.remote";
-  import type { Passkey } from "$lib/server/db/models/auth.model";
+  } from "#lib/remote/auth/passkey.remote.js";
+  import type { Passkey } from "#lib/server/db/models/auth.model.js";
   // What Better-Auth hands back, which is not the DB row: 1.7 returns its own
   // shape, wrapped, and it carries no `updatedAt`.
   import type { Passkey as BetterAuthPasskey } from "@better-auth/passkey";
-  import { Arrays } from "$lib/utils/array/array.util";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
-  import { result } from "$lib/utils/result.util";
+  import { Arrays } from "#lib/utils/array/array.util.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
+  import { result } from "#lib/utils/result.util.js";
   import FormButton from "../../FormButton.svelte";
 
   let {

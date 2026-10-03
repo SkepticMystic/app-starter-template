@@ -1,4 +1,4 @@
-import { db } from "$lib/server/db/drizzle.db";
+import { db } from "#lib/server/db/drizzle.db.js";
 import { eq } from "drizzle-orm";
 import {
   SubscriptionTable,

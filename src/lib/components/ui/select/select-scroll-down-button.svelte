@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import { type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import { type WithoutChildrenOrChild } from "#lib/utils/shadcn.util.js";
   import { Select as SelectPrimitive } from "bits-ui";
 
   let {

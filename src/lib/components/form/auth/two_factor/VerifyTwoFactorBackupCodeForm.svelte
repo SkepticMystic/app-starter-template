@@ -1,12 +1,12 @@
 <script lang="ts">
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import type { ResultData } from "$lib/interfaces/result.type";
-  import { verify_two_factor_backup_code_remote } from "$lib/remote/auth/two_factor.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import Checkbox from "#lib/components/ui/checkbox/checkbox.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import type { ResultData } from "#lib/interfaces/result.type.js";
+  import { verify_two_factor_backup_code_remote } from "#lib/remote/auth/two_factor.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import FormButton from "../../FormButton.svelte";
   import CaptchaField from "../captcha/CaptchaField.svelte";
 

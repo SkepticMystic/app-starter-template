@@ -1,7 +1,7 @@
 <script lang="ts">
-  import ExtractSnippet from "$lib/components/util/ExtractSnippet.svelte";
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
-  import { type WithElementRef } from "$lib/utils/shadcn.util";
+  import ExtractSnippet from "#lib/components/util/ExtractSnippet.svelte";
+  import type { MaybeSnippet } from "#lib/interfaces/svelte/svelte.type.js";
+  import { type WithElementRef } from "#lib/utils/shadcn.util.js";
   import type { HTMLAnchorAttributes } from "svelte/elements";
   import Icon from "../icon/Icon.svelte";
   import Loading from "../loading/Loading.svelte";

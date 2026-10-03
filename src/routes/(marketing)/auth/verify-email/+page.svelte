@@ -1,11 +1,11 @@
 <script lang="ts">
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import { send_verification_email_remote } from "$lib/remote/auth/user.remote";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import { send_verification_email_remote } from "#lib/remote/auth/user.remote.js";
   import { toast } from "svelte-sonner";
 
   const form = send_verification_email_remote;

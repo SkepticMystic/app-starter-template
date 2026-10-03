@@ -1,8 +1,8 @@
 <script lang="ts">
   import { isEqualMonth, type DateValue } from "@internationalized/date";
   import { RangeCalendar as RangeCalendarPrimitive } from "bits-ui";
-  import type { ButtonVariant } from "$lib/components/ui/button/button.svelte";
-  import { type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import type { ButtonVariant } from "#lib/components/ui/button/button.svelte";
+  import { type WithoutChildrenOrChild } from "#lib/utils/shadcn.util.js";
   import RangeCalendarCaption from "./range-calendar-caption.svelte";
   import RangeCalendarCell from "./range-calendar-cell.svelte";
   import RangeCalendarDay from "./range-calendar-day.svelte";

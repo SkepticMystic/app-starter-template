@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MaybePromise } from "$lib/interfaces";
+  import type { MaybePromise } from "#lib/interfaces/index.js";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";
   import Button from "../button/button.svelte";

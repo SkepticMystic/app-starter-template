@@ -1,4 +1,4 @@
-import type { Branded } from "$lib/interfaces/zod/zod.type";
+import type { Branded } from "#lib/interfaces/zod/zod.type.js";
 import Purify from "isomorphic-dompurify";
 
 const ESCAPES: Record<string, string> = {

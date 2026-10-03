@@ -46,7 +46,7 @@
 </script>
 
 <script lang="ts">
-  import { type WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import { type WithoutChildrenOrChild } from "#lib/utils/shadcn.util.js";
   import { Dialog as SheetPrimitive } from "bits-ui";
   import type { ComponentProps, Snippet } from "svelte";
   import Icon from "../icon/Icon.svelte";

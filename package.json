@@ -112,5 +112,8 @@
   "engines": {
     "node": ">=24.13.0"
   },
-  "packageManager": "pnpm@12.5.1"
+  "packageManager": "pnpm@12.5.1",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  }
 }

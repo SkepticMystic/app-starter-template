@@ -1,6 +1,6 @@
-import { ERROR } from "$lib/const/error.const";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ERROR } from "#lib/const/error.const.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import type { FullQueryResults } from "@neondatabase/serverless";
 import { captureException } from "@sentry/sveltekit";
 import { DrizzleError, DrizzleQueryError } from "drizzle-orm";

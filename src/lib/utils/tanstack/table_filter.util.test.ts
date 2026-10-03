@@ -1,4 +1,4 @@
-import type { DataTableFilter } from "$lib/interfaces/tanstack/table.type";
+import type { DataTableFilter } from "#lib/interfaces/tanstack/table.type.js";
 import { CalendarDate } from "@internationalized/date";
 import { describe, expect, it } from "vite-plus/test";
 import { TableFilters } from "./table_filter.util";

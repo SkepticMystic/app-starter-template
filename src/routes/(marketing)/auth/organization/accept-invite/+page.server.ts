@@ -1,8 +1,8 @@
-import { auth } from "$lib/auth";
-import { db } from "$lib/server/db/drizzle.db";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { InvitationService } from "$lib/server/services/auth/organization/invitation.service";
-import { Strings } from "$lib/utils/strings.util";
+import { auth } from "#lib/auth.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { InvitationService } from "#lib/server/services/auth/organization/invitation.service.js";
+import { Strings } from "#lib/utils/strings.util.js";
 import { error } from "@sveltejs/kit";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";

@@ -1,13 +1,13 @@
 <script lang="ts">
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Fieldset from "$lib/components/ui/field/Fieldset.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import type { MaybePromise } from "$lib/interfaces";
-  import type { ResultData } from "$lib/interfaces/result.type";
-  import { disable_two_factor_remote } from "$lib/remote/auth/two_factor.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Fieldset from "#lib/components/ui/field/Fieldset.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import type { MaybePromise } from "#lib/interfaces/index.js";
+  import type { ResultData } from "#lib/interfaces/result.type.js";
+  import { disable_two_factor_remote } from "#lib/remote/auth/two_factor.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import FormButton from "../../FormButton.svelte";
   import CaptchaField from "../captcha/CaptchaField.svelte";
 

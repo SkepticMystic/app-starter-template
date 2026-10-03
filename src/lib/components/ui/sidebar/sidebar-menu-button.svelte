@@ -59,7 +59,7 @@
   import {
     type WithElementRef,
     type WithoutChildrenOrChild,
-  } from "$lib/utils/shadcn.util.js";
+  } from "#lib/utils/shadcn.util.js";
   import { mergeProps } from "bits-ui";
   import type { ComponentProps, Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";

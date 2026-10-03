@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
+  import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
   import { REGEXP_ONLY_DIGITS } from "bits-ui";
   import type { HTMLInputAttributes } from "svelte/elements";
   import InputOtpGroup from "./input-otp-group.svelte";

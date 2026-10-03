@@ -1,8 +1,8 @@
-import { BetterAuthClient } from "$lib/auth-client";
-import { TIME } from "$lib/const/time.const";
-import { Format } from "$lib/utils/format.util";
+import { BetterAuthClient } from "#lib/auth-client.js";
+import { TIME } from "#lib/const/time.const.js";
+import { Format } from "#lib/utils/format.util.js";
 import { Client } from "../index.client";
-import { type RoleId, ROLES } from "$lib/const/auth/role.const";
+import { type RoleId, ROLES } from "#lib/const/auth/role.const.js";
 
 export const AdminClient = {
   update_user_role: Client.better_auth(

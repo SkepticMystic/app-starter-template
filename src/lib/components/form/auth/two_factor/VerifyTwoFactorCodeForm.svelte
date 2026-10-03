@@ -1,13 +1,13 @@
 <script lang="ts">
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import InputOtp from "$lib/components/ui/input-otp/input-otp.svelte";
-  import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
-  import type { ResultData } from "$lib/interfaces/result.type";
-  import { verify_totp_remote } from "$lib/remote/auth/two_factor.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import Checkbox from "#lib/components/ui/checkbox/checkbox.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import InputOtp from "#lib/components/ui/input-otp/input-otp.svelte";
+  import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
+  import type { ResultData } from "#lib/interfaces/result.type.js";
+  import { verify_totp_remote } from "#lib/remote/auth/two_factor.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import FormButton from "../../FormButton.svelte";
 
   let {

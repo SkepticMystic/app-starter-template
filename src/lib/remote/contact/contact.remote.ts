@@ -1,12 +1,12 @@
 import { form } from "$app/server";
-import { EMAIL } from "$lib/const/email.const";
-import { ERROR } from "$lib/const/error.const";
-import { AdapterService } from "$lib/server/services/adapter/adapter.service";
-import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
-import { EmailService } from "$lib/server/services/email.service";
-import { RateLimiter } from "$lib/server/services/rate_limit/rate_limit.service";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { EMAIL } from "#lib/const/email.const.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
+import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
+import { EmailService } from "#lib/server/services/email.service.js";
+import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { z } from "zod";
 

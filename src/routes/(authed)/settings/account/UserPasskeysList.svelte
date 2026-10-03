@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { PasskeyClient } from "$lib/clients/auth/passkey.client";
-  import EditPasskeyForm from "$lib/components/form/auth/passkeys/EditPasskeyForm.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Time from "$lib/components/ui/elements/Time.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import Item from "$lib/components/ui/item/Item.svelte";
-  import ItemList from "$lib/components/ui/item/ItemList.svelte";
-  import Modal from "$lib/components/ui/modal/modal.svelte";
-  import { list_passkeys_remote } from "$lib/remote/auth/passkey.remote";
-  import { result } from "$lib/utils/result.util";
+  import { PasskeyClient } from "#lib/clients/auth/passkey.client.js";
+  import EditPasskeyForm from "#lib/components/form/auth/passkeys/EditPasskeyForm.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Time from "#lib/components/ui/elements/Time.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import Item from "#lib/components/ui/item/Item.svelte";
+  import ItemList from "#lib/components/ui/item/ItemList.svelte";
+  import Modal from "#lib/components/ui/modal/modal.svelte";
+  import { list_passkeys_remote } from "#lib/remote/auth/passkey.remote.js";
+  import { result } from "#lib/utils/result.util.js";
 
   const passkeys = list_passkeys_remote();
 </script>

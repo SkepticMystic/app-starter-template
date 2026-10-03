@@ -1,7 +1,7 @@
 import { command, form, query } from "$app/server";
-import { get_session } from "$lib/server/services/auth.service";
-import { SubscriptionService } from "$lib/server/services/subscription/subscription.service";
-import { result } from "$lib/utils/result.util";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { SubscriptionService } from "#lib/server/services/subscription/subscription.service.js";
+import { result } from "#lib/utils/result.util.js";
 import { z } from "zod";
 
 export const get_active_subscription_remote = query(async () => {

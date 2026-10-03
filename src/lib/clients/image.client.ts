@@ -1,5 +1,5 @@
-import { delete_image_remote } from "$lib/remote/image/image.remote";
-import type { Image } from "$lib/server/db/models/image.model";
+import { delete_image_remote } from "#lib/remote/image/image.remote.js";
+import type { Image } from "#lib/server/db/models/image.model.js";
 import { thumbHashToDataURL } from "thumbhash";
 import { Client } from "./index.client";
 

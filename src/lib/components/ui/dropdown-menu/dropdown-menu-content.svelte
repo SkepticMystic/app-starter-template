@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { WithoutChildrenOrChild } from "$lib/utils/shadcn.util.js";
+  import type { WithoutChildrenOrChild } from "#lib/utils/shadcn.util.js";
   import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
   import type { ComponentProps } from "svelte";
   import DropdownMenuPortal from "./dropdown-menu-portal.svelte";

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { SelectOption } from "$lib/interfaces";
+  import type { SelectOption } from "#lib/interfaces/index.js";
   import type {
     DataTableFilter,
     DataTableFilterValue,
-  } from "$lib/interfaces/tanstack/table.type";
-  import { TableFilters } from "$lib/utils/tanstack/table_filter.util";
+  } from "#lib/interfaces/tanstack/table.type.js";
+  import { TableFilters } from "#lib/utils/tanstack/table_filter.util.js";
   import Button from "../button/button.svelte";
   import DateRangePicker from "../date-range-picker/DateRangePicker.svelte";
   import Field from "../field/Field.svelte";

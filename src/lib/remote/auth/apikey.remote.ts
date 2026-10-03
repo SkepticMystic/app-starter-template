@@ -1,6 +1,6 @@
 import { command, form } from "$app/server";
-import { get_session } from "$lib/server/services/auth.service";
-import { APIKeyService } from "$lib/server/services/auth/apikey/apikey.service";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { APIKeyService } from "#lib/server/services/auth/apikey/apikey.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 

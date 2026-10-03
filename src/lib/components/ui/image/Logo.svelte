@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { APP } from "$lib/const/app.const";
+  import { APP } from "#lib/const/app.const.js";
 
   let { size = "size-7" }: { size?: `size-${number}` } = $props();
 </script>

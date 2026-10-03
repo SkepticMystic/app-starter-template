@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "$lib/components/ui/badge";
+import type { BadgeVariant } from "#lib/components/ui/badge/index.js";
 
 /**
  * Every status Paystack may send, not just the ones we care about.

@@ -1,7 +1,7 @@
 import {
   list_accounts_remote,
   unlink_account_remote,
-} from "$lib/remote/auth/account.remote";
+} from "#lib/remote/auth/account.remote.js";
 import { Client } from "../index.client";
 
 export const AccountClient = {

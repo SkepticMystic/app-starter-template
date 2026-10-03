@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "$lib/components/ui/badge";
+import type { BadgeVariant } from "#lib/components/ui/badge/index.js";
 
 const STATUS_IDS = ["active", "trialing", "canceled", "incomplete"] as const;
 type StatusId = (typeof STATUS_IDS)[number];

@@ -1,4 +1,4 @@
-import { delete_apikey_remote } from "$lib/remote/auth/apikey.remote";
+import { delete_apikey_remote } from "#lib/remote/auth/apikey.remote.js";
 import { Client } from "../index.client";
 
 export const APIKeyClient = {

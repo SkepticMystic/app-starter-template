@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { OrganizationClient } from "$lib/clients/auth/organization.client";
-  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { ORGANIZATION } from "$lib/const/auth/organization.const";
-  import type { Invitation } from "$lib/server/db/models/auth.model";
-  import { column_helper, CellHelpers } from "$lib/utils/tanstack/table.util";
+  import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
+  import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import { ORGANIZATION } from "#lib/const/auth/organization.const.js";
+  import type { Invitation } from "#lib/server/db/models/auth.model.js";
+  import {
+    column_helper,
+    CellHelpers,
+  } from "#lib/utils/tanstack/table.util.js";
 
   let {
     invitations,

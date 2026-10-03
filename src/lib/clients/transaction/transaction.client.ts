@@ -2,7 +2,7 @@
  * Client-side wrappers for payment operations
  */
 
-import { get_transaction_invoice_remote } from "$lib/remote/transaction/transaction.remote";
+import { get_transaction_invoice_remote } from "#lib/remote/transaction/transaction.remote.js";
 import { Client } from "../index.client";
 
 export const TransactionClient = {

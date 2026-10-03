@@ -21,7 +21,7 @@ vi.mock("@upstash/ratelimit", () => ({
   },
 }));
 
-vi.mock("$lib/server/services/adapter/adapter.service", () => ({
+vi.mock("#lib/server/services/adapter/adapter.service.js", () => ({
   AdapterService: {
     get_ip: vi.fn().mockReturnValue("127.0.0.1"),
     get_geo: vi.fn().mockReturnValue(undefined),

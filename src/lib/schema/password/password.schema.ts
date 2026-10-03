@@ -1,4 +1,4 @@
-import { AUTH } from "$lib/const/auth/auth.const";
+import { AUTH } from "#lib/const/auth/auth.const.js";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { z } from "zod";
 

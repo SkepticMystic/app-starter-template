@@ -36,7 +36,7 @@
 </script>
 
 <script lang="ts">
-  import { type WithElementRef } from "$lib/utils/shadcn.util.js";
+  import { type WithElementRef } from "#lib/utils/shadcn.util.js";
   import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
 

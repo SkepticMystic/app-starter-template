@@ -1,10 +1,10 @@
 <script lang="ts">
   import { RangeCalendar as RangeCalendarPrimitive } from "bits-ui";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
   import {
     buttonVariants,
     type ButtonVariant,
-  } from "$lib/components/ui/button/button.svelte";
+  } from "#lib/components/ui/button/button.svelte";
 
   let {
     ref = $bindable(null),

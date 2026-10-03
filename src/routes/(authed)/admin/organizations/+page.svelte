@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { OrganizationClient } from "$lib/clients/auth/organization.client.js";
-  import { CellHelpers, column_helper } from "$lib/utils/tanstack/table.util";
-  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { Arrays } from "$lib/utils/array/array.util.js";
-  import { Format } from "$lib/utils/format.util.js";
+  import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
+  import {
+    CellHelpers,
+    column_helper,
+  } from "#lib/utils/tanstack/table.util.js";
+  import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import { Arrays } from "#lib/utils/array/array.util.js";
+  import { Format } from "#lib/utils/format.util.js";
 
   let { data } = $props();
   let orgs = $derived(data.orgs);

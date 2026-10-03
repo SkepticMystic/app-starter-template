@@ -1,19 +1,19 @@
 <!-- svelte-ignore state_referenced_locally -->
 <script lang="ts">
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
-  import Textarea from "$lib/components/ui/textarea/textarea.svelte";
-  import { TASKS } from "$lib/const/task.const";
-  import type { MaybePromise } from "$lib/interfaces";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
+  import Textarea from "#lib/components/ui/textarea/textarea.svelte";
+  import { TASKS } from "#lib/const/task.const.js";
+  import type { MaybePromise } from "#lib/interfaces/index.js";
   import {
     create_task_remote,
     update_task_remote,
-  } from "$lib/remote/tasks/tasks.remote";
-  import type { Task, TaskSchema } from "$lib/server/db/models/task.model";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  } from "#lib/remote/tasks/tasks.remote.js";
+  import type { Task, TaskSchema } from "#lib/server/db/models/task.model.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import { toast } from "svelte-sonner";
   import FormButton from "../FormButton.svelte";
 

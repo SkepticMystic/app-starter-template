@@ -1,5 +1,5 @@
 import { getRequestEvent } from "$app/server";
-import { Log } from "$lib/utils/logger.util";
+import { Log } from "#lib/utils/logger.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 

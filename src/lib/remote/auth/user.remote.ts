@@ -1,8 +1,8 @@
 import { form } from "$app/server";
-import { redirect_uri_schema } from "$lib/schema/auth/redirect_uri.schema";
-import { password_schema } from "$lib/schema/password/password.schema";
-import { UserService } from "$lib/server/services/auth/user/user.service";
-import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
+import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
+import { password_schema } from "#lib/schema/password/password.schema.js";
+import { UserService } from "#lib/server/services/auth/user/user.service.js";
+import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 

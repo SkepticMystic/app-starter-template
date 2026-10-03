@@ -1,14 +1,14 @@
 <script lang="ts">
-  import CaptchaField from "$lib/components/form/auth/captcha/CaptchaField.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import Textarea from "$lib/components/ui/textarea/textarea.svelte";
-  import { contact_us_remote } from "$lib/remote/contact/contact.remote";
-  import { session } from "$lib/stores/session.store";
+  import CaptchaField from "#lib/components/form/auth/captcha/CaptchaField.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import Textarea from "#lib/components/ui/textarea/textarea.svelte";
+  import { contact_us_remote } from "#lib/remote/contact/contact.remote.js";
+  import { session } from "#lib/stores/session.store.js";
   import { onDestroy } from "svelte";
   import { toast } from "svelte-sonner";
 

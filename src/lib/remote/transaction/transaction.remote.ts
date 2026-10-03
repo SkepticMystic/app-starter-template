@@ -3,8 +3,8 @@
  */
 
 import { query } from "$app/server";
-import { get_session } from "$lib/server/services/auth.service";
-import { PaystackService } from "$lib/server/services/transaction/paystack.transaction.service";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { PaystackService } from "#lib/server/services/transaction/paystack.transaction.service.js";
 import { z } from "zod";
 
 /**

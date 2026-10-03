@@ -45,19 +45,19 @@
   lang="ts"
   generics="TData extends Resource"
 >
-  import Button from "$lib/components/ui/button/button.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
   import type {
     DataTableFilter,
     TanstackTableInput,
-  } from "$lib/interfaces/tanstack/table.type";
-  import type { Resource } from "$lib/utils/array/array.util";
-  import { Format } from "$lib/utils/format.util";
+  } from "#lib/interfaces/tanstack/table.type.js";
+  import type { Resource } from "#lib/utils/array/array.util.js";
+  import { Format } from "#lib/utils/format.util.js";
   import {
     DEFAULT_COLUMN,
     TanstackTable as TanstackTableUtil,
     type Features,
-  } from "$lib/utils/tanstack/table.util";
-  import { TableFilters } from "$lib/utils/tanstack/table_filter.util";
+  } from "#lib/utils/tanstack/table.util.js";
+  import { TableFilters } from "#lib/utils/tanstack/table_filter.util.js";
   import { FlexRender, type Table } from "@tanstack/svelte-table";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";

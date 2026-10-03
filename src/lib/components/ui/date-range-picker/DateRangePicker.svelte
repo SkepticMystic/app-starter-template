@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { DateRanges } from "$lib/utils/date/date_range.util";
-  import { Format } from "$lib/utils/format.util";
+  import { DateRanges } from "#lib/utils/date/date_range.util.js";
+  import { Format } from "#lib/utils/format.util.js";
   import { getLocalTimeZone } from "@internationalized/date";
   import type { DateRange } from "bits-ui";
   import { buttonVariants } from "../button/button.svelte";

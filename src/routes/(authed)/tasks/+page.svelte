@@ -1,20 +1,20 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { column_helper } from "$lib/utils/tanstack/table.util";
-  import { Client } from "$lib/clients/index.client";
-  import { TaskClient } from "$lib/clients/tasks.client";
-  import TaskForm from "$lib/components/form/task/TaskForm.svelte";
-  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
-  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import { renderComponent } from "$lib/components/ui/data-table";
-  import Sheet from "$lib/components/ui/sheet/Sheet.svelte";
-  import { TASKS } from "$lib/const/task.const";
-  import { get_all_tasks_remote } from "$lib/remote/tasks/tasks.remote";
-  import { Arrays } from "$lib/utils/array/array.util";
+  import { Client } from "#lib/clients/index.client.js";
+  import { TaskClient } from "#lib/clients/tasks.client.js";
+  import TaskForm from "#lib/components/form/task/TaskForm.svelte";
+  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
+  import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import { renderComponent } from "#lib/components/ui/data-table/index.js";
+  import Sheet from "#lib/components/ui/sheet/Sheet.svelte";
+  import { TASKS } from "#lib/const/task.const.js";
+  import { get_all_tasks_remote } from "#lib/remote/tasks/tasks.remote.js";
+  import { Arrays } from "#lib/utils/array/array.util.js";
   import {
     CellHelpers,
+    column_helper,
     TanstackTable,
-  } from "$lib/utils/tanstack/table.util.js";
+  } from "#lib/utils/tanstack/table.util.js";
 
   let tasks = $derived(
     await Client.wrap(get_all_tasks_remote)().then((r) => (r.ok ? r.data : [])),

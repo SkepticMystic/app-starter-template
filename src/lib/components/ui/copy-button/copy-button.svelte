@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { UseClipboard } from "$lib/hooks/use-clipboard.svelte";
+  import { UseClipboard } from "#lib/hooks/use-clipboard.svelte.js";
   import type { ClassValue } from "svelte/elements";
   import Button from "../button/button.svelte";
   import Icon from "../icon/Icon.svelte";

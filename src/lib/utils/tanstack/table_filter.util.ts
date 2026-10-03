@@ -1,8 +1,8 @@
-import type { SelectOption } from "$lib/interfaces";
+import type { SelectOption } from "#lib/interfaces/index.js";
 import type {
   DataTableFilter,
   DataTableFilterValue,
-} from "$lib/interfaces/tanstack/table.type";
+} from "#lib/interfaces/tanstack/table.type.js";
 import { DateRanges } from "../date/date_range.util";
 import type { SearchParamValue } from "../urls";
 import type { DateRange } from "bits-ui";

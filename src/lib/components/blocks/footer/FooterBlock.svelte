@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
-  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import Logo from "$lib/components/ui/image/Logo.svelte";
-  import { APP } from "$lib/const/app.const";
+  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import Logo from "#lib/components/ui/image/Logo.svelte";
+  import { APP } from "#lib/const/app.const.js";
 
   type FooterSection = {
     title: string;

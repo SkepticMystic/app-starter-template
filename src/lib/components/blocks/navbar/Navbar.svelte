@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SidebarTrigger from "$lib/components/ui/sidebar/sidebar-trigger.svelte";
+  import SidebarTrigger from "#lib/components/ui/sidebar/sidebar-trigger.svelte";
   import ButtonGroup from "../../ui/button-group/button-group.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 </script>

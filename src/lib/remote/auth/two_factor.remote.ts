@@ -1,7 +1,7 @@
 import { form } from "$app/server";
-import { TWO_FACTOR } from "$lib/const/auth/two_factor.const";
-import { TwoFactorService } from "$lib/server/services/auth/two_factor/two_factor.service";
-import { CaptchaService } from "$lib/server/services/captcha/captcha.service";
+import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
+import { TwoFactorService } from "#lib/server/services/auth/two_factor/two_factor.service.js";
+import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
 import { invalid } from "@sveltejs/kit";
 import { TWO_FACTOR_ERROR_CODES } from "better-auth/plugins";
 import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "bits-ui";

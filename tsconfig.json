@@ -12,7 +12,17 @@
     // "rootDir": "./src",
     // `$app/types` must stay in this list: it is how the generated route, env
     // and `$app/*` module declarations reach the project.
-    "types": ["node", "umami", "$app/types"]
+    "types": ["node", "umami", "$app/types"],
+
+    // Restates the `#lib/*` subpath import from package.json. TypeScript and
+    // Vite resolve `imports` natively, but `svelte-check --tsgo` (`pnpm check`)
+    // does not for `.svelte` targets: every `#lib/**/*.svelte` import fell back
+    // to the untyped `*.svelte` wildcard, so components lost their prop types.
+    // SvelteKit 3 documents generating this from `imports`, but only derives it
+    // from the deprecated `alias` option. Keep the two in sync.
+    "paths": {
+      "#lib/*": ["./src/lib/*"]
+    }
   },
 
   // `$app/tsconfig` sets no `include` at all, so this is the whole list. It is

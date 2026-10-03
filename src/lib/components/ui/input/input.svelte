@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MaybeSnippet } from "$lib/interfaces/svelte/svelte.type";
+  import type { MaybeSnippet } from "#lib/interfaces/svelte/svelte.type.js";
   import type { ComponentProps } from "svelte";
   import Icon from "../icon/Icon.svelte";
   import InputGroupAddon, {

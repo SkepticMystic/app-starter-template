@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
-  import { BetterAuthClient } from "$lib/auth-client";
-  import { Client } from "$lib/clients/index.client";
-  import Button from "$lib/components/ui/button/button.svelte";
+  import { BetterAuthClient } from "#lib/auth-client.js";
+  import { Client } from "#lib/clients/index.client.js";
+  import Button from "#lib/components/ui/button/button.svelte";
   import { onMount } from "svelte";
 
   let {

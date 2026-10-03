@@ -1,15 +1,15 @@
 import { getRequestEvent } from "$app/server";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { auth, is_ba_error_code } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { db } from "$lib/server/db/drizzle.db";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { auth, is_ba_error_code } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
 import {
   OrganizationTable,
   type OrganizationSchema,
-} from "$lib/server/db/models/auth.model";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+} from "#lib/server/db/models/auth.model.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import { generateRandomString } from "better-auth/crypto";

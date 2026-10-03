@@ -2,7 +2,7 @@
   import {
     type WithElementRef,
     type WithoutChildren,
-  } from "$lib/utils/shadcn.util.js";
+  } from "#lib/utils/shadcn.util.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {

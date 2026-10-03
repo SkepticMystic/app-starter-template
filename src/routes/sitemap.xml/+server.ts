@@ -1,4 +1,4 @@
-import { APP } from "$lib/const/app.const";
+import { APP } from "#lib/const/app.const.js";
 import type { RequestHandler } from "@sveltejs/kit";
 import * as sitemap from "super-sitemap";
 

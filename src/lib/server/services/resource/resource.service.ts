@@ -1,9 +1,9 @@
-import { ERROR } from "$lib/const/error.const";
-import type { RESOURCE } from "$lib/const/resource/resource.const";
-import { db } from "$lib/server/db/drizzle.db";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ERROR } from "#lib/const/error.const.js";
+import type { RESOURCE } from "#lib/const/resource/resource.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 
 const get_by_id = async (
   resource_kind: (typeof RESOURCE.KINDS)[number],

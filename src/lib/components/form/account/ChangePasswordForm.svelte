@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import Password from "$lib/components/ui/password/Password.svelte";
-  import { change_password_remote } from "$lib/remote/auth/user.remote";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import Password from "#lib/components/ui/password/Password.svelte";
+  import { change_password_remote } from "#lib/remote/auth/user.remote.js";
   import FormButton from "../FormButton.svelte";
   import FormErrors from "../FormErrors.svelte";
 

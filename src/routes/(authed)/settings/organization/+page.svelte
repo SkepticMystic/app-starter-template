@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { OrganizationClient } from "$lib/clients/auth/organization.client";
-  import OrganizationInviteForm from "$lib/components/form/auth/organization/invitation/OrganizationInviteForm.svelte";
-  import OrganizationSelector from "$lib/components/selector/OrganizationSelector.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import Icon from "$lib/components/ui/icon/Icon.svelte";
-  import Item from "$lib/components/ui/item/Item.svelte";
-  import Modal from "$lib/components/ui/modal/modal.svelte";
-  import { member, organization } from "$lib/stores/organization.store";
-  import { Arrays } from "$lib/utils/array/array.util";
+  import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
+  import OrganizationInviteForm from "#lib/components/form/auth/organization/invitation/OrganizationInviteForm.svelte";
+  import OrganizationSelector from "#lib/components/selector/OrganizationSelector.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import Item from "#lib/components/ui/item/Item.svelte";
+  import Modal from "#lib/components/ui/modal/modal.svelte";
+  import { member, organization } from "#lib/stores/organization.store.js";
+  import { Arrays } from "#lib/utils/array/array.util.js";
   import OrganizationInvitationsTable from "./OrganizationInvitationsTable.svelte";
   import OrganizationMembersTable from "./OrganizationMembersTable.svelte";
 

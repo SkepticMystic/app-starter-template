@@ -1,6 +1,6 @@
 import { command, form } from "$app/server";
-import { InvitationSchema } from "$lib/server/db/models/auth.model";
-import { InvitationService } from "$lib/server/services/auth/organization/invitation.service";
+import { InvitationSchema } from "#lib/server/db/models/auth.model.js";
+import { InvitationService } from "#lib/server/services/auth/organization/invitation.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 

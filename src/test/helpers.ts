@@ -111,7 +111,7 @@ export const INTERNAL_ERR = {
  *
  * Usage:
  *   const mockUpdate = vi.fn();
- *   vi.mock("$lib/server/db/drizzle.db", () => mockDbModule({
+ *   vi.mock("#lib/server/db/drizzle.db.js", () => mockDbModule({
  *     update: mockUpdate,
  *   }));
  */

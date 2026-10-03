@@ -2,7 +2,7 @@
   lang="ts"
   generics="T extends Resource"
 >
-  import type { Resource } from "$lib/utils/array/array.util";
+  import type { Resource } from "#lib/utils/array/array.util.js";
   import type { Snippet } from "svelte";
   import type { ClassValue } from "svelte/elements";
   import Empty, { type EmptyProps } from "../empty/empty.svelte";

@@ -1,4 +1,4 @@
-import type { Result } from "$lib/interfaces/result.type";
+import type { Result } from "#lib/interfaces/result.type.js";
 import type { APIError } from "better-auth";
 
 const suc = <D = undefined>(d: D): Result<D, never> => ({

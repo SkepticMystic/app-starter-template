@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
-  import Anchor from "$lib/components/ui/anchor/Anchor.svelte";
+  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
 
   type Route = {
     label: string;

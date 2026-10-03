@@ -1,12 +1,12 @@
 <script lang="ts">
-  import CaptchaField from "$lib/components/form/auth/captcha/CaptchaField.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import FormButton from "$lib/components/form/FormButton.svelte";
-  import FormErrors from "$lib/components/form/FormErrors.svelte";
-  import Card from "$lib/components/ui/card/Card.svelte";
-  import Field from "$lib/components/ui/field/Field.svelte";
-  import Input from "$lib/components/ui/input/input.svelte";
-  import { request_password_reset_remote } from "$lib/remote/auth/user.remote";
+  import CaptchaField from "#lib/components/form/auth/captcha/CaptchaField.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FormButton from "#lib/components/form/FormButton.svelte";
+  import FormErrors from "#lib/components/form/FormErrors.svelte";
+  import Card from "#lib/components/ui/card/Card.svelte";
+  import Field from "#lib/components/ui/field/Field.svelte";
+  import Input from "#lib/components/ui/input/input.svelte";
+  import { request_password_reset_remote } from "#lib/remote/auth/user.remote.js";
   import { toast } from "svelte-sonner";
 
   const form = request_password_reset_remote;

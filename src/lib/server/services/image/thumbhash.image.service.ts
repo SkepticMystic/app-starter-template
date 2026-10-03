@@ -1,6 +1,6 @@
-import { ERROR } from "$lib/const/error.const";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ERROR } from "#lib/const/error.const.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import * as Sentry from "@sentry/sveltekit";
 import { captureException } from "@sentry/sveltekit";
 import sharp from "sharp";

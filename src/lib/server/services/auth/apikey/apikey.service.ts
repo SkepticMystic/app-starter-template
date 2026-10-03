@@ -1,9 +1,9 @@
 import { getRequestEvent } from "$app/server";
-import { auth, is_ba_error_code } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { auth, is_ba_error_code } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import type { ApiKey } from "@better-auth/api-key";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";

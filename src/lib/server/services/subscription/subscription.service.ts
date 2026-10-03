@@ -1,18 +1,18 @@
 import { getRequestEvent } from "$app/server";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { checkout_url } from "$lib/server/sdk/payment/paystack/paystack.payment.sdk";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { checkout_url } from "#lib/server/sdk/payment/paystack/paystack.payment.sdk.js";
 // See the matching note in auth.ts — this pair is deliberate and only ever
 // dereferenced inside functions.
 // oxlint-disable-next-line import/no-cycle
-import { auth } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { db } from "$lib/server/db/drizzle.db";
-import type { Subscription } from "$lib/server/db/models/subscription.model";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { SubscriptionRepo } from "$lib/server/db/repos/subscription.repo";
-import { App } from "$lib/utils/app";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { auth } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import type { Subscription } from "#lib/server/db/models/subscription.model.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { SubscriptionRepo } from "#lib/server/db/repos/subscription.repo.js";
+import { App } from "#lib/utils/app.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { AdapterService } from "../adapter/adapter.service";
 import { APIError } from "better-auth";

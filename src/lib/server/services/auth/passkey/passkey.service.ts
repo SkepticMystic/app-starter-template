@@ -1,11 +1,11 @@
 import { getRequestEvent } from "$app/server";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { auth } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { db } from "$lib/server/db/drizzle.db";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { auth } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 
 const log = Log.child({ service: "Passkey" });

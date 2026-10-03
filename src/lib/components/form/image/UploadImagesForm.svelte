@@ -1,15 +1,15 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
-  import { Toast } from "$lib/utils/toast.util";
-  import FieldError from "$lib/components/ui/field/field-error.svelte";
-  import { format_bytes } from "$lib/components/ui/file-drop-zone";
-  import FileDropZone from "$lib/components/ui/file-drop-zone/file-drop-zone.svelte";
-  import type { FileDropZoneProps } from "$lib/components/ui/file-drop-zone/types";
-  import Item from "$lib/components/ui/item/Item.svelte";
-  import ItemList from "$lib/components/ui/item/ItemList.svelte";
-  import type { RESOURCE } from "$lib/const/resource/resource.const";
-  import { upload_images_remote } from "$lib/remote/image/image.remote";
-  import { FormUtil } from "$lib/utils/form/form.util.svelte";
+  import Button from "#lib/components/ui/button/button.svelte";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import FieldError from "#lib/components/ui/field/field-error.svelte";
+  import { format_bytes } from "#lib/components/ui/file-drop-zone/index.js";
+  import FileDropZone from "#lib/components/ui/file-drop-zone/file-drop-zone.svelte";
+  import type { FileDropZoneProps } from "#lib/components/ui/file-drop-zone/types.js";
+  import Item from "#lib/components/ui/item/Item.svelte";
+  import ItemList from "#lib/components/ui/item/ItemList.svelte";
+  import type { RESOURCE } from "#lib/const/resource/resource.const.js";
+  import { upload_images_remote } from "#lib/remote/image/image.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import { onDestroy } from "svelte";
   import { toast } from "svelte-sonner";
   import { SvelteMap } from "svelte/reactivity";

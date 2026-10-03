@@ -2,7 +2,7 @@
   import type {
     WithElementRef,
     WithoutChildren,
-  } from "$lib/utils/shadcn.util.js";
+  } from "#lib/utils/shadcn.util.js";
   import type { HTMLTextareaAttributes } from "svelte/elements";
 
   let {

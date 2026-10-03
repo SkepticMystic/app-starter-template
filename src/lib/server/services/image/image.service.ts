@@ -1,16 +1,16 @@
-import { format_bytes } from "$lib/components/ui/file-drop-zone/file-drop-zone-utils";
-import { ERROR } from "$lib/const/error.const";
-import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
-import { db } from "$lib/server/db/drizzle.db";
+import { format_bytes } from "#lib/components/ui/file-drop-zone/file-drop-zone-utils.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
+import { db } from "#lib/server/db/drizzle.db.js";
 import {
   ImageSchema,
   ImageTable,
   type Image,
-} from "$lib/server/db/models/image.model";
-import { ImageRepo } from "$lib/server/db/repos/image.repo";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+} from "#lib/server/db/models/image.model.js";
+import { ImageRepo } from "#lib/server/db/repos/image.repo.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { AdapterService } from "../adapter/adapter.service";
 import { count, operators as o } from "drizzle-orm";

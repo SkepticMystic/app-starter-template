@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/drizzle.db";
-import { ImageTable, type Image } from "$lib/server/db/models/image.model";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { ImageTable, type Image } from "#lib/server/db/models/image.model.js";
 import { eq } from "drizzle-orm";
 import { Repo } from "./index.repo";
 

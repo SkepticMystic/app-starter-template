@@ -1,6 +1,6 @@
-import { ERROR } from "$lib/const/error.const";
-import type { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ERROR } from "#lib/const/error.const.js";
+import type { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 

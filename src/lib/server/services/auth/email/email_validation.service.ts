@@ -1,7 +1,7 @@
-import { ERROR } from "$lib/const/error.const";
-import type { Branded } from "$lib/interfaces/zod/zod.type";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ERROR } from "#lib/const/error.const.js";
+import type { Branded } from "#lib/interfaces/zod/zod.type.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import dns from "node:dns/promises";
 

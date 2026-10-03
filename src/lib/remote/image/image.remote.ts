@@ -1,12 +1,12 @@
 import { command, form } from "$app/server";
-import { format_bytes } from "$lib/components/ui/file-drop-zone/file-drop-zone-utils";
-import { ERROR } from "$lib/const/error.const";
-import { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
-import { ImageSchema, type Image } from "$lib/server/db/models/image.model";
-import { get_session } from "$lib/server/services/auth.service";
-import { ImageService } from "$lib/server/services/image/image.service";
-import { RateLimiter } from "$lib/server/services/rate_limit/rate_limit.service";
-import { result } from "$lib/utils/result.util";
+import { format_bytes } from "#lib/components/ui/file-drop-zone/file-drop-zone-utils.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
+import { ImageSchema, type Image } from "#lib/server/db/models/image.model.js";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { ImageService } from "#lib/server/services/image/image.service.js";
+import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
+import { result } from "#lib/utils/result.util.js";
 import { z } from "zod";
 
 const upload_limiter = new RateLimiter("image:upload", {

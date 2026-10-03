@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { OrganizationClient } from "$lib/clients/auth/organization.client";
-  import { column_helper } from "$lib/utils/tanstack/table.util";
-  import UserAvatar from "$lib/components/ui/avatar/UserAvatar.svelte";
-  import { renderComponent } from "$lib/components/ui/data-table";
-  import DataTable from "$lib/components/ui/data-table/data-table.svelte";
-  import Time from "$lib/components/ui/elements/Time.svelte";
-  import NativeSelect from "$lib/components/ui/native-select/native-select.svelte";
+  import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
+  import { column_helper } from "#lib/utils/tanstack/table.util.js";
+  import UserAvatar from "#lib/components/ui/avatar/UserAvatar.svelte";
+  import { renderComponent } from "#lib/components/ui/data-table/index.js";
+  import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import Time from "#lib/components/ui/elements/Time.svelte";
+  import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
   import {
     ORGANIZATION,
     type IOrganization,
-  } from "$lib/const/auth/organization.const";
-  import type { Member, User } from "$lib/server/db/models/auth.model";
+  } from "#lib/const/auth/organization.const.js";
+  import type { Member, User } from "#lib/server/db/models/auth.model.js";
 
   let {
     members,
