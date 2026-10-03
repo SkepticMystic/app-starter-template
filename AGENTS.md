@@ -435,6 +435,15 @@ with another tool.
 `oxc.requireConfig` is on, so a missing or unreadable config fails loudly
 instead of falling back to stock defaults again.
 
+Zed needs the `oxc` extension (`oxc-project/oxc-zed`). vite-plus 1.0 deleted
+the `vite-plus/bin/{oxfmt,oxlint}` wrappers that oxc-zed ≤ 0.4.7 launches, so
+`.zed/settings.json` pins each server to `vp fmt --lsp` / `vp lint --lsp`
+through `lsp.*.binary` until an extension release runs `vp` itself — the
+comment there says when to drop it. Keep `source.organizeImports` out of
+`code_actions_on_format`: Zed runs code actions before the formatter under one
+save timeout, and svelte-language-server's first organize-imports answer on a
+`.svelte` buffer outlasts it.
+
 ### TypeScript version
 
 `typescript` is pinned and the editor stays on it with classic tsserver:

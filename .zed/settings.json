@@ -1,18 +1,30 @@
 {
   // ── Oxc language servers ────────────────────────────────────────────────────
   // Same contract as `.vscode/settings.json`: Oxfmt formats, Oxlint lints, and
-  // both read this project's config through the Vite+ LSP wrappers in
-  // `node_modules/.bin/{oxfmt,oxlint}` — the oxc-zed extension finds those by
-  // detecting `vite-plus` in `package.json`, so save output matches `pnpm format`
-  // and the pre-commit hook (`vp staged` → `vp check --fix`).
+  // both read this project's config through Vite+ (`vp fmt --lsp`,
+  // `vp lint --lsp`), so save output matches `pnpm format` and the pre-commit
+  // hook (`vp staged` → `vp check --fix`).
   //
   // Requires the `oxc` extension (oxc-project/oxc-zed) from the Zed marketplace.
+  //
+  // The `binary` blocks are a bridge. oxc-zed ≤ 0.4.7 detects `vite-plus` in
+  // `package.json` and launches `node_modules/vite-plus/bin/{oxfmt,oxlint}`,
+  // wrappers that vite-plus 1.0.0-rc.0 deleted (voidzero-dev/vite-plus#2672) —
+  // both servers then die with `Cannot find module …/vite-plus/bin/oxfmt`. The
+  // extension learns to run `vp` in oxc-project/oxc-zed#259 / #267; once a
+  // release carrying that is installed, delete both `binary` blocks. Zed spawns
+  // language servers from the worktree root, which the relative script resolves
+  // against; the extension requires `path` and `arguments` together.
   "lsp": {
     // Options live in the `fmt` block of `vite.config.ts`, never an
     // `.oxfmtrc.json`, which `vp fmt` does not read. Pointing `configPath` there
     // is what makes editor saves apply the Svelte printer, Tailwind class
     // sorting, `singleAttributePerLine` and `fmt.ignorePatterns`.
     "oxfmt": {
+      "binary": {
+        "path": "node",
+        "arguments": ["node_modules/vite-plus/bin/vp", "fmt", "--lsp"]
+      },
       "initialization_options": {
         "settings": { "fmt.configPath": "./vite.config.ts", "run": "onSave" }
       }
@@ -23,6 +35,10 @@
     // `unusedDisableDirectives` mirrors the `--report-unused-disable-directives`
     // flag on `pnpm lint`, so the editor reports exactly what CI does.
     "oxlint": {
+      "binary": {
+        "path": "node",
+        "arguments": ["node_modules/vite-plus/bin/vp", "lint", "--lsp"]
+      },
       "initialization_options": {
         "settings": {
           "run": "onType",
