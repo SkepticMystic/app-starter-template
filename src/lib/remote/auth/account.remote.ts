@@ -4,7 +4,7 @@ import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { get_session } from "#lib/server/services/auth.service.js";
 import { AccountService } from "#lib/server/services/auth/account/account.service.js";
-import { error } from "@sveltejs/kit";
+import { raise } from "#lib/utils/result.util.js";
 import { z } from "zod";
 
 export const get_account_by_provider_id_remote = query.batch(
@@ -23,7 +23,7 @@ export const get_account_by_provider_id_remote = query.batch(
     );
 
     if (!accounts.ok) {
-      error(accounts.error.status ?? 500, accounts.error.message);
+      raise(accounts.error);
     }
 
     const map = new Map(accounts.data.map((a) => [a.providerId, a]));
