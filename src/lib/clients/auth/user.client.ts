@@ -1,10 +1,8 @@
 import { goto } from "$app/navigation";
 import { Toast } from "#lib/utils/toast.util.js";
 import { resolve } from "$app/paths";
-import { page } from "$app/state";
 import { BetterAuthClient } from "#lib/auth-client.js";
 import { App } from "#lib/utils/app.js";
-import { getFlash } from "sveltekit-flash-message";
 import { Client } from "../index.client";
 
 export const UserClient = {
@@ -39,11 +37,6 @@ export const UserClient = {
           location.reload();
         },
       },
-    });
-
-    getFlash(page).set({
-      level: "success",
-      message: "You have been signed out.",
     });
   },
 };

@@ -1,16 +1,13 @@
 <script lang="ts">
   import { browser, dev } from "$app/env";
-  import { page } from "$app/state";
   import {
     PUBLIC_UMAMI_BASE_URL,
     PUBLIC_UMAMI_WEBSITE_ID,
   } from "$app/env/public";
   import SEO from "#lib/components/blocks/head/SEO.svelte";
-  import FlashAlert from "#lib/components/ui/alert/FlashAlert.svelte";
   import Sonner from "#lib/components/ui/sonner/sonner.svelte";
   import { session } from "#lib/stores/session.store.js";
   import { ModeWatcher } from "mode-watcher";
-  import { getFlash } from "sveltekit-flash-message";
   import "./layout.css";
 
   let { children } = $props();
@@ -32,8 +29,6 @@
       session_listener();
     }
   });
-
-  const flash = getFlash(page);
 </script>
 
 <svelte:head>
@@ -57,7 +52,5 @@
 
 <Sonner />
 <ModeWatcher />
-
-<FlashAlert flash={$flash} />
 
 {@render children?.()}

@@ -1,6 +1,6 @@
+import { sentrySvelteKit } from "@sentry/sveltekit";
 import node from "@sveltejs/adapter-node";
 import vercel from "@sveltejs/adapter-vercel";
-import { sentrySvelteKit } from "@sentry/sveltekit";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { SondaVitePlugin as sonda } from "sonda";
@@ -88,12 +88,7 @@ export default defineConfig({
           : process.env.PUBLIC_BASE_URL || undefined,
       },
 
-      version: {
-        pollInterval: 300_000,
-      },
-
       experimental: {
-        // compileModule: true,
         remoteFunctions: true,
       },
 

@@ -3,8 +3,6 @@ declare global {
     interface PageData {
       seo?: import("svelte-meta-tags").MetaTagsProps;
       base_seo?: import("svelte-meta-tags").MetaTagsProps;
-
-      flash?: { level: "success" | "warning" | "error"; message: string };
     }
 
     type Session = {
