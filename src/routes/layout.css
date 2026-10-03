@@ -45,9 +45,10 @@
   --sidebar-border: oklch(0.87 0.01 261.81);
   --sidebar-ring: oklch(0.59 0.2 277.06);
 
-  --font-sans: Inter, sans-serif;
-  --font-serif: Merriweather, serif;
-  --font-mono: JetBrains Mono, monospace;
+  /* Self-hosted by `@fontsource-variable/*`, imported in `+layout.svelte`: no third-party
+     request, so nothing to add to the CSP's `font-src`. */
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   --radius: 0.5rem;
 
@@ -149,7 +150,6 @@
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -177,29 +177,32 @@
 
 /* === My changes === */
 
-/* SOURCE: https://shadcn-svelte.com/docs/theming#adding-new-colors */
+/* SOURCE: https://shadcn-svelte.com/docs/theming#adding-new-colors
+   Each is an ink as well as a fill — dark in light, light in dark — so `text-warning` reads on any
+   background and `bg-warning` takes its `-foreground`. A pale-yellow light `--warning` (and a deep
+   dark one) was ~1.6:1 as text, so every warning message was all but invisible. */
 :root {
-  --warning: oklch(0.84 0.16 84);
-  --warning-foreground: oklch(0.28 0.07 46);
+  --warning: oklch(0.52 0.12 70);
+  --warning-foreground: oklch(0.99 0.02 95);
 
   --success: oklch(0.41 0.11 146);
   --success-foreground: oklch(0.99 0.02 95);
 
   /* Between --warning (hue 84) and --destructive (hue 25): for the state that
      is worse than "look at this" but is not a failure. */
-  --caution: oklch(0.75 0.17 55);
-  --caution-foreground: oklch(0.28 0.07 40);
+  --caution: oklch(0.52 0.15 50);
+  --caution-foreground: oklch(0.99 0.02 95);
 }
 
 .dark {
-  --warning: oklch(0.41 0.11 46);
-  --warning-foreground: oklch(0.99 0.02 95);
+  --warning: oklch(0.82 0.15 84);
+  --warning-foreground: oklch(0.28 0.07 46);
 
   --success: oklch(0.84 0.16 146);
   --success-foreground: oklch(0.28 0.07 95);
 
-  --caution: oklch(0.45 0.12 55);
-  --caution-foreground: oklch(0.99 0.02 95);
+  --caution: oklch(0.78 0.15 55);
+  --caution-foreground: oklch(0.28 0.07 40);
 }
 
 @theme inline {
@@ -213,38 +216,35 @@
   --color-success-foreground: var(--success-foreground);
 }
 
-/* NOTE: Use the system-ui font
-   SOURCE: https://css-tricks.com/snippets/css/system-font-stack
-*/
-/*body {
-  font-display: swap;
-  font-family:
-    system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}*/
+/* In `base`, not unlayered: an unlayered rule outranks every `@layer`, so these used to beat the
+   utilities written on the element itself — `<h3 class="text-sm">` rendered `text-xl`, and a
+   `<section class="space-y-2">` got `space-y-5`. */
+@layer base {
+  article {
+    @apply mx-auto space-y-7 sm:container;
+  }
 
-article {
-  @apply mx-auto space-y-7 sm:container;
-}
+  section {
+    @apply space-y-5;
+  }
 
-section {
-  @apply space-y-5;
-}
+  /* A dense app's scale: a page title one step above a section, a section one step above a
+     card title (`text-base`). A landing page sizes its own display headings. */
+  h1 {
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight;
+  }
 
-h1 {
-  @apply scroll-m-20 text-3xl font-extrabold tracking-tight;
-}
+  h2 {
+    @apply scroll-m-20 text-lg font-semibold tracking-tight transition-colors;
+  }
 
-h2 {
-  @apply scroll-m-20 text-2xl font-semibold tracking-tight transition-colors;
-}
+  h3 {
+    @apply scroll-m-20 text-base font-semibold tracking-tight;
+  }
 
-h3 {
-  @apply scroll-m-20 text-xl font-semibold tracking-tight;
-}
-
-h4 {
-  @apply scroll-m-20 text-lg font-semibold tracking-tight;
+  h4 {
+    @apply scroll-m-20 text-sm font-semibold tracking-tight;
+  }
 }
 
 /* Anchor.svelte and Button.svelte set `aria-busy` while loading, which shows the
