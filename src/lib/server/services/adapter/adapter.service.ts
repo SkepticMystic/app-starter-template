@@ -21,6 +21,13 @@ type Geo = {
   city?: string;
 };
 
+/**
+ * Cloudflare's "could not place this address" and its Tor sentinel. Not
+ * countries: stored as one, `XX` would read as a real place in
+ * `session.country` and in analytics.
+ */
+const UNKNOWN_COUNTRY = new Set(["XX", "T1"]);
+
 const get_ip = () => {
   const event = getRequestEvent();
 
@@ -54,8 +61,10 @@ const get_geo = (): Geo => {
   // Vercel percent-encodes the city so multi-byte names survive as a header.
   const city = first("x-vercel-ip-city");
 
+  const country = first("x-vercel-ip-country", "cf-ipcountry");
+
   return {
-    country: first("x-vercel-ip-country", "cf-ipcountry"),
+    country: country && !UNKNOWN_COUNTRY.has(country) ? country : undefined,
     // ISO 3166-2 subdivision. Vercel's own `geolocation()` puts its *compute*
     // region (cpt1, iad1) in `region` and the subdivision in `countryRegion`.
     // There is no compute region off Vercel, so `region` means the subdivision

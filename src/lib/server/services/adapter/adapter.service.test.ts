@@ -74,3 +74,46 @@ describe("AdapterService.pin_client_ip", () => {
     expect(e.request.headers.has(header)).toBe(false);
   });
 });
+
+describe("AdapterService.get_geo", () => {
+  it("reads Vercel's headers, decoding the city", () => {
+    mock_event({
+      headers: {
+        "x-vercel-ip-country": "ZA",
+        "x-vercel-ip-country-region": "WC",
+        "x-vercel-ip-city": "Cape%20Town",
+      },
+    });
+
+    expect(AdapterService.get_geo()).toEqual({
+      country: "ZA",
+      region: "WC",
+      city: "Cape Town",
+    });
+  });
+
+  it("falls back to Cloudflare's country", () => {
+    mock_event({ headers: { "cf-ipcountry": "ZA" } });
+
+    expect(AdapterService.get_geo().country).toBe("ZA");
+  });
+
+  it("treats the unknown-country sentinels as absent", () => {
+    mock_event({ headers: { "cf-ipcountry": "XX" } });
+    expect(AdapterService.get_geo().country).toBeUndefined();
+
+    mock_event({ headers: { "cf-ipcountry": "T1" } });
+    expect(AdapterService.get_geo().country).toBeUndefined();
+  });
+
+  // Off Vercel and Cloudflare; a throw would fail sign-in over a label.
+  it("is empty when no edge placed the request", () => {
+    mock_event({});
+
+    expect(AdapterService.get_geo()).toEqual({
+      country: undefined,
+      region: undefined,
+      city: undefined,
+    });
+  });
+});

@@ -1,4 +1,5 @@
-import { building, dev } from "$app/env";
+import { building } from "$app/env";
+import { APP_ENV } from "$app/env/private";
 import { PUBLIC_SENTRY_DSN } from "$app/env/public";
 import { auth } from "#lib/auth.js";
 import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
@@ -17,7 +18,9 @@ import { svelteKitHandler } from "better-auth/svelte-kit";
  * decides by `kind` which of those are worth capturing.
  *
  * Passing a handler replaces Sentry's default one, which is what used to log
- * stack traces, so unexpected errors are logged here instead.
+ * stack traces, so server errors are logged here instead: every 5xx, a thrown
+ * `error(503, …)` as much as an unexpected throw, with the route it came from.
+ * A 4xx is the caller's mistake and is not logged.
  */
 const handle_error: HandleServerError = (input) => {
   // Used by remote function zod schemas
@@ -29,9 +32,26 @@ const handle_error: HandleServerError = (input) => {
     };
   }
 
-  if (input.kind === "unknown") {
-    Log.error(input.error, "handle_error.unknown");
+  const status = input.kind === "unknown" ? 500 : input.error.status;
+
+  if (status >= 500) {
+    const { event } = input;
+
+    Log.error(
+      {
+        // `err`, not `error`: pino serializes an Error only under `err`.
+        err: input.error,
+        kind: input.kind,
+        status,
+        path: event.url.pathname,
+        route: event.route.id,
+      },
+      "handle_error",
+    );
   }
+
+  // Kit's defaults: the caught error's own status and message.
+  return undefined;
 };
 
 export const handleError = Sentry.handleErrorWithSentry(handle_error);
@@ -45,14 +65,20 @@ function sentryCspReportUrl(): string | null {
     const projectId = url.pathname.replace(/^\//, "");
     const sentryKey = url.username;
     if (!projectId || !sentryKey) return null;
-    const env = dev ? "development" : "production";
-    return `https://${url.host}/api/${projectId}/security/?sentry_key=${sentryKey}&sentry_environment=${env}`;
+    // The tier `Sentry.init` reports, so violations file beside the errors.
+    const environment = encodeURIComponent(APP_ENV);
+    return `https://${url.host}/api/${projectId}/security/?sentry_key=${sentryKey}&sentry_environment=${environment}`;
   } catch {
     return null;
   }
 }
 
 const SENTRY_CSP_URL = sentryCspReportUrl();
+
+const CSP_HEADERS = [
+  "content-security-policy",
+  "content-security-policy-report-only",
+] as const;
 
 // SEO: Security headers improve trust signals and protect against common attacks.
 const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
@@ -98,6 +124,16 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
       "Reporting-Endpoints",
       `csp-endpoint="${SENTRY_CSP_URL}"`,
     );
+
+    // Firefox reads only the legacy `report-uri` directive, not
+    // `Reporting-Endpoints`. Appended to whichever policy kit emitted (none
+    // until `kit.csp` is configured), unless it already names one.
+    for (const name of CSP_HEADERS) {
+      const policy = response.headers.get(name);
+      if (policy && !policy.includes("report-uri")) {
+        response.headers.set(name, `${policy}; report-uri ${SENTRY_CSP_URL}`);
+      }
+    }
   }
 
   return response;
