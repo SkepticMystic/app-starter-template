@@ -15,7 +15,7 @@
   data-slot="table-cell"
   class={[
     `
-      bg-clip-padding p-2 align-middle whitespace-nowrap
+      bg-clip-padding p-2 align-middle whitespace-nowrap tabular-nums
       [&:has([role=checkbox])]:pe-0
     `,
     className,

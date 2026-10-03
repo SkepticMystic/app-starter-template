@@ -17,6 +17,33 @@ import type {
 import type { Snippet } from "svelte";
 
 /**
+ * A row-menu item that opens a dialog. The table owns the dialog, outside the menu, so an action
+ * that needs a form or a typed confirmation is a menu item like any other — not a column of
+ * buttons beside the menu, which is what `Modal` owning its own trigger would force.
+ */
+type DataTableDialogAction<TData> = {
+  kind: "dialog";
+  /** The menu item's label. */
+  title: string;
+  icon?: string;
+  variant?: "default" | "destructive";
+  hide?: boolean;
+  disabled?: boolean;
+
+  dialog: {
+    title: string;
+    description?: string;
+
+    /** Mounted each time it opens, so a form inside starts from this row, not the last one. */
+    content: Snippet<[{ row: TData; close: () => void }]>;
+  };
+};
+
+export type DataTableAction<TData> =
+  | DropdownMenuItemInput
+  | DataTableDialogAction<TData>;
+
+/**
  * How the table keys its rows. This is the key `RowSelectionState` is written
  * against, which is why it has to be a prop: a list keyed on something other
  * than `id` selects the wrong rows otherwise.
@@ -39,7 +66,7 @@ export type TanstackTableInput<TData extends Record<string, unknown>> = {
    * {@link TanstackTableServer}.
    */
   server?: TanstackTableServer;
-  actions?: (row: Row<Features, TData>) => DropdownMenuItemInput[];
+  actions?: (row: Row<Features, TData>) => DataTableAction<TData>[];
   bulk_actions?: (rows: Row<Features, TData>[]) => DropdownMenuItemInput[];
 
   /** Defaults to the row's own `id`, then its index. */

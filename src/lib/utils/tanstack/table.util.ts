@@ -1,5 +1,9 @@
-import type { BadgeVariant } from "#lib/components/ui/badge/index.js";
 import Badge from "#lib/components/ui/badge/badge.svelte";
+import type {
+  BadgeStatus,
+  BadgeVariant,
+} from "#lib/components/ui/badge/index.js";
+import StatusBadge from "#lib/components/ui/badge/StatusBadge.svelte";
 import { renderComponent } from "#lib/components/ui/data-table/index.js";
 import Time from "#lib/components/ui/elements/Time.svelte";
 import { getLocalTimeZone } from "@internationalized/date";
@@ -206,11 +210,33 @@ const get_column_label = <TData extends RowData>(
 const can_group = <TData extends RowData>(column: Column<Features, TData>) =>
   column.columnDef.enableGrouping === true && column.getCanGroup();
 
+/**
+ * The cells most columns are, so a column says which and nothing else: `cell: CellHelpers.text`.
+ * Every one renders a missing value as {@link EMPTY} — the one placeholder, where hand-written
+ * cells drift between `"-"`, `""` and `EMPTY`.
+ */
 export const CellHelpers = {
+  /** A string as is; {@link EMPTY} for a null or a blank. */
+  text: (cell: { getValue: () => string | null | undefined }) =>
+    cell.getValue() || EMPTY,
+
+  /** Seconds as `1m 23s`. */
+  duration: (cell: { getValue: () => number | null | undefined }) =>
+    Format.duration_sec(cell.getValue()),
+
   number: (
-    cell: { getValue: () => number },
+    cell: { getValue: () => number | null | undefined },
     options?: Intl.NumberFormatOptions,
   ) => Format.number(cell.getValue(), options),
+
+  /** {@link number}, as a badge only when there is one: a column of red zeros is wallpaper. */
+  count: (cell: { getValue: () => number }, variant: BadgeVariant) => {
+    const value = cell.getValue();
+
+    return value > 0
+      ? renderComponent(Badge, { content: Format.number(value), variant })
+      : Format.number(value);
+  },
 
   time: (
     cell: { getValue: () => ComponentProps<typeof Time>["date"] },
@@ -223,13 +249,13 @@ export const CellHelpers = {
   ) => map[cell.getValue()]?.label ?? cell.getValue(),
 
   /**
-   * {@link CellHelpers.label}, but rendered as the badge the map already carries
-   * a colour for. `EMPTY` for a null — a column whose value is optional renders
+   * {@link CellHelpers.label}, but rendered as the `StatusBadge` the map already
+   * carries a colour (and maybe a cue) for. `EMPTY` for a null — a column whose value is optional renders
    * a dash rather than a badge for a state nobody chose.
    */
   badge: <T extends string>(
     cell: { getValue: () => T | null | undefined },
-    map: Record<T, { label: string; variant: BadgeVariant }>,
+    map: Record<T, BadgeStatus>,
   ) => {
     const value = cell.getValue();
     if (!value) return EMPTY;
@@ -237,10 +263,7 @@ export const CellHelpers = {
     const entry = map[value];
     if (!entry) return value;
 
-    return renderComponent(Badge, {
-      content: entry.label,
-      variant: entry.variant,
-    });
+    return renderComponent(StatusBadge, { status: entry });
   },
 };
 

@@ -12,6 +12,7 @@
   import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
   import { ROLES, type RoleId } from "#lib/const/auth/role.const.js";
   import { Arrays } from "#lib/utils/array/array.util.js";
+  import BanUserForm from "./BanUserForm.svelte";
 
   let { data } = $props();
   let users = $derived(data.users);
@@ -28,19 +29,6 @@
     AdminClient.delete_user(user_id, {
       on_success: () => (users = Arrays.remove(users, user_id)),
     });
-
-  const ban_user = (userId: string) =>
-    AdminClient.ban_user(
-      { userId },
-      {
-        on_success: (d) =>
-          (users = Arrays.patch(users, userId, {
-            banReason: d.user.banReason,
-            banExpires: d.user.banExpires,
-            banned: d.user.banned ?? false,
-          })),
-      },
-    );
 
   const unban_user = (user_id: string) =>
     AdminClient.unban_user(user_id, {
@@ -106,6 +94,27 @@
   ];
 </script>
 
+{#snippet ban_dialog({
+  row,
+  close,
+}: {
+  row: (typeof users)[number];
+  close: () => void;
+})}
+  <BanUserForm
+    user_id={row.id}
+    on_cancel={close}
+    on_banned={(d) => {
+      users = Arrays.patch(users, row.id, {
+        banReason: d.user.banReason,
+        banExpires: d.user.banExpires,
+        banned: d.user.banned ?? false,
+      });
+      close();
+    }}
+  />
+{/snippet}
+
 <article>
   <Header
     title="Users"
@@ -147,12 +156,23 @@
         onselect: () => AdminClient.impersonate_user(row.id),
       },
       { kind: "separator" },
-      {
-        title: row.original.banned ? "Unban user" : "Ban user",
-        icon: row.original.banned ? "lucide/check-circle-2" : "lucide/ban",
-        onselect: () =>
-          row.original.banned ? unban_user(row.id) : ban_user(row.id),
-      },
+      row.original.banned
+        ? {
+            title: "Unban user",
+            icon: "lucide/check-circle-2",
+            onselect: () => unban_user(row.id),
+          }
+        : {
+            kind: "dialog",
+            title: "Ban user",
+            icon: "lucide/ban",
+            // A dialog, not a confirm: a ban wants a reason and a length, which a yes/no cannot ask.
+            dialog: {
+              title: `Ban ${row.original.name}?`,
+              description: "They won't be able to sign in until the ban ends.",
+              content: ban_dialog,
+            },
+          },
       {
         icon: "lucide/x",
         title: "Delete user",

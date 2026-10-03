@@ -65,3 +65,18 @@ export const badgeVariants = tv({
 });
 
 export type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
+
+/**
+ * A shape `StatusBadge` adds to a status, for the states the ladder above leaves looking alike.
+ *
+ * - `draft` — not in use yet: a dashed border and muted text.
+ * - `live`  — happening right now: a pulsing dot (still, under reduced motion).
+ */
+type BadgeCue = "draft" | "live";
+
+/** One entry of a status map in `src/lib/const/*.const.ts`, as `StatusBadge` reads it. */
+export type BadgeStatus = {
+  label: string;
+  variant: BadgeVariant;
+  cue?: BadgeCue;
+};

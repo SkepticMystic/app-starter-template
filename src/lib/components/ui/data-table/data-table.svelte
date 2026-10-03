@@ -46,8 +46,11 @@
   generics="TData extends Resource"
 >
   import { navigating, page } from "$app/state";
+  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
+  import type { DropdownMenuItemInput } from "#lib/components/ui/dropdown-menu/dropdown-menu.types.js";
   import type {
+    DataTableAction,
     DataTableFilter,
     TanstackTableInput,
   } from "#lib/interfaces/tanstack/table.type.js";
@@ -59,13 +62,23 @@
     type Features,
   } from "#lib/utils/tanstack/table.util.js";
   import { TableFilters } from "#lib/utils/tanstack/table_filter.util.js";
-  import { FlexRender, type Table } from "@tanstack/svelte-table";
+  import {
+    FlexRender,
+    type Cell,
+    type Row,
+    type Table,
+  } from "@tanstack/svelte-table";
   import type { Snippet } from "svelte";
   import ButtonGroup from "../button-group/button-group.svelte";
   import Checkbox from "../checkbox/checkbox.svelte";
   import DropdownMenu from "../dropdown-menu/DropdownMenu.svelte";
   import type { EmptyProps } from "../empty/empty.svelte";
   import Empty from "../empty/empty.svelte";
+  import ModalContent from "../modal/modal-content.svelte";
+  import ModalDescription from "../modal/modal-description.svelte";
+  import ModalHeader from "../modal/modal-header.svelte";
+  import ModalRoot from "../modal/modal-root.svelte";
+  import ModalTitle from "../modal/modal-title.svelte";
   import Paginator from "../pagination/Paginator.svelte";
   import TableBody from "../table/table-body.svelte";
   import TableCell from "../table/table-cell.svelte";
@@ -89,6 +102,8 @@
     filters,
     loading,
     states,
+    href,
+    actions,
     search_placeholder = "Search",
     ...input
   }: TanstackTableInput<TData> & {
@@ -117,7 +132,39 @@
     filters?: DataTableFilter[];
     /** Only rendered when `states.global_filter` opts the table in. */
     search_placeholder?: string;
+    /**
+     * Where a row leads. The row's first visible cell becomes a real link to it — middle-click
+     * and all — so a page neither wraps its first column in an `Anchor` nor repeats the
+     * destination as a "View" item in the row menu. That column must not render a link of its
+     * own. `undefined` for a row this reader may not open.
+     */
+    href?: (row: Row<Features, TData>) => string | undefined;
   } = $props();
+
+  type DialogAction = Extract<DataTableAction<TData>, { kind: "dialog" }>;
+
+  /**
+   * The one dialog a row action opened, and the row it opened for. Outside the menu, which
+   * closes as it opens it, so it is the table's to hold.
+   */
+  let dialog = $state<{ action: DialogAction["dialog"]; row: TData }>();
+  let dialog_open = $state(false);
+
+  /** The row menu's items, a dialog action as the item that opens it. */
+  const menu_items = (row: Row<Features, TData>): DropdownMenuItemInput[] =>
+    (actions?.(row) ?? []).map((item) => {
+      if (item.kind !== "dialog") return item;
+
+      const { dialog: action, kind: _kind, ...rest } = item;
+
+      // `rest` is this call's own copy, so it is safe to add to.
+      return Object.assign(rest, {
+        onselect: () => {
+          dialog = { action, row: row.original };
+          dialog_open = true;
+        },
+      });
+    });
 
   /**
    * Whether the click that is about to toggle a row held shift. Read
@@ -136,6 +183,24 @@
   );
 </script>
 
+{#if dialog}
+  {@const { action, row } = dialog}
+
+  <ModalRoot bind:open={dialog_open}>
+    <ModalContent class="sm:max-w-[425px]">
+      <ModalHeader>
+        <ModalTitle>{action.title}</ModalTitle>
+
+        {#if action.description}
+          <ModalDescription>{action.description}</ModalDescription>
+        {/if}
+      </ModalHeader>
+
+      {@render action.content({ row, close: () => (dialog_open = false) })}
+    </ModalContent>
+  </ModalRoot>
+{/if}
+
 <TanstackTable
   {...input}
   {states}
@@ -143,6 +208,21 @@
   {columns}
 >
   {#snippet children(table)}
+    <!-- Inside `children` rather than top-level: a top-level snippet reading no instance state
+         is hoisted to module scope, where `TData` does not exist. -->
+    {#snippet cell_content(
+      cell: Cell<Features, TData, unknown>,
+      link: string | undefined,
+    )}
+      {#if link}
+        <Anchor href={link}>
+          <FlexRender {cell} />
+        </Anchor>
+      {:else}
+        <FlexRender {cell} />
+      {/if}
+    {/snippet}
+
     <!-- v9 replaces `getState()` with per-slice atoms. -->
     {@const pagination = table.atoms.pagination.get()}
     {@const page_count = table.getPageCount()}
@@ -173,6 +253,9 @@
         ]),
     )}
     {@const has_controls = Boolean(filters?.length) || global_enabled}
+    <!-- The column-visibility menu. Off for a report table — no filters and no paging, a handful
+         of fixed columns inside a card — where it was only clutter. -->
+    {@const show_column_toggle = has_controls || states?.pagination !== false}
     <!-- Whether Clear would do anything, which is not "is any filter set": a
          client table is measured against the view the page seeded, a
          server-driven one is asked of the URL. -->
@@ -225,9 +308,11 @@
 
           {@render toolbar?.(table)}
 
-          <ButtonGroup>
-            <DataTableVisibilityDropdownMenu {table} />
-          </ButtonGroup>
+          {#if show_column_toggle}
+            <ButtonGroup>
+              <DataTableVisibilityDropdownMenu {table} />
+            </ButtonGroup>
+          {/if}
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -296,7 +381,7 @@
                   </TableHead>
                 {/each}
 
-                {#if input.actions}
+                {#if actions}
                   <TableHead>Actions</TableHead>
                 {/if}
               </TableRow>
@@ -333,8 +418,12 @@
                   </TableCell>
                 {/if}
 
-                {#each row.getVisibleCells() as cell (cell.id)}
+                {#each row.getVisibleCells() as cell, index (cell.id)}
                   {@const meta = cell.column.columnDef.meta}
+                  {@const link =
+                    href && index === 0 && !row.getIsGrouped()
+                      ? href(row)
+                      : undefined}
 
                   <TableCell id={cell.id}>
                     {#if cell.getIsGrouped()}
@@ -377,21 +466,21 @@
                           renders_value,
                         )}
                       >
-                        <FlexRender {cell} />
+                        {@render cell_content(cell, link)}
                       </div>
                     {:else}
                       <!-- NOTE: FlexRender picks `aggregatedCell` for aggregated
                            cells and blanks placeholders on its own -->
-                      <FlexRender {cell} />
+                      {@render cell_content(cell, link)}
                     {/if}
                   </TableCell>
                 {/each}
 
-                {#if input.actions}
+                {#if actions}
                   <TableCell>
                     <DropdownMenu
                       size="icon-sm"
-                      items={input.actions(row)}
+                      items={menu_items(row)}
                     />
                   </TableCell>
                 {/if}
@@ -402,7 +491,7 @@
                   colspan={TanstackTableUtil.empty_colspan({
                     visible_leaf_columns: table.getVisibleLeafColumns().length,
                     selection: !!states?.selection,
-                    actions: !!input.actions,
+                    actions: !!actions,
                   })}
                 >
                   <Empty
@@ -434,7 +523,7 @@
                     </TableHead>
                   {/each}
 
-                  {#if input.actions}
+                  {#if actions}
                     <TableHead colspan={1}></TableHead>
                   {/if}
                 </TableRow>

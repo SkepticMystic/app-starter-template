@@ -4,9 +4,7 @@
   import { Client } from "#lib/clients/index.client.js";
   import { TaskClient } from "#lib/clients/tasks.client.js";
   import TaskForm from "#lib/components/form/task/TaskForm.svelte";
-  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
-  import { renderComponent } from "#lib/components/ui/data-table/index.js";
   import Sheet from "#lib/components/ui/sheet/Sheet.svelte";
   import { TASKS } from "#lib/const/task.const.js";
   import { get_all_tasks_remote } from "#lib/remote/tasks/tasks.remote.js";
@@ -26,19 +24,13 @@
   const columns = [
     column.accessor("title", {
       meta: { label: "Title" },
-
-      cell: ({ row }) =>
-        renderComponent(Anchor, {
-          content: row.original.title,
-          href: resolve("/(authed)/tasks/[id]", row),
-        }),
     }),
 
     column.accessor("status", {
       meta: { label: "Status" },
       filterFn: "arrHas",
 
-      cell: (c) => CellHelpers.label(c, TASKS.STATUS.MAP),
+      cell: (c) => CellHelpers.badge(c, TASKS.STATUS.MAP),
     }),
 
     column.accessor("due_date", {
@@ -62,7 +54,7 @@
     {#snippet actions()}
       <Sheet
         icon="lucide/plus"
-        title="New Task"
+        title="New task"
         description="Create a new task"
       >
         {#snippet children({ close })}
@@ -96,6 +88,7 @@
       { kind: "date_range", id: "due_date", placeholder: "Due date" },
     ]}
     data={tasks}
+    href={(row) => resolve("/(authed)/tasks/[id]", row)}
     states={{
       sorting: [{ id: "createdAt", desc: true }],
     }}

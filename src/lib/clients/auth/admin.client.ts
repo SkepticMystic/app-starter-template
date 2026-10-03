@@ -46,9 +46,10 @@ export const AdminClient = {
     (input: Parameters<typeof BetterAuthClient.admin.banUser>[0]) =>
       BetterAuthClient.admin.banUser(input),
     {
+      // `banExpiresIn` is in seconds; `TIME` is in milliseconds.
       confirm: (input) =>
         input.banExpiresIn
-          ? `Ban this user for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days? They won't be able to sign in until the ban ends.`
+          ? `Ban this user for ${Format.number((input.banExpiresIn * 1000) / TIME.DAY, { maximumFractionDigits: 0 })} days? They won't be able to sign in until the ban ends.`
           : "Ban this user indefinitely? They won't be able to sign in until an admin unbans them.",
       destructive: true,
       action_label: "Ban user",
