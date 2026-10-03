@@ -1,6 +1,7 @@
-# Until now nothing validated a push except Vercel's own build. That was
-# tolerable while Vercel was the only way to build this app; it is not once the
-# node/container path has to keep working too.
+# The repo's quality gate. Vercel's own build validates only the Vercel path;
+# this also builds and boots the plain-node server the container ships. Needs
+# no secrets: the tests run against the mock wall in `src/test/setup.ts`, and
+# the build reads `.env.example`'s placeholders.
 name: CI
 
 on:
@@ -8,41 +9,71 @@ on:
   push:
     branches: [main]
 
+# A force-push or a quick second commit shouldn't leave the old run burning a
+# runner.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Skips `vp config`'s hook install on a throwaway checkout.
+  VP_GIT_HOOKS: "0"
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      # Reads the pinned version from `packageManager` in package.json.
-      - uses: pnpm/action-setup@v4
+      # Before setup-node, which needs pnpm on PATH for `cache: pnpm`. Reads
+      # `packageManager`, and installs pnpm without corepack.
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      # `.nvmrc` is the one place the major is written, besides the
+      # Dockerfile's `ARG NODE_VERSION`. .npmrc sets engine-strict=true, so a
+      # mismatch with `engines.node` fails at install rather than later.
+      - uses: actions/setup-node@v7
         with:
-          # Reads `engines.node`. .npmrc sets engine-strict=true, so a mismatch
-          # fails at install rather than somewhere confusing later.
-          node-version-file: package.json
+          node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      # NOTE: deliberately not `pnpm verify`, which also runs knip. knip is
-      # already failing on main for pre-existing reasons (unused template
-      # scaffolding: @aws-sdk/*, @libpdf/core, marked, sharp, cloudinary,
-      # thumbhash and friends are reported unused because the components that
-      # would use them are not wired into any route). Add `pnpm knip` back here
-      # once that backlog is cleared, so CI starts green rather than being
-      # ignored from day one.
-      - run: pnpm format:check
-      - run: pnpm lint
+      # Nothing before this can dirty the tree except the install, whose
+      # `prepare` (`vp config && svelte-kit sync`) rewrites generated files.
+      - name: No generated file drifted
+        run: git diff --exit-code
+
+      # `APP_ENV` and the `PUBLIC_*` set are build-time (`static`), so Vite
+      # refuses to load the config without them — and every step below loads
+      # it. .env.example is that manifest, which makes CI the thing that keeps
+      # the manifest honest.
+      - run: cp .env.example .env
+
+      - name: src/env.ts is internally consistent
+        run: pnpm env:check
+
+      # What the pre-commit hook runs with --fix: format, lint, type-aware lint.
+      - run: pnpm exec vp check
+
+      # The only thing that type-checks `.svelte` files. Includes
+      # `check:scripts`, the erasable-syntax guard on bare-node entrypoints.
       - run: pnpm check
+
       - run: pnpm test:run
 
-      # The build needs the PUBLIC_* vars and APP_ENV present or it fails at
-      # prerender. .env.example is that manifest, which makes this step the
-      # thing that keeps the manifest honest.
-      - run: cp .env.example .env
+      # Better-Auth's own diff of `schema.ts` against the real `auth.ts`, under
+      # the test suite's mock environment, so it needs no secrets either.
+      - run: pnpm auth:check
+
+      # Unused files and dependencies only; unused exports are judgement calls
+      # left to `pnpm knip` (and so `pnpm verify`).
+      - run: pnpm knip:ci
 
       # No VERCEL in the environment, so this exercises the adapter-node path —
       # the one Vercel's own builds never cover.
@@ -61,3 +92,23 @@ jobs:
             sleep 1
           done
           echo "server did not respond within 30s"; exit 1
+
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # trufflehog diffs base..head, and needs the history to do it
+
+      # GitHub-native secret scanning needs GHAS on a private repo. Pinned to a
+      # release: a secret scanner is not a thing to run from a moving ref.
+      #
+      # `--results=verified`: with `unknown`, a placeholder DSN in a fixture
+      # fails the build, since the Postgres detector verifies by connecting.
+      # The cost is that an unverifiable leak goes unreported. This scans only
+      # the commit range; run `pnpm scan:secrets` against a full clone for
+      # history.
+      - uses: trufflesecurity/trufflehog@v3.97.5
+        with:
+          extra_args: --results=verified

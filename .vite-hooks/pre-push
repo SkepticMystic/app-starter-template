@@ -1,0 +1,60 @@
+# Run by the Vite+ hook dispatcher (.vite-hooks/_/pre-push) under `sh -e`, so the first
+# failure stops the push. No shebang, matching ./pre-commit.
+#
+# The whole test suite and the Svelte type-check: too slow per commit, cheap per push.
+# CI, not this hook, gates production, so two kinds of push skip it:
+#
+#   - Nothing targeting main: a branch's gate is its pull request.
+#   - Markdown only: neither vitest nor svelte-check reads a `.md` file.
+#
+# A push must be both to `main` and carry something other than markdown to run. Every
+# push whose content cannot be established (empty stdin, a new remote `main`, a failed
+# diff) sets `force_run` rather than skipping.
+#
+# git feeds one line per ref on stdin: `<local ref> <local oid> <remote ref> <remote oid>`.
+# An all-zero local oid is a deletion; an all-zero remote oid is a ref the remote lacks.
+#
+# Escape hatches: `git push --no-verify`, or VP_GIT_HOOKS=0 / HUSKY=0.
+
+zero=0000000000000000000000000000000000000000
+saw_any=0
+to_main=0
+force_run=0
+changed=""
+
+# `|| [ -n … ]` so a final line with no trailing newline is still processed.
+while read -r _local_ref local_oid remote_ref remote_oid || [ -n "$_local_ref" ]; do
+  saw_any=1
+  # Cleared here, not at the foot: every `continue` would leave it set.
+  _local_ref=""
+
+  if [ "$local_oid" = "$zero" ]; then continue; fi
+
+  case "$remote_ref" in
+    refs/heads/main) to_main=1 ;;
+    *) continue ;;
+  esac
+
+  if [ "$remote_oid" = "$zero" ]; then
+    force_run=1
+    continue
+  fi
+
+  # Two-dot, so a force-push reads as its net change.
+  files=$(git diff --name-only "$remote_oid" "$local_oid") || force_run=1
+  changed=$(printf '%s\n%s' "$changed" "$files")
+done
+
+if [ "$saw_any" = 0 ] || [ "$force_run" = 1 ]; then
+  : # Could not tell what this push contains. Check it.
+elif [ "$to_main" = 0 ]; then
+  echo "pre-push: nothing targeting main — CI gates the pull request. Skipping checks."
+  exit 0
+# The output's emptiness, not `grep -qv`'s exit status, which differs between greps.
+elif [ -z "$(printf '%s' "$changed" | grep -vE '^$|\.md$')" ]; then
+  echo "pre-push: markdown only — vitest and svelte-check read none of it. Skipping checks."
+  exit 0
+fi
+
+pnpm test:run
+pnpm check
