@@ -1,14 +1,22 @@
 import type { KnipConfig } from "knip";
 
 export default {
+  // Most of this is what knip's SvelteKit plugin would add, had it found kit:
+  // it looks for `svelte.config.js` (gone in kit 3) or a static `sveltekit`
+  // import in `vite.config.ts` (dynamic here, inside `lazyPlugins`). Kit 3's
+  // `src/params.ts`, not its `src/params/*`.
   entry: [
     // Scripts run via pnpm
     "scripts/**/*.ts",
-    // SvelteKit 3 entry points knip's sveltekit plugin does not know yet (it
-    // still looks for matchers in `src/params/*`)
+    "src/routes/**/+{page,server,page.server,error,layout,layout.server}{,@*}.{js,ts,svelte}",
+    "src/hooks.{server,client}.ts",
+    "src/instrumentation.server.ts",
     "src/params.{js,ts}",
     "src/env.{js,ts}",
   ],
+
+  // Kit's virtual modules, which that plugin would also have ignored.
+  ignoreUnresolved: [/^\$app\//],
 
   // Icon sets consumed via @iconify/tailwind4 in CSS
   ignoreDependencies: ["@iconify-json/lucide", "@typescript/native"],
@@ -37,6 +45,6 @@ export default {
   // vitest is bundled inside vite-plus, so knip can't auto-detect it
   vitest: {
     config: ["vite.config.{js,ts}"],
-    entry: ["src/**/*.test.ts", "src/test/setup.ts"],
+    entry: ["src/**/*.test.ts", "src/test/setup.ts", "src/test/setup.sql.ts"],
   },
 } satisfies KnipConfig;
