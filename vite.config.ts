@@ -89,7 +89,6 @@ export default defineConfig({
       { default: vercel },
       { default: tailwindcss },
       { SondaVitePlugin: sonda },
-      { default: devtoolsJson },
     ] = await Promise.all([
       import("@sentry/sveltekit/vite"),
       import("@sveltejs/kit/vite"),
@@ -97,7 +96,6 @@ export default defineConfig({
       import("@sveltejs/adapter-vercel"),
       import("@tailwindcss/vite"),
       import("sonda"),
-      import("vite-plugin-devtools-json"),
     ]);
 
     // Vercel sets VERCEL=1 on every build it runs. Anywhere else — Docker, a
@@ -208,7 +206,6 @@ export default defineConfig({
           },
         },
       }),
-      devtoolsJson(),
       sonda({
         enabled: Boolean(SONDA),
         server: true,
