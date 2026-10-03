@@ -8,6 +8,8 @@
   import { APIKeyClient } from "#lib/clients/auth/apikey.client.js";
   import Button from "#lib/components/ui/button/button.svelte";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import { renderComponent } from "#lib/components/ui/data-table/index.js";
+  import Code from "#lib/components/ui/elements/Code.svelte";
   import { Arrays } from "#lib/utils/array/array.util.js";
 
   let { data } = $props();
@@ -20,15 +22,13 @@
     column.accessor("name", {
       meta: { label: "Name" },
 
-      // cell: ({getValue, row}) => renderComponent(Anchor, {
-      //   href: resolve("/(authed)/settings/api-keys/[id]/edit", row),
-      //   content: getValue(),
-      // })
+      cell: CellHelpers.text,
     }),
     column.accessor("start", {
-      meta: { label: "" },
+      meta: { label: "Key" },
 
-      cell: ({ getValue }) => getValue() + "********",
+      cell: ({ getValue }) =>
+        renderComponent(Code, { content: `${getValue() ?? ""}…` }),
     }),
     column.accessor("enabled", {
       meta: { label: "Active" },
@@ -36,12 +36,12 @@
       cell: ({ getValue }) => (getValue() ? "Yes" : "No"),
     }),
     column.accessor("createdAt", {
-      meta: { label: "Created At" },
+      meta: { label: "Created" },
 
       cell: CellHelpers.time,
     }),
     column.accessor("expiresAt", {
-      meta: { label: "Expires At" },
+      meta: { label: "Expires" },
 
       cell: CellHelpers.time,
     }),
