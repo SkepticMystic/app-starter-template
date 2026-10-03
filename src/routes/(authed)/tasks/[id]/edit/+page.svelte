@@ -3,7 +3,7 @@
   import { resolve } from "$app/paths";
   import Header from "#lib/components/ui/header/Header.svelte";
   import TaskForm from "#lib/components/form/task/TaskForm.svelte";
-  import { Dates } from "#lib/utils/dates.js";
+  import { WallClock } from "#lib/utils/wall_clock.util.js";
 
   let { data } = $props();
 </script>
@@ -30,7 +30,7 @@
       description: data.task.description ?? "",
       assigned_member_id: data.task.assigned_member_id ?? undefined,
       due_date: data.task.due_date
-        ? Dates.to_datetime_local_string(data.task.due_date)
+        ? WallClock.to_input_value(data.task.due_date)
         : "",
     }}
     cancel_href={resolve("/(authed)/tasks/[id]", data.task)}

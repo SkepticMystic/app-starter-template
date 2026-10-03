@@ -66,24 +66,6 @@ const to_local_time = (date: Date): string => {
   });
 };
 
-/**
- * Convert Date to format required by <input type="datetime-local">
- * Returns: "YYYY-MM-DDTHH:mm"
- *
- * @example
- * const date = new Date("2024-03-15T14:30:00");
- * to_datetime_local_string(date) // "2024-03-15T14:30"
- */
-const to_datetime_local_string = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
-
 export const Dates = {
   add_ms,
   add_days,
@@ -94,5 +76,4 @@ export const Dates = {
   to_start_of_month,
   to_end_of_month,
   to_local_time,
-  to_datetime_local_string,
 };

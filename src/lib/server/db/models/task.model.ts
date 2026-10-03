@@ -10,6 +10,7 @@ import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { createInsertSchema, createUpdateSchema } from "drizzle-orm/zod";
 import { z } from "zod";
 import { TASKS } from "../../../const/task.const";
+import { WallClock } from "../../../utils/wall_clock.util";
 import { MemberTable, OrganizationTable, UserTable } from "./auth.model";
 import { Schema } from "./index.schema";
 
@@ -64,10 +65,18 @@ const pick = {
 const refinements = {
   description: z.string().optional(),
   assigned_member_id: z.uuid().optional(),
+  /**
+   * `datetime-local` carries no zone, so {@link WallClock} applies `TIME.ZONE` before coercion;
+   * bare `z.coerce.date` read it as the server's UTC, saving a due date two hours off the one
+   * typed.
+   */
   due_date: z
     .union([
       z.literal("").transform((_) => undefined),
-      z.coerce.date<string>("Invalid date"),
+      z
+        .string()
+        .transform(WallClock.to_absolute_string)
+        .pipe(z.coerce.date<string>("Invalid date")),
     ])
     .optional(),
 };

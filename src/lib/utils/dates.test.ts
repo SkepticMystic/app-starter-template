@@ -35,18 +35,4 @@ describe("Dates", () => {
       expect(end.getMinutes()).toBe(59);
     });
   });
-
-  describe("to_datetime_local_string", () => {
-    it("should format date for datetime-local input", () => {
-      const date = new Date("2024-03-15T14:30:00");
-      const formatted = Dates.to_datetime_local_string(date);
-      expect(formatted).toBe("2024-03-15T14:30");
-    });
-
-    it("should pad single digits", () => {
-      const date = new Date("2024-01-05T09:05:00");
-      const formatted = Dates.to_datetime_local_string(date);
-      expect(formatted).toBe("2024-01-05T09:05");
-    });
-  });
 });
