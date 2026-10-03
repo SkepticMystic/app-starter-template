@@ -35,3 +35,28 @@ describe("OrganizationRepo.get_membership", () => {
     ).resolves.toEqual({ ok: true, data: undefined });
   });
 });
+
+describe("OrganizationRepo.list_member_user_ids", () => {
+  it("reads every member's user, by org", async () => {
+    recorder.rows.push([[USER_ID], ["u-2"]]);
+
+    await expect(
+      OrganizationRepo.list_member_user_ids({ id: ORG_ID }),
+    ).resolves.toEqual({ ok: true, data: [USER_ID, "u-2"] });
+
+    expect(recorder.calls[0]?.sql).toMatch(/from "member"/);
+    expect(recorder.calls[0]?.sql).toMatch(/"organization_id" = \$1/);
+    expect(recorder.calls[0]?.params).toEqual([ORG_ID]);
+  });
+});
+
+describe("OrganizationRepo.delete_by_id", () => {
+  it("deletes the org row by id", async () => {
+    await OrganizationRepo.delete_by_id({ id: ORG_ID });
+
+    expect(recorder.calls[0]?.sql).toMatch(
+      /^delete from "organization" where "organization"."id" = \$1/,
+    );
+    expect(recorder.calls[0]?.params).toEqual([ORG_ID]);
+  });
+});

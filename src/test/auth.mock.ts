@@ -8,7 +8,24 @@ export const auth_mock: {
   getSession: Mock;
   /** Answers "not a Better-Auth error code" by default. */
   is_ba_error_code: Mock;
+  /** `auth.api.deleteOrganization`, the owner's path out of an org. */
+  deleteOrganization: Mock;
+  /**
+   * `(await auth.$context).internalAdapter`, reduced to the `SessionStore`
+   * slice `MemberSessionService` reads. Lists no sessions by default.
+   */
+  internalAdapter: {
+    listSessions: Mock;
+    deleteSessions: Mock;
+    updateSession: Mock;
+  };
 } = (store["__mock_auth"] ??= {
   getSession: vi.fn(async () => null),
   is_ba_error_code: vi.fn(() => false),
+  deleteOrganization: vi.fn(async () => ({})),
+  internalAdapter: {
+    listSessions: vi.fn(async () => []),
+    deleteSessions: vi.fn(async () => undefined),
+    updateSession: vi.fn(async () => undefined),
+  },
 }) as never;

@@ -1,5 +1,7 @@
 import { db } from "#lib/server/db/drizzle.db.js";
+import { OrganizationTable } from "#lib/server/db/models/auth.model.js";
 import { result } from "#lib/utils/result.util.js";
+import { eq } from "drizzle-orm";
 import { Repo } from "./index.repo";
 
 /**
@@ -24,6 +26,36 @@ const get_membership = async (input: {
   );
 };
 
+/**
+ * The user behind every membership of an org. Read *before* the org is
+ * deleted: `member` cascades with it, and its users' sessions outlive the row.
+ * @see OrganizationService.revoke_access
+ */
+const list_member_user_ids = async (input: {
+  id: string;
+}): Promise<App.Result<string[]>> => {
+  const res = await Repo.query(
+    db.query.member.findMany({
+      columns: { userId: true },
+      where: { organizationId: input.id },
+    }),
+  );
+  if (!res.ok) return res;
+
+  return result.suc(res.data.map((m) => m.userId));
+};
+
+/**
+ * Deletes the org row. `member` and `invitation` cascade; sessions and API keys
+ * do not, which is why the service never calls this alone.
+ */
+const delete_by_id = async (input: { id: string }): Promise<App.Result<void>> =>
+  Repo.delete_one(
+    db.delete(OrganizationTable).where(eq(OrganizationTable.id, input.id)),
+  );
+
 export const OrganizationRepo = {
   get_membership,
+  list_member_user_ids,
+  delete_by_id,
 };

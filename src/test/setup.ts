@@ -157,6 +157,12 @@ vi.mock("#lib/server/db/repos/index.repo.js", async (io) => {
  * because `vi.mock` is hoisted out of any enclosing block. A module here with
  * its own test asks for the real one with `vi.importActual`.
  */
+vi.mock("#lib/server/db/repos/apikey.repo.js", async (io) => {
+  const { mock_module } = await import("./automock");
+
+  return mock_module("#lib/server/db/repos/apikey.repo.js", io);
+});
+
 vi.mock("#lib/server/db/repos/organization.repo.js", async (io) => {
   const { mock_module } = await import("./automock");
 
@@ -176,6 +182,10 @@ vi.mock("#lib/auth.js", async () => {
     auth: {
       api: {
         getSession: auth_mock.getSession,
+        deleteOrganization: auth_mock.deleteOrganization,
+      },
+      get $context() {
+        return Promise.resolve({ internalAdapter: auth_mock.internalAdapter });
       },
     },
     is_ba_error_code: auth_mock.is_ba_error_code,
