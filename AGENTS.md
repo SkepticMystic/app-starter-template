@@ -103,7 +103,6 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   plugin-owned model must be registered under the plugin's own camelCase name
   (`paystackTransaction`, not `paystack_transaction`) or the adapter throws
 - Redis configured as secondary storage for Better-Auth (rate limiting, caching)
-- Redis configured as secondary storage for Better-Auth (rate limiting, caching)
 
 ### SvelteKit Configuration
 
@@ -120,7 +119,10 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - `tracing.server` is on, which makes `@opentelemetry/api` a runtime
   dependency: SvelteKit externalizes it from the server bundle, so it has to be
   a direct dependency or the build fails at prerender
-- Build command includes database migration: `vite build && pnpm db migrate`
+- `pnpm build` is `vp build` and nothing else. The migration runs in the
+  Vercel build command, `pnpm build && pnpm db:migrate`, set in
+  `infra/modules/vercel/main.tf`; a container runs `pnpm db:migrate:run` as a
+  separate step (see Deployment)
 
 ### Remote Functions Pattern
 
@@ -145,11 +147,19 @@ Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to 
 
 ### Service Pattern
 
-- **Email Service** (`src/lib/services/email.service.ts`):
-  - Define service interface using `Context.Tag`
-  - Implement `EmailLive` (Resend) and `EmailTest` (console log) versions
-  - Inject at runtime: `Effect.provideService(EmailService, dev ? EmailTest : EmailLive)`
-  - Used in auth configuration for verification emails, password resets, org invites
+Services live in `src/lib/server/services/` as plain objects of async methods
+that return `App.Result` rather than throw. There is no DI container: an
+implementation is picked at module load.
+
+- **Email Service** (`src/lib/server/services/email.service.ts`):
+  - `EmailService` is `of_resend` (Resend, with a Sentry timing metric) in
+    production and `of_console_log` (logs the message) under `dev`
+  - Both answer `App.Result`, so a caller checks `.ok` the same way in either
+  - Used by `auth.ts` for verification emails, password resets and org
+    invites, and by the contact form
+- **Shared tails** (`service.util.ts`): `ServiceUtil.internal` logs, files to
+  Sentry and answers 500; `ServiceUtil.ba_error` relays a Better-Auth
+  `APIError` with its own status, filing it to Sentry only when it is a 5xx
 
 ### Logging
 

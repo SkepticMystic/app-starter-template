@@ -68,8 +68,8 @@ export default {
    * is a finding that nobody is ever required to clear.
    *
    * `style`, `pedantic`, `restriction` and `nursery` stay off as whole categories;
-   * they are worth ratcheting rule by rule rather than switching on wholesale. See
-   * `.planning/reference/oxlint-ratchet-spec.md` for the measurement recipe.
+   * they are worth ratcheting rule by rule rather than switching on wholesale:
+   * turn one on, count its findings, and keep it only once they are cleared.
    */
   categories: {
     correctness: "error",
@@ -91,7 +91,6 @@ export default {
     "**/tmp",
     "**/.env.sentry-build-plugin",
     "**/.sonda",
-    ".planning",
     ".claude",
     ".agents",
     "drizzle/",

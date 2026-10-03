@@ -1,25 +1,52 @@
+# Keep the build context small and keep secrets out of it.
+#
+# Note what is *not* here, because each one breaks the build if excluded:
+# `pnpm-workspace.yaml` (catalog, overrides, allowBuilds, patchedDependencies),
+# `patches/`, `.npmrc`, `static/`, `drizzle/`, `scripts/` and `.env.example`.
+
+# Installed per-stage from the lockfile. Copying the host's would also drop the
+# wrong platform's `vite-plus` and `@sentry/cli` binaries into a Linux image.
 node_modules
-.git
-.github
+**/node_modules
+
+# Build output, from any adapter.
+build
+.output
 .svelte-kit
 .vercel
 .netlify
 .wrangler
-build
-.output
-coverage
 .sonda
+coverage
+
+# Consumed only by `drizzle-kit generate`, a devDependency that never runs in
+# the image. `drizzle-orm`'s migrator reads `<dir>/<migration>/migration.sql`
+# and nothing else, so the snapshots are dead weight in every layer.
+drizzle/**/snapshot.json
 
 # Secrets must come from the runtime environment, never an image layer.
+# `.env.example` is placeholders only; the build copies it to `.env` so the
+# analyse step has something to read (see Dockerfile).
 .env
 .env.*
 !.env.example
 
+# Not the app. `infra/` especially — it holds terraform state and tfvars.
 infra
-drizzle/meta
-*.md
+.github
 .claude
 .agents
 .vscode
 .zed
+.idea
+.mcp.json
+
+# VCS and tooling noise.
+.git
 .vite-hooks
+*.md
+
+# Tests never run in the image, and excluding them keeps a test change from
+# invalidating the build layer.
+**/*.test.ts
+src/test

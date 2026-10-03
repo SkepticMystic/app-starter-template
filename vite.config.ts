@@ -44,7 +44,6 @@ export default defineConfig({
       ".agents/**",
       ".github/**",
       ".vite-hooks/**",
-      ".planning/**",
       "node_modules",
       "infra/.terraform/**",
       "infra/terraform.tfstate*",
