@@ -11,8 +11,6 @@
   import TooltipProvider from "#lib/components/ui/tooltip/tooltip-provider.svelte";
   import { session } from "#lib/stores/session.store.js";
   import { ModeWatcher } from "mode-watcher";
-  import "@fontsource-variable/inter/index.css";
-  import "@fontsource-variable/jetbrains-mono/index.css";
   import "./layout.css";
 
   let { children } = $props();

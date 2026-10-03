@@ -45,10 +45,14 @@
   --sidebar-border: oklch(0.87 0.01 261.81);
   --sidebar-ring: oklch(0.59 0.2 277.06);
 
-  /* Self-hosted by `@fontsource-variable/*`, imported in `+layout.svelte`: no third-party
-     request, so nothing to add to the CSP's `font-src`. */
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  /* The platform's own UI fonts: nothing to download, and nothing for the CSP's `font-src`. */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 
   --radius: 0.5rem;
 
