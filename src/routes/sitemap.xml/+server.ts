@@ -1,6 +1,6 @@
 import { APP } from "#lib/const/app.const.js";
 import type { RequestHandler } from "@sveltejs/kit";
-import * as sitemap from "super-sitemap";
+import * as sitemap from "super-sitemap/sveltekit";
 
 export const prerender = true;
 
@@ -14,7 +14,9 @@ export const GET: RequestHandler = async () => {
   return await sitemap.response({
     origin: APP.URL,
 
-    excludeRoutePatterns: ["^/admin", String.raw`^/\(authed\)/tasks/\[id\]`],
+    // Matched against the route id with its groups stripped, so `(authed)`
+    // cannot appear here.
+    excludeRoutePatterns: [/^\/admin/, /^\/tasks\/\[id\]/],
 
     // paramValues: {
     //   "/tasks/[task_id]": tasks.map((task) => ({

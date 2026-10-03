@@ -1,5 +1,5 @@
 import type { Branded } from "#lib/interfaces/zod/zod.type.js";
-import Purify from "isomorphic-dompurify";
+import { sanitize as purify } from "isomorphic-dompurify";
 
 const ESCAPES: Record<string, string> = {
   "&": "&amp;",
@@ -34,8 +34,7 @@ export const HTMLUtil = {
    * `&`. The whole guarantee also rested on a default config that a later
    * change could loosen without any call site looking different.
    */
-  sanitize: (dirty: string) =>
-    Purify.sanitize(dirty) as Branded<"SanitizedHTML">,
+  sanitize: (dirty: string) => purify(dirty) as Branded<"SanitizedHTML">,
 
   /** Escapes the five characters that would otherwise be read as markup. */
   escape: (value: unknown) =>

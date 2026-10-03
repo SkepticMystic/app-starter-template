@@ -32,7 +32,22 @@ Sentry.init({
     return inheritOrSampleWith(import.meta.env.DEV ? 1 : 0.1);
   },
 
-  enableLogs: true,
+  /**
+   * Every category is named because an unset `dataCollection` in v11 collects
+   * everything — request bodies (passwords, tokens), query parameters and
+   * frame locals. `userInfo`, headers and query strings stay at the SDK's
+   * redacting defaults. The client differs — see `hooks.client.ts`.
+   */
+  dataCollection: {
+    cookies: false,
+    httpBodies: [],
+    genAI: { inputs: false, outputs: false },
+    databaseQueryData: false,
+    queues: false,
+    stackFrameVariables: false,
+  },
+
+  // Logs need no option since v11: installing `pinoIntegration()` is the opt-in.
   integrations: [Sentry.pinoIntegration(), Sentry.zodErrorsIntegration()],
 
   // SOURCE: https://spotlightjs.com

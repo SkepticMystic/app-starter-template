@@ -9,18 +9,10 @@ Sentry.init({
 
   tracesSampleRate: dev ? 1 : 0.2,
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
-
-  // Enable sending user PII (Personally Identifiable Information)
-  // https://docs.sentry.io/platforms/javascript/guides/sveltekit/configuration/options/#sendDefaultPii
-  //
-  // Deprecated in favour of the per-category `dataCollection` option, which
-  // does not exist yet on the installed @sentry/sveltekit (10.74.0) — so there
-  // is nothing to migrate to. It has to be settled before the v11 bump, which
-  // removes this option.
-  // oxlint-disable-next-line typescript/no-deprecated
-  sendDefaultPii: true,
+  // No `dataCollection`, on purpose: v11 collects every category when it is
+  // unset, which is what the v10 `sendDefaultPii: true` this replaced asked
+  // for. The server is the opposite case — see `instrumentation.server.ts`.
+  // https://docs.sentry.io/platforms/javascript/configuration/options/#dataCollection
 
   spotlight: dev,
 

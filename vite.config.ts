@@ -91,7 +91,7 @@ export default defineConfig({
       { SondaVitePlugin: sonda },
       { default: devtoolsJson },
     ] = await Promise.all([
-      import("@sentry/sveltekit"),
+      import("@sentry/sveltekit/vite"),
       import("@sveltejs/kit/vite"),
       import("@sveltejs/adapter-node"),
       import("@sveltejs/adapter-vercel"),

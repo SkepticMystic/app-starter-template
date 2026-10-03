@@ -46,10 +46,10 @@
     "@better-auth/api-key": "^1.7.7",
     "@better-auth/drizzle-adapter": "^1.7.7",
     "@better-auth/passkey": "^1.7.7",
-    "@libpdf/core": "^0.4.2",
+    "@libpdf/core": "^0.5.1",
     "@neondatabase/serverless": "^1.2.0",
     "@opentelemetry/api": "^1.9.1",
-    "@sentry/sveltekit": "^10.76.0",
+    "@sentry/sveltekit": "^11.4.0",
     "@unpic/svelte": "^1.0.1",
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.39.0",
@@ -60,7 +60,7 @@
     "cloudinary": "^2.11.0",
     "drizzle-orm": "1.0.0-rc.4",
     "ipaddr.js": "^2.5.0",
-    "isomorphic-dompurify": "2.26.0",
+    "isomorphic-dompurify": "^4.4.0",
     "marked": "^18.0.14",
     "mode-watcher": "^1.1.0",
     "pino": "^10.3.1",
@@ -68,7 +68,7 @@
     "resend": "^6.32.0",
     "runed": "^0.37.1",
     "sharp": "^0.35.5",
-    "super-sitemap": "^1.0.12",
+    "super-sitemap": "^2.0.6",
     "svelte-meta-tags": "^5.0.2",
     "svelte-sonner": "^1.2.1",
     "thumbhash": "^0.1.1",
@@ -76,7 +76,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.75.1",
+    "@dotenvx/dotenvx": "^2.32.4",
     "@iconify-json/lucide": "^1.2.138",
     "@iconify/tailwind4": "^1.2.3",
     "@internationalized/date": "^3.12.4",
@@ -92,9 +92,9 @@
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "@zxcvbn-ts/core": "^3.0.4",
-    "@zxcvbn-ts/language-common": "^3.0.4",
-    "@zxcvbn-ts/language-en": "^3.0.2",
+    "@zxcvbn-ts/core": "^4.2.0",
+    "@zxcvbn-ts/language-common": "^4.1.3",
+    "@zxcvbn-ts/language-en": "^4.1.1",
     "auth": "^1.7.7",
     "drizzle-kit": "1.0.0-rc.4",
     "knip": "^6.39.0",
@@ -115,7 +115,7 @@
     "vite-plus": "catalog:"
   },
   "engines": {
-    "node": ">=24.13.0"
+    "node": ">=26.0.0"
   },
   "packageManager": "pnpm@12.5.1",
   "imports": {

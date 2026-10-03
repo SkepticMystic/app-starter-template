@@ -18,11 +18,11 @@ allowBuilds:
 # equal the runner `vite-plus` bundles (`vp toolchain vitest`), or the override
 # splits mocks and `expect` state between two copies.
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@^0.3.3
-  vite-plus: ^0.3.3
-  vitest: 4.1.11
-  "@vitest/coverage-v8": 4.1.11
-  "@vitest/ui": 4.1.11
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+  vite-plus: 1.0.0
+  vitest: 5.0.1
+  "@vitest/coverage-v8": 5.0.1
+  "@vitest/ui": 5.0.1
 
 overrides:
   vite@*: "catalog:"

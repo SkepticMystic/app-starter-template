@@ -1,6 +1,8 @@
 import { AUTH } from "#lib/const/auth/auth.const.js";
-import { zxcvbn } from "@zxcvbn-ts/core";
+import { ZxcvbnFactory } from "@zxcvbn-ts/core";
 import { z } from "zod";
+
+const zxcvbn = new ZxcvbnFactory();
 
 const too_long = `Passwords can be at most ${AUTH.PASSWORD.MAX_LENGTH} characters`;
 
@@ -13,7 +15,7 @@ export const password_schema = z
   )
   .max(AUTH.PASSWORD.MAX_LENGTH, too_long)
   .refine(
-    (s) => zxcvbn(s).score >= AUTH.PASSWORD.MIN_SCORE,
+    (s) => zxcvbn.check(s).score >= AUTH.PASSWORD.MIN_SCORE,
     "Please choose a stronger password",
   );
 
