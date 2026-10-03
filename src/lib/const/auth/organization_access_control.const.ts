@@ -1,0 +1,59 @@
+import { createAccessControl } from "better-auth/plugins/access";
+import {
+  adminAc,
+  defaultStatements,
+  memberAc,
+  ownerAc,
+} from "better-auth/plugins/organization/access";
+import type { IOrganization } from "./organization.const";
+
+/**
+ * What each org role may do — independent of the global `user.role` in
+ * `access_control.const.ts`. Passed to the organization plugin, so this is
+ * what Better-Auth's own endpoints (invite, remove member, delete org) check,
+ * and what `Authz.can` answers from.
+ */
+const statement = {
+  ...defaultStatements,
+  // project: ["create", "update", "delete"],
+} as const;
+
+const ac = createAccessControl(statement);
+
+/** A permission request, e.g. `{ organization: ["delete"] }`. */
+export type OrgPermissions = {
+  [K in keyof typeof statement]?: (typeof statement)[K][number][];
+};
+
+export const OrgAccessControl = {
+  ac,
+
+  roles: {
+    // The `...Ac.statements` spreads are load-bearing: passing `roles` to the
+    // organization plugin replaces its defaults, including who can invite and
+    // remove members.
+    member: ac.newRole({ ...memberAc.statements }),
+    admin: ac.newRole({ ...adminAc.statements }),
+    owner: ac.newRole({ ...ownerAc.statements }),
+  } satisfies Record<IOrganization.RoleId, ReturnType<typeof ac.newRole>>,
+};
+
+/**
+ * Whether `role` — Better-Auth's comma-separated `member.role` — grants
+ * `permissions`, with `hasPermissionFn`'s semantics minus
+ * `allowCreatorAllPermissions`. Local because `checkRolePermission` is only on
+ * the browser client. An unknown role id is a refusal.
+ */
+export const check_org_role_permission = (
+  role: string,
+  permissions: OrgPermissions,
+): boolean =>
+  role
+    .split(",")
+    .some(
+      (id) =>
+        Object.hasOwn(OrgAccessControl.roles, id) &&
+        OrgAccessControl.roles[id as IOrganization.RoleId].authorize(
+          permissions,
+        ).success,
+    );

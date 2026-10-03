@@ -14,6 +14,7 @@ import { createAuthClient } from "better-auth/svelte";
 import { toast } from "svelte-sonner";
 import type { auth } from "./auth";
 import { AccessControl } from "./const/auth/access_control.const";
+import { OrgAccessControl } from "./const/auth/organization_access_control.const";
 
 export const BetterAuthClient = createAuthClient({
   baseURL: PUBLIC_BASE_URL,
@@ -24,6 +25,8 @@ export const BetterAuthClient = createAuthClient({
     twoFactorClient(),
     lastLoginMethodClient(),
     organizationClient({
+      ac: OrgAccessControl.ac,
+      roles: OrgAccessControl.roles,
       schema: inferOrgAdditionalFields<typeof auth>(),
     }),
     adminClient({
