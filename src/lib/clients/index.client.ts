@@ -1,7 +1,10 @@
-import type { MaybePromise } from "$lib/interfaces";
-import { Toast } from "$lib/utils/toast.util";
-import { BetterAuth, type BetterAuthResult } from "$lib/utils/better-auth.util";
-import { result } from "$lib/utils/result.util";
+import type { MaybePromise } from "#lib/interfaces/index.js";
+import { Toast } from "#lib/utils/toast.util.js";
+import {
+  BetterAuth,
+  type BetterAuthResult,
+} from "#lib/utils/better-auth.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { isHttpError } from "@sveltejs/kit";
 import { toast } from "svelte-sonner";
@@ -42,6 +45,7 @@ const wrap = <I, D>(
       )
     ) {
       return result.err({
+        status: 400,
         message: "Action cancelled",
       });
     }
@@ -54,6 +58,7 @@ const wrap = <I, D>(
 
       if (prompt(`Type "${target}" to confirm`) !== target) {
         return result.err({
+          status: 400,
           message: "Action cancelled",
         });
       }
@@ -98,6 +103,7 @@ const wrap = <I, D>(
         });
 
         return result.err({
+          status: 500,
           message: "Internal server error",
         });
       }

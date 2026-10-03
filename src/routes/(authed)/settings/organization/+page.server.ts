@@ -1,14 +1,14 @@
-import { db } from "$lib/server/db/drizzle.db";
-import { Repo } from "$lib/server/db/repos/index.repo";
-import { get_session } from "$lib/server/services/auth.service";
-import { result } from "$lib/utils/result.util";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { get_session } from "#lib/server/services/auth.service.js";
+import { result } from "#lib/utils/result.util.js";
 import { error, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async () => {
   const session = await get_session();
   if (!session.ok) {
-    error(session.error.status ?? 401, session.error);
+    error(session.error.status ?? 401, session.error.message, session.error);
   } else if (!session.data.session.activeOrganizationId) {
     redirect(302, "/onboarding");
   }

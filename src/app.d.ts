@@ -44,16 +44,19 @@ declare global {
       session?: App.Session;
     }
 
+    // `status` and `message` are declared by SvelteKit itself, and since 3.0
+    // `status` is always present.
     interface Error {
-      message: string;
-      status?: number;
       level?: "error" | "warning";
-      code?: import("$lib/const/error.const").AppErrorCode;
+      code?: import("#lib/const/error.const.js").AppErrorCode;
       // Comes from StandardSchema.Issue.path
       path?: readonly (PropertyKey | { key: PropertyKey })[];
     }
 
-    type Result<D> = import("$lib/interfaces/result.type").Result<D, App.Error>;
+    type Result<D> = import("#lib/interfaces/result.type.js").Result<
+      D,
+      App.Error
+    >;
   }
 }
 

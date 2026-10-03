@@ -355,7 +355,12 @@ migrates production with no review gate between merge and schema change.
 
 ### Error Handling
 
-- Use `result.err({ message })` utility for consistent error responses
+- Use `result.err(...)` for consistent error responses, with an `ERROR.*`
+  constant or `{ status, message }`. `App.Error.status` is required since
+  SvelteKit 3, so a bare `{ message }` no longer type-checks
+- `handleError` in `hooks.server.ts` receives every error in SvelteKit 3 —
+  expected `error(...)`s, 404s and remote-function validation failures, told
+  apart by `kind` — and replaces the removed `handleValidationError`
 - Log errors with context: `Log.error(error, "context_identifier")`
 - Better-Auth API errors are instances of `APIError` with `body.code` for error types
 - Custom error codes defined in `#lib/auth-client.ts` as `$ERROR_CODES`

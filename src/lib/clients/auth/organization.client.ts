@@ -1,16 +1,16 @@
-import { BetterAuthClient } from "$lib/auth-client";
+import { BetterAuthClient } from "#lib/auth-client.js";
 import {
   accept_invitation_remote,
   cancel_invitation_remote,
-} from "$lib/remote/auth/organization/invitation.remote";
-import { remove_member_remote } from "$lib/remote/auth/organization/member.remote";
+} from "#lib/remote/auth/organization/invitation.remote.js";
+import { remove_member_remote } from "#lib/remote/auth/organization/member.remote.js";
 import {
   admin_delete_organization_remote,
   owner_delete_organization_remote,
-} from "$lib/remote/auth/organization/organization.remote";
-import { session } from "$lib/stores/session.store";
-import { BetterAuth } from "$lib/utils/better-auth.util";
-import { result } from "$lib/utils/result.util";
+} from "#lib/remote/auth/organization/organization.remote.js";
+import { session } from "#lib/stores/session.store.js";
+import { BetterAuth } from "#lib/utils/better-auth.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { Client } from "../index.client";
 
 const set_active_org = async (organizationId: string | undefined) => {
@@ -34,7 +34,10 @@ export const OrganizationClient = {
         org_id ?? session.get().data?.session.activeOrganizationId;
 
       if (!organizationId) {
-        return result.err({ message: "Organization ID is required" });
+        return result.err({
+          status: 400,
+          message: "Organization ID is required",
+        });
       }
 
       const res = await BetterAuthClient.organization.leave({

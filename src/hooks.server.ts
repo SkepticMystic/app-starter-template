@@ -1,77 +1,39 @@
-import { env as private_env } from "$env/dynamic/private";
-import { building, dev } from "$app/environment";
-import { PUBLIC_SENTRY_DSN } from "$env/static/public";
-import { auth } from "$lib/auth";
+import { building, dev } from "$app/env";
+import { PUBLIC_SENTRY_DSN } from "$app/env/public";
+import { auth } from "#lib/auth.js";
+import { Log } from "#lib/utils/logger.util.js";
 import * as Sentry from "@sentry/sveltekit";
-import type { Handle, HandleValidationError } from "@sveltejs/kit";
-import { sequence } from "@sveltejs/kit/hooks";
+import {
+  sequence,
+  type Handle,
+  type HandleServerError,
+} from "@sveltejs/kit/hooks";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 
 /**
- * Secrets moved from `$env/static/private` to `$env/dynamic/private` so that no
- * credential is compiled into the server bundle — a built image can be pulled
- * by anyone with registry access, and rotating a key should not mean rebuilding.
+ * SvelteKit 3 routes every error through here — expected `error(...)`s, 404s
+ * and remote-function validation failures included — and Sentry's wrapper
+ * decides by `kind` which of those are worth capturing.
  *
- * The cost is that a missing variable used to fail the build and would now fail
- * at first use instead, possibly months later inside `EmailService.send`. This
- * runs once at module load, which puts the failure back at a moment someone is
- * watching.
- *
- * It lives here rather than in `instrumentation.server.ts` because the
- * instrumentation hook runs BEFORE SvelteKit populates `$env/dynamic/private`,
- * so every variable reads as missing there.
- *
- * Only variables whose absence is unambiguously a misconfiguration. The OAuth
- * providers are deliberately absent: `auth.ts` registers Google and Pocket ID
- * only when their credentials are set, so empty is a valid configuration.
- *
- * This cannot be the FIRST thing that fails. Imports evaluate before the
- * importing module's body, so a variable whose SDK throws at construction --
- * `DATABASE_URL`, via `neon()` in `drizzle.db.ts` -- surfaces its own error
- * first. That error is clear enough ("No database connection string was
- * provided to `neon()`"); this list catches everything that would otherwise
- * fail silently much later.
+ * Passing a handler replaces Sentry's default one, which is what used to log
+ * stack traces, so unexpected errors are logged here instead.
  */
-const REQUIRED = [
-  "BETTER_AUTH_SECRET",
-  "CAPTCHA_SECRET_KEY",
-  "CLOUDFLARE_ACCOUNT_ID",
-  "CLOUDINARY_API_KEY",
-  "CLOUDINARY_API_SECRET",
-  "CLOUDINARY_CLOUD_NAME",
-  "DATABASE_URL",
-  "EMAIL_FROM",
-  "OPENAI_API_KEY",
-  "PAYSTACK_SECRET_KEY",
-  "R2_ACCESS_KEY_ID",
-  "R2_BUCKET_NAME",
-  "R2_SECRET_ACCESS_KEY",
-  "RESEND_API_KEY",
-  "UPSTASH_REDIS_REST_TOKEN",
-  "UPSTASH_REDIS_REST_URL",
-];
+const handle_error: HandleServerError = (input) => {
+  // Used by remote function zod schemas
+  if (input.kind === "validation") {
+    return {
+      level: "warning",
+      path: input.issues.at(0)?.path,
+      message: input.issues.at(0)?.message || "Invalid input",
+    };
+  }
 
-const missing = REQUIRED.filter((key) => !private_env[key]);
-
-if (missing.length > 0) {
-  throw new Error(
-    `Missing required environment variables: ${missing.join(", ")}. ` +
-      `See .env.example for the full list.`,
-  );
-}
-
-// Used by remote function zod schemas
-export const handleValidationError: HandleValidationError = ({
-  // event,
-  issues,
-}) => {
-  return {
-    level: "warning",
-    path: issues.at(0)?.path,
-    message: issues.at(0)?.message || "Invalid input",
-  };
+  if (input.kind === "unknown") {
+    Log.error(input.error, "handle_error.unknown");
+  }
 };
-export const handleError = Sentry.handleErrorWithSentry();
+
+export const handleError = Sentry.handleErrorWithSentry(handle_error);
 
 // Derive Sentry's CSP-report ingest URL from the public DSN so violations
 // reported by the browser show up in the same project.
@@ -140,8 +102,13 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   return response;
 };
 
+// @sentry/sveltekit's types still import `Handle` from `@sveltejs/kit`, which
+// SvelteKit 3 moved to `@sveltejs/kit/hooks`, so its return type arrives
+// unresolved. The runtime is unaffected; drop the cast once Sentry catches up.
+const sentry_handle = Sentry.sentryHandle() as Handle;
+
 export const handle = sequence(
-  Sentry.sentryHandle(),
+  sentry_handle,
   async ({ event, resolve }) => {
     return svelteKitHandler({ event, resolve, auth, building });
   },

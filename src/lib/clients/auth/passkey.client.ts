@@ -1,11 +1,11 @@
-import { BetterAuthClient } from "$lib/auth-client";
-import { ERROR } from "$lib/const/error.const";
+import { BetterAuthClient } from "#lib/auth-client.js";
+import { ERROR } from "#lib/const/error.const.js";
 import {
   delete_passkey_remote,
   list_passkeys_remote,
-} from "$lib/remote/auth/passkey.remote";
-import { BetterAuth } from "$lib/utils/better-auth.util";
-import { result } from "$lib/utils/result.util";
+} from "#lib/remote/auth/passkey.remote.js";
+import { BetterAuth } from "#lib/utils/better-auth.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import { Client } from "../index.client";
@@ -23,6 +23,7 @@ export const PasskeyClient = {
         if (!res.ok) {
           console.warn("res.error", res.error);
           return result.err({
+            status: res.error.status,
             message:
               res.error.message ?? "Adding passkey failed. Please try again.",
           });

@@ -1,10 +1,10 @@
 import { getRequestEvent } from "$app/server";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { auth, is_ba_error_code } from "$lib/auth";
-import { ERROR } from "$lib/const/error.const";
-import { App } from "$lib/utils/app";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { auth, is_ba_error_code } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { App } from "#lib/utils/app.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError, type User } from "better-auth";
 import { AIModerationService } from "../../moderation/ai.moderation.service";
@@ -116,6 +116,7 @@ const request_password_reset = async (input: {
     return res.status
       ? result.suc({ message: res.message })
       : result.err({
+          status: 500,
           message: res.message ?? "Failed to request password reset",
         });
   } catch (error) {
@@ -240,7 +241,10 @@ const send_verification_email = async (input: {
 
     return res.status
       ? result.suc({ message: "Verification email sent" })
-      : result.err({ message: "Failed to send verification email" });
+      : result.err({
+          status: 500,
+          message: "Failed to send verification email",
+        });
   } catch (error) {
     return ServiceUtil.ba_error(error, { log: l });
   }

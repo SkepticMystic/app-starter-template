@@ -1,4 +1,4 @@
-import type { MaybePromise } from "$lib/interfaces";
+import type { MaybePromise } from "#lib/interfaces/index.js";
 import { result } from "./result.util";
 
 export type BetterAuthResult<D> =
@@ -28,7 +28,7 @@ export const BetterAuth = {
     } else {
       console.warn("BetterAuth error:", awaited.error);
       return result.err({
-        status: awaited.error?.status,
+        status: awaited.error?.status ?? 500,
         message:
           awaited.error?.message ??
           awaited.error?.statusText ??
