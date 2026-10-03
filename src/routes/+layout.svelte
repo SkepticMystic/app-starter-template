@@ -9,29 +9,38 @@
   import Confirm from "#lib/components/ui/alert-dialog/Confirm.svelte";
   import Sonner from "#lib/components/ui/sonner/sonner.svelte";
   import TooltipProvider from "#lib/components/ui/tooltip/tooltip-provider.svelte";
-  import { session } from "#lib/stores/session.store.js";
   import { ModeWatcher } from "mode-watcher";
   import "./layout.css";
 
   let { children } = $props();
 
   // NOTE: Currently this listener is _just_ for umami analytics
-  // We unsub as soon as they're identified
-  const session_listener = session.listen(($session) => {
-    if ($session.isRefetching || $session.isPending) return;
+  // We unsub as soon as they're identified.
+  // Imported lazily: the session store pulls in the whole auth client, which
+  // pages that never touch auth (marketing) would otherwise download and run.
+  const identify_to_umami = async () => {
+    const { session } = await import("#lib/stores/session.store.js");
 
-    if (browser && globalThis.umami && $session.data?.user) {
-      globalThis.umami.identify($session.data.user.id, {
-        name: $session.data.user.name,
-        email: $session.data.user.email,
-        session_id: $session.data.session.id,
-        ip_address: $session.data.session.ipAddress,
-        user_agent: $session.data.session.userAgent,
-      });
+    const session_listener = session.listen(($session) => {
+      if ($session.isRefetching || $session.isPending) return;
 
-      session_listener();
-    }
-  });
+      if (globalThis.umami && $session.data?.user) {
+        globalThis.umami.identify($session.data.user.id, {
+          name: $session.data.user.name,
+          email: $session.data.user.email,
+          session_id: $session.data.session.id,
+          ip_address: $session.data.session.ipAddress,
+          user_agent: $session.data.session.userAgent,
+        });
+
+        session_listener();
+      }
+    });
+  };
+
+  if (browser && PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID) {
+    void identify_to_umami();
+  }
 </script>
 
 <svelte:head>

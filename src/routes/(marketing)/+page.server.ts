@@ -1,6 +1,6 @@
 import { APP } from "#lib/const/app.const.js";
 import { SEOUtil } from "#lib/utils/seo/seo.util.js";
-import type { PageLoad } from "./$types";
+import type { PageServerLoad } from "./$types";
 
 export const load = (() => {
   return {
@@ -13,4 +13,4 @@ export const load = (() => {
       description: APP.DESCRIPTION,
     }),
   };
-}) satisfies PageLoad;
+}) satisfies PageServerLoad;
