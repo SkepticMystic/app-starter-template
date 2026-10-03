@@ -33,6 +33,93 @@ it here, because a second copy is a second thing to get wrong.
 - `pnpm lint:fix` - the same, applying safe fixes
 - `pnpm format` / `pnpm format:check` - oxfmt
 - `pnpm verify` - format:check, lint, check, test:run and knip in one go
+- `pnpm env:check` - structural invariants on `src/env.ts`: every variable has
+  a description and a schema, and the `PUBLIC_` prefix agrees with the
+  `public` flag. Needs no credentials
+- `pnpm auth:check` - Better-Auth's own schema diff: can `schema.ts` hold what
+  `src/lib/auth.ts` writes? It loads the real config with the test suite's
+  environment (`src/test/env.mock.ts`), so it needs no secrets either. Run it
+  after adding a Better-Auth plugin or a field to one
+
+### Testing
+
+- `pnpm test` - `vp test`
+- `pnpm test:run` - a single run
+- `pnpm test:ui` - Vitest UI
+- `pnpm test:coverage` - a single run with coverage
+
+Vitest is bundled **inside** Vite+, so there is no `vitest` dependency and no
+`vitest.config.ts`; all of it is the `test` block of `vite.config.ts`, whose
+`dir: "src"` keeps it from collecting copies in `.claude/worktrees/*`.
+
+Four things about this suite are not guessable from reading a test file:
+
+- **Import from `vite-plus/test`, never `vitest`.**
+- **`expect.requireAssertions: true`** — a test that asserts nothing fails.
+- **`isolate: false`, and there is one rule that keeps it safe.** A worker
+  shares one module registry across files, so a module is evaluated **once per
+  worker** and every file in that worker gets the same instance of it. A
+  `vi.mock` in a test file therefore does not belong to that file: whichever
+  file evaluates a service first decides which mock the service is wired to,
+  and every later file configures an object nobody consults. That is not a
+  failure any assertion names — it surfaces as an unrelated suite going quiet,
+  in a different file on every run.
+
+  > **Every mocked module is mocked exactly once, in `src/test/setup.ts`, and
+  > its factory returns an instance memoised on `globalThis`.**
+
+  `globalThis` rather than a module binding because `setupFiles` re-run before
+  _every_ test file and rebuild each factory's result, while the app modules
+  from earlier files keep the first one. Per-worker state is the only kind that
+  survives. `src/test/automock.ts` is the machinery (`memo`, `automock`,
+  `mock_module`); `env.mock.ts`, `auth.mock.ts` and `rate_limit.mock.ts` are
+  the knob modules that hold what a test needs to drive.
+
+  **So a test file does not call `vi.mock`.** It imports the module normally
+  and configures the shared instance — `vi.mocked(Repo.exists)
+.mockResolvedValue(…)`, `mocks(OrganizationRepo).get_membership…` or
+  `install_mock(OrganizationRepo, fake)` for a behaviour-rich fake, both from
+  `src/test/helpers.ts`. `install_mock` throws on a name that is not one of the
+  real module's functions, since anything it defined would outlive the file on
+  the shared instance. Where the subject under test is _itself_ on the wall,
+  the file asks for the real one with
+  `await vi.importActual<typeof import("./x")>("./x")`; a subject that is not
+  on the wall is imported normally. A new module to mock goes on the wall —
+  usually one `mock_module` call, which reads the real module's shape, so a
+  method added later is mocked the moment it is written.
+
+  A `beforeEach` in the setup file calls `vi.resetAllMocks()` and
+  `reset_env()`. That is why every seeded spy on the wall is `vi.fn(impl)`:
+  `mockReset` restores only an implementation given to `vi.fn` itself, so a
+  `.mockResolvedValue()` seed would come back `undefined`. Install what a test
+  needs in its own `beforeEach`, which runs after this one.
+
+- **Two projects, `server` and `sql`.** A repo test compiles real SQL, so it
+  needs `drizzle.db` to be a genuine drizzle and `index.repo` to be the real
+  wrapper — the exact opposite of what every other file needs. One module
+  cannot hold two values in one registry, so `src/lib/server/db/repos/**/*.test.ts`
+  runs as its own project with `src/test/setup.sql.ts`: drizzle over
+  `pg-proxy`, which compiles the same Postgres dialect `neon-http` sends, and
+  records each statement instead. A repo test reads `recorder.calls` and queues
+  answers on `recorder.rows` (`src/test/sql.mock.ts`) — positional rows
+  (`[["id", "role"]]`) for a builder or relational query. `SQL_TESTS` in
+  `vite.config.ts` is both the `server` project's `exclude` and the `sql`
+  project's `include`, so they cannot drift.
+
+**The environment is derived, never restated.** `src/test/env.mock.ts` builds
+both `$app/env/*` mocks from `src/env.ts`: an explicit test value where one is
+listed, else the variable's `placeholder`, else what its schema makes of
+"unset" (`undefined` for optional, the default for defaulted), else a
+generated `mock-*`. A newly declared variable is mocked the moment it exists.
+`set_env({ … })` in a `beforeEach` overrides a private one for that test — it
+reaches a reader that looks the value up at call time, not a module that copied
+it at load (`REDIS_PREFIX`, the SDK clients). The public mock is frozen: those
+variables are static in production, so overriding one tests something that
+cannot happen.
+
+Tests are colocated as `*.test.ts` next to the module. Coverage is scoped to
+`src/lib/server/services/**` and has no thresholds. `src/routes/` and
+`.svelte` files have no tests — Svelte correctness comes from `pnpm check`.
 
 ### Database Commands
 
@@ -123,6 +210,19 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   Vercel build command, `pnpm build && pnpm db:migrate`, set in
   `infra/modules/vercel/main.tf`; a container runs `pnpm db:migrate:run` as a
   separate step (see Deployment)
+- Plugins are built inside `lazyPlugins(async () => …)` with dynamic imports,
+  so `vp fmt`, `vp lint` and the editor LSPs — which load the config only for
+  `fmt` and `lint` — skip them. Keep plugin imports inside that factory
+- `build.sourcemap` is stated outright, never `undefined`, which Sentry's
+  plugin would silently turn into `"hidden"`: `"hidden"` only when
+  `SENTRY_AUTH_TOKEN` is set (uploaded, then deleted via
+  `filesToDeleteAfterUpload`), otherwise `false`
+- `csp` is **report-only**, `mode: "auto"`. Violations go to Sentry through the
+  `csp-endpoint` group `hooks.server.ts` sets per response. mode-watcher's
+  theme bootstrap is rendered from `app.html` under `%sveltekit.nonce%`
+  (`handleModeWatcher`), because one injected through `<svelte:head>` cannot
+  carry the nonce. Learn the list from the reports, then promote it to
+  `directives` as its own change. A new third-party origin goes in the list
 
 ### Remote Functions Pattern
 
@@ -363,8 +463,53 @@ migrates production with no review gate between merge and schema change.
 - **Environment variables**: declare every one in `src/env.ts` and import it
   from `$app/env/private` or `$app/env/public`; `$env/*` and
   `$app/environment` are deprecated (use `$app/env` for `dev`/`browser`/
-  `building`)
+  `building`). See "Reading environment variables" below
 - **TypeScript namespaces**: Preferred for organizing related types (e.g., `IAuth.ProviderId`)
+
+### Reading environment variables
+
+**One declaration: `src/env.ts`.** It is SvelteKit 3's explicit environment
+entry and covers both halves — private and `PUBLIC_*` — as one
+`defineEnvVars({...})` object. Each entry has a `description`, which kit
+renders as the hover documentation at every import, and a zod `schema`, which
+kit runs at build time and at boot. `pnpm env:check` and the hygiene block in
+`src/test/env.test.ts` fail an entry missing either, or a `PUBLIC_` name whose
+`public` flag disagrees.
+
+**`required()` vs `optional()` is the main dial.**
+
+- `required(description, placeholder?)`: unset or `""` fails the build and the
+  boot, at a moment someone is watching rather than inside the first request
+  that reads it. `placeholder` is a well-formed stand-in for tools that need
+  _a_ value — the test env mock and `pnpm auth:check` — so give one whenever a
+  module parses the value at load (`new URL(PUBLIC_BASE_URL)`, a connection
+  string). It is never used at build or run time.
+- `optional(description)`: unset and `""` both arrive as `undefined`, so the
+  export types as `string | undefined` and the compiler makes you write the
+  "not configured" branch. Use it only when the app genuinely runs without the
+  value (the OAuth providers, Umami, Sentry). Never give one a placeholder value
+  in a real environment: a non-empty `"TODO"` satisfies every `if (X)` guard.
+- Anything else takes a plain zod schema with a default — `LOG_LEVEL` is an
+  enum defaulting to `info`.
+
+**Static vs dynamic.** `APP_ENV` and the `PUBLIC_*` set are `static: true`:
+inlined at build time, so they are build args, not runtime config (see
+Deployment → Container). Everything else is dynamic — read from the
+environment when the server starts. A secret must never be static: it would
+be compiled into the bundle.
+
+**The ordering trap.** A dynamic export of `$app/env/*` is a `const`
+snapshotted when `set_env()` fills it during `Server.init()`.
+`src/instrumentation.server.ts` is evaluated _before_ that, so anything
+reachable from it that reads a dynamic variable at module scope captures
+`undefined` **permanently** — not a throw, a silent wrong value on a process
+that then serves requests. `logger.util.ts` (`LOG_LEVEL`), `drizzle.db.ts`
+(`DATABASE_URL`) and the SDK clients all read at module scope. That file's
+import list is therefore a correctness constraint: **statically import only
+static variables there** — `APP_ENV` and `PUBLIC_SENTRY_DSN` are safe because
+they are inlined at build time — and import anything else dynamically, inside
+the function that needs it, as the shutdown drain does. `hooks.server.ts` and
+everything it imports run after `set_env`.
 
 ### Database Patterns
 
