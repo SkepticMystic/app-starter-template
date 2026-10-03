@@ -2,6 +2,7 @@ import { building } from "$app/env";
 import { APP_ENV } from "$app/env/private";
 import { PUBLIC_SENTRY_DSN } from "$app/env/public";
 import { auth } from "#lib/auth.js";
+import { ERROR } from "#lib/const/error.const.js";
 import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
 import { Log } from "#lib/utils/logger.util.js";
 import * as Sentry from "@sentry/sveltekit";
@@ -153,6 +154,44 @@ const handleModeWatcher: Handle = ({ event, resolve }) =>
       html.replace("%modewatcher.snippet%", MODE_WATCHER_SNIPPET),
   });
 
+/**
+ * An `/api/*` caller reads JSON, but a 404 for a missing route, a 405 for a
+ * missing verb, or any error kit answers before dispatch would otherwise get
+ * kit's HTML error page. Only a non-JSON error is rewritten, so a route's own
+ * JSON error passes through untouched.
+ */
+const handleApiErrorShape: Handle = async ({ event, resolve }) => {
+  const response = await resolve(event);
+
+  if (!event.url.pathname.startsWith("/api/")) return response;
+  if (response.ok) return response;
+  if (response.headers.get("content-type")?.includes("application/json")) {
+    return response;
+  }
+
+  const api_error: App.Error =
+    response.status === 404
+      ? { ...ERROR.NOT_FOUND, message: "No such endpoint" }
+      : response.status === 405
+        ? ERROR.METHOD_NOT_ALLOWED
+        : {
+            ...ERROR.INTERNAL_SERVER_ERROR,
+            status: response.status,
+            message: response.statusText || "Request failed",
+          };
+
+  const json = Response.json(
+    { error: { code: api_error.code, message: api_error.message } },
+    { status: api_error.status },
+  );
+
+  // `allow` tells a 405's caller which verbs would have worked.
+  const allow = response.headers.get("allow");
+  if (allow) json.headers.set("allow", allow);
+
+  return json;
+};
+
 // @sentry/sveltekit's types still import `Handle` from `@sveltejs/kit`, which
 // SvelteKit 3 moved to `@sveltejs/kit/hooks`, so its return type arrives
 // unresolved. The runtime is unaffected; drop the cast once Sentry catches up.
@@ -168,4 +207,7 @@ export const handle = sequence(
   },
   handleSecurityHeaders,
   handleModeWatcher,
+  // Innermost: it replaces the response, discarding headers set by any
+  // handler it wraps.
+  handleApiErrorShape,
 );
