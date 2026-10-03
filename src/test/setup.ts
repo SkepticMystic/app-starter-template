@@ -62,10 +62,20 @@ vi.mock("$app/paths", () => ({
   asset: (path: string) => path,
 }));
 
-vi.mock("$app/server", () => ({
-  getRequestEvent: vi.fn(),
-  read: vi.fn(),
-}));
+vi.mock("$app/server", () => {
+  // `command` / `query` / `form` hand back their handler, so a test can call
+  // what `guarded.ts` builds as a plain function.
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- `vi.mock` is hoisted above module scope, so a module-level helper would not be initialised yet
+  const handler = (a: unknown, b?: unknown) => b ?? a;
+
+  return {
+    getRequestEvent: vi.fn(),
+    read: vi.fn(),
+    command: vi.fn(handler),
+    query: Object.assign(vi.fn(handler), { batch: vi.fn(handler) }),
+    form: vi.fn(handler),
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Database layer

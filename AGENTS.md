@@ -138,6 +138,18 @@ Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to 
 - Use `result.err({ message })` for general errors
 - Use `redirect()` to navigate after successful operations
 - Example: `src/lib/remote/auth/auth.remote.ts`
+- Anything that needs a session goes through `guarded_command` /
+  `guarded_query` / `guarded_batch` / `guarded_form` from
+  `src/lib/server/remote/guarded.ts`, not a hand-rolled `get_session()`. The
+  pipeline is session → `authorize` → rate `limit`s → `resolve`, each refusal
+  returned as an `App.Result`; the handler gets `{ session, user_id }` (level
+  `user`) or also `{ org_id, member_id, member_role }` (level `org`, read fresh
+  from `member` by `read_session`). Start from `USER`, `ORG` or `ADMIN` and
+  spread to add `session: { org_permissions }` or a `limit`
+- Permission questions go through `Authz` (`src/lib/utils/auth/authz.util.ts`),
+  pure and shared by server and client; in a component, `can()` from
+  `#lib/utils/auth/permission.util.ts` asks it of `page.data.org`, which the
+  page's load must return
 
 ### State Management
 
