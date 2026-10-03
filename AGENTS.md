@@ -269,13 +269,15 @@ in two stages on a Debian-slim base (not Alpine — `sharp` ships glibc prebuilt
 Build args are the build-time variables only: `APP_ENV` and the `PUBLIC_*` set.
 Everything else is read at runtime through `$app/env/private`, so **no
 secret ends up in an image layer** — and the image is per-origin, not per-tier,
-because `PUBLIC_BASE_URL` is compiled into the client bundle.
+because `PUBLIC_BASE_URL` is compiled into the client bundle. It is also the
+origin SvelteKit trusts for CSRF checks: `adapter-node` 6 dropped the runtime
+`ORIGIN` variable, so `vite.config.ts` sets `paths.origin` from
+`PUBLIC_BASE_URL` at build time instead. A runtime `ORIGIN` is now ignored.
 
 `adapter-node` needs these at run time, beyond the app's own variables:
 
 | Var                            | Why                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ORIGIN`                       | Set it to the same value as `PUBLIC_BASE_URL`. Without it SvelteKit cannot derive the request URL and every form POST fails the CSRF origin check with "Cross-site POST form submissions are forbidden".                                                                                                                        |
 | `ADDRESS_HEADER` + `XFF_DEPTH` | `event.getClientAddress()` otherwise returns the socket peer — the reverse proxy — for every request, which collapses all users into one rate-limit bucket. `XFF_DEPTH` is the real number of trusted proxies. Do not "fix" this by reordering the header chain in `adapter.service.ts`: that lets any client spoof its own IP. |
 | `PORT` / `HOST`                | Default `0.0.0.0:3000`.                                                                                                                                                                                                                                                                                                         |
 | `BODY_SIZE_LIMIT`              | Default 512kb, which image uploads exceed.                                                                                                                                                                                                                                                                                      |

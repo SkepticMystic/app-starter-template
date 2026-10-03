@@ -76,6 +76,18 @@ export default defineConfig({
     sveltekit({
       adapter,
 
+      paths: {
+        // adapter-node no longer reads ORIGIN at run time, so the origin used
+        // for CSRF checks is fixed at build time instead. The image is already
+        // per-origin (PUBLIC_BASE_URL is compiled into the client), so this is
+        // the same value. It is read from the real environment, not `.env`, so
+        // a local `pnpm build` still derives it from the request. Left unset on
+        // Vercel, whose preview deployments each have their own URL.
+        origin: process.env.VERCEL
+          ? undefined
+          : process.env.PUBLIC_BASE_URL || undefined,
+      },
+
       version: {
         pollInterval: 300_000,
       },

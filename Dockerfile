@@ -47,6 +47,8 @@ COPY .env.example .env
 # PUBLIC_* vars and APP_ENV are read at build time, so they must be present
 # here; everything else is read at runtime via $app/env/private and must
 # NOT be passed in, so no secret ends up in an image layer.
+# PUBLIC_BASE_URL also becomes `paths.origin` in vite.config.ts — the origin
+# SvelteKit trusts for CSRF checks — which is why there is no runtime ORIGIN.
 ARG APP_ENV=production
 ARG PUBLIC_BASE_URL
 ARG PUBLIC_SENTRY_DSN=""
@@ -63,8 +65,8 @@ RUN pnpm build
 
 FROM base AS runtime
 ENV NODE_ENV=production
-# adapter-node defaults. ORIGIN has no sensible default and must be supplied at
-# run time — without it every form POST fails SvelteKit's CSRF origin check.
+# adapter-node defaults. Since SvelteKit 3 there is no ORIGIN variable: the
+# origin is baked in at build time from PUBLIC_BASE_URL (see above).
 ENV PORT=3000
 ENV HOST=0.0.0.0
 

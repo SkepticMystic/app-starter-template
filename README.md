@@ -72,7 +72,7 @@ docker build \
 # starting together would race, and neon-http has no transactions to lock with.
 docker run --rm --env-file .env app pnpm db:migrate:run
 
-docker run -p 3000:3000 --env-file .env -e ORIGIN=https://your.domain app
+docker run -p 3000:3000 --env-file .env app
 ```
 
 > **`--env-file` and quotes.** Docker does not strip quotes from an env file —
@@ -86,9 +86,10 @@ docker run -p 3000:3000 --env-file .env -e ORIGIN=https://your.domain app
 
 Only `APP_ENV` and the `PUBLIC_*` variables are build args — they are compiled
 in. Every secret is read at runtime, so none of them end up in an image layer.
-See the Deployment section of `AGENTS.md` for the `adapter-node` runtime
-variables (`ORIGIN`, `ADDRESS_HEADER`, `XFF_DEPTH`, `BODY_SIZE_LIMIT`) and why
-each one matters.
+`PUBLIC_BASE_URL` doubles as the origin SvelteKit trusts for CSRF checks, so an
+image is built for one origin. See the Deployment section of `AGENTS.md` for the
+`adapter-node` runtime variables (`ADDRESS_HEADER`, `XFF_DEPTH`,
+`BODY_SIZE_LIMIT`) and why each one matters.
 
 ## Infrastructure
 

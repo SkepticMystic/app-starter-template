@@ -53,7 +53,7 @@ jobs:
       # startup, so .env.example's placeholders have to be non-empty.
       - name: Check the built server boots
         run: |
-          ORIGIN=http://localhost:3000 PORT=3000 node --env-file=.env build &
+          PORT=3000 node --env-file=.env build &
           for i in $(seq 1 30); do
             if curl -fsS -o /dev/null http://localhost:3000/; then
               echo "server responded"; exit 0
