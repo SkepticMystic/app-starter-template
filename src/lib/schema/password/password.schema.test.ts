@@ -7,20 +7,34 @@ const strong = (length: number) =>
   "correct-Horse-battery-staple-".repeat(10).slice(0, length);
 
 describe("password_schema", () => {
-  it("accepts a strong password within Better-Auth's bounds", () => {
-    expect(password_schema.safeParse(strong(20)).success).toBe(true);
+  it("accepts a strong password within Better-Auth's bounds", async () => {
+    expect((await password_schema.safeParseAsync(strong(20))).success).toBe(
+      true,
+    );
   });
 
-  it("refuses one past the maximum, as Better-Auth would", () => {
-    expect(
-      password_schema.safeParse(strong(AUTH.PASSWORD.MAX_LENGTH + 1)).success,
-    ).toBe(false);
+  it("refuses one past the maximum, as Better-Auth would", async () => {
+    const res = await password_schema.safeParseAsync(
+      strong(AUTH.PASSWORD.MAX_LENGTH + 1),
+    );
+
+    expect(res.success).toBe(false);
   });
 
-  it("refuses one under the minimum, saying why", () => {
-    const res = password_schema.safeParse(strong(AUTH.PASSWORD.MIN_LENGTH - 1));
+  it("refuses one under the minimum, saying why", async () => {
+    const res = await password_schema.safeParseAsync(
+      strong(AUTH.PASSWORD.MIN_LENGTH - 1),
+    );
 
     expect(res.error?.issues.map((issue) => issue.code)).toContain("too_small");
+  });
+
+  it("refuses a long password the dictionaries know, saying why", async () => {
+    const res = await password_schema.safeParseAsync("Password123");
+
+    expect(res.error?.issues.map((issue) => issue.message)).toEqual([
+      "Please choose a stronger password",
+    ]);
   });
 });
 

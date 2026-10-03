@@ -4,16 +4,11 @@
   import { usePasswordStrength } from "./password.svelte.js";
   import type { PasswordStrengthProps } from "./types.js";
 
-  let { strength = $bindable(), class: className }: PasswordStrengthProps =
-    $props();
+  let { class: className }: PasswordStrengthProps = $props();
 
   const state = usePasswordStrength();
 
-  const score = $derived(state.strength.score);
-
-  $effect(() => {
-    strength = state.strength;
-  });
+  const score = $derived(state.score);
 
   const color = tv({
     base: "",
@@ -30,7 +25,7 @@
 </script>
 
 <Meter.Root
-  value={state.strength.score}
+  value={score}
   class={[
     "relative h-[6px] w-full gap-1 overflow-hidden rounded-full bg-accent",
     className,

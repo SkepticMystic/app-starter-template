@@ -1,4 +1,3 @@
-import type { ZxcvbnResult } from "@zxcvbn-ts/core";
 import type {
   Meter as MeterPrimitive,
   Toggle as TogglePrimitive,
@@ -11,11 +10,6 @@ import type { CopyButtonProps } from "../copy-button/types";
 export type PasswordRootPropsWithoutHTML = WithChildren<{
   ref?: HTMLDivElement | null;
   hidden?: boolean;
-  /** The minimum acceptable score for a password. (0-4)
-   *
-   * @default 3
-   */
-  minScore?: 0 | 1 | 2 | 3 | 4;
 }>;
 
 export type PasswordRootProps = WithoutChildren<
@@ -44,9 +38,4 @@ export type PasswordCopyButtonProps = Omit<
   "children" | "text"
 >;
 
-export type PasswordStrengthPropsWithoutHTML = {
-  strength?: ZxcvbnResult;
-};
-
-export type PasswordStrengthProps = PasswordStrengthPropsWithoutHTML &
-  WithoutChildren<MeterPrimitive.RootProps>;
+export type PasswordStrengthProps = WithoutChildren<MeterPrimitive.RootProps>;

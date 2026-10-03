@@ -1,12 +1,13 @@
 import { AUTH } from "#lib/const/auth/auth.const.js";
-import { ZxcvbnFactory } from "@zxcvbn-ts/core";
+import { password_score } from "#lib/server/utils/password_strength.util.js";
 import { z } from "zod";
-
-const zxcvbn = new ZxcvbnFactory();
 
 const too_long = `Passwords can be at most ${AUTH.PASSWORD.MAX_LENGTH} characters`;
 
-/** A password being set: sign-up, reset, change. */
+/**
+ * A password being set: sign-up, reset, change. Server-only, through
+ * zxcvbn, and async, so parse it with `safeParseAsync`.
+ */
 export const password_schema = z
   .string()
   .min(
@@ -15,7 +16,7 @@ export const password_schema = z
   )
   .max(AUTH.PASSWORD.MAX_LENGTH, too_long)
   .refine(
-    (s) => zxcvbn.check(s).score >= AUTH.PASSWORD.MIN_SCORE,
+    async (s) => (await password_score(s)) >= AUTH.PASSWORD.MIN_SCORE,
     "Please choose a stronger password",
   );
 

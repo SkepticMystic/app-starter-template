@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { box, mergeProps } from "svelte-toolbelt";
+  import { box } from "svelte-toolbelt";
   import Input from "../input/input.svelte";
   import { usePasswordInput } from "./password.svelte.js";
   import type { PasswordInputProps } from "./types.js";
@@ -17,15 +17,12 @@
       () => value,
       (v) => (value = v),
     ),
-    ref: box.with(() => ref),
   });
-
-  const mergedProps = $derived(mergeProps(rest, state.props));
 </script>
 
 <div class="relative">
   <Input
-    {...mergedProps}
+    {...rest}
     bind:value
     bind:ref
     type={state.root.opts.hidden.current ? "password" : "text"}
