@@ -3,7 +3,10 @@ import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
 import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
-import { password_schema } from "#lib/schema/password/password.schema.js";
+import {
+  existing_password_schema,
+  password_schema,
+} from "#lib/schema/password/password.schema.js";
 import { EmailValidationService } from "#lib/server/services/auth/email/email_validation.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
 import { App } from "#lib/utils/app.js";
@@ -56,7 +59,7 @@ const account_key = async (email: string) => {
 export const signin_credentials_remote = form(
   z.object({
     email: z.email("Please enter a valid email address"),
-    password: z.string(),
+    password: existing_password_schema,
     remember: z.boolean().default(false),
     redirect_uri: redirect_uri_schema(),
   }),

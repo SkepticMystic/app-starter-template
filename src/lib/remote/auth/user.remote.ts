@@ -1,6 +1,9 @@
 import { form } from "$app/server";
 import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
-import { password_schema } from "#lib/schema/password/password.schema.js";
+import {
+  existing_password_schema,
+  password_schema,
+} from "#lib/schema/password/password.schema.js";
 import { UserService } from "#lib/server/services/auth/user/user.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
 import { invalid } from "@sveltejs/kit";
@@ -83,7 +86,7 @@ export const send_verification_email_remote = form(
 
 export const change_password_remote = form(
   z.object({
-    current_password: z.string(),
+    current_password: existing_password_schema,
     new_password: password_schema,
   }),
   async (input) => {

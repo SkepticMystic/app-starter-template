@@ -24,6 +24,7 @@ import { passkey } from "@better-auth/passkey";
 import { captureException } from "@sentry/sveltekit";
 import type { APIError } from "better-auth";
 import { betterAuth } from "better-auth/minimal";
+import type { Branded } from "./interfaces/zod/zod.type";
 import {
   admin,
   captcha,
@@ -47,6 +48,7 @@ import { schema } from "./server/db/schema";
 import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
 import { AdapterService } from "./server/services/adapter/adapter.service";
 import { Dicebear } from "./server/services/dicebear/dicebear.service";
+import { EmailValidationService } from "./server/services/auth/email/email_validation.service";
 import { EmailService } from "./server/services/email.service";
 // Mutually recursive with the service, deliberately: better-auth's paystack
 // plugin calls into SubscriptionService from a hook here, and the service calls
@@ -79,8 +81,20 @@ export const auth = betterAuth({
     enabled: false,
   },
 
+  // On in production by default, stored in `secondaryStorage`. Only the rules
+  // are ours.
+  rateLimit: {
+    customRules: AUTH.ROUTER_RATE_LIMIT_RULES,
+  },
+
   advanced: {
     backgroundTasks: { handler: AdapterService.wait_until },
+
+    // The address SvelteKit resolved, honouring `ADDRESS_HEADER`/`XFF_DEPTH`
+    // off Vercel. Never a header a client can set — see `CLIENT_IP_HEADER`.
+    ipAddress: {
+      ipAddressHeaders: [AdapterService.CLIENT_IP_HEADER],
+    },
 
     database: {
       // NOTE: Let drizzle generate IDs, as BetterAuth's nanoid causes issues
@@ -107,6 +121,12 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // Cache duration in seconds
+
+      // Bump with any change to `additionalFields`, or cookies baked with the
+      // old field set stay readable for `maxAge`. A bump logs nobody out — the
+      // session itself lives in Redis — it only forces a re-read. "1" is
+      // Better-Auth's own default, so setting it changed nothing.
+      version: "1",
     },
 
     additionalFields: {
@@ -233,6 +253,38 @@ export const auth = betterAuth({
   },
 
   user: {
+    /**
+     * MX-checks every new identity, whatever the auth method, at the
+     * `createUser` / `linkAccount` seam — so Google and Pocket ID sign-ups are
+     * covered too, not just the email form. On `/sign-up/email` Better-Auth
+     * turns any refusal into a fake duplicate-email success, so
+     * `signup_remote`'s own pre-flight check is still what shows the error.
+     *
+     * Fails open when the lookup itself breaks: a DNS outage must not become a
+     * sign-up outage. Only a definite "this domain takes no mail" refuses.
+     */
+    validateUserInfo: async ({ user, source }) => {
+      if (source.action !== "create-user" && source.action !== "link-account") {
+        return undefined;
+      }
+
+      const email = user.email;
+      if (typeof email !== "string") return undefined;
+
+      const valid = await EmailValidationService.has_mx_records(
+        email as Branded<"EmailAddress">,
+      );
+      if (valid.ok && !valid.data) {
+        return {
+          error: "email_domain_undeliverable",
+          errorDescription: "Email address is not valid",
+        };
+      }
+
+      // `undefined` is "accepted".
+      return undefined;
+    },
+
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
@@ -266,6 +318,8 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
+    minPasswordLength: AUTH.PASSWORD.MIN_LENGTH,
+    maxPasswordLength: AUTH.PASSWORD.MAX_LENGTH,
 
     sendResetPassword: async ({ user, url }) => {
       if (dev) Log.debug(url);
@@ -297,6 +351,11 @@ export const auth = betterAuth({
             prompt: "select_account",
             clientId: GOOGLE_CLIENT_ID,
             clientSecret: GOOGLE_CLIENT_SECRET,
+
+            // `emailAndPassword.requireEmailVerification` does not cover social
+            // sign-in. Not the same thing as `force_email_verified`, which has
+            // the opposite polarity: it trusts a provider that cannot verify.
+            requireEmailVerification: true,
           }
         : undefined,
   },

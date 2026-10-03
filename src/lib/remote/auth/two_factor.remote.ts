@@ -1,5 +1,6 @@
 import { form } from "$app/server";
 import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
+import { existing_password_schema } from "#lib/schema/password/password.schema.js";
 import { TwoFactorService } from "#lib/server/services/auth/two_factor/two_factor.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
 import { invalid } from "@sveltejs/kit";
@@ -8,7 +9,9 @@ import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "bits-ui";
 import { z } from "zod";
 
 export const enable_two_factor_remote = form(
-  z.object({ password: z.string().min(1, "Please enter your password") }),
+  z.object({
+    password: existing_password_schema.min(1, "Please enter your password"),
+  }),
   async (input) => {
     const res = await TwoFactorService.enable(input);
     if (!res.ok && res.error.path) {
@@ -21,7 +24,7 @@ export const enable_two_factor_remote = form(
 
 export const disable_two_factor_remote = form(
   z.object({
-    password: z.string().min(1, "Please enter your password"),
+    password: existing_password_schema.min(1, "Please enter your password"),
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input) => {

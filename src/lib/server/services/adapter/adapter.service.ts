@@ -66,6 +66,46 @@ const get_geo = (): Geo => {
   };
 };
 
+/**
+ * The header Better-Auth reads the client IP from (`advanced.ipAddress`).
+ *
+ * Better-Auth resolves the IP itself from request headers, not through
+ * `getClientAddress()`, so `ADDRESS_HEADER`/`XFF_DEPTH` never reach it. Left on
+ * its default it reads `x-forwarded-for` and trusts it only when it holds a
+ * single address — fine on Vercel, which overwrites it, but behind any proxy
+ * that appends, it resolves nothing and its rate limiter falls back to one
+ * bucket shared by every caller.
+ *
+ * Naming a header the proxy happens to set (`cf-connecting-ip`,
+ * `fly-client-ip`) would tie the app to one host and let any client that
+ * reaches the origin directly pick its own bucket. Instead {@link pin_client_ip}
+ * overwrites this one on every request with what SvelteKit resolved, so the
+ * two can never disagree and nothing a client sends survives.
+ */
+const CLIENT_IP_HEADER = "x-app-client-ip";
+
+/**
+ * Stamps SvelteKit's view of the client address onto the request for
+ * Better-Auth to read. Called first thing in `handle`, before anything reads
+ * the headers. A client-sent value is always deleted, even when the address
+ * cannot be resolved.
+ */
+const pin_client_ip = (event: {
+  request: Request;
+  getClientAddress: () => string;
+}): void => {
+  const { headers } = event.request;
+  headers.delete(CLIENT_IP_HEADER);
+
+  try {
+    const ip = event.getClientAddress();
+    if (ip) headers.set(CLIENT_IP_HEADER, ip);
+  } catch (error) {
+    // Prerendering has no client; Better-Auth falls back on its own.
+    log.debug(error, "pin_client_ip.unresolved");
+  }
+};
+
 const get_user_agent = () => {
   const event = getRequestEvent();
 
@@ -96,6 +136,8 @@ const wait_until = (promise: Promise<unknown>): void => {
 };
 
 export const AdapterService = {
+  CLIENT_IP_HEADER,
+  pin_client_ip,
   get_ip,
   get_geo,
   get_user_agent,

@@ -1,6 +1,7 @@
 import { building, dev } from "$app/env";
 import { PUBLIC_SENTRY_DSN } from "$app/env/public";
 import { auth } from "#lib/auth.js";
+import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
 import { Log } from "#lib/utils/logger.util.js";
 import * as Sentry from "@sentry/sveltekit";
 import {
@@ -110,6 +111,9 @@ const sentry_handle = Sentry.sentryHandle() as Handle;
 export const handle = sequence(
   sentry_handle,
   async ({ event, resolve }) => {
+    // Before anything reads the headers — see `CLIENT_IP_HEADER`.
+    if (!building) AdapterService.pin_client_ip(event);
+
     return svelteKitHandler({ event, resolve, auth, building });
   },
   handleSecurityHeaders,
