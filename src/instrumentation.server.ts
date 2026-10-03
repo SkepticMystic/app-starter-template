@@ -1,3 +1,4 @@
+import { APP_ENV } from "$app/env/private";
 import { PUBLIC_SENTRY_DSN } from "$app/env/public";
 import * as Sentry from "@sentry/sveltekit";
 
@@ -20,9 +21,16 @@ import * as Sentry from "@sentry/sveltekit";
 
 Sentry.init({
   dsn: PUBLIC_SENTRY_DSN,
-  environment: import.meta.env.DEV ? "development" : "production",
+  // The tier, so preview noise is not filed as production. `APP_ENV` is
+  // static (inlined at build), so this import is safe here — see above.
+  environment: APP_ENV,
 
-  tracesSampleRate: import.meta.env.DEV ? 1 : 0.1,
+  // `/api/health` is a probe, hit every few seconds per instance.
+  tracesSampler: ({ name, inheritOrSampleWith }) => {
+    if (name.endsWith("/api/health")) return 0;
+
+    return inheritOrSampleWith(import.meta.env.DEV ? 1 : 0.1);
+  },
 
   enableLogs: true,
   integrations: [Sentry.pinoIntegration(), Sentry.zodErrorsIntegration()],
