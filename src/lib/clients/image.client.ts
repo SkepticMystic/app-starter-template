@@ -5,7 +5,10 @@ import { Client } from "./index.client";
 
 export const ImageClient = {
   delete: Client.wrap(delete_image_remote, {
-    confirm: "Are you sure you want to delete this image?",
+    confirm:
+      "Delete this image? It is removed from storage and cannot be recovered.",
+    destructive: true,
+    action_label: "Delete image",
     suc_msg: "Image deleted",
   }),
 

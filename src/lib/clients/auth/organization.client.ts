@@ -47,20 +47,29 @@ export const OrganizationClient = {
       return BetterAuth.to_result(res);
     },
     {
-      confirm: "Are you sure you want to leave this organization?",
+      confirm:
+        "Leave this organization? You'll lose access to it until someone invites you back.",
+      destructive: true,
+      action_label: "Leave organization",
       suc_msg: "Left organization",
     },
   ),
 
   delete: Client.wrap(owner_delete_organization_remote, {
-    confirm: "Are you sure you want to delete this organization?",
+    confirm:
+      "Delete this organization? Every member loses access, its API keys stop working and its data is deleted. This cannot be undone.",
+    destructive: true,
+    action_label: "Delete organization",
     suc_msg: "Organization deleted",
   }),
 
   admin_delete: Client.wrap(
     (org_id: string) => admin_delete_organization_remote(org_id),
     {
-      confirm: "Are you sure you want to delete this organization?",
+      confirm:
+        "Delete this organization? Every member loses access, its API keys stop working and its data is deleted. This cannot be undone.",
+      destructive: true,
+      action_label: "Delete organization",
     },
   ),
 
@@ -71,7 +80,10 @@ export const OrganizationClient = {
     }),
 
     cancel: Client.wrap(cancel_invitation_remote, {
-      confirm: "Are you sure you want to cancel this invitation?",
+      confirm:
+        "Cancel this invitation? Its link will stop working. You can invite them again later.",
+      destructive: true,
+      action_label: "Cancel invitation",
     }),
   },
 
@@ -90,12 +102,17 @@ export const OrganizationClient = {
       },
       {
         suc_msg: "Member role updated",
-        confirm: "Are you sure you want to update this member's role?",
+        confirm:
+          "Change this member's role? It changes what they can see and do in this organization.",
+        action_label: "Change role",
       },
     ),
 
     remove: Client.wrap(remove_member_remote, {
-      confirm: "Are you sure you want to remove this member?",
+      confirm:
+        "Remove this member? They lose access to this organization until someone invites them back.",
+      destructive: true,
+      action_label: "Remove member",
       suc_msg: "Member removed",
     }),
   },

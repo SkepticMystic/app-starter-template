@@ -1,0 +1,26 @@
+<script lang="ts">
+  import { AlertDialog as AlertDialogPrimitive } from "bits-ui";
+  import {
+    buttonVariants,
+    type ButtonVariant,
+    type ButtonSize,
+  } from "#lib/components/ui/button/button-root.svelte";
+
+  let {
+    ref = $bindable(null),
+    class: className,
+    variant = "default",
+    size = "default",
+    ...restProps
+  }: AlertDialogPrimitive.ActionProps & {
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+  } = $props();
+</script>
+
+<AlertDialogPrimitive.Action
+  bind:ref
+  data-slot="alert-dialog-action"
+  class={[buttonVariants({ variant, size }), "", className]}
+  {...restProps}
+/>

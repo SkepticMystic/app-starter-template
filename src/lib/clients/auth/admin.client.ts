@@ -11,7 +11,8 @@ export const AdminClient = {
     {
       suc_msg: "User role updated",
       confirm: (input) =>
-        `Are you sure you want to update this user's role to ${ROLES.MAP[input.role].label}?`,
+        `Change this user's role to ${ROLES.MAP[input.role].label}? Their platform role decides whether they can reach the admin pages.`,
+      action_label: "Change role",
     },
   ),
 
@@ -26,7 +27,9 @@ export const AdminClient = {
   stop_impersonating: Client.better_auth(
     () => BetterAuthClient.admin.stopImpersonating(),
     {
-      confirm: "Are you sure you want to stop impersonating?",
+      confirm:
+        "Stop impersonating this user? You'll be switched back to your own account.",
+      action_label: "Stop impersonating",
     },
   ),
 
@@ -35,25 +38,29 @@ export const AdminClient = {
       BetterAuthClient.admin.banUser(input),
     {
       confirm: (input) =>
-        `Are you sure you want to ban this user ${
-          input.banExpiresIn
-            ? `for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days?`
-            : "indefinitely?"
-        }`,
+        input.banExpiresIn
+          ? `Ban this user for ${Format.number(input.banExpiresIn / TIME.DAY, { maximumFractionDigits: 0 })} days? They won't be able to sign in until the ban ends.`
+          : "Ban this user indefinitely? They won't be able to sign in until an admin unbans them.",
+      destructive: true,
+      action_label: "Ban user",
     },
   ),
 
   unban_user: Client.better_auth(
     (userId: string) => BetterAuthClient.admin.unbanUser({ userId }),
     {
-      confirm: "Are you sure you want to unban this user?",
+      confirm: "Unban this user? They'll be able to sign in again.",
+      action_label: "Unban user",
     },
   ),
 
   delete_user: Client.better_auth(
     (userId: string) => BetterAuthClient.admin.removeUser({ userId }),
     {
-      confirm: "Are you sure you want to delete this user?",
+      confirm:
+        "Delete this user? Their account is removed and they lose access to every organization. This cannot be undone.",
+      destructive: true,
+      action_label: "Delete user",
     },
   ),
 };

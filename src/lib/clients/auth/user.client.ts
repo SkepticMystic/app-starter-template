@@ -18,10 +18,14 @@ export const UserClient = {
         callbackURL: App.url("/auth/account-deleted"),
       }),
     {
-      suc_msg:
-        "Account deletion requested. Please check your email to confirm.",
+      suc_msg: {
+        title: "Account deletion requested",
+        description: "Check your email to confirm it.",
+      },
       confirm:
-        "Are you sure you want to delete your account? We will send an email to confirm. This action is irreversible.",
+        "Delete your account? We'll email you a link to confirm it. Once you do, it cannot be undone.",
+      destructive: true,
+      action_label: "Delete account",
     },
   ),
 

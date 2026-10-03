@@ -4,7 +4,9 @@ import { Client } from "../index.client";
 export const SubscriptionClient = {
   disable: Client.wrap(disable_subscription_remote, {
     confirm:
-      "Are you sure you want to cancel your subscription? You have still have access until the end of your billing cycle.",
+      "Cancel your subscription? You keep access until the end of your billing cycle.",
+    destructive: true,
+    action_label: "Cancel subscription",
     suc_msg: "Subscription cancelled",
   }),
 };

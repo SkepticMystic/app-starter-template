@@ -3,7 +3,9 @@ import { Client } from "../index.client";
 
 export const APIKeyClient = {
   delete: Client.wrap(delete_apikey_remote, {
-    confirm: "Are you sure you want to delete this API key?",
+    confirm: "Delete this API key? Anything still using it will stop working.",
+    destructive: true,
+    action_label: "Delete API key",
     suc_msg: "API key deleted",
   }),
 };

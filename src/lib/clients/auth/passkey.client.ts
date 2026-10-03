@@ -60,6 +60,11 @@ export const PasskeyClient = {
           result.pipe(cur, (d) => d.filter((p) => p.id !== passkey_id)),
         ),
       ),
-    { confirm: "Are you sure you want to delete this passkey?" },
+    {
+      confirm:
+        "Delete this passkey? You won't be able to sign in with it again.",
+      destructive: true,
+      action_label: "Delete passkey",
+    },
   ),
 };

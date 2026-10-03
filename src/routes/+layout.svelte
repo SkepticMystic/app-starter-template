@@ -5,6 +5,7 @@
     PUBLIC_UMAMI_WEBSITE_ID,
   } from "$app/env/public";
   import SEO from "#lib/components/blocks/head/SEO.svelte";
+  import Confirm from "#lib/components/ui/alert-dialog/Confirm.svelte";
   import Sonner from "#lib/components/ui/sonner/sonner.svelte";
   import TooltipProvider from "#lib/components/ui/tooltip/tooltip-provider.svelte";
   import { session } from "#lib/stores/session.store.js";
@@ -54,6 +55,8 @@
 <SEO />
 
 <Sonner />
+<!-- Answers `Confirm.ask`, which `Client.wrap` calls in place of `window.confirm`. -->
+<Confirm />
 <ModeWatcher />
 
 <!-- The provider every `Tip` needs, so one outside the authed layout's `SidebarProvider` (which

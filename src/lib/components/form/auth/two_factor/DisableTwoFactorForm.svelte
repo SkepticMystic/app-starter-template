@@ -5,6 +5,7 @@
   import Fieldset from "#lib/components/ui/field/Fieldset.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import type { MaybePromise } from "#lib/interfaces/index.js";
+  import { Confirm } from "#lib/stores/confirm.svelte.js";
   import type { ResultData } from "#lib/interfaces/result.type.js";
   import { disable_two_factor_remote } from "#lib/remote/auth/two_factor.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
@@ -32,11 +33,13 @@
 <form
   class="space-y-3"
   {...form.enhance(async (e) => {
-    if (
-      !confirm("Are you sure you want to disable two-factor authentication?")
-    ) {
-      return;
-    }
+    const confirmed = await Confirm.ask({
+      title: "Disable two-factor authentication?",
+      description: "Signing in will need only your password again.",
+      action_label: "Disable",
+      destructive: true,
+    });
+    if (!confirmed) return;
 
     await e.submit();
 

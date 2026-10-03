@@ -9,7 +9,10 @@ export const AccountClient = {
     (input: Parameters<typeof unlink_account_remote>[0]) =>
       unlink_account_remote(input).updates(list_accounts_remote()),
     {
-      confirm: "Are you sure you want to unlink this account?",
+      confirm:
+        "Unlink this account? It stops being one of your sign-in methods.",
+      destructive: true,
+      action_label: "Unlink account",
       suc_msg: "Account unlinked successfully",
     },
   ),
