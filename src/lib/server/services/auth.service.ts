@@ -24,7 +24,7 @@ const DENIAL_METRIC: Record<Authz.Denial, string> = {
 };
 
 /** A session, as {@link Authz} reads a subject. Trusts the org fields: pass only what `read_session` produced. */
-export const subject_of = (session: App.Session): Authz.Subject => ({
+const subject_of = (session: App.Session): Authz.Subject => ({
   user_role: session.user.role ?? null,
   email_verified: session.user.emailVerified,
   org: session.session.org_id

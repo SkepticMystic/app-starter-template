@@ -83,7 +83,7 @@ type HandlerCtx<
   A extends object,
 > = Guard.Ctx<L> & A & X;
 
-export namespace Guard {
+namespace Guard {
   /**
    * - `user` — signed in.
    * - `org` — acting in an active organization, as a current member. Checked
