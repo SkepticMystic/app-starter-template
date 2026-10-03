@@ -70,3 +70,7 @@ coverage/
 # formatted, linted, or scanned as part of this checkout.
 .claude/worktrees/
 .claude/scheduled_tasks.lock
+
+# Lockfiles and caches from tools this repo does not use
+deno.lock
+.vitest/

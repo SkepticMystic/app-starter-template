@@ -27,7 +27,10 @@ it here, because a second copy is a second thing to get wrong.
 
 ### Type Checking & Linting
 
-- `pnpm check` - svelte-check, via tsgo
+- `pnpm check` - svelte-check, via tsgo, then `check:scripts`
+- `pnpm check:scripts` - `tsconfig.scripts.json`: holds what bare `node` runs
+  (`scripts/db/migrate.script.ts`) to erasable syntax. Add a new bare-`node`
+  entrypoint to its `include`
 - `pnpm check:slow` - the same on classic tsserver, as an escape hatch
 - `pnpm lint` - oxlint, type-aware
 - `pnpm lint:fix` - the same, applying safe fixes
@@ -144,6 +147,10 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 ### Other Tools
 
 - `pnpm knip` - Find unused files, dependencies, and exports
+- `pnpm knip:ci` - the same, files and dependencies only; what CI gates on.
+  Every `*.remote.ts` is an entry (kit serves it whether or not a page imports
+  it), and so are the opt-in kits no page wires yet (image upload, Paystack
+  billing, markdown) — see `knip.config.ts`
 - `pnpm db:sql "select 1"` - real psql against the dev database, from a
   container. Prefer this over guessing: the schema files say what the schema is
   _meant_ to be; this says what the database actually contains
@@ -223,6 +230,12 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   (`handleModeWatcher`), because one injected through `<svelte:head>` cannot
   carry the nonce. Learn the list from the reports, then promote it to
   `directives` as its own change. A new third-party origin goes in the list
+- **A boundary's `failed` snippet gets the transformed `App.Error`, not what
+  was thrown**, so `isHttpError` on it is always `false`, and `status` does not
+  tell a deliberate error from a crash either — kit 3 gives every `App.Error`
+  one, its own `{ status: 500, message: "Internal Error" }` fallback included.
+  `ErrorState.svelte` is the pattern. Nothing types this; a wrong test just
+  quietly shows the fallback copy
 
 ### Remote Functions Pattern
 
@@ -246,6 +259,18 @@ Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to 
   `user`) or also `{ org_id, member_id, member_role }` (level `org`, read fresh
   from `member` by `read_session`). Start from `USER`, `ORG` or `ADMIN` and
   spread to add `session: { org_permissions }` or a `limit`
+- **A read that a handler or a timer calls is a `command`; a `query` is for
+  what a component renders.** A query is a GET with its argument in
+  `?payload=`, so a large argument does not belong in one. Its client result is
+  cached per argument until the proxy is garbage-collected, so a repeat call in
+  that window answers without fetching — a poll, a token refresh or a second
+  press can go stale. And every successful `form` submit refreshes each query
+  still cached, spending a rate-limit token each. Making a read a query means
+  rendering it and calling `.refresh()` where it must be fresh; for a poll,
+  reach for `query.live`
+- A refusal is returned as an `App.Result`, from queries too — nothing in a
+  guarded handler throws `error()`, so a `<svelte:boundary>`'s `failed` only
+  sees genuine faults
 - Permission questions go through `Authz` (`src/lib/utils/auth/authz.util.ts`),
   pure and shared by server and client; in a component, `can()` from
   `#lib/utils/auth/permission.util.ts` asks it of `page.data.org`, which the
@@ -256,6 +281,52 @@ Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to 
 - Svelte 5 runes for reactive state
 - Stores in `src/lib/stores/` for shared state (organizations, session)
 - Better-Auth client provides session management
+- **An effect may read state it writes, but only if it reaches a fixed
+  point.** A converging write (`if (n === 0) n = 1`) runs once; `n = n + 1` or
+  `xs = [...xs, x]` hits the loop guard and throws
+  `effect_update_depth_exceeded` — and **`untrack` does not change that**,
+  whatever reading Svelte's source suggests. Measure the shape rather than
+  reason about it. The one to look for is a count a caller's effect increments
+  (`$effect(() => store.watch())` with `+= 1` / `-= 1` in its cleanup):
+  keep the number in a plain field and make only the flag it drives `$state`,
+  written just when it flips. `NavigationProgress.svelte` writes `visible` and
+  never reads it, which is why it cannot re-run itself
+- **Don't use runed's `resource()`.** Through 0.37.1 it keeps its abort-cleanup
+  list in `$state` and rewrites it from inside the effect driving it, so it
+  loops. runed's `watch` plus a few lines does the same job; runed's other
+  utilities are fine
+- **The test suite cannot catch an effect loop**, and a green run is not
+  evidence: it runs under `environment: "node"`, where Svelte resolves to its
+  SSR build, `$effect` never runs and `mount()` throws. Testing reactivity
+  needs a project with `environment: "jsdom"` **and**
+  `resolve: { conditions: ["browser"] }`, plus a `window.matchMedia` stub.
+  Always run the negative control — reintroduce the bug and watch the probe go
+  red — because this harness fails silently green
+
+### UI conventions
+
+- **Confirm, never `window.confirm`/`prompt`.** `Confirm.ask(request)` from
+  `#lib/stores/confirm.svelte.ts` returns a `Promise<boolean>` answered by the
+  one `Confirm.svelte` the root layout mounts. Title is the question ("Delete
+  this key?"), the description what follows; `destructive` for the red button,
+  `type_to_confirm` for an irreversible action whose size is the point. A
+  `Client.wrap` `confirm:` string is split into the two for you
+- **Toast, never `toast` from svelte-sonner.** `Toast.success/error/warning/info`
+  from `#lib/utils/toast.util.ts` take a string or `{ title, description }`;
+  `Toast.err(app_error)` / `Toast.from_error` turn an `App.Error` into one,
+  adding a heading only for the codes that name a category. Copy: the title is
+  the outcome, sentence case, no full stop, no "successfully"
+- **Tip** (`ui/tooltip/Tip.svelte`) is the tooltip: `content`, optional `kbd`
+  for a shortcut, and `disabled_trigger` when it explains why a control is
+  disabled
+- **Header** (`ui/header/Header.svelte`) is every page's heading: it names the
+  browser tab (`X · <app name>`; pass `head_title` when `title` is a snippet),
+  takes `back` as one link or a breadcrumb, and `level` 2–4 for a section
+  header inside a page. On `(authed)` pages it is the only source of the
+  title — `SEO.svelte` emits none there, and marks them `noindex`
+- **NavigationProgress** in the root layout shows a bar on a navigation slower
+  than 150ms — every `load`, including a server-paged table's filter or page
+  change. Nothing per page needs to opt in
 
 ### Service Pattern
 
@@ -303,10 +374,39 @@ deletes it.
   ratcheted rule by rule rather than switched on wholesale.
 - Svelte's runes are declared in `globals`. They are compiler intrinsics with no
   import, so without that almost every `no-undef` finding is a rune.
+- A deliberate violation gets an inline `// oxlint-disable-next-line <rule>`
+  with a reason, not a rule downgrade. The directive must be the **last comment
+  line before the reported line** — a `--` description does not continue onto
+  a following comment line, and the reported line is not always the
+  statement's first line. `--report-unused-disable-directives` fails a stale one
 - There is **no ESLint**. `eslint-plugin-svelte` was removed: oxlint only hands
   JS plugins the extracted `<script>` AST, never the template, so a quarter of
   that plugin's rules hard-gate off and the rest found nothing. Svelte
   correctness comes from `pnpm check`.
+
+**Adding to the ratchet after an oxlint upgrade.** Promoting a category and
+tallying reports many rules as clean and unpinned, but most are already
+enforced by an enabled category. Get the category membership too:
+
+```sh
+# per-rule counts with every off-category promoted
+vp lint -W style -W pedantic -W restriction -W nursery -f json > all.json
+# which category each rule belongs to; --print-config does no linting
+for c in pedantic style restriction nursery correctness suspicious perf; do
+  vp lint -A all -A nursery -W $c --print-config > cat-$c.json
+done
+```
+
+A rule is a candidate only if it is clean AND in one of the four
+off-categories. Then check the three axes a tally misses: **re-measure the
+`off` entries** (they carry their counts), **try a rule's options before
+rejecting it**, and **check whether findings cluster in one directory** (then
+it goes on globally with a scoped override). Option shapes are in
+`node_modules/.pnpm/oxlint@*/node_modules/oxlint/configuration_schema.json`
+under `definitions.DummyRuleMap.properties`; read the whole tuple. `--fix`
+output is unformatted, so follow it with `vp fmt`. Rules taking a
+three-element tuple (`eqeqeq`, `curly`, …) cannot be given options until
+vite-plus 1.0, whose config bridge stops mangling them.
 
 ### Formatting — Oxfmt only
 
@@ -341,11 +441,48 @@ instead of falling back to stock defaults again.
 **tsgo does not support TSServer plugins**, and the Svelte TS plugin is what
 types `./Foo.svelte` imports inside `.ts` files. tsgo is still used where it
 pays — `pnpm check` (svelte-check `--tsgo`) and `pnpm lint` (tsgolint).
+`@typescript/native` is that TS 7, and its alias name is load-bearing:
+svelte-check probes for it by that exact string. `check:scripts` runs its `tsc`
+by path, because a bare `tsc` resolves to whichever package won the bin
+collision at install and silently degrades to TS 6.
 
-### Pre-commit
+The root `tsconfig.json` adds `noFallthroughCasesInSwitch`,
+`noImplicitReturns`, `noUncheckedSideEffectImports`, `allowUnreachableCode:
+false` and `allowUnusedLabels: false`, all measured at zero findings when
+switched on. `erasableSyntaxOnly` is deliberately only in
+`tsconfig.scripts.json`: at the root it would flag the house-style value
+`namespace`s in `src/`.
 
-`.vite-hooks/pre-commit` runs `vp staged`, which runs `vp check --fix` over
-staged files: format, then lint, then type-check.
+### Git hooks
+
+Vite+ owns them: `vp config`, which `prepare` runs on every install, installs
+a dispatcher into `.vite-hooks/_/` and points `core.hooksPath` at it. The hooks
+are the two committed files one level up:
+
+- **`pre-commit`** runs `vp staged`, which runs `vp check --fix` over staged
+  files: format, then lint, then type-check.
+- **`pre-push`** runs `pnpm test:run` then `pnpm check`, but only for a push to
+  `main` that carries more than markdown — a branch's gate is its pull request.
+  Whenever it cannot tell what a push contains, it runs anyway.
+
+Both are skippable (`--no-verify`, `VP_GIT_HOOKS=0`), so neither is the last
+line of defence.
+
+### CI
+
+`.github/workflows/ci.yml`, on every pull request and push to `main`, needs no
+secrets. `verify`: install, fail on a drifted generated file
+(`git diff --exit-code`), `cp .env.example .env` (the static `APP_ENV` and
+`PUBLIC_*` must exist for Vite to load the config at all), `env:check`,
+`vp check`, `pnpm check`, `test:run`, `auth:check`, `knip:ci`, then
+`pnpm build` and booting the built server — the only check of the
+adapter-node path. `secrets`: trufflehog over the commit range, verified
+results only. Node comes from `.nvmrc`.
+
+Dependencies resolve only once published for 24h (`minimumReleaseAge` in
+`pnpm-workspace.yaml`). `vitest` and `@vitest/*` are catalog-pinned to the copy
+vite-plus bundles (`vp toolchain vitest`); a second copy would split mocks and
+`expect` state.
 
 ## Environment Setup
 
@@ -413,6 +550,18 @@ origin SvelteKit trusts for CSRF checks: `adapter-node` 6 dropped the runtime
 Run `pnpm db:migrate:run` as a separate one-shot step before rolling out, not
 from the entrypoint. The runtime image has no pnpm, so there it is
 `node scripts/db/migrate.script.ts` (or `docker compose run --rm migrate`).
+
+### Health and shutdown
+
+- `GET /api/health` is the readiness probe: `200` when Postgres and Redis
+  answer, `503` with per-dependency detail when not. Unauthenticated, not
+  rate-limited, `no-store`, and dropped from Sentry tracing. The compose
+  healthcheck and any orchestrator probe point here
+- Work that outlives a response goes through `RuntimeService.defer(work)`,
+  never a bare un-awaited promise: on Vercel it becomes `waitUntil`; on Node it
+  is supervised (an unhandled rejection would take the server down) and
+  tracked, and `sveltekit:shutdown` drains it for up to 30s before exit. So a
+  container's stop grace period must exceed `SHUTDOWN_TIMEOUT` plus that
 
 ### The platform seam
 
@@ -534,6 +683,9 @@ everything it imports run after `set_env`.
 - Use `result.err(...)` for consistent error responses, with an `ERROR.*`
   constant or `{ status, message }`. `App.Error.status` is required since
   SvelteKit 3, so a bare `{ message }` no longer type-checks
+- Throw a refused result as kit's error with `raise(res.error)` from
+  `#lib/utils/result.util.js` — `if (!res.ok) raise(res.error);` — which keeps
+  its status and properties and narrows `res` afterwards
 - `handleError` in `hooks.server.ts` receives every error in SvelteKit 3 —
   expected `error(...)`s, 404s and remote-function validation failures, told
   apart by `kind` — and replaces the removed `handleValidationError`

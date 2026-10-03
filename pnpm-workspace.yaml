@@ -38,5 +38,6 @@ peerDependencyRules:
 
 patchedDependencies:
   # Types-only patch — dist/index.mjs is untouched, so runtime behaviour is
-  # unchanged. See patches/better-auth-paystack@3.2.1.patch for why it exists.
+  # unchanged. patches/README.md says what each patch changes and when it
+  # can go.
   better-auth-paystack@3.2.1: patches/better-auth-paystack@3.2.1.patch
