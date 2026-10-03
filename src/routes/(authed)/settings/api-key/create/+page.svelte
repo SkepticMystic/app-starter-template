@@ -14,7 +14,6 @@
   import { create_apikey_remote } from "#lib/remote/auth/apikey.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import type { ApiKey } from "@better-auth/api-key";
-  import { toast } from "svelte-sonner";
 
   const form = create_apikey_remote;
 
@@ -41,7 +40,8 @@
       const res = form.result;
       if (res?.ok) {
         e.element.reset();
-        toast.success("API key created", {
+        Toast.success({
+          title: "API key created",
           description:
             "Copy it to your clipboard to use it in your applications.",
         });

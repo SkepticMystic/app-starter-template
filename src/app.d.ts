@@ -46,6 +46,11 @@ declare global {
     // `status` and `message` are declared by SvelteKit itself, and since 3.0
     // `status` is always present.
     interface Error {
+      /**
+       * The toast's detail line under `message`, overriding `Toast.from_error`'s
+       * split; usually left unset. UI copy only.
+       */
+      description?: string;
       level?: "error" | "warning";
       code?: import("#lib/const/error.const.js").AppErrorCode;
       // Comes from StandardSchema.Issue.path

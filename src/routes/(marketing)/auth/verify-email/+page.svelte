@@ -6,7 +6,6 @@
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import { send_verification_email_remote } from "#lib/remote/auth/user.remote.js";
-  import { toast } from "svelte-sonner";
 
   const form = send_verification_email_remote;
 </script>
@@ -31,7 +30,7 @@
 
         const res = form.result;
         if (res?.ok) {
-          toast.success(res.data.message);
+          Toast.success(res.data.message);
         } else if (res?.error) {
           Toast.err(res.error);
         }

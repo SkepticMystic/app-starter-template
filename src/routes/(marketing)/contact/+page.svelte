@@ -10,7 +10,6 @@
   import { contact_us_remote } from "#lib/remote/contact/contact.remote.js";
   import { session } from "#lib/stores/session.store.js";
   import { onDestroy } from "svelte";
-  import { toast } from "svelte-sonner";
 
   const form = contact_us_remote;
 
@@ -61,7 +60,7 @@
 
           const res = form.result;
           if (res?.ok) {
-            toast.success("Message sent");
+            Toast.success("Message sent");
 
             e.element.reset();
           } else if (res?.error) {

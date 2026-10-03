@@ -7,7 +7,6 @@
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import { request_password_reset_remote } from "#lib/remote/auth/user.remote.js";
-  import { toast } from "svelte-sonner";
 
   const form = request_password_reset_remote;
 
@@ -33,7 +32,7 @@
           const res = request_password_reset_remote.result;
           if (res?.ok) {
             e.element.reset();
-            toast.success(res.data.message);
+            Toast.success(res.data.message);
           } else if (res?.error.message) {
             Toast.err(res.error);
           }

@@ -1,8 +1,13 @@
+import { ERROR, type AppErrorCode } from "#lib/const/error.const.js";
 import { toast } from "svelte-sonner";
 
 /**
  * A toast is either one line, or a heading plus a sentence that says something
  * the heading did not.
+ *
+ * Copy: the title is the outcome, sentence case, no trailing period, ~40
+ * characters. The description is a full sentence that never restates the
+ * title. No "successfully".
  */
 export type ToastMessage =
   | string
@@ -31,38 +36,57 @@ const show = (level: Level, message: ToastMessage) => {
  * These three are the ones where the code names a category and the detail says
  * which instance — "Conflict" over "This email already has a pending invite".
  */
-const TITLED: Partial<Record<string, string>> = {
-  CONFLICT: "Conflict",
-  PAYMENT_REQUIRED: "Payment required",
-  TOO_MANY_REQUESTS: "Too many requests",
+const TITLED: ReadonlySet<AppErrorCode> = new Set([
+  "CONFLICT",
+  "PAYMENT_REQUIRED",
+  "TOO_MANY_REQUESTS",
+]);
+
+/** Two strings saying the same thing, modulo casing and a trailing stop. */
+const same = (a: string, b: string) =>
+  a
+    .trim()
+    .replace(/[.!?]+$/, "")
+    .toLowerCase() ===
+  b
+    .trim()
+    .replace(/[.!?]+$/, "")
+    .toLowerCase();
+
+/**
+ * Split an {@link App.Error} into a short title and the detail.
+ *
+ * An error is built as `{ ...ERROR.CONFLICT, message: <the detail> }`, so the
+ * category and the specifics are both present. An explicit `description` wins;
+ * a {@link TITLED} code whose `message` was overwritten becomes the title over
+ * it; anything else is one line.
+ */
+const from_error = (error: App.Error): ToastMessage => {
+  if (error.description) {
+    return { title: error.message, description: error.description };
+  }
+
+  const canonical =
+    error.code && TITLED.has(error.code) ? ERROR[error.code].message : null;
+
+  if (!canonical || same(canonical, error.message)) return error.message;
+
+  return { title: canonical, description: error.message };
 };
 
-/** Two strings saying the same thing, modulo punctuation and case. */
-const same = (a: string, b: string) =>
-  a.replaceAll(/[.\s]+$/g, "").toLowerCase() ===
-  b.replaceAll(/[.\s]+$/g, "").toLowerCase();
-
+/**
+ * The app's one way to raise a toast. Import this, not `svelte-sonner`: the
+ * `<Sonner />` component is the only other place that package is touched.
+ */
 export const Toast = {
   success: (message: ToastMessage) => show("success", message),
   error: (message: ToastMessage) => show("error", message),
   warning: (message: ToastMessage) => show("warning", message),
   info: (message: ToastMessage) => show("info", message),
 
-  /**
-   * Render an `App.Error`, using the split it already carries.
-   *
-   * An error is built as `{ ...ERROR.CONFLICT, message: <the detail> }`, so the
-   * category and the specifics are both present — and only the detail was ever
-   * shown. Where the code earns a heading (see {@link TITLED}) this renders
-   * both, and suppresses the duplicate when they say the same thing.
-   */
-  err: (error: App.Error, level: Level = "error") => {
-    const title = error.code ? TITLED[error.code] : undefined;
+  from_error,
 
-    if (!title || same(title, error.message)) {
-      return show(level, error.message);
-    }
-
-    return show(level, { title, description: error.message });
-  },
+  /** `level` is per caller: `Client.wrap` warns where `FormUtil.enhance` errors, by design. */
+  err: (error: App.Error, level: "error" | "warning" = "error") =>
+    show(level, from_error(error)),
 };

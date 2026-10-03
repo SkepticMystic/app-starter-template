@@ -11,7 +11,6 @@
   import { upload_images_remote } from "#lib/remote/image/image.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import { onDestroy } from "svelte";
-  import { toast } from "svelte-sonner";
   import { SvelteMap } from "svelte/reactivity";
   import FormButton from "../FormButton.svelte";
 
@@ -55,7 +54,10 @@
     reason,
     file,
   }) => {
-    toast.error(`${file.name} failed to upload`, { description: reason });
+    Toast.error({
+      title: `${file.name} failed to upload`,
+      description: reason,
+    });
   };
 
   onDestroy(() => {
@@ -80,7 +82,7 @@
       } else {
         for (const r of res.data) {
           if (r.ok === false) {
-            toast.error(r.error.message);
+            Toast.err(r.error);
           }
         }
       }

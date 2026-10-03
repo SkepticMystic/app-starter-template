@@ -1,3 +1,4 @@
+import { Toast } from "#lib/utils/toast.util.js";
 import { PUBLIC_BASE_URL } from "$app/env/public";
 import { paystackClient } from "better-auth-paystack/client";
 import { apiKeyClient } from "@better-auth/api-key/client";
@@ -11,7 +12,6 @@ import {
   twoFactorClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/svelte";
-import { toast } from "svelte-sonner";
 import type { auth } from "./auth";
 import { AccessControl } from "./const/auth/access_control.const";
 import { OrgAccessControl } from "./const/auth/organization_access_control.const";
@@ -44,7 +44,7 @@ export const BetterAuthClient = createAuthClient({
       if (ctx.response.status === 429) {
         const retry_after = ctx.response.headers.get("Retry-After");
         if (retry_after) {
-          toast.warning(
+          Toast.warning(
             `Rate limit exceeded. Please try again in ${retry_after} seconds.`,
           );
         }

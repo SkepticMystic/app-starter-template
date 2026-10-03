@@ -9,7 +9,6 @@
   import { update_user_remote } from "#lib/remote/auth/user.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import type { User } from "better-auth";
-  import { toast } from "svelte-sonner";
 
   let {
     initial,
@@ -37,7 +36,7 @@
     const res = form.result;
 
     if (res?.ok) {
-      toast.success("Profile updated");
+      Toast.success("Profile updated");
 
       BetterAuthClient.$store.notify("$sessionSignal");
 

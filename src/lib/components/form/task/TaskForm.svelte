@@ -14,7 +14,6 @@
   } from "#lib/remote/tasks/tasks.remote.js";
   import type { Task, TaskSchema } from "#lib/server/db/models/task.model.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
-  import { toast } from "svelte-sonner";
   import FormButton from "../FormButton.svelte";
 
   let props: (
@@ -49,7 +48,7 @@
 
     const res = form.result;
     if (res?.ok) {
-      toast.success(props.mode === "create" ? "Task created" : "Task updated");
+      Toast.success(props.mode === "create" ? "Task created" : "Task updated");
 
       await props.on_success?.(res.data);
     } else if (res?.error) {
