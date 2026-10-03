@@ -1,0 +1,36 @@
+// What plain `node` executes directly, and the only thing this file checks:
+// that every construct in it is *erasable*.
+//
+// Node strips types rather than compiling them. It never emits, so it cannot
+// produce the IIFE a value-bearing `namespace` needs or the lookup object an
+// `enum` needs — it refuses the file instead. `--experimental-transform-types`,
+// which used to paper over exactly that, is gone in Node 26; plain stripping is
+// what stayed.
+//
+// Nothing else in the repo has this constraint, which is why the guard is a
+// separate file rather than a root compiler option: `src/` is compiled by Vite
+// and the other `scripts/` run under `vite-node`, a real compiler, so both are
+// free to use `namespace` (the house style AGENTS.md documents).
+//
+// So the boundary is not "scripts" — it is "reachable from a bare `node`
+// entrypoint". The list below *is* that boundary. Adding a bare-`node` script,
+// or a module one imports, means adding it here.
+//
+// **`migrate.script.ts` is why this is not a style preference.** It is the
+// one-shot release step that runs against the production database before
+// containers roll out, from the pruned runtime image. A non-erasable construct
+// there is not a failed type-check, it is a failed deploy.
+//
+// For the same reason it imports only bare package specifiers, never `#lib`:
+// those spell `.js` for `.ts` files, a mapping only TypeScript and Vite make.
+//
+// This checks erasability, not correctness — the root `pnpm check` already
+// type-checks `scripts/**` through the root `include`.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "erasableSyntaxOnly": true,
+    "noEmit": true
+  },
+  "include": ["scripts/db/migrate.script.ts"]
+}

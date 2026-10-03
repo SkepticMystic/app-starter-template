@@ -9,6 +9,17 @@
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true,
 
+    // Deliberately absent, so this is not re-litigated:
+    // `exactOptionalPropertyTypes` and `noPropertyAccessFromIndexSignature`
+    // (hundreds of findings, mostly noise), and `noUnusedLocals`/
+    // `noUnusedParameters` — oxlint's `no-unused-vars` already covers those
+    // and honours the `_` prefix on *type* aliases, which tsc does not.
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUncheckedSideEffectImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+
     // "rootDir": "./src",
     // `$app/types` must stay in this list: it is how the generated route, env
     // and `$app/*` module declarations reach the project.
