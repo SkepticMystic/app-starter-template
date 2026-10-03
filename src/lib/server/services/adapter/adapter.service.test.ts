@@ -73,6 +73,21 @@ describe("AdapterService.pin_client_ip", () => {
 
     expect(e.request.headers.has(header)).toBe(false);
   });
+
+  it("stands aside rather than throw when the runtime's headers are immutable", () => {
+    // `Response.redirect` hands back headers with the fetch spec's `immutable`
+    // guard, as a runtime that passes its own `Request` through may.
+    const headers = Response.redirect("http://localhost/").headers;
+    expect(() => headers.delete(header)).toThrow(TypeError);
+
+    const e = {
+      getClientAddress: () => "203.0.113.7",
+      request: { headers } as Request,
+    };
+
+    expect(() => AdapterService.pin_client_ip(e)).not.toThrow();
+    expect(headers.has(header)).toBe(false);
+  });
 });
 
 describe("AdapterService.get_geo", () => {

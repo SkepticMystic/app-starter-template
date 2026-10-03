@@ -92,18 +92,41 @@ const get_geo = (): Geo => {
  */
 const CLIENT_IP_HEADER = "x-app-client-ip";
 
+/** So an immutable-headers runtime warns once per process, not once per request. */
+let immutable_warned = false;
+
 /**
  * Stamps SvelteKit's view of the client address onto the request for
  * Better-Auth to read. Called first thing in `handle`, before anything reads
  * the headers. A client-sent value is always deleted, even when the address
  * cannot be resolved.
+ *
+ * Never throws. `adapter-node` and Vercel's Node runtime hand SvelteKit a
+ * `Request` it built, with mutable headers, but a runtime that passes its own
+ * through (an edge runtime, a platform `Request`) may have them `immutable`,
+ * and the `TypeError` would 500 every request. Then this warns once and stands
+ * aside: Better-Auth resolves no address from the header and falls back to its
+ * shared bucket, and a client-sent value cannot be stripped — so on such a
+ * runtime `CLIENT_IP_HEADER` is not to be trusted.
  */
 const pin_client_ip = (event: {
   request: Request;
   getClientAddress: () => string;
 }): void => {
   const { headers } = event.request;
-  headers.delete(CLIENT_IP_HEADER);
+
+  try {
+    headers.delete(CLIENT_IP_HEADER);
+  } catch (error) {
+    if (!immutable_warned) {
+      immutable_warned = true;
+      log.warn(
+        { err: error, client_sent: headers.has(CLIENT_IP_HEADER) },
+        "pin_client_ip.immutable_headers",
+      );
+    }
+    return;
+  }
 
   try {
     const ip = event.getClientAddress();
