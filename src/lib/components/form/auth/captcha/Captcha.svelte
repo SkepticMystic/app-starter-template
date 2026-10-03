@@ -14,7 +14,7 @@
 
 <Turnstile
   theme={mode.current}
-  siteKey={PUBLIC_CAPTCHA_SITE_KEY}
+  siteKey={PUBLIC_CAPTCHA_SITE_KEY ?? ""}
   responseField
   responseFieldName={name}
   bind:reset
