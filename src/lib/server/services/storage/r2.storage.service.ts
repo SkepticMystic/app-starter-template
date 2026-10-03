@@ -13,14 +13,18 @@ import { result } from "#lib/utils/result.util.js";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   NoSuchKey,
+  NotFound,
   PutObjectCommand,
   S3Client,
+  type CompleteMultipartUploadCommandOutput,
   type PutObjectCommandOutput,
 } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { captureException } from "@sentry/sveltekit";
-import type { Readable } from "node:stream";
+import { Readable } from "node:stream";
 import type { z } from "zod";
 
 const log = Log.child({ service: "R2" });
@@ -35,25 +39,64 @@ const r2_client = new S3Client({
   },
 });
 
-type BlobPayloadInputTypes = string | Uint8Array | Buffer | Readable;
+type BlobPayloadInputTypes =
+  | string
+  | Uint8Array
+  | Buffer
+  | Readable
+  | ReadableStream<Uint8Array>;
+
+const is_stream = (
+  body: BlobPayloadInputTypes,
+): body is Readable | ReadableStream<Uint8Array> =>
+  body instanceof Readable || body instanceof ReadableStream;
+
 const put = async (input: {
   key: string;
   content_length?: number;
   body: BlobPayloadInputTypes;
   content_type: z.core.util.MimeTypes;
 
+  /** Stored as `x-amz-meta-*`, and read back by `R2Service.head`. */
+  metadata?: Record<string, string>;
+
   expires_in?: number;
-}): Promise<App.Result<PutObjectCommandOutput>> => {
+}): Promise<
+  App.Result<PutObjectCommandOutput | CompleteMultipartUploadCommandOutput>
+> => {
   try {
+    const params = {
+      Key: input.key,
+      Bucket: R2_BUCKET_NAME,
+      ContentType: input.content_type,
+      Metadata: input.metadata,
+
+      Expires: input.expires_in ? Dates.add_ms(input.expires_in) : undefined,
+    };
+
+    if (is_stream(input.body)) {
+      // `Upload`, never `PutObjectCommand`: the SDK throws on a stream without
+      // a `Content-Length`, which a proxied or chunked download (a `fetch`
+      // body) usually has none of. `Upload` goes multipart past 5MB, so the
+      // body is never buffered whole. `content_length` is not forwarded — on
+      // `CreateMultipartUpload` it would describe a part, not the object.
+      const upload = new Upload({
+        client: r2_client,
+        params: { ...params, Body: input.body },
+      });
+
+      const res = await upload.done();
+
+      log.debug(res, "put.res streamed");
+
+      return result.suc(res);
+    }
+
     const res = await r2_client.send(
       new PutObjectCommand({
-        Key: input.key,
+        ...params,
         Body: input.body,
-        Bucket: R2_BUCKET_NAME,
-        ContentType: input.content_type,
         ContentLength: input.content_length,
-
-        Expires: input.expires_in ? Dates.add_ms(input.expires_in) : undefined,
       }),
     );
 
@@ -74,7 +117,9 @@ export const R2Service = {
   async put_file(input: {
     key: string;
     file: File;
-  }): Promise<App.Result<PutObjectCommandOutput>> {
+  }): Promise<
+    App.Result<PutObjectCommandOutput | CompleteMultipartUploadCommandOutput>
+  > {
     try {
       const buffer = await input.file.arrayBuffer();
       const body = new Uint8Array(buffer);
@@ -111,6 +156,52 @@ export const R2Service = {
       return result.suc(undefined);
     } catch (error) {
       return ServiceUtil.internal(error, { log, scope: "delete" });
+    }
+  },
+
+  /**
+   * Whether an object exists, without downloading it. A miss is
+   * `exists: false`, not an error — only an unreachable bucket fails, so it
+   * cannot pass for an empty one. `metadata` may be absent on objects written
+   * without it, so readers need a default.
+   */
+  async head(key: string): Promise<
+    App.Result<{
+      exists: boolean;
+      size: number | null;
+      metadata: Record<string, string> | undefined;
+    }>
+  > {
+    try {
+      const res = await r2_client.send(
+        new HeadObjectCommand({ Key: key, Bucket: R2_BUCKET_NAME }),
+      );
+
+      return result.suc({
+        exists: true,
+        size: res.ContentLength ?? null,
+        metadata: res.Metadata,
+      });
+    } catch (error) {
+      // The miss arrives as a typed error or a bare 404, by SDK version and
+      // endpoint: HEAD has no body for the SDK to read an error code from.
+      if (
+        error instanceof NotFound ||
+        error instanceof NoSuchKey ||
+        (typeof error === "object" &&
+          error !== null &&
+          "$metadata" in error &&
+          (error.$metadata as { httpStatusCode?: number } | undefined)
+            ?.httpStatusCode === 404)
+      ) {
+        return result.suc({ exists: false, size: null, metadata: undefined });
+      }
+
+      return ServiceUtil.internal(error, {
+        log,
+        scope: "head",
+        extra: { key },
+      });
     }
   },
 

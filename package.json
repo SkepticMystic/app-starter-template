@@ -36,6 +36,7 @@
   "dependencies": {
     "@alexasomba/paystack-node": "^1.10.8",
     "@aws-sdk/client-s3": "^3.1136.0",
+    "@aws-sdk/lib-storage": "^3.1136.0",
     "@aws-sdk/s3-request-presigner": "^3.1136.0",
     "@better-auth/api-key": "^1.7.5",
     "@better-auth/drizzle-adapter": "^1.7.5",
@@ -55,6 +56,7 @@
     "bits-ui": "^2.19.2",
     "cloudinary": "^2.11.0",
     "drizzle-orm": "1.0.0-rc.4",
+    "ipaddr.js": "^2.5.0",
     "isomorphic-dompurify": "2.26.0",
     "marked": "^18.0.13",
     "mode-watcher": "^1.1.0",
