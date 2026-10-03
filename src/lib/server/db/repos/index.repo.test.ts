@@ -4,25 +4,9 @@ import { captureException } from "@sentry/sveltekit";
 import { DrizzleQueryError, sql } from "drizzle-orm";
 import { PgDialect, integer, text, uuid } from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
-import {
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
-
-/**
- * `src/test/setup.ts` mocks this module globally, so importing it normally here
- * would assert against the mock and pass whatever the real implementation did.
- */
-let Repo: typeof import("./index.repo").Repo;
-
-beforeAll(async () => {
-  ({ Repo } =
-    await vi.importActual<typeof import("./index.repo")>("./index.repo"));
-});
+import { describe, expect, it, vi } from "vite-plus/test";
+// The real wrapper: repo tests run in the `sql` project, off the mock wall.
+import { Repo } from "./index.repo";
 
 describe("Repo.contains", () => {
   it("wraps an ordinary term in wildcards", () => {
@@ -57,10 +41,6 @@ const failed = (cause: Error) =>
   Promise.reject(new DrizzleQueryError("insert into x", [], cause));
 
 describe("Repo — a failed statement", () => {
-  beforeEach(() => {
-    vi.mocked(captureException).mockClear();
-  });
-
   it.each([
     ["40001", "could not serialize access"],
     ["40P01", "deadlock detected"],

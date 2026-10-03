@@ -11,6 +11,9 @@ import lint from "./oxlint.config";
 
 const SONDA = process.env.SONDA;
 
+/** The `sql` project's `include` and the `server` project's `exclude`, so they cannot drift. */
+const SQL_TESTS = ["**/db/repos/**/*.test.ts"];
+
 // Vercel sets VERCEL=1 on every build it runs. Anywhere else — Docker, a VPS,
 // `pnpm preview` — build a standalone Node server instead.
 //
@@ -115,6 +118,9 @@ export default defineConfig({
   ],
 
   test: {
+    // Not the repo root, which would also collect the copies in `.claude/worktrees/*`.
+    dir: "src",
+
     expect: { requireAssertions: true },
     /**
      * So a `vi.stubGlobal` cannot bleed into the next test — which it did, since a
@@ -131,12 +137,22 @@ export default defineConfig({
         test: {
           name: "server",
           environment: "node",
-          include: ["src/**/*.{test,spec}.{js,ts}"],
-          exclude: [
-            "src/**/*.svelte.{test,spec}.{js,ts}",
-            "src/**/*.itest.{js,ts}",
-          ],
+          // Safe only because of the mock wall — see AGENTS.md § Testing.
+          isolate: false,
+          exclude: SQL_TESTS,
           setupFiles: ["src/test/setup.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          // Repo tests need a real drizzle and `index.repo` — see AGENTS.md § Testing.
+          name: "sql",
+          environment: "node",
+          isolate: false,
+          // Relative to the inherited `dir: "src"`.
+          include: SQL_TESTS,
+          setupFiles: ["src/test/setup.sql.ts"],
         },
       },
     ],

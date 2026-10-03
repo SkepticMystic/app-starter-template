@@ -1,193 +1,296 @@
 /**
- * Shared test setup — mocks all "toxic" infrastructure modules that have
- * module-level side effects (DB connections, env var reads, external APIs).
+ * The global mock wall — see AGENTS.md § Testing for why every mocked module is
+ * mocked once, here, with a factory that returns an instance memoised on
+ * `globalThis`.
  *
- * Configured as `setupFiles` in the vitest project. Harmless for utility tests
- * that never import these modules.
+ * In short: the `server` project runs with `isolate: false`, so a worker shares
+ * one module registry across test files. A module is evaluated once per worker,
+ * and wired to whichever mock was live when it was — so a `vi.mock` in a test
+ * file would configure an object the code under test may never consult. A test
+ * file therefore never calls `vi.mock`; it imports the module and configures the
+ * shared instance.
+ *
+ * `vi.mock` is hoisted above every module-scope binding, so each factory imports
+ * what it needs inside itself.
  */
 
-import { vi } from "vite-plus/test";
+import { beforeEach, vi } from "vite-plus/test";
+import { reset_env } from "./env.mock";
 
 // ---------------------------------------------------------------------------
 // SvelteKit virtual modules
 // ---------------------------------------------------------------------------
 
-// Everything `src/env.ts` declares, as `$app/env/*` would export it.
-vi.mock("$app/env/private", () => ({
-  // `redis.db.ts` keeps APP_ENV static on purpose — a missing value must fail
-  // the build rather than silently share another tier's Redis keyspace.
-  APP_ENV: "test",
+/**
+ * Derived from `src/env.ts` (`./env.mock.ts`). Returned as the live object, not
+ * a copy, so `set_env()` reaches a reader that looks the value up at call time.
+ */
+vi.mock("$app/env/private", async () => {
+  const { mock_env } = await import("./env.mock");
 
-  BETTER_AUTH_SECRET: "test-secret-key-for-jwt-signing",
-  CAPTCHA_SECRET_KEY: "mock-captcha-secret",
-  CLOUDFLARE_ACCOUNT_ID: "mock-cf-account-id",
-  CLOUDINARY_API_KEY: "mock-cloudinary-key",
-  CLOUDINARY_API_SECRET: "mock-cloudinary-secret",
-  CLOUDINARY_CLOUD_NAME: "mock-cloudinary-cloud",
-  CLOUDINARY_UPLOAD_PRESET: "mock-cloudinary-preset",
-  DATABASE_URL: "mock://neon",
-  EMAIL_FROM: "test@example.com",
-  GOOGLE_CLIENT_ID: "mock-google-id",
-  GOOGLE_CLIENT_SECRET: "mock-google-secret",
-  LOG_LEVEL: "silent",
-  NO_COLOR: "true",
-  OPENAI_API_KEY: "sk-test-mock",
-  PAYSTACK_SECRET_KEY: "sk_test_mock",
-  POCKETID_BASE_URL: "",
-  POCKETID_CLIENT_ID: "",
-  POCKETID_CLIENT_SECRET: "",
-  R2_ACCESS_KEY_ID: "mock-r2-key",
-  R2_BUCKET_NAME: "mock-bucket",
-  R2_SECRET_ACCESS_KEY: "mock-r2-secret",
-  RESEND_API_KEY: "re_test_mock_key",
-  UPSTASH_REDIS_REST_TOKEN: "mock-redis-token",
-  UPSTASH_REDIS_REST_URL: "mock://redis",
-}));
+  return mock_env;
+});
 
-vi.mock("$app/env/public", () => ({
-  PUBLIC_BASE_URL: "http://localhost:5173",
-  PUBLIC_CAPTCHA_SITE_KEY: "mock-captcha-site-key",
-  PUBLIC_SENTRY_DSN: "",
-  PUBLIC_UMAMI_BASE_URL: "",
-  PUBLIC_UMAMI_WEBSITE_ID: "",
-}));
+vi.mock("$app/env/public", async () => {
+  const { mock_public_env } = await import("./env.mock");
+
+  return mock_public_env;
+});
 
 vi.mock("$app/env", () => ({
   dev: true,
   browser: false,
   building: false,
+  version: "test",
 }));
 
 vi.mock("$app/paths", () => ({
   asset: (path: string) => path,
 }));
 
-vi.mock("$app/server", () => {
+vi.mock("$app/server", async () => {
+  const { memo } = await import("./automock");
+
   // `command` / `query` / `form` hand back their handler, so a test can call
   // what `guarded.ts` builds as a plain function.
   // oxlint-disable-next-line unicorn/consistent-function-scoping -- `vi.mock` is hoisted above module scope, so a module-level helper would not be initialised yet
   const handler = (a: unknown, b?: unknown) => b ?? a;
 
-  return {
+  return memo("$app/server", async () => ({
     getRequestEvent: vi.fn(),
     read: vi.fn(),
     command: vi.fn(handler),
     query: Object.assign(vi.fn(handler), { batch: vi.fn(handler) }),
     form: vi.fn(handler),
-  };
+  }));
 });
 
 // ---------------------------------------------------------------------------
 // Database layer
 // ---------------------------------------------------------------------------
 
-vi.mock("#lib/server/db/drizzle.db.js", () => {
-  const handler: ProxyHandler<object> = {
-    get: (_target, prop) => {
-      if (prop === "then") return undefined; // Not thenable
-      return new Proxy(() => new Proxy({}, handler), handler);
-    },
-    apply: () => new Proxy({}, handler),
-  };
-  return { db: new Proxy({}, handler) };
+/**
+ * A proxy that answers every chain with another proxy and is never thenable:
+ * enough for a module that builds a query at import, never a result. A test
+ * that needs an answer mocks the `Repo` call around the query instead.
+ */
+vi.mock("#lib/server/db/drizzle.db.js", async () => {
+  const { memo } = await import("./automock");
+
+  return memo("#lib/server/db/drizzle.db.js", async () => {
+    const handler: ProxyHandler<object> = {
+      get: (_target, prop) => {
+        if (prop === "then") return undefined; // Not thenable
+        return new Proxy(() => new Proxy({}, handler), handler);
+      },
+      apply: () => new Proxy({}, handler),
+    };
+
+    return { db: new Proxy({}, handler) };
+  });
 });
 
 /**
- * Implementations are passed to `vi.fn(impl)` rather than set afterwards with
- * `.mockResolvedValue(...)`, because `mockReset` only restores an implementation
- * given to `vi.fn` itself — and several suites call `vi.resetAllMocks()` in a
- * `beforeEach`, after which the other form comes back `undefined`.
- *
- * The module's every export has to be listed: `vi.mock` replaces the whole
- * module, so a missing name throws on import rather than degrading.
+ * Every seeded spy is `vi.fn(impl)`, because `vi.resetAllMocks()` restores only
+ * an implementation given to `vi.fn` itself. The mock replaces the whole module,
+ * so every export must be listed.
  */
-vi.mock("#lib/server/db/redis.db.js", () => ({
-  REDIS_PREFIX: "test:test",
-  redis: {
-    get: vi.fn(async () => null),
-    // A real SET answers "OK", and callers read that as "it worked".
-    set: vi.fn(async () => "OK"),
-    del: vi.fn(async () => 1),
-    getdel: vi.fn(async () => null),
-    incr: vi.fn(async () => 1),
-    expire: vi.fn(async () => 1),
-    eval: vi.fn(async () => 1),
-    // Chainable: callers queue commands on the pipeline before awaiting exec,
-    // and a bare `{ exec }` makes that a TypeError.
-    pipeline: vi.fn(() => {
-      const chain: Record<string, unknown> = {
-        exec: vi.fn(async () => []),
-      };
-      // `spyOn` needs an existing implementation to wrap; this chain is being
-      // built from nothing, so assignment is the only option.
-      for (const cmd of ["get", "set", "del", "incr", "expire"]) {
-        // oxlint-disable-next-line vitest/prefer-spy-on
-        chain[cmd] = vi.fn(() => chain);
-      }
-      return chain;
-    }),
-  },
-}));
+vi.mock("#lib/server/db/redis.db.js", async () => {
+  const { memo } = await import("./automock");
 
-vi.mock("#lib/server/db/repos/index.repo.js", () => ({
-  Repo: {
-    query: vi.fn(),
-    exists: vi.fn(),
-    insert: vi.fn(),
-    insert_count: vi.fn(),
-    insert_one: vi.fn(),
-    update: vi.fn(),
-    update_one: vi.fn(),
-    update_void: vi.fn(),
-    update_applied: vi.fn(),
-    delete: vi.fn(),
-    delete_one: vi.fn(),
-    count: vi.fn(),
-    order_by: vi.fn(() => []),
-    // Not a mock: `contains` is a pure string transform, and a test asserting a
-    // LIKE pattern wants the real escaping, not `undefined`.
-    contains: (term: string) =>
-      `%${term
-        .replaceAll("\\", String.raw`\\`)
-        .replaceAll("%", String.raw`\%`)
-        .replaceAll("_", String.raw`\_`)}%`,
-  },
-}));
+  return memo("#lib/server/db/redis.db.js", async () => ({
+    REDIS_PREFIX: "test:test",
+    redis: {
+      get: vi.fn(async () => null),
+      // A real SET answers "OK", and callers read that as "it worked".
+      set: vi.fn(async () => "OK"),
+      del: vi.fn(async () => 1),
+      getdel: vi.fn(async () => null),
+      incr: vi.fn(async () => 1),
+      expire: vi.fn(async () => 1),
+      eval: vi.fn(async () => 1),
+      ping: vi.fn(async () => "PONG"),
+      // Chainable: callers queue commands on the pipeline before awaiting exec,
+      // and a bare `{ exec }` makes that a TypeError.
+      pipeline: vi.fn(() => {
+        const chain = {
+          get: vi.fn(() => chain),
+          set: vi.fn(() => chain),
+          del: vi.fn(() => chain),
+          incr: vi.fn(() => chain),
+          expire: vi.fn(() => chain),
+          exec: vi.fn(async () => []),
+        };
+
+        return chain;
+      }),
+    },
+  }));
+});
+
+/**
+ * Automocked except `contains` and `order_by`, synchronous builders used while
+ * assembling a statement — a mock would put a `Promise` into the `LIKE` or the
+ * `ORDER BY`. Its own test runs in the `sql` project, against the real one.
+ */
+vi.mock("#lib/server/db/repos/index.repo.js", async (io) => {
+  const { memo, automock } = await import("./automock");
+
+  return memo("#lib/server/db/repos/index.repo.js", async () => {
+    const actual =
+      await io<typeof import("#lib/server/db/repos/index.repo.js")>();
+    const mocked = automock(actual);
+
+    return {
+      ...mocked,
+      Repo: {
+        ...mocked.Repo,
+        contains: actual.Repo.contains,
+        order_by: actual.Repo.order_by,
+      },
+    };
+  });
+});
+
+/**
+ * Every repo and service any test mocks. Literal calls rather than a loop,
+ * because `vi.mock` is hoisted out of any enclosing block. A module here with
+ * its own test asks for the real one with `vi.importActual`.
+ */
+vi.mock("#lib/server/db/repos/organization.repo.js", async (io) => {
+  const { mock_module } = await import("./automock");
+
+  return mock_module("#lib/server/db/repos/organization.repo.js", io);
+});
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+/** Reduced to what the services under test reach; the knobs are `./auth.mock.ts`. */
+vi.mock("#lib/auth.js", async () => {
+  const { auth_mock } = await import("./auth.mock");
+  const { memo } = await import("./automock");
+
+  return memo("#lib/auth.js", async () => ({
+    auth: {
+      api: {
+        getSession: auth_mock.getSession,
+      },
+    },
+    is_ba_error_code: auth_mock.is_ba_error_code,
+  }));
+});
 
 // ---------------------------------------------------------------------------
 // External services & side-effect modules
 // ---------------------------------------------------------------------------
 
-vi.mock("@sentry/sveltekit", () => ({
-  captureException: vi.fn(),
-  captureMessage: vi.fn(),
-  init: vi.fn(),
-  setUser: vi.fn(),
-  metrics: {
-    count: vi.fn(),
-    distribution: vi.fn(),
-    gauge: vi.fn(),
-    set: vi.fn(),
-  },
-}));
+vi.mock("@sentry/sveltekit", async () => {
+  const { memo } = await import("./automock");
 
-vi.mock("#lib/server/services/email.service.js", () => ({
-  EmailService: {
-    send: vi.fn().mockResolvedValue(undefined),
-  },
-}));
+  return memo("@sentry/sveltekit", async () => ({
+    captureException: vi.fn(),
+    captureMessage: vi.fn(),
+    init: vi.fn(),
+    setUser: vi.fn(),
+    setTag: vi.fn(),
+    setContext: vi.fn(),
+    metrics: {
+      count: vi.fn(),
+      distribution: vi.fn(),
+      gauge: vi.fn(),
+      set: vi.fn(),
+    },
+  }));
+});
 
-vi.mock("#lib/utils/logger.util.js", () => {
-  const noop = vi.fn();
-  const child = () => logger;
-  const logger = {
-    info: noop,
-    warn: noop,
-    error: noop,
-    debug: noop,
-    trace: noop,
-    fatal: noop,
-    child,
-  };
-  return { Log: logger };
+/**
+ * The real `RateLimiter` over a stubbed client, whose spies are shared by every
+ * instance (`./rate_limit.mock.ts`), so a refusal carries the service's own
+ * wording. A class, since `RateLimiter` calls `new` on it.
+ */
+vi.mock("@upstash/ratelimit", async () => {
+  const { ratelimit } = await import("./rate_limit.mock");
+  const { memo } = await import("./automock");
+
+  return memo("@upstash/ratelimit", async () => ({
+    Ratelimit: class RatelimitStub {
+      static tokenBucket(): object {
+        return {};
+      }
+
+      limit = ratelimit.limit;
+      getRemaining = ratelimit.getRemaining;
+      resetUsedTokens = ratelimit.resetUsedTokens;
+    },
+  }));
+});
+
+/** `RuntimeService.defer` hands work to it on Vercel. */
+vi.mock("@vercel/functions", async () => {
+  const { memo } = await import("./automock");
+
+  return memo("@vercel/functions", async () => ({
+    waitUntil: vi.fn(),
+  }));
+});
+
+/** A streaming upload that finishes at once; `R2Service.upload_stream`'s seam. */
+vi.mock("@aws-sdk/lib-storage", async () => {
+  const { memo } = await import("./automock");
+
+  return memo("@aws-sdk/lib-storage", async () => ({
+    Upload: vi.fn(
+      class {
+        done = vi.fn(async () => ({ Key: "streamed" }));
+      },
+    ),
+  }));
+});
+
+vi.mock("#lib/server/services/email.service.js", async () => {
+  const { memo } = await import("./automock");
+
+  return memo("#lib/server/services/email.service.js", async () => ({
+    // Sent, as both of the real service's backends answer.
+    EmailService: {
+      send: vi.fn(async () => ({ ok: true, data: undefined })),
+    },
+  }));
+});
+
+/**
+ * One `vi.fn` per level, so a test can assert which level a line was written
+ * at. `child()` answers with the same object, so a child logger shares the
+ * spies.
+ */
+vi.mock("#lib/utils/logger.util.js", async () => {
+  const { memo } = await import("./automock");
+
+  return memo("#lib/utils/logger.util.js", async () => {
+    const logger: Record<string, unknown> = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+      trace: vi.fn(),
+      fatal: vi.fn(),
+    };
+    logger["child"] = () => logger;
+
+    return { Log: logger };
+  });
+});
+
+/** In a setup file, so it runs before any hook a test file adds. */
+beforeEach(() => {
+  /**
+   * `reset`, not `clear`, so an earlier file's `mockResolvedValue` is dropped
+   * too. It restores only an implementation passed to `vi.fn(impl)`, which is
+   * why every seeded mock on the wall is written that way.
+   */
+  vi.resetAllMocks();
+
+  reset_env();
 });

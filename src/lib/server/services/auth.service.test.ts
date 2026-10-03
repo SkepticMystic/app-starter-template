@@ -2,22 +2,14 @@ import { getRequestEvent } from "$app/server";
 import { auth } from "#lib/auth.js";
 import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { makeSession, requestEventMocker } from "../../../test/helpers";
+import { makeSession, with_request } from "../../../test/helpers";
 import { authorize_event, get_session, read_session } from "./auth.service";
-
-vi.mock("#lib/auth.js", () => ({
-  auth: { api: { getSession: vi.fn() } },
-}));
-
-vi.mock("#lib/server/db/repos/organization.repo.js", () => ({
-  OrganizationRepo: { get_membership: vi.fn() },
-}));
 
 const ORG_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 
 // `authorize_event` reads whatever `get_session` last stashed in locals.
-const with_session = requestEventMocker(getRequestEvent);
+const with_session = with_request;
 
 const get_membership = vi.mocked(OrganizationRepo.get_membership);
 const get_ba_session = vi.mocked(auth.api.getSession);
@@ -35,9 +27,6 @@ const event_for = (method: string) => {
 };
 
 beforeEach(() => {
-  vi.mocked(getRequestEvent).mockReset();
-  get_ba_session.mockReset();
-  get_membership.mockReset();
   get_membership.mockResolvedValue({
     ok: true,
     data: { member_id: MEMBER_ID, role: "owner" },

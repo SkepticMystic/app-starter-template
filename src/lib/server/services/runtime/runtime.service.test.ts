@@ -3,8 +3,6 @@ import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-vi.mock("@vercel/functions", () => ({ waitUntil: vi.fn() }));
-
 /**
  * Real timers and small budgets. `outstanding` is module-level, so every test must leave the
  * set empty — the hung-task test releases its promise, and `afterEach` drains.
@@ -47,8 +45,6 @@ describe("RuntimeService.defer", () => {
 
   // On Vercel this is what keeps the function from freezing mid-task.
   it("hands the supervised task to the host, which never sees a rejection", async () => {
-    vi.mocked(waitUntil).mockClear();
-
     RuntimeService.defer(async () => await Promise.reject(new Error("boom")));
 
     expect(waitUntil).toHaveBeenCalledOnce();
@@ -68,8 +64,6 @@ describe("RuntimeService.defer", () => {
   });
 
   it("swallows a rejection and still counts as drained", async () => {
-    vi.mocked(captureException).mockClear();
-
     RuntimeService.defer(async () => await Promise.reject(new Error("boom")));
 
     const result = await RuntimeService.drain(1_000);

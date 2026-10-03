@@ -15,14 +15,6 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { z } from "zod";
 import { makeSession } from "../../../test/helpers";
 
-vi.mock("#lib/auth.js", () => ({
-  auth: { api: { getSession: vi.fn() } },
-}));
-
-vi.mock("#lib/server/db/repos/organization.repo.js", () => ({
-  OrganizationRepo: { get_membership: vi.fn() },
-}));
-
 // `$app/server`'s `command` / `query` / `form` are stubbed in `src/test/setup.ts`
 // to hand back the handler they were given, so what `guarded_*` builds is
 // called here as a plain function.
@@ -92,9 +84,6 @@ const refuse_once = () =>
   });
 
 beforeEach(() => {
-  get_ba_session.mockReset();
-  get_membership.mockReset();
-  consume.mockReset();
   consume.mockResolvedValue({
     ok: true,
     data: { allowed: true, remaining: 1 },

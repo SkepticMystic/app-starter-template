@@ -2,7 +2,7 @@ import { getRequestEvent } from "$app/server";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { AdapterService } from "./adapter.service";
 
-// Not `requestEventMocker`, which builds no `getClientAddress`.
+// Not `with_request`, which builds no `getClientAddress`.
 const mock_event = (input: {
   client_address?: string;
   headers?: Record<string, string>;

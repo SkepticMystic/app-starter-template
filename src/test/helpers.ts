@@ -1,44 +1,10 @@
 /**
- * Test helpers for service tests.
- *
- * Provides utilities for mocking raw Drizzle query chains (used by services
- * that bypass Repo for atomic UPDATE ... RETURNING patterns) and factory
- * functions for common test data shapes.
+ * Test helpers. Everything a test drives lives on the mock wall in `./setup.ts`;
+ * these configure it.
  */
 
-import { vi } from "vite-plus/test";
-
-/**
- * Creates a chainable mock that mimics a Drizzle query builder.
- * The final `.returning()` or last chained call resolves to `resolvedValue`.
- *
- * Usage:
- *   vi.mocked(db.update).mockReturnValue(mockDbChain([{ id: 'x' }]));
- */
-export function mockDbChain(resolvedValue: unknown) {
-  const chain: Record<string, unknown> = {};
-  const methods = [
-    "select",
-    "from",
-    "set",
-    "where",
-    "returning",
-    "values",
-    "leftJoin",
-    "orderBy",
-    "execute",
-    "limit",
-    "offset",
-    "groupBy",
-  ];
-  for (const method of methods) {
-    chain[method] = (..._args: unknown[]) => chain;
-  }
-  // Make it thenable — Drizzle queries are awaitable
-  // oxlint-disable-next-line unicorn/no-thenable
-  chain.then = (resolve: (v: unknown) => void) => resolve(resolvedValue);
-  return chain;
-}
+import { getRequestEvent } from "$app/server";
+import { vi, type Mock } from "vite-plus/test";
 
 // ---------------------------------------------------------------------------
 // Session factory
@@ -111,73 +77,59 @@ export const INTERNAL_ERR = {
 };
 
 // ---------------------------------------------------------------------------
-// Drizzle db proxy mock
+// The mock wall
 // ---------------------------------------------------------------------------
 
 /**
- * Builds a `{ db }` module shape that overrides the global drizzle.db mock
- * from setup.ts. Used by services that bypass `Repo` and need to capture
- * raw `db.update(...)`, `db.select(...)`, `db.insert(...)`, or
- * `db.query.<table>.findFirst(...)` calls.
+ * Makes `getRequestEvent()` answer with `session` on `locals.session`. Pass
+ * `null` for an unauthenticated request, or omit it when the code under test
+ * only reads `request.headers`.
  *
- * Top-level properties in `overrides` replace the proxy's getter for that
- * prop. All other property accesses fall back to the recursive proxy
- * (matching setup.ts).
- *
- * Usage:
- *   const mockUpdate = vi.fn();
- *   vi.mock("#lib/server/db/drizzle.db.js", () => mockDbModule({
- *     update: mockUpdate,
- *   }));
+ * Importing the mocked `$app/server` here is safe only because the wall
+ * memoises it: every file in a worker gets the same instance.
  */
-export function mockDbModule(overrides: Record<string, unknown> = {}) {
-  const handler: ProxyHandler<object> = {
-    get: (_target, prop) => {
-      if (prop === "then") return undefined;
-      if (typeof prop === "string" && prop in overrides) {
-        return overrides[prop];
-      }
-      return new Proxy(() => new Proxy({}, handler), handler);
-    },
-    apply: () => new Proxy({}, handler),
-  };
-  return { db: new Proxy({}, handler) };
-}
-
-// ---------------------------------------------------------------------------
-// Request event mock
-// ---------------------------------------------------------------------------
+export const with_request = (
+  session?: App.Session | null,
+  headers?: Headers,
+) => {
+  vi.mocked(getRequestEvent).mockReturnValue({
+    locals: { session: session ?? null },
+    request: { headers: headers ?? new Headers() },
+  } as unknown as ReturnType<typeof getRequestEvent>);
+};
 
 /**
- * Builds a `mockRequestEvent` bound to the CALLER's `getRequestEvent`.
- *
- * The function has to be handed in rather than imported here, and the reason is
- * not stylistic: `vi.mock` replaces a module per test FILE, while this helper
- * module is cached ACROSS them. Importing `getRequestEvent` here would capture
- * whichever mock instance happened to be live when this module first loaded and
- * then configure that one forever — so a later file, with its own freshly
- * re-mocked `$app/server`, would have the service under test read a
- * `getRequestEvent` that nobody configured, and every session would arrive
- * `undefined`.
- *
- * Each test file therefore does:
- *
- * ```ts
- * import { getRequestEvent } from "$app/server";
- * const mockRequestEvent = requestEventMocker(getRequestEvent);
- * ```
- *
- * The rule generalises: any future helper in this file that wants a mocked
- * module must take it from the caller the same way.
- *
- * Pass `null` for an unauthenticated request, or omit `session` entirely when
- * the service only reads `request.headers`.
+ * A mocked module namespace with the real module's keys (a misspelt method
+ * fails to compile) but loose signatures, so a fixture can answer with a
+ * partial row. Use `vi.mocked` for a single function.
  */
-export const requestEventMocker =
-  (get_request_event: typeof import("$app/server").getRequestEvent) =>
-  (session?: App.Session | null, headers?: Headers) => {
-    vi.mocked(get_request_event).mockReturnValue({
-      locals: { session: session ?? null },
-      request: { headers: headers ?? new Headers() },
-    } as unknown as ReturnType<typeof get_request_event>);
-  };
+export const mocks = <T extends object>(namespace: T) =>
+  namespace as unknown as { [K in keyof T]: Mock };
+
+/**
+ * Installs `fake`'s methods as implementations on a module mocked in
+ * `./setup.ts`. Call it from a `beforeEach`: every mock is reset before each
+ * test.
+ *
+ * A name that is not one of the real module's mocked functions throws. The
+ * mocked namespace is one object for the whole worker, so anything defined on
+ * it would outlive the file that put it there — and a fake that kept a method
+ * the real module renamed would go on answering a call nothing makes.
+ */
+export const install_mock = (mocked: object, fake: Record<string, unknown>) => {
+  const target = mocked as Record<string, unknown>;
+
+  for (const [name, impl] of Object.entries(fake)) {
+    const current = target[name];
+
+    if (typeof current !== "function" || !("mockImplementation" in current)) {
+      throw new Error(
+        `install_mock: "${name}" is not a mocked function of this module${name in target ? "" : ", which has no such member"}.`,
+      );
+    }
+
+    (
+      current as { mockImplementation: (fn: unknown) => void }
+    ).mockImplementation(impl);
+  }
+};

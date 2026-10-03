@@ -4,19 +4,10 @@ import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { R2Service } from "./r2.storage.service";
 
-vi.mock("@aws-sdk/lib-storage", () => ({
-  Upload: vi.fn(
-    class {
-      done = vi.fn(async () => ({ Key: "streamed" }));
-    },
-  ),
-}));
-
 const send = vi.spyOn(S3Client.prototype, "send");
 
 beforeEach(() => {
   send.mockReset();
-  vi.mocked(Upload).mockClear();
 });
 
 describe("R2Service.head", () => {

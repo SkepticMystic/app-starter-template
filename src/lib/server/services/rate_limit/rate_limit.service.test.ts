@@ -1,44 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
-// ---------------------------------------------------------------------------
-// Mock @upstash/ratelimit before importing the service
-// ---------------------------------------------------------------------------
-
-const { mock_limit, mock_get_remaining, mock_reset_used_tokens } = vi.hoisted(
-  () => ({
-    mock_limit: vi.fn(),
-    mock_get_remaining: vi.fn(),
-    mock_reset_used_tokens: vi.fn(),
-  }),
-);
-
-vi.mock("@upstash/ratelimit", () => ({
-  Ratelimit: class MockRatelimit {
-    static tokenBucket = vi.fn().mockReturnValue(() => ({}));
-    limit = mock_limit;
-    getRemaining = mock_get_remaining;
-    resetUsedTokens = mock_reset_used_tokens;
-  },
-}));
-
-vi.mock("#lib/server/services/adapter/adapter.service.js", () => ({
-  AdapterService: {
-    get_ip: vi.fn().mockReturnValue("127.0.0.1"),
-    get_geo: vi.fn().mockReturnValue(undefined),
-    get_user_agent: vi.fn().mockReturnValue("test-agent"),
-    wait_until: vi.fn(),
-  },
-}));
-
-// ---------------------------------------------------------------------------
-// Import REAL service (uses mocked @upstash/ratelimit)
-// ---------------------------------------------------------------------------
-
+import { ratelimit } from "../../../../test/rate_limit.mock";
 import { RateLimiter } from "./rate_limit.service";
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
 // ---------------------------------------------------------------------------
+
+// The stubbed client's spies (`src/test/setup.ts`), shared by every instance.
+const {
+  limit: mock_limit,
+  getRemaining: mock_get_remaining,
+  resetUsedTokens: mock_reset_used_tokens,
+} = ratelimit;
 
 const CONFIG = {
   max_tokens: 10,
@@ -49,7 +23,6 @@ const CONFIG = {
 let limiter: RateLimiter;
 
 beforeEach(() => {
-  vi.clearAllMocks();
   limiter = new RateLimiter("test", CONFIG);
 });
 
