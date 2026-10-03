@@ -43,4 +43,17 @@ describe("Schema.patcher", () => {
   it("clears every nullable picked column when the payload is empty", () => {
     expect(patch({})).toEqual({ description: null, assignee_id: null });
   });
+
+  // The `@ts-expect-error` is the assertion; `pnpm check` fails without it.
+  it("rejects a key that names no column", () => {
+    expect(
+      // @ts-expect-error — `nonsense` is not a column on the fixture.
+      patch({ title: "x", nonsense: 1 }),
+    ).toEqual({ title: "x", description: null, assignee_id: null });
+  });
+
+  it("only accepts a pick of the table's own columns", () => {
+    // @ts-expect-error — `nonsense` is not a column on the fixture.
+    expect(() => Schema.patcher(Table, { nonsense: true })).not.toThrow();
+  });
 });

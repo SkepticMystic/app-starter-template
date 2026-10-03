@@ -1,6 +1,13 @@
 import { z, type ZodObject, type ZodRawShape } from "zod";
 
 /**
+ * A list's ordering: one of the keys it offers, and a direction. The repo maps
+ * the key to a column through an allow-list (`Repo.order_by`), so `K` should be
+ * a literal union, validated with `z.enum(keys)` where it comes from a client.
+ */
+export type Sort<K extends string = string> = { key: K; desc: boolean };
+
+/**
  * Creates a standardized query schema with pagination and filtering
  *
  * @example

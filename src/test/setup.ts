@@ -122,7 +122,9 @@ vi.mock("#lib/server/db/redis.db.js", () => ({
 vi.mock("#lib/server/db/repos/index.repo.js", () => ({
   Repo: {
     query: vi.fn(),
+    exists: vi.fn(),
     insert: vi.fn(),
+    insert_count: vi.fn(),
     insert_one: vi.fn(),
     update: vi.fn(),
     update_one: vi.fn(),
@@ -131,6 +133,7 @@ vi.mock("#lib/server/db/repos/index.repo.js", () => ({
     delete: vi.fn(),
     delete_one: vi.fn(),
     count: vi.fn(),
+    order_by: vi.fn(() => []),
     // Not a mock: `contains` is a pure string transform, and a test asserting a
     // LIKE pattern wants the real escaping, not `undefined`.
     contains: (term: string) =>

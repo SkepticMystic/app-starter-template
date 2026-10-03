@@ -1,4 +1,4 @@
-import { getColumns } from "drizzle-orm";
+import { getColumns, type InferInsertModel } from "drizzle-orm";
 import type { PgTable, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { timestamp, uuid } from "drizzle-orm/pg-core";
 
@@ -11,10 +11,13 @@ import { timestamp, uuid } from "drizzle-orm/pg-core";
  * input — `title` is NOT NULL and is omitted when empty, while `description` is
  * nullable and is cleared. Only the table knows which is which.
  */
-type Patched<T extends PgTable, P extends string> = Pick<
+type Patched<T extends PgTable, P> = Pick<
   PgUpdateSetSource<T>,
-  Extract<P, keyof PgUpdateSetSource<T>>
+  Extract<keyof P, keyof PgUpdateSetSource<T>>
 >;
+
+/** A table's insertable columns, as the keys a `pick` may name. */
+type Columns<T extends PgTable> = keyof InferInsertModel<T> & string;
 
 export const Schema = {
   id: () => ({
@@ -61,19 +64,30 @@ export const Schema = {
    * behaviour off a Zod detail — a schema that strips unknown keys and one that
    * passes them through behave identically through this.
    */
-  patcher: <T extends PgTable, P extends string>(
+  patcher: <T extends PgTable, P extends Partial<Record<Columns<T>, true>>>(
     table: T,
-    pick: Record<P, true>,
+    pick: P,
   ) => {
     // Resolved once at import; `getColumns` walks the table definition.
     const columns = getColumns(table);
-    const keys = Object.keys(pick) as P[];
+    const keys = Object.keys(pick);
 
-    return (input: Partial<Record<P, unknown>>) => {
+    /**
+     * `I` is checked against the table too, so a key naming no column is a
+     * type error rather than silently dropped — a form still posting a renamed
+     * column's old name would otherwise save nothing and report success.
+     */
+    return <
+      I extends Partial<InferInsertModel<T>> &
+        Record<Exclude<keyof I, Columns<T>>, never>,
+    >(
+      input: I,
+    ) => {
+      const values = input as Record<string, unknown>;
       const patch: Record<string, unknown> = {};
 
       for (const key of keys) {
-        const value = input[key];
+        const value = values[key];
 
         if (value !== undefined) {
           patch[key] = value;
