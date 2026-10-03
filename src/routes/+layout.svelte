@@ -60,7 +60,8 @@
 <Sonner />
 <!-- Answers `Confirm.ask`, which `Client.wrap` calls in place of `window.confirm`. -->
 <Confirm />
-<ModeWatcher />
+<!-- The theme bootstrap is in `app.html`, under kit's CSP nonce — see `handleModeWatcher`. -->
+<ModeWatcher disableHeadScriptInjection />
 
 <!-- The provider every `Tip` needs, so one outside the authed layout's `SidebarProvider` (which
   brings its own) does not throw for the want of one. -->

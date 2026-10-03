@@ -62,6 +62,15 @@
       media="(prefers-color-scheme: dark)"
     />
 
+    <!--
+      mode-watcher's theme bootstrap, which must run before first paint. Here rather than
+      injected by <ModeWatcher /> so it can carry kit's CSP nonce, which is only substituted in
+      this template. `hooks.server.ts` fills the snippet; see `csp` in `vite.config.ts`.
+    -->
+    <script nonce="%sveltekit.nonce%">
+      %modewatcher.snippet%
+    </script>
+
     %sveltekit.head%
   </head>
 

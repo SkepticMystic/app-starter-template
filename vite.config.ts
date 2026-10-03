@@ -1,11 +1,4 @@
-import { sentrySvelteKit } from "@sentry/sveltekit";
-import node from "@sveltejs/adapter-node";
-import vercel from "@sveltejs/adapter-vercel";
-import { sveltekit } from "@sveltejs/kit/vite";
-import tailwindcss from "@tailwindcss/vite";
-import { SondaVitePlugin as sonda } from "sonda";
-import devtoolsJson from "vite-plugin-devtools-json";
-import { defineConfig } from "vite-plus";
+import { defineConfig, lazyPlugins } from "vite-plus";
 
 import lint from "./oxlint.config";
 
@@ -14,13 +7,22 @@ const SONDA = process.env.SONDA;
 /** The `sql` project's `include` and the `server` project's `exclude`, so they cannot drift. */
 const SQL_TESTS = ["**/db/repos/**/*.test.ts"];
 
-// Vercel sets VERCEL=1 on every build it runs. Anywhere else — Docker, a VPS,
-// `pnpm preview` — build a standalone Node server instead.
-//
-// Deliberately not `adapter-auto`: it accepts no options, and it has no
-// fallback to adapter-node for a plain container, so off-platform it warns and
-// emits nothing — which is exactly the case this switch exists to make work.
-const adapter = process.env.VERCEL ? vercel() : node();
+/**
+ * The Umami origin, when the build sets one — read from the real environment
+ * like `paths.origin` below, since it is static and baked into the bundle.
+ */
+const umami_origin = (): `https://${string}.${string}`[] => {
+  try {
+    return process.env.PUBLIC_UMAMI_BASE_URL
+      ? [
+          new URL(process.env.PUBLIC_UMAMI_BASE_URL)
+            .origin as `https://${string}.${string}`,
+        ]
+      : [];
+  } catch {
+    return [];
+  }
+};
 
 export default defineConfig({
   /**
@@ -61,61 +63,161 @@ export default defineConfig({
   },
 
   build: {
-    sourcemap: SONDA ? true : undefined,
+    /**
+     * Never `undefined`: Sentry's source-map-setting plugin silently turns that
+     * into `"hidden"`, and this line is the only way to stop it.
+     *
+     * - `SENTRY_AUTH_TOKEN` set: `"hidden"`, uploaded then deleted, and no
+     *   `sourceMappingURL` comment pointing at a missing file.
+     * - `SONDA` set: `true`, for the bundle analyser.
+     * - Otherwise `false`: nothing would upload or read them.
+     */
+    sourcemap: SONDA ? true : process.env.SENTRY_AUTH_TOKEN ? "hidden" : false,
   },
 
-  plugins: [
-    sentrySvelteKit({
-      telemetry: false,
-      bundleSizeOptimizations: {
-        excludeDebugStatements: true,
-        excludeReplayShadowDom: true,
-        excludeReplayIframe: true,
-        excludeReplayWorker: true,
-      },
-    }),
-    tailwindcss({ optimize: { minify: true } }),
-    sveltekit({
-      adapter,
+  /**
+   * `vp fmt`, `vp lint`, `vp check` and the editor LSPs load this file only for
+   * `fmt` and `lint`; `lazyPlugins` skips this factory for them. Keep the
+   * imports inside it — a top-level import makes every one of those commands
+   * pay for the plugins.
+   */
+  plugins: lazyPlugins(async () => {
+    const [
+      { sentrySvelteKit },
+      { sveltekit },
+      { default: node },
+      { default: vercel },
+      { default: tailwindcss },
+      { SondaVitePlugin: sonda },
+      { default: devtoolsJson },
+    ] = await Promise.all([
+      import("@sentry/sveltekit"),
+      import("@sveltejs/kit/vite"),
+      import("@sveltejs/adapter-node"),
+      import("@sveltejs/adapter-vercel"),
+      import("@tailwindcss/vite"),
+      import("sonda"),
+      import("vite-plugin-devtools-json"),
+    ]);
 
-      paths: {
-        // adapter-node no longer reads ORIGIN at run time, so the origin used
-        // for CSRF checks is fixed at build time instead. The image is already
-        // per-origin (PUBLIC_BASE_URL is compiled into the client), so this is
-        // the same value. It is read from the real environment, not `.env`, so
-        // a local `pnpm build` still derives it from the request. Left unset on
-        // Vercel, whose preview deployments each have their own URL.
-        origin: process.env.VERCEL
-          ? undefined
-          : process.env.PUBLIC_BASE_URL || undefined,
-      },
+    // Vercel sets VERCEL=1 on every build it runs. Anywhere else — Docker, a
+    // VPS, `pnpm preview` — build a standalone Node server instead.
+    //
+    // Deliberately not `adapter-auto`: it accepts no options, and it has no
+    // fallback to adapter-node for a plain container, so off-platform it warns
+    // and emits nothing — which is exactly the case this switch exists to make
+    // work.
+    const adapter = process.env.VERCEL ? vercel() : node();
 
-      experimental: {
-        remoteFunctions: true,
-      },
-
-      tracing: {
-        server: true,
-      },
-
-      dynamicCompileOptions: ({ filename }) =>
-        filename.includes("node_modules") ? undefined : { runes: true },
-
-      compilerOptions: {
-        experimental: {
-          async: true,
+    return [
+      sentrySvelteKit({
+        telemetry: false,
+        sourcemaps: {
+          // `build/` is adapter-node's re-bundle, which `build.sourcemap` cannot
+          // reach: it hardcodes `sourcemap: true` for the server.
+          filesToDeleteAfterUpload: [
+            "./.svelte-kit/output/**/*.map",
+            "./build/**/*.map",
+          ],
         },
-      },
-    }),
-    devtoolsJson(),
-    sonda({
-      enabled: Boolean(SONDA),
-      server: true,
-      open: false,
-      deep: true,
-      sources: true,
-    }),
-  ],
+        bundleSizeOptimizations: {
+          excludeDebugStatements: true,
+          excludeReplayShadowDom: true,
+          excludeReplayIframe: true,
+          excludeReplayWorker: true,
+        },
+      }),
+      tailwindcss({ optimize: { minify: true } }),
+      sveltekit({
+        adapter,
+
+        paths: {
+          // adapter-node no longer reads ORIGIN at run time, so the origin used
+          // for CSRF checks is fixed at build time instead. The image is already
+          // per-origin (PUBLIC_BASE_URL is compiled into the client), so this is
+          // the same value. It is read from the real environment, not `.env`, so
+          // a local `pnpm build` still derives it from the request. Left unset on
+          // Vercel, whose preview deployments each have their own URL.
+          origin: process.env.VERCEL
+            ? undefined
+            : process.env.PUBLIC_BASE_URL || undefined,
+        },
+
+        /**
+         * Report-only: violations go to Sentry (Security → CSP) through the
+         * `csp-endpoint` group that `hooks.server.ts` names per response, and
+         * Firefox's `report-uri` it appends there. Learn the list from those
+         * reports, then promote it to `directives` as its own change.
+         *
+         * `mode: "auto"` nonces kit's own scripts on a rendered page and hashes
+         * them on a prerendered one. mode-watcher's theme bootstrap is emitted
+         * from `app.html` under the same nonce (`%modewatcher.snippet%`), since
+         * one injected through `<svelte:head>` cannot carry it.
+         *
+         * - Turnstile: `challenges.cloudflare.com` (script, frame, connect).
+         * - Sentry: any ingest host under `sentry.io`.
+         * - Umami: its origin, when the build sets one.
+         * - Cloudinary, Dicebear and R2 presigned URLs are images or links,
+         *   which `img-src https:` and navigation already allow.
+         * - `style-src 'unsafe-inline'`: Svelte `style=` attributes and
+         *   sonner's runtime stylesheet. Kit adds no nonce to styles while it
+         *   is present, which would switch it off.
+         */
+        csp: {
+          mode: "auto",
+          reportOnly: {
+            "default-src": ["self"],
+            "script-src": [
+              "self",
+              "https://challenges.cloudflare.com",
+              ...umami_origin(),
+            ],
+            "style-src": ["self", "unsafe-inline"],
+            "img-src": ["self", "data:", "blob:", "https:"],
+            "font-src": ["self", "data:"],
+            "connect-src": [
+              "self",
+              "https://*.sentry.io",
+              "https://challenges.cloudflare.com",
+              ...umami_origin(),
+            ],
+            "frame-src": ["https://challenges.cloudflare.com"],
+            "worker-src": ["self", "blob:"],
+            "frame-ancestors": ["self"],
+            "form-action": ["self"],
+            "base-uri": ["self"],
+            "object-src": ["none"],
+            "report-to": ["csp-endpoint"],
+          },
+        },
+
+        experimental: {
+          remoteFunctions: true,
+        },
+
+        tracing: {
+          server: true,
+        },
+
+        dynamicCompileOptions: ({ filename }) =>
+          filename.includes("node_modules") ? undefined : { runes: true },
+
+        compilerOptions: {
+          experimental: {
+            async: true,
+          },
+        },
+      }),
+      devtoolsJson(),
+      sonda({
+        enabled: Boolean(SONDA),
+        server: true,
+        open: false,
+        deep: true,
+        sources: true,
+      }),
+    ];
+  }),
 
   test: {
     // Not the repo root, which would also collect the copies in `.claude/worktrees/*`.

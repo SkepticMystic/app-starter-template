@@ -11,6 +11,7 @@ import {
   type HandleServerError,
 } from "@sveltejs/kit/hooks";
 import { svelteKitHandler } from "better-auth/svelte-kit";
+import { createInitialModeExpression } from "mode-watcher";
 
 /**
  * SvelteKit 3 routes every error through here — expected `error(...)`s, 404s
@@ -139,6 +140,19 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   return response;
 };
 
+const MODE_WATCHER_SNIPPET = createInitialModeExpression();
+
+/**
+ * Fills `%modewatcher.snippet%` in `app.html`, under kit's CSP nonce, which
+ * `<svelte:head>` cannot reach — hence `disableHeadScriptInjection` on
+ * `<ModeWatcher />`.
+ */
+const handleModeWatcher: Handle = ({ event, resolve }) =>
+  resolve(event, {
+    transformPageChunk: ({ html }) =>
+      html.replace("%modewatcher.snippet%", MODE_WATCHER_SNIPPET),
+  });
+
 // @sentry/sveltekit's types still import `Handle` from `@sveltejs/kit`, which
 // SvelteKit 3 moved to `@sveltejs/kit/hooks`, so its return type arrives
 // unresolved. The runtime is unaffected; drop the cast once Sentry catches up.
@@ -153,4 +167,5 @@ export const handle = sequence(
     return svelteKitHandler({ event, resolve, auth, building });
   },
   handleSecurityHeaders,
+  handleModeWatcher,
 );
