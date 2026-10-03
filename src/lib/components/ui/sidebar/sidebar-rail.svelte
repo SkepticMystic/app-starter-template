@@ -20,10 +20,10 @@
   bind:this={ref}
   data-sidebar="rail"
   data-slot="sidebar-rail"
-  aria-label="Toggle Sidebar"
+  aria-label="Toggle sidebar"
   tabIndex={-1}
   onclick={sidebar.toggle}
-  title="Toggle Sidebar"
+  title="Toggle sidebar"
   class={[
     `
       absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all

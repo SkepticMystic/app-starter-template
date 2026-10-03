@@ -21,7 +21,7 @@
       icon="lucide/mail"
       href={resolve("contact")}
     >
-      Contact Us
+      Contact us
     </Button>
   </section>
 </article>

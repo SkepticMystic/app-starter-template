@@ -53,7 +53,7 @@
       {#snippet actions()}
         <Button
           variant="destructive"
-          title="Unlink Account"
+          title="Unlink account"
           icon="lucide/unlink"
           onclick={() =>
             AccountClient.unlink({

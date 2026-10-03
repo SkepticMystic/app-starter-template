@@ -39,7 +39,7 @@
   })}
 >
   <Field
-    label="Current Password"
+    label="Current password"
     field={form.fields.password}
   >
     {#snippet input({ props, field })}
@@ -57,7 +57,7 @@
     class="w-full"
     icon="lucide/lock"
   >
-    Enable Two-Factor Authentication
+    Enable two-factor authentication
   </FormButton>
 
   <FormErrors {form} />

@@ -91,7 +91,7 @@
     class="w-full"
     icon={provider.icon}
   >
-    Signin with {provider.name}
+    Sign in with {provider.name}
   </FormButton>
 
   <FormErrors {form} />

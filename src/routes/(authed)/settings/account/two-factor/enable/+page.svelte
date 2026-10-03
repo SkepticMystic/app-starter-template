@@ -21,14 +21,14 @@
 
 <article>
   <Header
-    title="Enable Two-Factor Authentication"
+    title="Enable two-factor authentication"
     back={{ href: resolve("/(authed)/settings/account"), label: "Account" }}
   />
 
   <section>
     {#if !enable_data}
       <Card
-        title="Enable Two-Factor Authentication"
+        title="Enable two-factor authentication"
         description="You will need to provide your password."
       >
         {#snippet children()}
@@ -41,7 +41,7 @@
             icon="lucide/arrow-left"
             href={resolve("settings/account")}
           >
-            Go Back
+            Go back
           </Button>
         {/snippet}
       </Card>
@@ -51,7 +51,7 @@
       )}
 
       <Card
-        title="Verify Two-Factor Authentication"
+        title="Verify two-factor authentication"
         description="Scan the QR code below with your preferred authenticator app. Then,
           enter the {TWO_FACTOR.TOTP
           .DIGITS} digit code that the app provides to continue."
@@ -88,7 +88,7 @@
       {@const backup_codes_str = enable_data.backupCodes.join("\n")}
 
       <Card
-        title="Two-Factor Recovery"
+        title="Two-factor recovery"
         description="Save your backups codes. These will allow you to recover your account if you lose access to your 2FA device. Please store them separately and securely. They will only be shown once."
       >
         {#snippet children()}
@@ -97,7 +97,7 @@
               variant="default"
               text={backup_codes_str}
             >
-              Copy Backup Codes
+              Copy backup codes
             </CopyButton>
 
             <output>
@@ -118,7 +118,7 @@
             icon="lucide/arrow-left"
             href={resolve("settings/account")}
           >
-            Go Back
+            Go back
           </Button>
         {/snippet}
       </Card>

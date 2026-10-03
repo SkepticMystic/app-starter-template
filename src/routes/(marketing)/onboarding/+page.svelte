@@ -13,7 +13,7 @@
 
 <article>
   <header class="text-center">
-    <h1>Create Your Organization</h1>
+    <h1>Create your organization</h1>
     <p class="text-muted-foreground">
       Let's set up your workspace to get started
     </p>
@@ -39,7 +39,7 @@
     })}
   >
     <Field
-      label="Organization Name"
+      label="Organization name"
       field={form.fields.name}
     >
       {#snippet input({ props, field })}
@@ -57,7 +57,7 @@
       {form}
       class="w-full"
     >
-      Create Organization
+      Create organization
     </FormButton>
 
     <FormErrors {form} />

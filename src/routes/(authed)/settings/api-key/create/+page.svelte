@@ -28,8 +28,8 @@
 
 <article>
   <Header
-    title="Create an API Key"
-    back={{ href: resolve("/(authed)/settings/api-key"), label: "API Keys" }}
+    title="Create an API key"
+    back={{ href: resolve("/(authed)/settings/api-key"), label: "API keys" }}
   />
 
   <form
@@ -70,7 +70,7 @@
         </Field>
 
         <Field
-          label="Expires In"
+          label="Expires in"
           orientation="responsive"
           field={form.fields.expiresIn}
         >

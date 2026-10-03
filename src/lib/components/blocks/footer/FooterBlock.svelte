@@ -24,16 +24,16 @@
       title: "About",
       links: [
         // TODO
-        // { label: "Our Mission", href: "/about" },
-        { label: "Contact Us", href: "/contact" },
+        // { label: "Our mission", href: "/about" },
+        { label: "Contact us", href: "/contact" },
       ],
     },
     // {
     //   title: "Legal",
     //   links: [
     //     // TODO
-    //     { label: "Privacy Policy", href: "/legal/privacy" },
-    //     { label: "Terms of Service", href: "/legal/terms" },
+    //     { label: "Privacy policy", href: "/legal/privacy" },
+    //     { label: "Terms of service", href: "/legal/terms" },
     //   ],
     // },
   ]);

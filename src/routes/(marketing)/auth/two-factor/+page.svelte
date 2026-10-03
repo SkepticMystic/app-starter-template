@@ -9,8 +9,8 @@
 
 <article>
   <Card
-    title="Two-Factor Auth Check"
-    description="We need to verify your login."
+    title="Two-factor check"
+    description="Enter the code from your authenticator app to finish signing in."
     class="mx-auto w-full max-w-xs"
   >
     {#snippet children()}

@@ -58,7 +58,7 @@
     class="w-full"
     icon="lucide/lock-open"
   >
-    Change Password
+    Change password
   </FormButton>
 
   <FormErrors {form} />

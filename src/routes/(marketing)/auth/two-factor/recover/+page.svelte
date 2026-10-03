@@ -8,7 +8,7 @@
 
 <article>
   <Card
-    title="Two-Factor Recovery"
+    title="Two-factor recovery"
     class="mx-auto w-full max-w-xs"
   >
     {#snippet children()}

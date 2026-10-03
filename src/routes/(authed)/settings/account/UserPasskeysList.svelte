@@ -18,7 +18,7 @@
   empty={{
     loading: passkeys.loading,
     icon: "lucide/fingerprint",
-    title: "No Passkeys",
+    title: "No passkeys",
     description: "Add a passkey to your account to use it here",
   }}
 >
@@ -26,7 +26,7 @@
     <Item
       size="sm"
       icon="lucide/fingerprint"
-      title={passkey.name || "Unnamed Passkey"}
+      title={passkey.name || "Unnamed passkey"}
     >
       {#snippet description()}
         Connected on <Time date={passkey.createdAt} />
@@ -35,7 +35,7 @@
       {#snippet actions()}
         <Modal
           size="icon"
-          title="Edit Passkey"
+          title="Edit passkey"
           description="Update your passkey"
         >
           {#snippet trigger()}

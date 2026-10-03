@@ -25,11 +25,11 @@
           </ButtonGroup>
         {:else}
           <ButtonGroup>
-            <Button href={resolve("auth/signup")}>Signup</Button>
+            <Button href={resolve("auth/signup")}>Sign up</Button>
           </ButtonGroup>
 
           <ButtonGroup>
-            <Button href={resolve("auth/signin")}>Login</Button>
+            <Button href={resolve("auth/signin")}>Sign in</Button>
           </ButtonGroup>
         {/if}
       </ButtonGroup>

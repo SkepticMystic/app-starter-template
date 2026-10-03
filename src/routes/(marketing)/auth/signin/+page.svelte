@@ -20,7 +20,7 @@
 
 <Card
   class="mx-auto w-full max-w-xs"
-  title="Signin to {APP.NAME}"
+  title="Sign in to {APP.NAME}"
 >
   {#snippet children()}
     <div class="space-y-5">

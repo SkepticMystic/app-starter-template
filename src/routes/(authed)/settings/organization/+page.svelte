@@ -45,11 +45,11 @@
 
       <Modal
         variant="outline"
-        title="Invite Member"
+        title="Invite member"
         description="Invite a new member to your organization"
       >
         {#snippet trigger()}
-          <Icon icon="lucide/user-plus" /> Invite Member
+          <Icon icon="lucide/user-plus" /> Invite member
         {/snippet}
 
         {#snippet content({ close })}
@@ -91,7 +91,7 @@
   <section>
     <Item
       variant="destructive"
-      title="Leave Organization"
+      title="Leave organization"
       description="You'll no longer be able to access this organization"
     >
       {#snippet actions()}
@@ -111,7 +111,7 @@
     {#if can({ organization: ["delete"] })}
       <Item
         variant="destructive"
-        title="Delete Organization"
+        title="Delete organization"
         description="Delete this organization and all associated data"
       >
         {#snippet actions()}

@@ -56,13 +56,13 @@
 </script>
 
 <article>
-  <Header title="API Keys">
+  <Header title="API keys">
     {#snippet actions()}
       <Button
         icon="lucide/plus"
         href={resolve("/(authed)/settings/api-key/create")}
       >
-        Create API Key
+        Create API key
       </Button>
     {/snippet}
   </Header>

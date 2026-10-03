@@ -122,7 +122,7 @@
     class="w-full"
     icon={provider.icon}
   >
-    Signup with {provider.name}
+    Sign up with {provider.name}
   </FormButton>
 
   <FormErrors {form} />

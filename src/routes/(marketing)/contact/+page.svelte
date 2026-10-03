@@ -25,7 +25,7 @@
   <Card description="Fill out the form below to get in touch.">
     {#snippet title()}
       <header>
-        <h1>Contact Us</h1>
+        <h1>Contact us</h1>
       </header>
     {/snippet}
 
@@ -105,7 +105,7 @@
           class="w-full"
           icon="lucide/send"
         >
-          Send Message
+          Send message
         </FormButton>
 
         <FormErrors {form} />

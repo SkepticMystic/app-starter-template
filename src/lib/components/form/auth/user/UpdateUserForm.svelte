@@ -79,7 +79,7 @@
     {form}
     class="w-full"
   >
-    Update Profile
+    Update profile
   </FormButton>
 
   <FormErrors {form} />

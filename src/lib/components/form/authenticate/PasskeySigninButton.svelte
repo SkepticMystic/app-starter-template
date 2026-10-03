@@ -49,5 +49,5 @@
   onclick={signin}
   icon="lucide/fingerprint"
 >
-  Continue with Passkey
+  Continue with passkey
 </Button>

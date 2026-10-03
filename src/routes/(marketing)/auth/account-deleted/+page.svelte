@@ -28,7 +28,7 @@
       variant="outline"
       href={resolve("")}
     >
-      Go Home
+      Go home
     </Button>
   </div>
 </div>

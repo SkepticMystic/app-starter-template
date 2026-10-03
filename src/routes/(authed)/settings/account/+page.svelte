@@ -25,7 +25,7 @@
   <Header title="Account" />
 
   <section>
-    <h2>Login Methods</h2>
+    <h2>Sign-in methods</h2>
     <UserAccountsList />
   </section>
 
@@ -39,7 +39,7 @@
         icon="lucide/fingerprint"
         onclick={() => PasskeyClient.create({})}
       >
-        Add Passkey
+        Add passkey
       </Button>
     </div>
 
@@ -52,14 +52,14 @@
     {#if has_credential_account}
       <Item
         variant="default"
-        title="Change Password"
+        title="Change password"
         description="Update your account password to keep your account secure"
       >
         {#snippet actions()}
           <Modal
             icon="lucide/lock"
             variant="secondary"
-            title="Change Password"
+            title="Change password"
             description="Change your account password"
           >
             {#snippet trigger()}
@@ -76,7 +76,7 @@
       {#if !user.twoFactorEnabled}
         <Item
           variant="default"
-          title="Two-Factor Authentication"
+          title="Two-factor authentication"
           description="Add an extra layer of security to your account by requiring a second form of authentication when signing in"
         >
           {#snippet actions()}
@@ -91,7 +91,7 @@
       {:else}
         <Item
           variant="default"
-          title="Two-Factor Authentication"
+          title="Two-factor authentication"
           description="Two-factor authentication is currently enabled on your account. Disabling it will remove the extra layer of security from your account and make it more vulnerable to unauthorized access."
         >
           {#snippet actions()}
@@ -110,7 +110,7 @@
     <Item
       variant="muted"
       class="border-destructive/30 bg-destructive/10"
-      title="Delete Account"
+      title="Delete account"
       description="Permanently delete your account and all associated data. This action cannot be undone."
     >
       {#snippet actions()}

@@ -92,7 +92,7 @@
     </Field>
 
     <Field
-      label="Due Date"
+      label="Due date"
       class="grow"
       field={form.fields.due_date}
     >

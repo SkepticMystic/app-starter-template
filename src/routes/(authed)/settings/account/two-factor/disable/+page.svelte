@@ -9,7 +9,7 @@
 
 <article>
   <Header
-    title="Disable Two-Factor Authentication"
+    title="Disable two-factor authentication"
     back={{ href: resolve("/(authed)/settings/account"), label: "Account" }}
   />
 
@@ -28,7 +28,7 @@
         href={resolve("settings/account")}
         icon="lucide/arrow-left"
       >
-        Go Back
+        Go back
       </Button>
     {/snippet}
   </Card>

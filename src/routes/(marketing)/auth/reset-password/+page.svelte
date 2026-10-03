@@ -23,7 +23,7 @@
 
 <article>
   <header>
-    <h1>Reset Password</h1>
+    <h1>Reset password</h1>
   </header>
 
   {#if data.search.token}
@@ -61,7 +61,7 @@
         class="w-full"
         icon="lucide/key"
       >
-        Reset Password
+        Reset password
       </FormButton>
 
       <FormErrors {form} />

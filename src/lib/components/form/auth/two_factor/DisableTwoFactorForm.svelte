@@ -62,11 +62,11 @@
   })}
 >
   <Fieldset
-    legend="Disable Two-Factor Authentication"
+    legend="Disable two-factor authentication"
     description="You will need to provide your password."
   >
     <Field
-      label="Current Password"
+      label="Current password"
       field={form.fields.password}
     >
       {#snippet input({ props, field })}
@@ -90,7 +90,7 @@
       icon="lucide/x"
       variant="destructive"
     >
-      Disable Two-Factor Authentication
+      Disable two-factor authentication
     </FormButton>
 
     <FormErrors {form} />

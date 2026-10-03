@@ -48,7 +48,7 @@
 
 <article>
   <header>
-    <h1>Accept Invitation</h1>
+    <h1>Accept invitation</h1>
   </header>
 
   {#if data.prompt === "accept_invite"}
@@ -64,14 +64,14 @@
       onclick={accept_invite}
       icon="lucide/check-circle"
     >
-      Accept Invite
+      Accept invite
     </Button>
   {:else if data.prompt === "signup_login"}
-    <p>Please login or signup to accept the invitation.</p>
+    <p>Sign in or sign up to accept the invitation.</p>
 
     <div class="flex gap-2">
-      <Anchor href={App.url("/auth/signin", { redirect_uri })}>Login</Anchor>
-      <Anchor href={App.url("/auth/signup", { redirect_uri })}>Signup</Anchor>
+      <Anchor href={App.url("/auth/signin", { redirect_uri })}>Sign in</Anchor>
+      <Anchor href={App.url("/auth/signup", { redirect_uri })}>Sign up</Anchor>
     </div>
   {:else if data.prompt === "wrong_account"}
     <p>
@@ -81,7 +81,7 @@
 
     <div class="flex gap-2">
       <Button onclick={switch_account}>Sign out and switch account</Button>
-      <Anchor href={App.url("/auth/signup", { redirect_uri })}>Signup</Anchor>
+      <Anchor href={App.url("/auth/signup", { redirect_uri })}>Sign up</Anchor>
     </div>
   {:else if data.prompt === "email_not_verified"}
     <p class="text-warning">
