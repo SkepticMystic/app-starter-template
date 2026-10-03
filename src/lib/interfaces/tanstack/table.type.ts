@@ -48,10 +48,7 @@ export type DataTableAction<TData> =
  * against, which is why it has to be a prop: a list keyed on something other
  * than `id` selects the wrong rows otherwise.
  */
-export type TanstackTableRowId<TData> = (
-  original: TData,
-  index: number,
-) => string;
+type TanstackTableRowId<TData> = (original: TData, index: number) => string;
 
 export type TanstackTableInput<TData extends Record<string, unknown>> = {
   data: TData[];
@@ -218,7 +215,7 @@ export type DataTableFilter =
  * Present means the server already filtered, sorted and paged, so v9 passes its
  * row models through and gets the true `rowCount`.
  */
-export type TanstackTableServer = {
+type TanstackTableServer = {
   /** Rows matching the current filters, across every page — not `data.length`. */
   total: number;
 

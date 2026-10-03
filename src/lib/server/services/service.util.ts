@@ -25,7 +25,7 @@ type RelayLogger = Pick<typeof Log, "error" | "info">;
  * The log line keeps its `<scope>.error unknown` wording, so existing log
  * queries and alerts still match.
  */
-export const internal = (
+const internal = (
   error: unknown,
   ctx: {
     log: ServiceLogger;

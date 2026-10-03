@@ -164,12 +164,22 @@ settings:
 
 catalogs:
   default:
+    '@vitest/coverage-v8':
+      specifier: 4.1.11
+      version: 4.1.11
+    '@vitest/ui':
+      specifier: 4.1.11
+      version: 4.1.11
+    vite:
+      specifier: npm:@voidzero-dev/vite-plus-core@^0.3.0
+      version: 0.3.3
     vite-plus:
       specifier: ^0.3.3
       version: 0.3.3
 
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@^0.3.0
+  vite@*: npm:@voidzero-dev/vite-plus-core@^0.3.0
+  vitest@*: 4.1.11
 
 patchedDependencies:
   better-auth-paystack@3.2.1: 96a40acda633e4039ad4a69b7b9c308483d2edc3abac5aba20f4ae78f946c8e0
@@ -317,18 +327,12 @@ importers:
       '@tailwindcss/forms':
         specifier: ^0.5.11
         version: 0.5.11(tailwindcss@4.3.3)
-      '@tailwindcss/postcss':
-        specifier: ^4.3.3
-        version: 4.3.3
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(@voidzero-dev/vite-plus-core@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.1))
       '@tanstack/svelte-table':
         specifier: ^9.2.4
         version: 9.2.4(svelte@5.57.1)
-      '@tanstack/table-core':
-        specifier: ^9.2.4
-        version: 9.2.4
       '@types/node':
         specifier: ^26.6.2
         version: 26.6.2
@@ -339,10 +343,10 @@ importers:
         specifier: npm:typescript@7.0.2
         version: typescript@7.0.2
       '@vitest/coverage-v8':
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(@vitest/browser@4.1.11)(vitest@4.1.11)
       '@vitest/ui':
-        specifier: ^4.1.11
+        specifier: 'catalog:'
         version: 4.1.11(vitest@4.1.11)
       '@zxcvbn-ts/core':
         specifier: ^3.0.4
@@ -396,7 +400,7 @@ importers:
         specifier: 1.0.0-next.7
         version: 1.0.0-next.7(svelte@5.57.1)
       vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@^0.3.0
+        specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.1)'
       vite-node:
         specifier: ^6.0.0
@@ -413,10 +417,6 @@ packages:
   '@alexasomba/paystack-node@1.10.8':
     resolution: {integrity: sha512-KbZQjVW+UONl90S/NFHNXF5/X28ozgZjrkXnr/4RSVfsmiOG7ixOB3cRvq39iz7M9FZTDRxDimEkE0a5mTypAg==}
     engines: {node: '>=22.0.0'}
-
-  '@alloc/quick-lru@5.3.0':
-    resolution: {integrity: sha512-U4+70Pc5ZS9osnCBCE5Jha/ciHM+Yp+CNMNC/7HvYbNRk1Ldd+f7qO65W5qfhu/TCv+/ozljlXXe9Nj8419DMA==}
-    engines: {node: '>=10'}
 
   '@antfu/install-pkg@2.1.0':
     resolution: {integrity: sha512-sdg9NxU3zR4Mnawfbc/x6GB5Wf17WYud5qOuEuxXjaKpYpMkISSJEjItGebXJ2bQ4DIcly4NYH23mtkGJjvKUw==}
@@ -2544,9 +2544,6 @@ packages:
     resolution: {integrity: sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA==}
     engines: {node: '>= 20'}
 
-  '@tailwindcss/postcss@4.3.3':
-    resolution: {integrity: sha512-JTSZZGQi1AyKirbLN3azmjVzef92tcX7h+iSqPdaeStyFpGpDlKvvpxeOE8njhbUanbRwr3z8DyzhICWnMtQeg==}
-
   '@tailwindcss/vite@4.3.3':
     resolution: {integrity: sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==}
     peerDependencies:
@@ -3198,7 +3195,7 @@ packages:
       react-dom: ^18.0.0 || ^19.0.0
       solid-js: ^1.0.0
       svelte: ^4.0.0 || ^5.0.0
-      vitest: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+      vitest: 4.1.11
       vue: ^3.0.0
     peerDependenciesMeta:
       '@lynx-js/react':
@@ -5140,8 +5137,6 @@ snapshots:
       '@noble/hashes': 2.4.0
       openapi-fetch: 0.17.0
 
-  '@alloc/quick-lru@5.3.0': {}
-
   '@antfu/install-pkg@2.1.0':
     dependencies:
       package-manager-detector: 1.8.0
@@ -6973,14 +6968,6 @@ snapshots:
       '@tailwindcss/oxide-wasm32-wasi': 4.3.3
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.3
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.3
-
-  '@tailwindcss/postcss@4.3.3':
-    dependencies:
-      '@alloc/quick-lru': 5.3.0
-      '@tailwindcss/node': 4.3.3
-      '@tailwindcss/oxide': 4.3.3
-      postcss: 8.5.28
-      tailwindcss: 4.3.3
 
   '@tailwindcss/vite@4.3.3(@voidzero-dev/vite-plus-core@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.1))':
     dependencies:

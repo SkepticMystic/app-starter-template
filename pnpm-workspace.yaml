@@ -1,5 +1,12 @@
 blockExoticSubdeps: true
 
+# A publish must be 24h old before it resolves — the window a hijacked package
+# usually lives in. The lockfile stays authoritative.
+#
+# `vp migrate` appends a `minimumReleaseAgeExclude` for the Vite+ toolchain;
+# delete it after each run.
+minimumReleaseAge: 1440
+
 allowBuilds:
   "@prisma/engines": false
   "@sentry/cli": true
@@ -7,18 +14,27 @@ allowBuilds:
   prisma: false
   sharp: true
 
+# Re-pinned by `vp migrate` on a Vite+ bump; do not edit by hand. `vitest` must
+# equal the runner `vite-plus` bundles (`vp toolchain vitest`), or the override
+# splits mocks and `expect` state between two copies.
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@^0.3.0
   vite-plus: ^0.3.3
+  vitest: 4.1.11
+  "@vitest/coverage-v8": 4.1.11
+  "@vitest/ui": 4.1.11
 
 overrides:
-  vite: "catalog:"
+  vite@*: "catalog:"
+  vitest@*: "catalog:"
 
 peerDependencyRules:
   allowAny:
     - vite
+    - vitest
   allowedVersions:
     vite: "*"
+    vitest: "*"
 
 patchedDependencies:
   # Types-only patch — dist/index.mjs is untouched, so runtime behaviour is
