@@ -4,7 +4,7 @@
   import {
     buttonVariants,
     type ButtonVariant,
-  } from "#lib/components/ui/button/button.svelte";
+  } from "#lib/components/ui/button/button-root.svelte";
 
   let {
     ref = $bindable(null),

@@ -53,7 +53,7 @@
         <Button
           icon="lucide/x"
           variant="destructive"
-          title="Delete Passkey"
+          tip="Delete passkey"
           onclick={() => PasskeyClient.delete(passkey.id)}
         />
       {/snippet}

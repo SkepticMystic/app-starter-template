@@ -4,7 +4,7 @@
     buttonVariants,
     type ButtonSize,
     type ButtonVariant,
-  } from "../button/button.svelte";
+  } from "../button/button-root.svelte";
   import Icon from "../icon/Icon.svelte";
   import ModalContent from "./modal-content.svelte";
   import ModalDescription from "./modal-description.svelte";

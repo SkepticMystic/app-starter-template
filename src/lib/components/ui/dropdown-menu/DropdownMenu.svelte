@@ -1,9 +1,12 @@
 <script lang="ts">
-  import type { ButtonVariant } from "#lib/components/ui/button/button.svelte";
+  import type {
+    ButtonSize,
+    ButtonVariant,
+  } from "#lib/components/ui/button/button-root.svelte";
   import Icon from "#lib/components/ui/icon/Icon.svelte";
   import type { ClassValue } from "svelte/elements";
   import Anchor from "../anchor/Anchor.svelte";
-  import Button, { type ButtonSize } from "../button/button.svelte";
+  import Button from "../button/button.svelte";
   import DropdownMenuContent from "./dropdown-menu-content.svelte";
   import DropdownMenuGroup from "./dropdown-menu-group.svelte";
   import DropdownMenuItem from "./dropdown-menu-item.svelte";

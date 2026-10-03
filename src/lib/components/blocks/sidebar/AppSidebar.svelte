@@ -14,6 +14,7 @@
   import SidebarMenuItem from "#lib/components/ui/sidebar/sidebar-menu-item.svelte";
   import SidebarRail from "#lib/components/ui/sidebar/sidebar-rail.svelte";
   import SidebarRoot from "#lib/components/ui/sidebar/sidebar-root.svelte";
+  import Tip from "#lib/components/ui/tooltip/Tip.svelte";
   import { APP } from "#lib/const/app.const.js";
   import AppSidebarFooter from "./AppSidebarFooter.svelte";
 
@@ -99,18 +100,29 @@
               {#if item.action}
                 {@const action = item.action}
                 <!-- `showOnHover` fades rather than `hidden`s it, and shows it on focus-within too:
-                     a `display: none` link is out of the tab order, so keyboards never reached it. -->
-                <SidebarMenuAction showOnHover>
-                  {#snippet child({ props })}
-                    <a
-                      {...props}
-                      href={action.href}
-                      aria-label={action.label}
+                     a `display: none` link is out of the tab order, so keyboards never reached it.
+                     A `Tip` for its name, not a `title`, which reached neither. -->
+                <Tip
+                  content={action.label}
+                  names_trigger
+                  side="right"
+                >
+                  {#snippet child({ props: tip_props })}
+                    <SidebarMenuAction
+                      showOnHover
+                      {...tip_props}
                     >
-                      <Icon icon={action.icon} />
-                    </a>
+                      {#snippet child({ props })}
+                        <a
+                          {...props}
+                          href={action.href}
+                        >
+                          <Icon icon={action.icon} />
+                        </a>
+                      {/snippet}
+                    </SidebarMenuAction>
                   {/snippet}
-                </SidebarMenuAction>
+                </Tip>
               {/if}
             </SidebarMenuItem>
           {/each}

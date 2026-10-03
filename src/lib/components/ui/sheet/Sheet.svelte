@@ -6,7 +6,7 @@
     buttonVariants,
     type ButtonSize,
     type ButtonVariant,
-  } from "../button/button.svelte";
+  } from "../button/button-root.svelte";
   import Icon from "../icon/Icon.svelte";
   import SheetContent, { type Side } from "./sheet-content.svelte";
   import SheetDescription from "./sheet-description.svelte";

@@ -6,6 +6,7 @@
   } from "$app/env/public";
   import SEO from "#lib/components/blocks/head/SEO.svelte";
   import Sonner from "#lib/components/ui/sonner/sonner.svelte";
+  import TooltipProvider from "#lib/components/ui/tooltip/tooltip-provider.svelte";
   import { session } from "#lib/stores/session.store.js";
   import { ModeWatcher } from "mode-watcher";
   import "@fontsource-variable/inter/index.css";
@@ -55,4 +56,8 @@
 <Sonner />
 <ModeWatcher />
 
-{@render children?.()}
+<!-- The provider every `Tip` needs, so one outside the authed layout's `SidebarProvider` (which
+  brings its own) does not throw for the want of one. -->
+<TooltipProvider>
+  {@render children?.()}
+</TooltipProvider>

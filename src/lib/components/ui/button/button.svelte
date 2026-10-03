@@ -2,139 +2,50 @@
   lang="ts"
   module
 >
-  import Icon from "#lib/components/ui/icon/Icon.svelte";
-  import { type WithElementRef } from "#lib/utils/shadcn.util.js";
-  import type {
-    HTMLAnchorAttributes,
-    HTMLButtonAttributes,
-  } from "svelte/elements";
-  import { tv, type VariantProps } from "tailwind-variants";
+  import type { MaybeSnippet } from "#lib/interfaces/svelte/svelte.type.js";
+  import type { TipProps } from "../tooltip/Tip.svelte";
+  import type { ButtonProps as ButtonRootProps } from "./button-root.svelte";
 
-  export const buttonVariants = tv({
-    base: `
-      inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm
-      font-medium whitespace-nowrap transition-all outline-none
-      focus-visible:border-ring focus-visible:ring-[3px]
-      focus-visible:ring-ring/50
-      disabled:pointer-events-none disabled:opacity-50
-      aria-disabled:pointer-events-none aria-disabled:opacity-50
-      aria-invalid:border-destructive aria-invalid:ring-destructive/20
-      dark:aria-invalid:ring-destructive/40
-      [&_svg]:pointer-events-none [&_svg]:shrink-0
-      [&_svg:not([class*='size-'])]:size-4
-    `,
-    variants: {
-      variant: {
-        default: `
-            bg-primary text-primary-foreground shadow-xs
-            hover:bg-primary/90
-          `,
-        destructive: `
-            bg-destructive text-white shadow-xs
-            hover:bg-destructive/90
-            focus-visible:ring-destructive/20
-            dark:bg-destructive/60
-            dark:focus-visible:ring-destructive/40
-          `,
-        warning: `
-            bg-warning text-warning-foreground shadow-xs
-            hover:bg-warning/90
-            focus-visible:ring-warning/20
-            dark:bg-warning/60
-            dark:focus-visible:ring-warning/40
-          `,
-        success: `
-            bg-success text-success-foreground shadow-xs
-            hover:bg-success/90
-            focus-visible:ring-success/20
-            dark:bg-success/60
-            dark:focus-visible:ring-success/40
-          `,
-        accent: `
-            bg-accent text-accent-foreground shadow-xs
-            hover:bg-accent/90
-            focus-visible:ring-accent/20
-            dark:bg-accent/60
-            dark:focus-visible:ring-accent/40
-          `,
-        outline: `
-            border bg-background shadow-xs
-            hover:bg-accent hover:text-accent-foreground
-            dark:border-input dark:bg-input/30
-            dark:hover:bg-input/50
-          `,
-        secondary: `
-            bg-secondary text-secondary-foreground shadow-xs
-            hover:bg-secondary/80
-          `,
-        ghost: `
-            hover:bg-accent hover:text-accent-foreground
-            dark:hover:bg-accent/50
-          `,
-        link: `
-          text-primary underline-offset-4
-          hover:underline
-        `,
-        none: "",
-      },
-      size: {
-        default: `
-          h-9 px-4 py-2
-          has-[>svg]:px-3
-        `,
-        sm: `
-          h-8 gap-1.5 rounded-md px-3
-          has-[>svg]:px-2.5
-        `,
-        lg: `
-          h-10 rounded-md px-6
-          has-[>svg]:px-4
-        `,
-        icon: "size-9",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  });
-
-  export type ButtonVariant = VariantProps<typeof buttonVariants>["variant"];
-  export type ButtonSize = VariantProps<typeof buttonVariants>["size"];
-
-  export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
-    WithElementRef<HTMLAnchorAttributes> & {
-      size?: ButtonSize;
-      variant?: ButtonVariant;
-      // NOTE: Mine
-      label?: string;
-      loading?: boolean;
-      icon?: string | null;
-      href?: string;
-    };
+  export type ButtonProps = ButtonRootProps & {
+    /** An Iconify class (`lucide/plus`), drawn before the content. */
+    icon?: string | null;
+    /** The content, when there are no children. */
+    label?: string;
+    /** Swaps `icon` for a spinner and disables the button. */
+    loading?: boolean;
+    /**
+     * A tooltip: its content, or `Tip`'s props where it needs more (`kbd`, `side`,
+     * `disabled_trigger`). An icon-only button with no `aria-label` of its own is
+     * named by it, which is `Tip`'s `names_trigger`, worked out here.
+     */
+    tip?: MaybeSnippet | Omit<TipProps, "child"> | null;
+  };
 </script>
 
 <script lang="ts">
-  import Anchor from "../anchor/Anchor.svelte";
+  import { mergeProps } from "bits-ui";
+  import Icon from "../icon/Icon.svelte";
   import Loading from "../loading/Loading.svelte";
+  import Tip from "../tooltip/Tip.svelte";
+  import ButtonRoot from "./button-root.svelte";
+
+  /**
+   * `button-root.svelte` plus the four props this app puts on nearly every
+   * button. Anything this does not suit can use the root directly — it takes the
+   * same `variant`, `size`, `href` and `ref`.
+   */
 
   let {
-    class: klass,
-    variant = "default",
-    size = "default",
     ref = $bindable(null),
-    href = undefined,
-    type = "button",
+    size = "default",
     disabled,
-    loading,
     icon,
     label,
+    loading,
+    tip,
     onclick,
-
     children,
-    ...restProps
+    ...rest_props
   }: ButtonProps = $props();
 
   /**
@@ -143,16 +54,24 @@
    *
    * Its own state rather than a write to `loading`: assigning a prop overrides
    * the caller's value until the caller next changes it, so a handler that
-   * settled before the caller's own work did would clear a spinner the caller
+   * settled before the caller's own work did used to clear a spinner the caller
    * still wanted. A handler that returns nothing — a bits-ui trigger's, a
    * toggle's — leaves it alone, so those buttons are never disabled mid-click.
    */
   let pending = $state(false);
   const busy = $derived(Boolean(loading) || pending);
 
-  async function click(e: MouseEvent) {
-    // A caller's `onclick` has to accept a button's event *and* an anchor's.
-    // TS can only call that overload pair with one of the two, hence the cast.
+  /**
+   * `trigger_click` is the tip trigger's own `onclick`, which closes the tip on a
+   * key press, as its `pointerdown` already does for a pointer. It runs first, as
+   * `mergeProps` runs every other handler the two share.
+   */
+  async function click(e: MouseEvent, trigger_click?: unknown) {
+    (trigger_click as ((e: MouseEvent) => void) | undefined)?.(e);
+
+    // A caller's `onclick` has to accept a button's event *and* an anchor's, and
+    // is handed whichever the root rendered. TS can only call that overload pair
+    // with one of the two, hence the cast.
     const handler = onclick as ((e: MouseEvent) => unknown) | null | undefined;
     const result = handler?.(e);
     if (!(result instanceof Promise)) return;
@@ -165,43 +84,53 @@
     }
   }
 
-  // svelte-ignore state_referenced_locally
-  if (size === "default" && icon && !children && !label) {
-    size = "icon";
-  }
+  const icon_only = $derived(Boolean(icon) && !children && !label);
+
+  // An icon and nothing else is an icon button, unless it was given another size.
+  const resolved_size = $derived(
+    size === "default" && icon_only ? "icon" : size,
+  );
+
+  const tip_props = $derived(
+    typeof tip === "string" || typeof tip === "function"
+      ? { content: tip }
+      : tip,
+  );
 </script>
 
-{#if href}
-  <Anchor
-    {icon}
-    {href}
-    {loading}
-    {disabled}
-    {children}
-    {onclick}
-    class={[buttonVariants({ variant, size }), "no-underline!", klass]}
-    data-slot="button"
+<!-- `trigger` is null without a tip. With one, `mergeProps` rather than two spreads, so a
+     caller's handler — a dialog trigger's, when the button opens one — is chained after the
+     tip's instead of replacing it. Otherwise the caller's attributes win. -->
+{#snippet button(trigger: Record<string, unknown> | null)}
+  <ButtonRoot
+    {...trigger ? mergeProps(trigger, rest_props) : rest_props}
     bind:ref
-    {...restProps}
-  />
-{:else}
-  <button
-    {type}
-    class={[buttonVariants({ variant, size }), klass]}
-    data-slot="button"
-    aria-busy={busy || undefined}
+    size={resolved_size}
     disabled={disabled || busy}
-    bind:this={ref}
-    {...restProps}
-    onclick={click}
+    aria-busy={busy || undefined}
+    onclick={(e: MouseEvent) => click(e, trigger?.onclick)}
   >
-    <Loading loading={busy} />
-    <Icon {icon} />
+    <Loading loading={busy}>
+      <Icon {icon} />
+    </Loading>
 
     {#if children}
       {@render children()}
     {:else if label}
       {label}
     {/if}
-  </button>
+  </ButtonRoot>
+{/snippet}
+
+{#if tip_props?.content}
+  <Tip
+    names_trigger={icon_only && rest_props["aria-label"] == null}
+    {...tip_props}
+  >
+    {#snippet child({ props })}
+      {@render button(props)}
+    {/snippet}
+  </Tip>
+{:else}
+  {@render button(null)}
 {/if}

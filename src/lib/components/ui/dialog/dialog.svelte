@@ -6,7 +6,7 @@
     type ButtonProps,
     type ButtonSize,
     type ButtonVariant,
-  } from "../button/button.svelte";
+  } from "../button/button-root.svelte";
   import DialogContent from "./dialog-content.svelte";
   import DialogDescription from "./dialog-description.svelte";
   import DialogFooter from "./dialog-footer.svelte";

@@ -4,7 +4,7 @@
     buttonVariants,
     type ButtonSize,
     type ButtonVariant,
-  } from "../button/button.svelte";
+  } from "../button/button-root.svelte";
   import PopoverContent from "./popover-content.svelte";
   import PopoverRoot from "./popover-root.svelte";
   import PopoverTrigger from "./popover-trigger.svelte";
