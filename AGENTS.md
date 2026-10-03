@@ -230,8 +230,9 @@ staged files: format, then lint, then type-check.
 1. Install the Node version required by `engines` in `package.json`
 2. Install the pnpm version pinned in `packageManager` in `package.json`
 3. Create `.env` file based on `.env.example`, which lists every variable the
-   app reads. `src/test/env.test.ts` fails if the code reads one that is not
-   documented there, so it cannot quietly drift
+   app reads. `src/env.ts` declares the same set — `$app/env/*` exposes
+   nothing undeclared — and `src/test/env.test.ts` fails if the two differ, so
+   they cannot quietly drift
 4. Set up PostgreSQL database (Neon recommended) with development branch
 5. Add `DATABASE_URL` to `.env`
 6. Configure Redis with `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`
@@ -266,7 +267,7 @@ server in `build/`.
 in two stages on a Debian-slim base (not Alpine — `sharp` ships glibc prebuilts).
 
 Build args are the build-time variables only: `APP_ENV` and the `PUBLIC_*` set.
-Everything else is read at runtime through `$env/dynamic/private`, so **no
+Everything else is read at runtime through `$app/env/private`, so **no
 secret ends up in an image layer** — and the image is per-origin, not per-tier,
 because `PUBLIC_BASE_URL` is compiled into the client bundle.
 
@@ -315,7 +316,7 @@ There is no infrastructure-layer fallback there, so that prefix is load-bearing.
 too. The three _values_ were kept byte-identical precisely so the prefix string
 did not change — renaming them would have orphaned every session and
 rate-limit bucket on a shared, `eviction = false` instance. It is the one
-variable still read through `$env/static/private`, so a missing value fails the
+private variable declared `static` in `src/env.ts`, so a missing value fails the
 build instead of silently merging two tiers' keyspaces.
 
 Note that `pnpm db:migrate` running inside the build means a push to `main`
@@ -335,6 +336,10 @@ migrates production with no review gate between merge and schema change.
   `#lib/utils/result.util.js` (`.js` for a `.ts` file) and
   `#lib/components/ui/button/button.svelte`. `tsconfig.json` restates it under
   `paths`, which `svelte-check --tsgo` needs to type `.svelte` imports
+- **Environment variables**: declare every one in `src/env.ts` and import it
+  from `$app/env/private` or `$app/env/public`; `$env/*` and
+  `$app/environment` are deprecated (use `$app/env` for `dev`/`browser`/
+  `building`)
 - **TypeScript namespaces**: Preferred for organizing related types (e.g., `IAuth.ProviderId`)
 
 ### Database Patterns

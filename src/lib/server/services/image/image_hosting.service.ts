@@ -1,10 +1,15 @@
-import { env } from "$env/dynamic/private";
-import { ERROR } from "$lib/const/error.const";
-import type { IMAGE_HOSTING } from "$lib/const/image/image_hosting.const";
-import type { Result } from "$lib/interfaces/result.type";
-import type { Image } from "$lib/server/db/models/image.model";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import {
+  CLOUDINARY_API_SECRET,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_UPLOAD_PRESET,
+} from "$app/env/private";
+import { ERROR } from "#lib/const/error.const.js";
+import type { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
+import type { Result } from "#lib/interfaces/result.type.js";
+import type { Image } from "#lib/server/db/models/image.model.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import * as Sentry from "@sentry/sveltekit";
 import { captureException } from "@sentry/sveltekit";
 import {
@@ -16,9 +21,9 @@ import {
 const log = Log.child({ service: "cloudinary" });
 
 cloudinary.config({
-  api_secret: env.CLOUDINARY_API_SECRET,
-  api_key: env.CLOUDINARY_API_KEY,
-  cloud_name: env.CLOUDINARY_CLOUD_NAME,
+  api_secret: CLOUDINARY_API_SECRET,
+  api_key: CLOUDINARY_API_KEY,
+  cloud_name: CLOUDINARY_CLOUD_NAME,
 });
 
 const provider =
@@ -45,7 +50,7 @@ export const ImageHostingService = {
               {
                 resource_type: "image",
                 discard_original_filename: true,
-                upload_preset: env.CLOUDINARY_UPLOAD_PRESET,
+                upload_preset: CLOUDINARY_UPLOAD_PRESET,
                 // NOTE: We don't apply any transforms at upload time
                 // Rather keep the original, then transform in Picture.svelte
               },

@@ -1,8 +1,8 @@
-import { env } from "$env/dynamic/private";
-import { ERROR } from "$lib/const/error.const";
-import { AdapterService } from "$lib/server/services/adapter/adapter.service";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { CAPTCHA_SECRET_KEY } from "$app/env/private";
+import { ERROR } from "#lib/const/error.const.js";
+import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { z } from "zod";
 
@@ -49,7 +49,7 @@ const verify = async (
         body: JSON.stringify({
           remoteip,
           response: token,
-          secret: env.CAPTCHA_SECRET_KEY,
+          secret: CAPTCHA_SECRET_KEY,
         }),
         /**
          * This fetch carried no signal, so a stalled Turnstile held the request

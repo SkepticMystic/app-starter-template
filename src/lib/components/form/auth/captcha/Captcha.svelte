@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PUBLIC_CAPTCHA_SITE_KEY } from "$env/static/public";
+  import { PUBLIC_CAPTCHA_SITE_KEY } from "$app/env/public";
   import { mode } from "mode-watcher";
   import { Turnstile } from "svelte-turnstile";
 

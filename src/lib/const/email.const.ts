@@ -1,12 +1,12 @@
-import { env } from "$env/dynamic/private";
+import { EMAIL_FROM } from "$app/env/private";
 import type {
   Invitation,
   Organization,
   User,
-} from "$lib/server/db/models/auth.model";
-import type { SendEmailOptions } from "$lib/server/services/email.service";
-import { App } from "$lib/utils/app";
-import { HTMLUtil } from "$lib/utils/html/html.util";
+} from "#lib/server/db/models/auth.model.js";
+import type { SendEmailOptions } from "#lib/server/services/email.service.js";
+import { App } from "#lib/utils/app.js";
+import { HTMLUtil } from "#lib/utils/html/html.util.js";
 import { APP } from "./app.const";
 
 const HTML_SIGNATURE = `
@@ -164,7 +164,7 @@ ${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
       return {
         html,
-        to: env.EMAIL_FROM,
+        to: EMAIL_FROM,
         subject: `New contact form submission from ${input.name}`,
       };
     },

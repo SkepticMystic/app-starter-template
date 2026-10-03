@@ -7,6 +7,7 @@ export default {
     // SvelteKit 3 entry points knip's sveltekit plugin does not know yet (it
     // still looks for matchers in `src/params/*`)
     "src/params.{js,ts}",
+    "src/env.{js,ts}",
   ],
 
   // Icon sets consumed via @iconify/tailwind4 in CSS

@@ -49,8 +49,8 @@ jobs:
       - run: pnpm build
 
       # adapter-node does NOT load .env in production, hence --env-file. This is
-      # the step that exercises instrumentation.server.ts's required-variable
-      # guard, so .env.example's placeholders have to be non-empty.
+      # the step that exercises the `required` variables in src/env.ts at
+      # startup, so .env.example's placeholders have to be non-empty.
       - name: Check the built server boots
         run: |
           ORIGIN=http://localhost:3000 PORT=3000 node --env-file=.env build &

@@ -12,44 +12,39 @@ import { vi } from "vite-plus/test";
 // SvelteKit virtual modules
 // ---------------------------------------------------------------------------
 
-vi.mock("$env/static/private", () => ({
+// Everything `src/env.ts` declares, as `$app/env/*` would export it.
+vi.mock("$app/env/private", () => ({
   // `redis.db.ts` keeps APP_ENV static on purpose — a missing value must fail
   // the build rather than silently share another tier's Redis keyspace.
   APP_ENV: "test",
+
+  BETTER_AUTH_SECRET: "test-secret-key-for-jwt-signing",
+  CAPTCHA_SECRET_KEY: "mock-captcha-secret",
+  CLOUDFLARE_ACCOUNT_ID: "mock-cf-account-id",
+  CLOUDINARY_API_KEY: "mock-cloudinary-key",
+  CLOUDINARY_API_SECRET: "mock-cloudinary-secret",
+  CLOUDINARY_CLOUD_NAME: "mock-cloudinary-cloud",
+  CLOUDINARY_UPLOAD_PRESET: "mock-cloudinary-preset",
+  DATABASE_URL: "mock://neon",
+  EMAIL_FROM: "test@example.com",
+  GOOGLE_CLIENT_ID: "mock-google-id",
+  GOOGLE_CLIENT_SECRET: "mock-google-secret",
+  LOG_LEVEL: "silent",
+  NO_COLOR: "true",
+  OPENAI_API_KEY: "sk-test-mock",
+  PAYSTACK_SECRET_KEY: "sk_test_mock",
+  POCKETID_BASE_URL: "",
+  POCKETID_CLIENT_ID: "",
+  POCKETID_CLIENT_SECRET: "",
+  R2_ACCESS_KEY_ID: "mock-r2-key",
+  R2_BUCKET_NAME: "mock-bucket",
+  R2_SECRET_ACCESS_KEY: "mock-r2-secret",
+  RESEND_API_KEY: "re_test_mock_key",
+  UPSTASH_REDIS_REST_TOKEN: "mock-redis-token",
+  UPSTASH_REDIS_REST_URL: "mock://redis",
 }));
 
-vi.mock("$env/dynamic/private", () => ({
-  env: {
-    ADMIN_EMAIL: "admin@example.com",
-    BETTER_AUTH_SECRET: "test-secret-key-for-jwt-signing",
-    BETTER_AUTH_URL: "http://localhost:5173",
-    CAPTCHA_SECRET_KEY: "mock-captcha-secret",
-    CLOUDFLARE_ACCOUNT_ID: "mock-cf-account-id",
-    CLOUDINARY_API_KEY: "mock-cloudinary-key",
-    CLOUDINARY_API_SECRET: "mock-cloudinary-secret",
-    CLOUDINARY_CLOUD_NAME: "mock-cloudinary-cloud",
-    CLOUDINARY_UPLOAD_PRESET: "mock-cloudinary-preset",
-    DATABASE_URL: "mock://neon",
-    EMAIL_FROM: "test@example.com",
-    GOOGLE_CLIENT_ID: "mock-google-id",
-    GOOGLE_CLIENT_SECRET: "mock-google-secret",
-    LOG_LEVEL: "silent",
-    NO_COLOR: "true",
-    OPENAI_API_KEY: "sk-test-mock",
-    PAYSTACK_SECRET_KEY: "sk_test_mock",
-    POCKETID_BASE_URL: "",
-    POCKETID_CLIENT_ID: "",
-    POCKETID_CLIENT_SECRET: "",
-    R2_ACCESS_KEY_ID: "mock-r2-key",
-    R2_BUCKET_NAME: "mock-bucket",
-    R2_SECRET_ACCESS_KEY: "mock-r2-secret",
-    RESEND_API_KEY: "re_test_mock_key",
-    UPSTASH_REDIS_REST_TOKEN: "mock-redis-token",
-    UPSTASH_REDIS_REST_URL: "mock://redis",
-  },
-}));
-
-vi.mock("$env/static/public", () => ({
+vi.mock("$app/env/public", () => ({
   PUBLIC_BASE_URL: "http://localhost:5173",
   PUBLIC_CAPTCHA_SITE_KEY: "mock-captcha-site-key",
   PUBLIC_SENTRY_DSN: "",
@@ -57,15 +52,13 @@ vi.mock("$env/static/public", () => ({
   PUBLIC_UMAMI_WEBSITE_ID: "",
 }));
 
-vi.mock("$app/environment", () => ({
+vi.mock("$app/env", () => ({
   dev: true,
   browser: false,
   building: false,
 }));
 
 vi.mock("$app/paths", () => ({
-  base: "",
-  assets: "",
   asset: (path: string) => path,
 }));
 
@@ -78,7 +71,7 @@ vi.mock("$app/server", () => ({
 // Database layer
 // ---------------------------------------------------------------------------
 
-vi.mock("$lib/server/db/drizzle.db", () => {
+vi.mock("#lib/server/db/drizzle.db.js", () => {
   const handler: ProxyHandler<object> = {
     get: (_target, prop) => {
       if (prop === "then") return undefined; // Not thenable
@@ -98,7 +91,7 @@ vi.mock("$lib/server/db/drizzle.db", () => {
  * The module's every export has to be listed: `vi.mock` replaces the whole
  * module, so a missing name throws on import rather than degrading.
  */
-vi.mock("$lib/server/db/redis.db", () => ({
+vi.mock("#lib/server/db/redis.db.js", () => ({
   REDIS_PREFIX: "test:test",
   redis: {
     get: vi.fn(async () => null),
@@ -126,7 +119,7 @@ vi.mock("$lib/server/db/redis.db", () => ({
   },
 }));
 
-vi.mock("$lib/server/db/repos/index.repo", () => ({
+vi.mock("#lib/server/db/repos/index.repo.js", () => ({
   Repo: {
     query: vi.fn(),
     insert: vi.fn(),
@@ -165,13 +158,13 @@ vi.mock("@sentry/sveltekit", () => ({
   },
 }));
 
-vi.mock("$lib/server/services/email.service", () => ({
+vi.mock("#lib/server/services/email.service.js", () => ({
   EmailService: {
     send: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
-vi.mock("$lib/utils/logger.util", () => {
+vi.mock("#lib/utils/logger.util.js", () => {
   const noop = vi.fn();
   const child = () => logger;
   const logger = {

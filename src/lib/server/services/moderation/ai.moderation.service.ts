@@ -1,8 +1,8 @@
-import { env } from "$env/dynamic/private";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { ERROR } from "$lib/const/error.const";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { OPENAI_API_KEY } from "$app/env/private";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import { captureException, metrics } from "@sentry/sveltekit";
 import { transformUrl } from "unpic";
 import { z } from "zod";
@@ -78,7 +78,7 @@ const moderate = async (input: {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         input: input.input,

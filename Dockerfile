@@ -45,7 +45,7 @@ COPY .env.example .env
 
 # No VERCEL in the environment, so vite.config.ts selects adapter-node.
 # PUBLIC_* vars and APP_ENV are read at build time, so they must be present
-# here; everything else is read at runtime via $env/dynamic/private and must
+# here; everything else is read at runtime via $app/env/private and must
 # NOT be passed in, so no secret ends up in an image layer.
 ARG APP_ENV=production
 ARG PUBLIC_BASE_URL

@@ -1,12 +1,15 @@
-import { APP_ENV } from "$env/static/private";
-import { env } from "$env/dynamic/private";
-import { APP } from "$lib/const/app.const";
+import {
+  APP_ENV,
+  UPSTASH_REDIS_REST_URL,
+  UPSTASH_REDIS_REST_TOKEN,
+} from "$app/env/private";
+import { APP } from "#lib/const/app.const.js";
 import { Redis } from "@upstash/redis";
 
 // NOTE: Starts connecting immediately
 const redis = new Redis({
-  url: env.UPSTASH_REDIS_REST_URL,
-  token: env.UPSTASH_REDIS_REST_TOKEN,
+  url: UPSTASH_REDIS_REST_URL,
+  token: UPSTASH_REDIS_REST_TOKEN,
 });
 
 /**
@@ -31,10 +34,10 @@ const redis = new Redis({
  * "tidy" these values into `prod`/`dev`: that silently moves every session and
  * rate-limit bucket to a new keyspace.
  *
- * It stays a `$env/static/private` import while the rest of this file has moved
- * to `$env/dynamic/private`. That is deliberate: a missing value fails the
- * build outright, which is what we want. A runtime fallback would quietly
- * default production into some other tier's keyspace.
+ * It is declared `static` in `src/env.ts` while the Redis credentials beside it
+ * are dynamic. That is deliberate: a missing value fails the build outright,
+ * which is what we want. A runtime fallback would quietly default production
+ * into some other tier's keyspace.
  */
 export const REDIS_PREFIX = `${APP.ID}:${APP_ENV}`;
 

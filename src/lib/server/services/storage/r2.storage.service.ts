@@ -1,10 +1,15 @@
-import { env } from "$env/dynamic/private";
-import { ServiceUtil } from "$lib/server/services/service.util";
-import { DOCUMENT } from "$lib/const/document.const";
-import { ERROR } from "$lib/const/error.const";
-import { Dates } from "$lib/utils/dates";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import {
+  CLOUDFLARE_ACCOUNT_ID,
+  R2_ACCESS_KEY_ID,
+  R2_SECRET_ACCESS_KEY,
+  R2_BUCKET_NAME,
+} from "$app/env/private";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
+import { DOCUMENT } from "#lib/const/document.const.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { Dates } from "#lib/utils/dates.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -23,10 +28,10 @@ const log = Log.child({ service: "R2" });
 // Initialize R2 client with S3-compatible endpoint
 const r2_client = new S3Client({
   region: "auto",
-  endpoint: `https://${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: env.R2_ACCESS_KEY_ID,
-    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+    accessKeyId: R2_ACCESS_KEY_ID,
+    secretAccessKey: R2_SECRET_ACCESS_KEY,
   },
 });
 
@@ -44,7 +49,7 @@ const put = async (input: {
       new PutObjectCommand({
         Key: input.key,
         Body: input.body,
-        Bucket: env.R2_BUCKET_NAME,
+        Bucket: R2_BUCKET_NAME,
         ContentType: input.content_type,
         ContentLength: input.content_length,
 
@@ -97,7 +102,7 @@ export const R2Service = {
       const delete_res = await r2_client.send(
         new DeleteObjectCommand({
           Key: key,
-          Bucket: env.R2_BUCKET_NAME,
+          Bucket: R2_BUCKET_NAME,
         }),
       );
 
@@ -123,7 +128,7 @@ export const R2Service = {
       const response = await r2_client.send(
         new GetObjectCommand({
           Key: key,
-          Bucket: env.R2_BUCKET_NAME,
+          Bucket: R2_BUCKET_NAME,
         }),
       );
 
@@ -166,7 +171,7 @@ export const R2Service = {
         r2_client,
         new GetObjectCommand({
           Key: key,
-          Bucket: env.R2_BUCKET_NAME,
+          Bucket: R2_BUCKET_NAME,
         }),
         { expiresIn: expires_in },
       );

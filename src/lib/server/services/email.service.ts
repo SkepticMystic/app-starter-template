@@ -1,9 +1,9 @@
-import { dev } from "$app/environment";
-import { env } from "$env/dynamic/private";
-import { APP } from "$lib/const/app.const";
-import type { Branded } from "$lib/interfaces/zod/zod.type";
-import { Log } from "$lib/utils/logger.util";
-import { result } from "$lib/utils/result.util";
+import { dev } from "$app/env";
+import { EMAIL_FROM, RESEND_API_KEY } from "$app/env/private";
+import { APP } from "#lib/const/app.const.js";
+import type { Branded } from "#lib/interfaces/zod/zod.type.js";
+import { Log } from "#lib/utils/logger.util.js";
+import { result } from "#lib/utils/result.util.js";
 import * as Sentry from "@sentry/sveltekit";
 import { captureException } from "@sentry/sveltekit";
 import { Resend } from "resend";
@@ -12,7 +12,7 @@ const log = Log.child({ service: "EmailService" });
 
 // NOTE: Copied from nodemailer Mail.Options
 export type SendEmailOptions = {
-  /** The e-mail address of the sender. All e-mail addresses can be plain 'sender@server.com' or formatted 'Sender Name <sender@server.com>'. Defaults to env.EMAIL_FROM. */
+  /** The e-mail address of the sender. All e-mail addresses can be plain 'sender@server.com' or formatted 'Sender Name <sender@server.com>'. Defaults to EMAIL_FROM. */
   from?: string;
   /** Comma separated list or an array of recipients e-mail addresses that will appear on the To: field */
   to: string | string[];
@@ -40,11 +40,11 @@ export type SendEmailOptions = {
 };
 
 function format_from(from: string | undefined): string {
-  const value = from ?? env.EMAIL_FROM;
+  const value = from ?? EMAIL_FROM;
   return value.includes("<") ? value : `${APP.NAME} <${value}>`;
 }
 
-const resend = new Resend(env.RESEND_API_KEY);
+const resend = new Resend(RESEND_API_KEY);
 const of_resend = {
   send: async (input: SendEmailOptions) => {
     try {

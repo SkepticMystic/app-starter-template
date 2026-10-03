@@ -1,43 +1,17 @@
-import { readdirSync, readFileSync } from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vite-plus/test";
+import { variables } from "../env";
 
 /**
  * `.env.example` is the onboarding manifest and the list `infra/` mirrors, so
- * it only stays useful if it cannot drift. This walks `src/` for the variables
- * the app actually reads and asserts each one is documented.
+ * it only stays useful if it cannot drift. `src/env.ts` declares every variable
+ * the app can read — `$app/env/*` exposes nothing else — so the two must match.
  *
  * Keeping it honest by convention does not work — the file was missing
  * entirely before this test existed, while the README told people to copy it.
  */
 
-// `import.meta.env.*` build flags, not environment variables.
-const VITE_BUILTINS = new Set(["DEV", "PROD", "SSR", "MODE", "BASE_URL"]);
-
-const walk = (dir: string): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const entry_path = path.join(dir, entry.name);
-    if (entry.isDirectory()) return walk(entry_path);
-    return /\.(ts|svelte)$/.test(entry.name) ? [entry_path] : [];
-  });
-
-const read_used_vars = () => {
-  const used = new Set<string>();
-
-  for (const file of walk("src")) {
-    if (file.startsWith(path.join("src", "test"))) continue;
-    const source = readFileSync(file, "utf8");
-
-    for (const [, name] of source.matchAll(/\benv\.([A-Z][A-Z0-9_]*)\b/g)) {
-      if (name && !VITE_BUILTINS.has(name)) used.add(name);
-    }
-    for (const [name] of source.matchAll(/\bPUBLIC_[A-Z0-9_]+\b/g)) {
-      used.add(name);
-    }
-  }
-
-  return used;
-};
+const declared = new Set(Object.keys(variables));
 
 const read_documented_vars = () =>
   new Set(
@@ -48,13 +22,22 @@ const read_documented_vars = () =>
   );
 
 describe("env.example", () => {
-  it("documents every variable src/ reads", () => {
+  it("documents every variable src/env.ts declares", () => {
     const documented = read_documented_vars();
-    const undocumented = [...read_used_vars()]
+    const undocumented = [...declared]
       .filter((name) => !documented.has(name))
       .toSorted();
 
     expect(undocumented).toEqual([]);
+  });
+
+  it("documents nothing src/env.ts does not declare", () => {
+    // An undeclared variable is unreadable, however it is set.
+    const undeclared = [...read_documented_vars()]
+      .filter((name) => !declared.has(name))
+      .toSorted();
+
+    expect(undeclared).toEqual([]);
   });
 
   it("pins APP_ENV, which namespaces the shared Redis keyspace", () => {

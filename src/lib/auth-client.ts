@@ -1,4 +1,4 @@
-import { PUBLIC_BASE_URL } from "$env/static/public";
+import { PUBLIC_BASE_URL } from "$app/env/public";
 import { paystackClient } from "better-auth-paystack/client";
 import { apiKeyClient } from "@better-auth/api-key/client";
 import { passkeyClient } from "@better-auth/passkey/client";
