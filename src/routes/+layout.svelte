@@ -5,6 +5,7 @@
     PUBLIC_UMAMI_WEBSITE_ID,
   } from "$app/env/public";
   import SEO from "#lib/components/blocks/head/SEO.svelte";
+  import NavigationProgress from "#lib/components/blocks/navbar/NavigationProgress.svelte";
   import Confirm from "#lib/components/ui/alert-dialog/Confirm.svelte";
   import Sonner from "#lib/components/ui/sonner/sonner.svelte";
   import TooltipProvider from "#lib/components/ui/tooltip/tooltip-provider.svelte";
@@ -53,6 +54,8 @@
 
 <!-- NOTE: Don't put this in svelte:head! It does that itself -->
 <SEO />
+
+<NavigationProgress />
 
 <Sonner />
 <!-- Answers `Confirm.ask`, which `Client.wrap` calls in place of `window.confirm`. -->

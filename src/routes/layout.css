@@ -216,6 +216,20 @@
   --color-success-foreground: var(--success-foreground);
 }
 
+/* `NavigationProgress.svelte`'s sweep: a third-width segment crossing the viewport. */
+@theme {
+  --animate-nav-sweep: nav-sweep 1.1s ease-in-out infinite;
+
+  @keyframes nav-sweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(300%);
+    }
+  }
+}
+
 /* In `base`, not unlayered: an unlayered rule outranks every `@layer`, so these used to beat the
    utilities written on the element itself — `<h3 class="text-sm">` rendered `text-xl`, and a
    `<section class="space-y-2">` got `space-y-5`. */

@@ -45,6 +45,7 @@
   lang="ts"
   generics="TData extends Resource"
 >
+  import { navigating, page } from "$app/state";
   import Button from "#lib/components/ui/button/button.svelte";
   import type {
     DataTableFilter,
@@ -124,6 +125,15 @@
    * cell so it lands before the checkbox's own handler.
    */
   let range_select = false;
+
+  /**
+   * A server-driven table's filter, sort or page change is a navigation to this
+   * same path with new params, and the rows on screen are stale until its
+   * `load` answers.
+   */
+  const busy = $derived(
+    Boolean(server) && navigating.to?.url.pathname === page.url.pathname,
+  );
 </script>
 
 <TanstackTable
@@ -293,7 +303,10 @@
             {/each}
           </TableHeader>
 
-          <TableBody>
+          <TableBody
+            aria-busy={busy}
+            class={["transition-opacity", busy && "opacity-60"]}
+          >
             {#each table.getRowModel().rows as row (row.id)}
               <TableRow
                 data-state={states?.selection &&
