@@ -118,6 +118,10 @@ export default defineConfig({
             "./build/**/*.map",
           ],
         },
+        // Do not add `autoUploadSourceMaps: false`. It does not stop the source
+        // maps (`build.sourcemap` does), it silently turns build telemetry back
+        // on, and it drops the plugin that injects `__sentry_sveltekit_output_dir`,
+        // so server frames lose their `chunks/` path.
         bundleSizeOptimizations: {
           excludeDebugStatements: true,
           excludeReplayShadowDom: true,
@@ -197,6 +201,11 @@ export default defineConfig({
           server: true,
         },
 
+        // Nothing to enable in vite-plugin-svelte's `experimental`:
+        // `sendWarningsToBrowser` and `disableSvelteResolveWarnings` are dev-log
+        // toggles, and `compileModule` is a filename filter, not a switch — its
+        // plugin always runs, and the default `*.svelte.{ts,js}` covers every
+        // rune module here.
         dynamicCompileOptions: ({ filename }) =>
           filename.includes("node_modules") ? undefined : { runes: true },
 

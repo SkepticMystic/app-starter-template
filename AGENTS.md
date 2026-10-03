@@ -203,6 +203,12 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - **Experimental features enabled**:
   - `remoteFunctions: true` - Server functions callable from client (see Remote Functions pattern below)
   - `async: true` - Async components in Svelte 5
+  - `forkPreloads` — **tried and reverted in a fork of this template; do not
+    enable without a fix.** It makes a hover _render_ the target page in a
+    Svelte fork rather than only run its `load`, and it produced rendering
+    errors on ordinary navigation across many pages — the shape being a
+    `$derived` on the outgoing page re-running against the incoming route's
+    data. Never reduced to a standalone repro, so treat the mechanism as open
 - SvelteKit 3: there is no `svelte.config.js`. All SvelteKit and Svelte
   compiler options are passed to the `sveltekit(...)` plugin in
   `vite.config.ts`
@@ -613,6 +619,14 @@ migrates production with no review gate between merge and schema change.
 
 ## Key Patterns and Conventions
 
+### Comments
+
+A comment says what the code does now and why — the invariant it keeps, the
+race it accepts, the vendor quirk it works around — in a line or two. It does
+not narrate earlier designs (that is git history), restate a name, or repeat
+this file. When trimming comments, strip them from both versions and check the
+code is unchanged, and keep every tool directive (`oxlint-disable…`).
+
 ### Code Organization
 
 - **Naming conventions**:
@@ -698,6 +712,10 @@ everything it imports run after `set_env`.
 - `handleError` in `hooks.server.ts` receives every error in SvelteKit 3 —
   expected `error(...)`s, 404s and remote-function validation failures, told
   apart by `kind` — and replaces the removed `handleValidationError`
+- An `/api/*` error kit would render as HTML (a missing endpoint, a missing
+  verb) is rewritten to `{ error: { code, message } }` by
+  `handleApiErrorShape`, innermost in `hooks.server.ts`; a route's own JSON
+  error passes through
 - Log errors with context: `Log.error(error, "context_identifier")`
 - Better-Auth API errors are instances of `APIError` with `body.code` for error types
 - Custom error codes defined in `#lib/auth-client.ts` as `$ERROR_CODES`
