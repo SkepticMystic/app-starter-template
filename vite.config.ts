@@ -1,3 +1,5 @@
+import node from "@sveltejs/adapter-node";
+import vercel from "@sveltejs/adapter-vercel";
 import { sentrySvelteKit } from "@sentry/sveltekit";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -8,6 +10,14 @@ import { defineConfig } from "vite-plus";
 import lint from "./oxlint.config";
 
 const SONDA = process.env.SONDA;
+
+// Vercel sets VERCEL=1 on every build it runs. Anywhere else — Docker, a VPS,
+// `pnpm preview` — build a standalone Node server instead.
+//
+// Deliberately not `adapter-auto`: it accepts no options, and it has no
+// fallback to adapter-node for a plain container, so off-platform it warns and
+// emits nothing — which is exactly the case this switch exists to make work.
+const adapter = process.env.VERCEL ? vercel() : node();
 
 export default defineConfig({
   /**
@@ -63,7 +73,31 @@ export default defineConfig({
       },
     }),
     tailwindcss({ optimize: { minify: true } }),
-    sveltekit(),
+    sveltekit({
+      adapter,
+
+      version: {
+        pollInterval: 300_000,
+      },
+
+      experimental: {
+        // compileModule: true,
+        remoteFunctions: true,
+      },
+
+      tracing: {
+        server: true,
+      },
+
+      dynamicCompileOptions: ({ filename }) =>
+        filename.includes("node_modules") ? undefined : { runes: true },
+
+      compilerOptions: {
+        experimental: {
+          async: true,
+        },
+      },
+    }),
     devtoolsJson(),
     sonda({
       enabled: Boolean(SONDA),

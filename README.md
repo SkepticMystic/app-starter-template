@@ -48,7 +48,7 @@
 ### Deployment
 
 Vercel is the default target. Nothing in `src/` reads a `VERCEL_*` variable, so
-the same code also runs as a standalone Node server — `svelte.config.js` picks
+the same code also runs as a standalone Node server — `vite.config.ts` picks
 `adapter-vercel` or `adapter-node` based on whether `VERCEL` is set in the build
 environment.
 

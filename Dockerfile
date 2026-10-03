@@ -43,7 +43,7 @@ COPY . .
 # Build args below are set as ENV, which takes precedence over these.
 COPY .env.example .env
 
-# No VERCEL in the environment, so svelte.config.js selects adapter-node.
+# No VERCEL in the environment, so vite.config.ts selects adapter-node.
 # PUBLIC_* vars and APP_ENV are read at build time, so they must be present
 # here; everything else is read at runtime via $env/dynamic/private and must
 # NOT be passed in, so no secret ends up in an image layer.

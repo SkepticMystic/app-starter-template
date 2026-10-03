@@ -110,10 +110,16 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 - **Experimental features enabled**:
   - `remoteFunctions: true` - Server functions callable from client (see Remote Functions pattern below)
   - `async: true` - Async components in Svelte 5
-- Adapter is chosen in `svelte.config.js` by whether `VERCEL` is set in the
+- SvelteKit 3: there is no `svelte.config.js`. All SvelteKit and Svelte
+  compiler options are passed to the `sveltekit(...)` plugin in
+  `vite.config.ts`
+- Adapter is chosen in `vite.config.ts` by whether `VERCEL` is set in the
   build environment: `adapter-vercel` on Vercel, `adapter-node` everywhere
   else. Not `adapter-auto` — it takes no options and has no fallback for a
   plain container, so off-platform it warns and emits no server at all
+- `tracing.server` is on, which makes `@opentelemetry/api` a runtime
+  dependency: SvelteKit externalizes it from the server bundle, so it has to be
+  a direct dependency or the build fails at prerender
 - Build command includes database migration: `vite build && pnpm db migrate`
 
 ### Remote Functions Pattern

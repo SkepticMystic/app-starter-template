@@ -32,7 +32,7 @@ resource "vercel_project" "app" {
   # Still on, though no application code reads a VERCEL_* variable any more:
   # `APP_ENV` replaced `VERCEL_ENV` so the tier name means something off Vercel
   # too. Left enabled because the build itself uses `VERCEL=1` to pick the
-  # adapter in svelte.config.js.
+  # adapter in vite.config.ts.
   automatically_expose_system_environment_variables = true
 
   git_repository = {

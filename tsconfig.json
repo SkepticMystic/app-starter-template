@@ -1,38 +1,27 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": "$app/tsconfig",
   "compilerOptions": {
     "rewriteRelativeImportExtensions": true,
-    "allowJs": true,
-    "checkJs": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "moduleResolution": "bundler",
 
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true,
 
     // "rootDir": "./src",
-    "types": ["node", "umami"]
+    // `$app/types` must stay in this list: it is how the generated route, env
+    // and `$app/*` module declarations reach the project.
+    "types": ["node", "umami", "$app/types"]
   },
 
-  // SvelteKit's generated config only includes `src/**` and `vite.config.*`, which
-  // left `scripts/**` and the root config files outside the TS project entirely:
-  // they were never covered by `pnpm check`, and the moment one was staged
-  // `vp check --fix` failed it with TS2591 "Cannot find name 'process'" — the
-  // `types: ["node"]` above never applied to them.
-  //
-  // Declaring `include` here REPLACES the inherited one rather than adding to it,
-  // so the generated entries are restated. Paths are relative to this file, not to
-  // `.svelte-kit/`, which is why they lose the `../` prefix.
+  // `$app/tsconfig` sets no `include` at all, so this is the whole list. It is
+  // wider than `src/**` on purpose: `scripts/**` and the root config files were
+  // once outside the TS project entirely, so they were never covered by
+  // `pnpm check`, and the moment one was staged `vp check --fix` failed it with
+  // TS2591 "Cannot find name 'process'" — the `types: ["node"]` above never
+  // applied to them.
   "include": [
-    ".svelte-kit/ambient.d.ts",
-    ".svelte-kit/non-ambient.d.ts",
-    ".svelte-kit/types/**/$types.d.ts",
     "vite.config.js",
     "vite.config.ts",
     "src/**/*.js",
