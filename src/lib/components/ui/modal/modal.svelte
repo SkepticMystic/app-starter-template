@@ -6,6 +6,7 @@
     type ButtonVariant,
   } from "../button/button-root.svelte";
   import Icon from "../icon/Icon.svelte";
+  import Tip from "../tooltip/Tip.svelte";
   import ModalContent from "./modal-content.svelte";
   import ModalDescription from "./modal-description.svelte";
   import ModalFooter from "./modal-footer.svelte";
@@ -54,6 +55,8 @@
   const close = () => {
     open = false;
   };
+
+  const icon_only = $derived(size?.startsWith("icon") ?? false);
 </script>
 
 <ModalRoot
@@ -66,6 +69,23 @@
         {@render trigger_child({ props })}
       {/snippet}
     </ModalTrigger>
+  {:else if icon_only && title}
+    <!-- The icon is all a sighted user gets, and a native `title` reaches neither a keyboard
+      nor a touch screen: the tip names it and opens on focus too. -->
+    <Tip
+      content={title}
+      names_trigger
+    >
+      {#snippet child({ props })}
+        <ModalTrigger
+          {...props}
+          class={buttonVariants({ variant, size })}
+        >
+          <Icon {icon} />
+          {@render trigger?.()}
+        </ModalTrigger>
+      {/snippet}
+    </Tip>
   {:else}
     <ModalTrigger
       {title}
