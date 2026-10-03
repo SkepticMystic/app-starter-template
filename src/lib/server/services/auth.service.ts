@@ -137,7 +137,8 @@ export const get_session = async (
     if (error instanceof APIError) {
       log.error(error.body, "get_session.error better-auth");
 
-      captureException(error);
+      // Same rule as `ba_error`: a refusal is an answer, not a fault.
+      if (error.statusCode >= 500) captureException(error);
 
       return result.from_ba_error(error);
     } else {

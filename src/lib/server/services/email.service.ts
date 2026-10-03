@@ -87,8 +87,13 @@ const of_resend = {
   },
 };
 
+/** Answers like {@link of_resend}, so a caller that checks the result type-checks in both. */
 const of_console_log = {
-  send: async (input: SendEmailOptions) => log.info(input, "Sending email:"),
+  send: async (input: SendEmailOptions): Promise<App.Result<undefined>> => {
+    log.info(input, "Sending email:");
+
+    return result.suc(undefined);
+  },
 };
 
 export const EmailService = dev ? of_console_log : of_resend;

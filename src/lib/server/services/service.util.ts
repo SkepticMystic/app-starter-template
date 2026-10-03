@@ -76,7 +76,8 @@ export const ba_error = (
   if (error instanceof APIError) {
     ctx.log.info(error.body, "error better-auth");
 
-    captureException(error);
+    // A refusal is the user's to fix; a 5xx is Better-Auth failing.
+    if (error.statusCode >= 500) captureException(error);
 
     return result.from_ba_error(error);
   }

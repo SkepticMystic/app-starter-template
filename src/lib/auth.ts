@@ -529,7 +529,7 @@ export const auth = betterAuth({
       return redis.eval<[number], number>(
         INCREMENT_SCRIPT,
         [ba_key(key)],
-        [ttl],
+        [ttl ?? 0],
       );
     },
   },
@@ -560,10 +560,13 @@ const ba_key = (key: string) => `${REDIS_PREFIX}:${key}`;
  * `count == 1` is the "key did not exist" signal: `INCR` seeds a missing key at
  * 1, so the expiry is stamped exactly once per window and never extended by the
  * requests that follow.
+ *
+ * The `> 0` guard matters: a missing `ttl` arrives as 0, and `EXPIRE key 0`
+ * deletes the key, which would pin the counter at 1 forever.
  */
 const INCREMENT_SCRIPT = `
 local count = redis.call("INCR", KEYS[1])
-if count == 1 then
+if count == 1 and tonumber(ARGV[1]) > 0 then
   redis.call("EXPIRE", KEYS[1], ARGV[1])
 end
 return count

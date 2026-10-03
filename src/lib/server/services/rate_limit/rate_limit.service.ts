@@ -24,6 +24,27 @@ interface RateLimitConfig {
   refill_interval: number;
 }
 
+/**
+ * Who is asking, for Upstash's analytics and the blocked metric.
+ *
+ * Guarded: `AdapterService` reads `getRequestEvent()`, which throws outside a
+ * request (a background task, a script), and analytics must not turn a limit
+ * check into a 500.
+ */
+const request_context = (key: string) => {
+  try {
+    return {
+      geo: AdapterService.get_geo(),
+      ip: AdapterService.get_ip() ?? undefined,
+      user_agent: AdapterService.get_user_agent() ?? undefined,
+    };
+  } catch (error) {
+    log.debug({ err: error, key }, "rate_limit.context_skipped");
+
+    return { geo: undefined, ip: undefined, user_agent: undefined };
+  }
+};
+
 export class RateLimiter {
   private readonly prefix: string;
   private readonly ratelimit: InstanceType<typeof Ratelimit>;
@@ -63,9 +84,7 @@ export class RateLimiter {
     }>
   > {
     try {
-      const geo = AdapterService.get_geo();
-      const ip = AdapterService.get_ip() ?? undefined;
-      const user_agent = AdapterService.get_user_agent() ?? undefined;
+      const { geo, ip, user_agent } = request_context(key);
 
       const res = await this.ratelimit.limit(key, {
         ip,
