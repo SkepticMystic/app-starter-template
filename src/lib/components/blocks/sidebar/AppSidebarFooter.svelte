@@ -18,11 +18,23 @@
   import SidebarMenuButton from "#lib/components/ui/sidebar/sidebar-menu-button.svelte";
   import SidebarMenuItem from "#lib/components/ui/sidebar/sidebar-menu-item.svelte";
   import SidebarMenu from "#lib/components/ui/sidebar/sidebar-menu.svelte";
+  import { SETTINGS } from "#lib/const/settings.const.js";
+  import { can } from "#lib/utils/auth/permission.util.js";
 
   const sidebar = useSidebar();
 
   // The server read it, so the name and avatar are there on first paint.
   const user = $derived(page.data.user);
+
+  // Profile is the menu's own heading. Cosmetic, as in the settings layout: each page guards itself.
+  const settings = $derived(
+    SETTINGS.NAV.filter(
+      (item) =>
+        item.href !== "/settings/profile" &&
+        (!item.org || page.data.org) &&
+        (!item.permissions || can(item.permissions)),
+    ),
+  );
 </script>
 
 <SidebarMenu>
@@ -96,41 +108,19 @@
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/(authed)/settings/account")}
-              >
-                <Icon icon="lucide/badge-check" />
-                <span>Account</span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/(authed)/settings/organization")}
-              >
-                <Icon icon="lucide/users" />
-                <span>Team</span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            {#snippet child({ props })}
-              <a
-                {...props}
-                href={resolve("/(authed)/settings/api-key")}
-              >
-                <Icon icon="lucide/key" />
-                <span>API Keys</span>
-              </a>
-            {/snippet}
-          </DropdownMenuItem>
+          {#each settings as item (item.href)}
+            <DropdownMenuItem>
+              {#snippet child({ props })}
+                <a
+                  {...props}
+                  href={item.href}
+                >
+                  <Icon icon={item.icon} />
+                  <span>{item.label}</span>
+                </a>
+              {/snippet}
+            </DropdownMenuItem>
+          {/each}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
 
