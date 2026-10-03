@@ -50,6 +50,7 @@ import { AdapterService } from "./server/services/adapter/adapter.service";
 import { Dicebear } from "./server/services/dicebear/dicebear.service";
 import { EmailValidationService } from "./server/services/auth/email/email_validation.service";
 import { EmailService } from "./server/services/email.service";
+import { RuntimeService } from "./server/services/runtime/runtime.service";
 // Mutually recursive with the service, deliberately: better-auth's paystack
 // plugin calls into SubscriptionService from a hook here, and the service calls
 // `auth.api.*` back. ESM resolves it because neither side touches the other at
@@ -88,7 +89,13 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    backgroundTasks: { handler: AdapterService.wait_until },
+    // Better-Auth hands over an already-started promise; the thunk only lets
+    // the shutdown drain wait for it.
+    backgroundTasks: {
+      handler: (task) => {
+        RuntimeService.defer(async () => await task);
+      },
+    },
 
     // The address SvelteKit resolved, honouring `ADDRESS_HEADER`/`XFF_DEPTH`
     // off Vercel. Never a header a client can set — see `CLIENT_IP_HEADER`.

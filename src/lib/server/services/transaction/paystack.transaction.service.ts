@@ -8,7 +8,7 @@ import { Log } from "#lib/utils/logger.util.js";
 import { generate_transaction_pdf } from "#lib/utils/pdf/transaction.pdf.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
-import { AdapterService } from "../adapter/adapter.service";
+import { RuntimeService } from "../runtime/runtime.service";
 import { APIError } from "better-auth";
 import { R2Service } from "../storage/r2.storage.service";
 
@@ -116,7 +116,7 @@ const verify_transaction = async ({ reference }: { reference: string }) => {
       headers: getRequestEvent().request.headers,
     });
 
-    AdapterService.wait_until(create_r2_log(reference, verify));
+    RuntimeService.defer(async () => create_r2_log(reference, verify));
 
     l.info(verify, "verify res");
     if (verify.status !== "success") {

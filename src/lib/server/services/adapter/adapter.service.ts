@@ -1,6 +1,5 @@
 import { getRequestEvent } from "$app/server";
 import { Log } from "#lib/utils/logger.util.js";
-import { captureException } from "@sentry/sveltekit";
 import { waitUntil } from "@vercel/functions";
 
 const log = Log.child({ service: "adapter" });
@@ -113,26 +112,21 @@ const get_user_agent = () => {
 };
 
 /**
- * Run `promise` without making the response wait for it.
+ * Keeps the host alive until `promise` settles. Call `RuntimeService.defer`,
+ * not this: it supervises the work and tracks it for the shutdown drain, and
+ * calls this for the part only the host can do.
  *
  * On Vercel, `waitUntil` registers it with the request context so the function
  * is not frozen before it settles. Off Vercel `waitUntil` finds no context on
- * `globalThis` and is a silent no-op — which is fine on a long-lived Node
- * server, because the process outlives the response and the promise simply
- * keeps running on the event loop.
+ * `globalThis` and is a silent no-op — the process outlives the response, and
+ * `RuntimeService.drain` covers a graceful stop.
  *
- * The `.catch` is what makes that safe. With no platform handler the promise is
- * unsupervised, and Node's default `--unhandled-rejections=throw` would take
- * the whole server down on a rejection. Better-Auth's `runInBackground` hands
- * its handler a raw, uncaught promise, so this is load-bearing there too.
+ * `promise` must not reject: with no platform handler nothing else would
+ * catch it, and Node's default `--unhandled-rejections=throw` would take the
+ * server down. `RuntimeService.defer` only ever passes a supervised one.
  */
 const wait_until = (promise: Promise<unknown>): void => {
-  waitUntil(
-    promise.catch((error: unknown) => {
-      log.error(error, "background_task_failed");
-      captureException(error);
-    }),
-  );
+  waitUntil(promise);
 };
 
 export const AdapterService = {

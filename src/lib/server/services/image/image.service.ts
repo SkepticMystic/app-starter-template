@@ -12,7 +12,7 @@ import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
-import { AdapterService } from "../adapter/adapter.service";
+import { RuntimeService } from "../runtime/runtime.service";
 import { count, operators as o } from "drizzle-orm";
 import type { z } from "zod/mini";
 import { AIModerationService } from "../moderation/ai.moderation.service";
@@ -188,7 +188,7 @@ const delete_many = async (
       return result.suc(undefined);
     }
 
-    AdapterService.wait_until(
+    RuntimeService.defer(async () =>
       Promise.all(
         images.data.map((image) =>
           ImageHostingService.delete(image.external_id),

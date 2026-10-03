@@ -14,7 +14,7 @@ import { App } from "#lib/utils/app.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
-import { AdapterService } from "../adapter/adapter.service";
+import { RuntimeService } from "../runtime/runtime.service";
 import { APIError } from "better-auth";
 
 const log = Log.child({ service: "SubscriptionService" });
@@ -66,8 +66,10 @@ const get_active = async (session: {
       res.data.periodEnd &&
       res.data.periodEnd < new Date()
     ) {
-      AdapterService.wait_until(
-        SubscriptionRepo.update_by_id(res.data.id, {
+      const { id } = res.data;
+
+      RuntimeService.defer(async () =>
+        SubscriptionRepo.update_by_id(id, {
           status: "canceled",
           cancelAtPeriodEnd: false,
         }),
