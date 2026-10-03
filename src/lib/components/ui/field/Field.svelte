@@ -44,6 +44,11 @@
     ...(field?.issues() ?? []),
     ...(outer_issues ?? []),
   ]);
+
+  // `vertical` is the default, so anything not explicitly side by side stacks.
+  const horizontal = $derived(
+    orientation === "horizontal" || orientation === "responsive",
+  );
 </script>
 
 <FieldRoot
@@ -62,11 +67,19 @@
       </FieldDescription>
     {/if}
 
-    <FieldError errors={issues} />
+    <!-- Beside the input, under its label, when the two sit side by side. -->
+    {#if horizontal}
+      <FieldError errors={issues} />
+    {/if}
   </FieldContent>
 
   {@render input({
     field,
     props: { id, "aria-invalid": Boolean(issues?.length) },
   })}
+
+  <!-- Stacked, the error follows the input it is about, where the eye already is. -->
+  {#if !horizontal}
+    <FieldError errors={issues} />
+  {/if}
 </FieldRoot>

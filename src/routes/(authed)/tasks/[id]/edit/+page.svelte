@@ -33,6 +33,7 @@
         ? Dates.to_datetime_local_string(data.task.due_date)
         : "",
     }}
-    on_success={() => goto(resolve("tasks"))}
+    cancel_href={resolve("/(authed)/tasks/[id]", data.task)}
+    on_success={() => goto(resolve("/(authed)/tasks/[id]", data.task))}
   />
 </article>

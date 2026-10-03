@@ -12,15 +12,16 @@
     $props();
 </script>
 
+<!-- No default icon: a paper plane on "Save changes" said "send". A form that sends something
+  passes one. -->
 <Button
   type="submit"
-  icon="lucide/send"
   loading={form.pending > 0}
   {...rest}
 >
   {#if children}
     {@render children()}
   {:else}
-    Submit
+    Save
   {/if}
 </Button>

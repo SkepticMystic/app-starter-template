@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
   import Header from "#lib/components/ui/header/Header.svelte";
+  import FormActions from "#lib/components/form/FormActions.svelte";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import { Toast } from "#lib/utils/toast.util.js";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
@@ -90,14 +91,16 @@
         </Field>
       </FieldGroup>
 
-      <FormButton
-        {form}
-        disabled={Boolean(apikey)}
-      >
-        Create API Key
-      </FormButton>
-
       <FormErrors {form} />
+
+      <FormActions cancel_href={resolve("/(authed)/settings/api-key")}>
+        <FormButton
+          {form}
+          disabled={Boolean(apikey)}
+        >
+          Create API key
+        </FormButton>
+      </FormActions>
     </Fieldset>
   </form>
 

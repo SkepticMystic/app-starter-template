@@ -21,6 +21,8 @@
   {...FormUtil.enhance(form, {
     metric: "change_password_form",
     suc_msg: "Password changed",
+    // Three password fields left filled in on a settings page is an invitation to shoulder-surf.
+    reset: true,
     on_success: () => on_success?.(),
   })}
 >

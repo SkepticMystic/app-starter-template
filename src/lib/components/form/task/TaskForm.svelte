@@ -1,7 +1,6 @@
 <!-- svelte-ignore state_referenced_locally -->
 <script lang="ts">
   import FormErrors from "#lib/components/form/FormErrors.svelte";
-  import { Toast } from "#lib/utils/toast.util.js";
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
@@ -14,6 +13,7 @@
   } from "#lib/remote/tasks/tasks.remote.js";
   import type { Task, TaskSchema } from "#lib/server/db/models/task.model.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
+  import FormActions from "../FormActions.svelte";
   import FormButton from "../FormButton.svelte";
 
   let props: (
@@ -27,6 +27,8 @@
       }
   ) & {
     on_success?: (d: Task) => MaybePromise<unknown>;
+    /** Where Cancel goes. None in a sheet, which closes itself. */
+    cancel_href?: string;
   } = $props();
 
   if (props.mode === "update") {
@@ -41,19 +43,10 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async ({ submit }) => {
-    await submit();
-
-    FormUtil.count_issue_metrics(form, "task_form");
-
-    const res = form.result;
-    if (res?.ok) {
-      Toast.success(props.mode === "create" ? "Task created" : "Task updated");
-
-      await props.on_success?.(res.data);
-    } else if (res?.error) {
-      Toast.err(res.error);
-    }
+  {...FormUtil.enhance(form, {
+    metric: "task_form",
+    suc_msg: props.mode === "create" ? "Task created" : "Task updated",
+    on_success: (task) => props.on_success?.(task),
   })}
 >
   {#if props.mode === "update"}
@@ -126,13 +119,11 @@
     {/snippet}
   </Field>
 
-  <FormButton
-    {form}
-    class="w-full"
-    icon="lucide/check"
-  >
-    Save task
-  </FormButton>
-
   <FormErrors {form} />
+
+  <FormActions cancel_href={props.cancel_href}>
+    <FormButton {form}>
+      {props.mode === "create" ? "Create task" : "Save changes"}
+    </FormButton>
+  </FormActions>
 </form>

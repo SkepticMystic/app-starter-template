@@ -58,9 +58,20 @@ const enhance = <T extends RemoteFormInput, D>(
     metric?: string;
     suc_msg?: ToastMessage | ((data: D) => ToastMessage);
     on_success?: (data: D) => MaybePromise<unknown>;
+    /** After the error toast. */
+    on_error?: (error: App.Error) => MaybePromise<unknown>;
+    /** Clear the inputs after a success, for a form that is filled afresh each time. */
+    reset?: boolean;
+    /**
+     * Runs once the browser has accepted the form — after constraint validation, unlike a
+     * button's `onclick` — and before it is sent.
+     */
+    before_submit?: () => MaybePromise<unknown>;
   },
 ) =>
-  form.enhance(async ({ submit }) => {
+  form.enhance(async ({ submit, element }) => {
+    await opts?.before_submit?.();
+
     await submit();
 
     if (opts?.metric) count_issue_metrics(form, opts.metric);
@@ -78,8 +89,12 @@ const enhance = <T extends RemoteFormInput, D>(
       }
 
       await opts?.on_success?.(res.data);
+
+      if (opts?.reset) element.reset();
     } else {
       Toast.err(res.error);
+
+      await opts?.on_error?.(res.error);
     }
   });
 
