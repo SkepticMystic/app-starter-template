@@ -1,9 +1,11 @@
-import { command, form } from "$app/server";
 import { format_bytes } from "#lib/components/ui/file-drop-zone/file-drop-zone-utils.js";
-import { ERROR } from "#lib/const/error.const.js";
 import { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
 import { ImageSchema, type Image } from "#lib/server/db/models/image.model.js";
-import { get_session } from "#lib/server/services/auth.service.js";
+import {
+  guarded_command,
+  guarded_form,
+  ORG,
+} from "#lib/server/remote/guarded.js";
 import { ImageService } from "#lib/server/services/image/image.service.js";
 import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
 import { result } from "#lib/utils/result.util.js";
@@ -21,7 +23,8 @@ const delete_limiter = new RateLimiter("image:delete", {
   refill_interval: 60,
 });
 
-export const upload_images_remote = form(
+export const upload_images_remote = guarded_form(
+  ORG,
   ImageSchema.insert.extend({
     files: z
       .array(
@@ -35,14 +38,13 @@ export const upload_images_remote = form(
       .min(1, "No files to upload")
       .max(IMAGE_HOSTING.LIMITS.MAX_COUNT.PER_RESOURCE),
   }),
-  async (input): Promise<App.Result<App.Result<Image>[]>> => {
-    const session = await get_session();
-    if (!session.ok) return session;
-    else if (!session.data.session.org_id) {
-      return result.err(ERROR.FORBIDDEN);
-    }
-
-    const rate = await upload_limiter.enforce(session.data.session.org_id, {
+  async (
+    input,
+    { session, org_id },
+  ): Promise<App.Result<App.Result<Image>[]>> => {
+    // Not a guard `limit`: the cost is the file count, which the guard spends
+    // before it has seen the input.
+    const rate = await upload_limiter.enforce(org_id, {
       tokens: input.files.length,
       message: "Too many uploads.",
     });
@@ -55,7 +57,7 @@ export const upload_images_remote = form(
     // per-org limit, so the sequencing is the point rather than an oversight.
     for (const file of input.files) {
       // oxlint-disable-next-line no-await-in-loop
-      const res = await ImageService.upload({ ...input, file }, session.data);
+      const res = await ImageService.upload({ ...input, file }, session);
 
       results.push(res);
     }
@@ -64,18 +66,16 @@ export const upload_images_remote = form(
   },
 );
 
-export const delete_image_remote = command(
-  z.uuid(), //
-  async (image_id) => {
-    const session = await get_session();
-    if (!session.ok) return session;
-    else if (!session.data.session.org_id) {
-      return result.err(ERROR.FORBIDDEN);
-    }
-
-    const rate = await delete_limiter.enforce(session.data.session.org_id);
-    if (!rate.ok) return rate;
-
-    return await ImageService.delete_many({ id: image_id }, session.data);
+export const delete_image_remote = guarded_command(
+  {
+    ...ORG,
+    limit: {
+      limiter: delete_limiter,
+      by: "org",
+      message: "Too many requests.",
+    },
   },
+  z.uuid(),
+  async (image_id, { session }) =>
+    ImageService.delete_many({ id: image_id }, session),
 );

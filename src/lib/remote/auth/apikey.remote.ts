@@ -1,10 +1,14 @@
-import { command, form } from "$app/server";
-import { get_session } from "#lib/server/services/auth.service.js";
+import {
+  guarded_command,
+  guarded_form,
+  USER,
+} from "#lib/server/remote/guarded.js";
 import { APIKeyService } from "#lib/server/services/auth/apikey/apikey.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 
-export const create_apikey_remote = form(
+export const create_apikey_remote = guarded_form(
+  USER,
   z.object({
     name: z.string().optional(),
     expiresIn: z.union([
@@ -14,11 +18,8 @@ export const create_apikey_remote = form(
       z.literal("").transform(() => undefined),
     ]),
   }),
-  async (input) => {
-    const session = await get_session();
-    if (!session.ok) return session;
-
-    const res = await APIKeyService.create(input, session.data);
+  async (input, { session }) => {
+    const res = await APIKeyService.create(input, session);
 
     if (!res.ok && res.error.path) {
       invalid(res.error);
@@ -58,16 +59,14 @@ export const create_apikey_remote = form(
 //   },
 // );
 
-export const delete_apikey_remote = command(
+export const delete_apikey_remote = guarded_command(
+  USER,
   z.object({
     keyId: z.uuid(),
     configId: z.string().optional(),
   }),
-  async (input) => {
-    const session = await get_session();
-    if (!session.ok) return session;
-
-    const res = await APIKeyService.delete(input, session.data);
+  async (input, { session }) => {
+    const res = await APIKeyService.delete(input, session);
 
     if (!res.ok && res.error.path) {
       invalid(res.error);

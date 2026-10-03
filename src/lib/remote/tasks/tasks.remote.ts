@@ -1,66 +1,40 @@
-import { command, form, query } from "$app/server";
-import { ERROR } from "#lib/const/error.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { TaskSchema, type Task } from "#lib/server/db/models/task.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
-import { get_session } from "#lib/server/services/auth.service.js";
+import {
+  guarded_command,
+  guarded_form,
+  guarded_query,
+  ORG,
+} from "#lib/server/remote/guarded.js";
 import { TaskService } from "#lib/server/services/task/task.service.js";
-import { result } from "#lib/utils/result.util.js";
 import { z } from "zod";
 
-export const get_all_tasks_remote = query(async () => {
-  const session = await get_session();
-  if (!session.ok) return session;
-  else if (!session.data.session.org_id) {
-    return result.err(ERROR.FORBIDDEN);
-  }
-
-  const tasks = await Repo.query(
+export const get_all_tasks_remote = guarded_query(ORG, async ({ org_id }) =>
+  Repo.query(
     db.query.task.findMany({
-      where: { org_id: session.data.session.org_id },
+      where: { org_id },
 
       orderBy: { createdAt: "desc" },
     }),
-  );
-
-  return tasks;
-});
-
-export const create_task_remote = form(
-  TaskSchema.insert, //
-  async (input): Promise<App.Result<Task>> => {
-    const session = await get_session();
-    if (!session.ok) return session;
-
-    const res = await TaskService.create(input, session.data);
-
-    return res;
-  },
+  ),
 );
 
-export const update_task_remote = form(
-  TaskSchema.update, //
-  async (input) => {
-    const session = await get_session();
-    if (!session.ok) return session;
-    else if (!session.data.session.org_id) {
-      return result.err(ERROR.FORBIDDEN);
-    }
-
-    const res = await TaskService.update(input, session.data);
-
-    return res;
-  },
+export const create_task_remote = guarded_form(
+  ORG,
+  TaskSchema.insert,
+  async (input, { session }): Promise<App.Result<Task>> =>
+    TaskService.create(input, session),
 );
 
-export const delete_task_remote = command(
-  z.uuid(), //
-  async (task_id) => {
-    const session = await get_session();
-    if (!session.ok) return session;
+export const update_task_remote = guarded_form(
+  ORG,
+  TaskSchema.update,
+  async (input, { session }) => TaskService.update(input, session),
+);
 
-    const res = await TaskService.del(task_id, session.data);
-
-    return res;
-  },
+export const delete_task_remote = guarded_command(
+  ORG,
+  z.uuid(),
+  async (task_id, { session }) => TaskService.del(task_id, session),
 );

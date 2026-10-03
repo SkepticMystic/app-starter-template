@@ -1,8 +1,13 @@
-import { command, query } from "$app/server";
+import { query } from "$app/server";
 import { AUTH } from "#lib/const/auth/auth.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { get_session } from "#lib/server/services/auth.service.js";
+import {
+  guarded_command,
+  guarded_query,
+  USER,
+} from "#lib/server/remote/guarded.js";
 import { AccountService } from "#lib/server/services/auth/account/account.service.js";
 import { raise } from "#lib/utils/result.util.js";
 import { z } from "zod";
@@ -32,25 +37,20 @@ export const get_account_by_provider_id_remote = query.batch(
   },
 );
 
-export const list_accounts_remote = query(async () => {
-  const session = await get_session();
-  if (!session.ok) return session;
+export const list_accounts_remote = guarded_query(USER, async ({ session }) =>
+  AccountService.list(session),
+);
 
-  return await AccountService.list(session.data);
-});
-
-export const unlink_account_remote = command(
+export const unlink_account_remote = guarded_command(
+  USER,
   z.object({
     // The `account` row id — what Better-Auth unlinks by. `providerId` is only
     // here to name the query cache entry to reset below.
     id: z.string(),
     providerId: z.enum(AUTH.PROVIDERS.IDS),
   }),
-  async (input) => {
-    const session = await get_session();
-    if (!session.ok) return session;
-
-    const res = await AccountService.unlink({ id: input.id }, session.data);
+  async (input, { session }) => {
+    const res = await AccountService.unlink({ id: input.id }, session);
 
     if (res.ok) {
       get_account_by_provider_id_remote(input.providerId).set(undefined);

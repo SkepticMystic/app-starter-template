@@ -1,15 +1,12 @@
-import { command, form, query } from "$app/server";
-import { get_session } from "#lib/server/services/auth.service.js";
+import { command, form } from "$app/server";
+import { guarded_query, USER } from "#lib/server/remote/guarded.js";
 import { PasskeyService } from "#lib/server/services/auth/passkey/passkey.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 
-export const list_passkeys_remote = query(async () => {
-  const session = await get_session();
-  if (!session.ok) return session;
-
-  return await PasskeyService.list(session.data);
-});
+export const list_passkeys_remote = guarded_query(USER, async ({ session }) =>
+  PasskeyService.list(session),
+);
 
 export const rename_passkey_remote = form(
   z.object({

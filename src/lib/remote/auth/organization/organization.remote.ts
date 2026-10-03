@@ -1,24 +1,29 @@
-import { command, form, getRequestEvent } from "$app/server";
-import { auth } from "#lib/auth.js";
-import { ERROR } from "#lib/const/error.const.js";
 import { OrganizationSchema } from "#lib/server/db/models/auth.model.js";
-import { get_session } from "#lib/server/services/auth.service.js";
+import {
+  ADMIN,
+  define_guard,
+  guarded_command,
+  guarded_form,
+  USER,
+} from "#lib/server/remote/guarded.js";
 import { OrganizationService } from "#lib/server/services/auth/organization/organization.service.js";
-import { result } from "#lib/utils/result.util.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 
-export const create_organization_remote = form(
-  OrganizationSchema.create,
-  async (input) => {
-    const event = getRequestEvent();
-    const session = await auth.api.getSession({
-      headers: event.request.headers,
-    });
-    if (!session) {
-      return result.err(ERROR.UNAUTHORIZED);
-    }
+/**
+ * Onboarding reaches here before anything checks the address, as it did when
+ * this read Better-Auth's session by hand; the organization plugin's own
+ * checks still apply.
+ */
+const ONBOARDING = define_guard({
+  level: "user",
+  session: { email_verified: false },
+});
 
+export const create_organization_remote = guarded_form(
+  ONBOARDING,
+  OrganizationSchema.create,
+  async (input, { session }) => {
     const res = await OrganizationService.create(input, session);
     if (!res.ok) {
       if (res.error.path) {
@@ -33,26 +38,14 @@ export const create_organization_remote = form(
   },
 );
 
-export const owner_delete_organization_remote = command(
-  z.uuid(), //
-  async (org_id) => {
-    const session = await get_session();
-    if (!session.ok) return session;
-
-    const res = await OrganizationService.owner_delete(org_id);
-
-    return res;
-  },
+export const owner_delete_organization_remote = guarded_command(
+  USER,
+  z.uuid(),
+  async (org_id) => OrganizationService.owner_delete(org_id),
 );
 
-export const admin_delete_organization_remote = command(
-  z.uuid(), //
-  async (org_id) => {
-    const session = await get_session({ admin: true });
-    if (!session.ok) return session;
-
-    const res = await OrganizationService.admin_delete(org_id);
-
-    return res;
-  },
+export const admin_delete_organization_remote = guarded_command(
+  ADMIN,
+  z.uuid(),
+  async (org_id) => OrganizationService.admin_delete(org_id),
 );
