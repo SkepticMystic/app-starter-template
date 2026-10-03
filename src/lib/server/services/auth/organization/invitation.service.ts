@@ -107,7 +107,7 @@ const accept = async (invitation_id: string) => {
 
     // BA's acceptInvitation calls setActiveOrganization internally, which
     // fires our session.update databaseHook to populate org_id, member_id,
-    // member_role, and active_plan.
+    // and member_role.
     const res = await auth.api.acceptInvitation({
       body: { invitationId: invitation_id },
       headers: event.request.headers,

@@ -9,14 +9,14 @@ export const load = (async () => {
   const session = await get_session();
   if (!session.ok) {
     raise(session.error);
-  } else if (!session.data.session.activeOrganizationId) {
+  } else if (!session.data.session.org_id) {
     redirect(302, "/onboarding");
   }
 
   const [members, invitations] = await Promise.all([
     Repo.query(
       db.query.member.findMany({
-        where: { organizationId: session.data.session.activeOrganizationId },
+        where: { organizationId: session.data.session.org_id },
         columns: {
           id: true,
           role: true,
@@ -35,7 +35,7 @@ export const load = (async () => {
     ).then((r) => result.unwrap_or(r, [])),
     Repo.query(
       db.query.invitation.findMany({
-        where: { organizationId: session.data.session.activeOrganizationId },
+        where: { organizationId: session.data.session.org_id },
         columns: {
           id: true,
           email: true,
@@ -50,5 +50,6 @@ export const load = (async () => {
   return {
     members,
     invitations,
+    org: { role: session.data.session.member_role ?? null },
   };
 }) satisfies PageServerLoad;

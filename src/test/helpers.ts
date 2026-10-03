@@ -48,6 +48,11 @@ export function makeSession(
   overrides?: Partial<{
     userId: string;
     orgId: string | null;
+    /** Defaults to "member-1" when there is an org. */
+    memberId: string | null;
+    /** The org role; defaults to "owner" when there is an org. */
+    memberRole: string | null;
+    /** The global `user.role`. */
     role: string;
     email: string;
     name: string;
@@ -77,8 +82,18 @@ export function makeSession(
       ipAddress: "127.0.0.1",
       userAgent: "vitest",
       org_id: overrides?.orgId ?? null,
-      member_id: overrides?.orgId ? "member-1" : null,
-      member_role: overrides?.orgId ? "owner" : null,
+      member_id:
+        overrides?.memberId !== undefined
+          ? overrides.memberId
+          : overrides?.orgId
+            ? "member-1"
+            : null,
+      member_role:
+        overrides?.memberRole !== undefined
+          ? overrides.memberRole
+          : overrides?.orgId
+            ? "owner"
+            : null,
       activeOrganizationId: overrides?.orgId ?? null,
     },
   };

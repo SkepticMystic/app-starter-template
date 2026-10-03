@@ -47,7 +47,7 @@ const create = async (
 
     // BA's createOrganization with keepCurrentActiveOrganization: false
     // calls setActiveOrganization internally, which fires our session.update
-    // databaseHook to populate org_id, member_id, member_role, active_plan.
+    // databaseHook to populate org_id, member_id, and member_role.
 
     return result.suc(org);
   } catch (error) {

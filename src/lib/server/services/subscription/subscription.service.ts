@@ -1,9 +1,6 @@
 import { getRequestEvent } from "$app/server";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { checkout_url } from "#lib/server/sdk/payment/paystack/paystack.payment.sdk.js";
-// See the matching note in auth.ts — this pair is deliberate and only ever
-// dereferenced inside functions.
-// oxlint-disable-next-line import/no-cycle
 import { auth } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";

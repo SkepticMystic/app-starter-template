@@ -6,8 +6,9 @@
   import Icon from "#lib/components/ui/icon/Icon.svelte";
   import Item from "#lib/components/ui/item/Item.svelte";
   import Modal from "#lib/components/ui/modal/modal.svelte";
-  import { member, organization } from "#lib/stores/organization.store.js";
+  import { organization } from "#lib/stores/organization.store.js";
   import { Arrays } from "#lib/utils/array/array.util.js";
+  import { can } from "#lib/utils/auth/permission.util.js";
   import OrganizationInvitationsTable from "./OrganizationInvitationsTable.svelte";
   import OrganizationMembersTable from "./OrganizationMembersTable.svelte";
 
@@ -108,7 +109,7 @@
       {/snippet}
     </Item>
 
-    {#if $member.data?.role === "owner"}
+    {#if can({ organization: ["delete"] })}
       <Item
         variant="destructive"
         title="Delete Organization"

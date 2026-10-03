@@ -3,6 +3,8 @@ declare global {
     interface PageData {
       seo?: import("svelte-meta-tags").MetaTagsProps;
       base_seo?: import("svelte-meta-tags").MetaTagsProps;
+      /** The active org as the server read it, for `#lib/utils/auth/permission.util`'s `can()`. */
+      org?: { role: string | null } | null;
     }
 
     type Session = {
@@ -18,7 +20,6 @@ declare global {
         org_id?: string | null | undefined;
         member_id?: string | null | undefined;
         member_role?: string | null | undefined;
-        active_plan?: string | null | undefined;
         impersonatedBy?: string | null | undefined;
         activeOrganizationId?: string | null | undefined;
       };

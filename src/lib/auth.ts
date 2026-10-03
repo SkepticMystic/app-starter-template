@@ -36,9 +36,11 @@ import {
   type GenericOAuthConfig,
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
+import { createAuthMiddleware } from "better-auth/api";
 import { APP } from "./const/app.const";
 import { AccessControl } from "./const/auth/access_control.const";
 import { AUTH, type IAuth } from "./const/auth/auth.const";
+import { OrgAccessControl } from "./const/auth/organization_access_control.const";
 import { TWO_FACTOR } from "./const/auth/two_factor.const";
 import { db } from "./server/db/drizzle.db";
 import { type Session } from "./server/db/models/auth.model";
@@ -49,15 +51,9 @@ import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.s
 import { AdapterService } from "./server/services/adapter/adapter.service";
 import { Dicebear } from "./server/services/dicebear/dicebear.service";
 import { EmailValidationService } from "./server/services/auth/email/email_validation.service";
+import { MemberSessionService } from "./server/services/auth/organization/member_session.service";
 import { EmailService } from "./server/services/email.service";
 import { RuntimeService } from "./server/services/runtime/runtime.service";
-// Mutually recursive with the service, deliberately: better-auth's paystack
-// plugin calls into SubscriptionService from a hook here, and the service calls
-// `auth.api.*` back. ESM resolves it because neither side touches the other at
-// module-evaluation time — only inside functions. Breaking it means splitting
-// the plugin hooks out of this file, which is its own change.
-// oxlint-disable-next-line import/no-cycle
-import { SubscriptionService } from "./server/services/subscription/subscription.service";
 import { Log } from "./utils/logger.util";
 
 // SECTION: betterAuth init
@@ -131,9 +127,9 @@ export const auth = betterAuth({
 
       // Bump with any change to `additionalFields`, or cookies baked with the
       // old field set stay readable for `maxAge`. A bump logs nobody out — the
-      // session itself lives in Redis — it only forces a re-read. "1" is
-      // Better-Auth's own default, so setting it changed nothing.
-      version: "1",
+      // session itself lives in Redis — it only forces a re-read. "2" dropped
+      // `active_plan`.
+      version: "2",
     },
 
     additionalFields: {
@@ -159,14 +155,6 @@ export const auth = betterAuth({
         required: false,
         defaultValue: null,
       },
-      active_plan: {
-        type: "string",
-        input: false,
-        returned: true,
-        required: false,
-        defaultValue: null,
-      },
-
       country: {
         type: "string",
         input: false,
@@ -175,6 +163,17 @@ export const auth = betterAuth({
         defaultValue: null,
       },
     },
+  },
+
+  hooks: {
+    // `leaveOrganization` fires no organization hook. @see MemberSessionService.after_endpoint
+    after: createAuthMiddleware(async (ctx) =>
+      MemberSessionService.after_endpoint({
+        path: ctx.path,
+        returned: ctx.context.returned,
+        store: ctx.context.internalAdapter,
+      }),
+    ),
   },
 
   databaseHooks: {
@@ -207,7 +206,6 @@ export const auth = betterAuth({
               org_id: data?.org_id,
               member_id: data?.member_id,
               member_role: data?.member_role,
-              active_plan: data?.active_plan,
               activeOrganizationId: data?.org_id,
             },
           };
@@ -235,7 +233,6 @@ export const auth = betterAuth({
                 org_id: null,
                 member_id: null,
                 member_role: null,
-                active_plan: null,
               },
             };
           }
@@ -251,7 +248,6 @@ export const auth = betterAuth({
               org_id: data?.org_id ?? null,
               member_id: data?.member_id ?? null,
               member_role: data?.member_role ?? null,
-              active_plan: data?.active_plan ?? null,
             },
           };
         },
@@ -408,12 +404,39 @@ export const auth = betterAuth({
     }),
 
     organization({
+      ac: OrgAccessControl.ac,
+      roles: OrgAccessControl.roles,
+
       allowUserToCreateOrganization: false,
       cancelPendingInvitationsOnReInvite: true,
       requireEmailVerificationOnInvitation: true,
 
       sendInvitationEmail: async (data) => {
         await EmailService.send((await templates())["org-invite"](data));
+      },
+
+      /**
+       * The derived session fields do not follow `member`, so a membership
+       * change pushes to the stored sessions itself. `read_session` re-reads
+       * the membership per request anyway; this keeps what Redis holds (and
+       * what the client's `useSession` shows) from contradicting it. Leaving
+       * fires no organization hook — see `hooks.after`.
+       * @see MemberSessionService
+       */
+      organizationHooks: {
+        afterRemoveMember: async ({ member }) => {
+          await MemberSessionService.revoke(await session_store(), {
+            user_id: member.userId,
+            org_id: member.organizationId,
+          });
+        },
+        afterUpdateMemberRole: async ({ member }) => {
+          await MemberSessionService.set_role(await session_store(), {
+            user_id: member.userId,
+            org_id: member.organizationId,
+            role: member.role,
+          });
+        },
       },
     }),
 
@@ -620,6 +643,9 @@ const templates = async () =>
  */
 const ba_key = (key: string) => `${REDIS_PREFIX}:${key}`;
 
+/** For the organization hooks, which are handed no context to reach it through. */
+const session_store = async () => (await auth.$context).internalAdapter;
+
 /**
  * `INCR`, plus `EXPIRE` on creation only, as one atomic operation.
  *
@@ -646,7 +672,6 @@ const get_active_org = async (
   org_id: string;
   member_id: string;
   member_role: string;
-  active_plan: string;
 } | null> => {
   const log = Log.child({
     ctx: "[auth.session.create.before]",
@@ -672,10 +697,7 @@ const get_active_org = async (
       "Found existing organization",
     );
 
-    const active_plan = await get_active_plan(member.data.organizationId);
-
     return {
-      active_plan,
       member_id: member.data.id,
       member_role: member.data.role,
       org_id: member.data.organizationId,
@@ -699,7 +721,6 @@ const derive_org_session = async ({
   org_id: string;
   member_id: string;
   member_role: string;
-  active_plan: string;
 } | null> => {
   const log = Log.child({
     ctx: "[auth.session.update.before]",
@@ -720,10 +741,7 @@ const derive_org_session = async ({
       return null;
     }
 
-    const active_plan = await get_active_plan(org_id);
-
     return {
-      active_plan,
       member_id: member.data.id,
       member_role: member.data.role,
       org_id,
@@ -733,33 +751,6 @@ const derive_org_session = async ({
     captureException(error);
     return null;
   }
-};
-
-const get_active_plan = async (org_id: string): Promise<string> => {
-  const subscription = await SubscriptionService.get_active({
-    session: { org_id },
-  });
-
-  if (!subscription.ok) {
-    /**
-     * Escalated from `warn` with no error attached. This defaults to "free", so
-     * a broken read does not fail the request — it quietly downgrades the plan
-     * on every session minted until somebody notices, and `active_plan` is
-     * written into the Redis-backed session, so the wrong value outlives the
-     * outage that produced it.
-     */
-    Log.error(
-      { org_id, error: subscription.error },
-      "Subscription query failed during session derivation — defaulting to free",
-    );
-    captureException(
-      new Error("Subscription query failed during session derivation"),
-      { extra: { org_id, error: subscription.error } },
-    );
-    return "free";
-  }
-
-  return subscription.data?.plan ?? "free";
 };
 
 type ErrorCode = keyof typeof auth.$ERROR_CODES;

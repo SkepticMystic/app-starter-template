@@ -9,7 +9,7 @@ export const load = (async ({ params }) => {
   const session = await get_session();
   if (!session.ok) {
     raise(session.error);
-  } else if (!session.data.session.activeOrganizationId) {
+  } else if (!session.data.session.org_id) {
     redirect(302, "/onboarding");
   }
 
@@ -17,7 +17,7 @@ export const load = (async ({ params }) => {
     db.query.task.findFirst({
       where: {
         id: params.id,
-        org_id: session.data.session.activeOrganizationId,
+        org_id: session.data.session.org_id,
       },
     }),
   );
