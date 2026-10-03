@@ -2,8 +2,8 @@
 const slugify = (str: string) =>
   str
     .toLowerCase()
-    .replace(/[^\w ]+/g, "")
-    .replace(/ +/g, "-");
+    .replaceAll(/[^\w ]+/g, "")
+    .replaceAll(/ +/g, "-");
 
 /**
  * `ross@example.com` -> `r••s@example.com`.

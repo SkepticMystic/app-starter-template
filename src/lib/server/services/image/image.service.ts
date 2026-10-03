@@ -3,9 +3,9 @@ import { ERROR } from "#lib/const/error.const.js";
 import { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import {
-  ImageSchema,
   ImageTable,
   type Image,
+  type ImageSchema,
 } from "#lib/server/db/models/image.model.js";
 import { ImageRepo } from "#lib/server/db/repos/image.repo.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";

@@ -91,6 +91,7 @@ export default {
     "**/tmp",
     "**/.env.sentry-build-plugin",
     "**/.sonda",
+    // Nested agent worktrees: a second copy of the tree.
     ".claude",
     ".agents",
     "drizzle/",
@@ -516,16 +517,16 @@ export default {
      * Fix-then-enable. Each of these had a handful of findings, fixed or
      * suppressed at the site in the commit that pinned the rule.
      *
-     * Four were tried and rejected upstream for reasons that are properties of
+     * Three were tried and rejected upstream for reasons that are properties of
      * the tools rather than of one tree, so they are recorded here rather than
      * retried: `unicorn/prefer-spread` (its fix rewrites `str.split("")` to
      * `[...str]`, which the already-enabled `typescript/no-misused-spread` then
      * rejects — the two contradict each other on strings); `operator-assignment`
      * (its autofix can silently drop an `as number` assertion the site needs);
      * `unicorn/text-encoding-identifier-case` (rewrites the string value, so it
-     * can "fix" a label while missing the actual `TextDecoder("utf-8")` call);
-     * and `typescript/no-unnecessary-qualifier` (drops the `App.` in `app.d.ts`,
-     * where an unqualified `Error` then shadows the built-in).
+     * can "fix" a label while missing the actual `TextDecoder("utf-8")` call).
+     * `typescript/no-unnecessary-qualifier` was on this list too; it is now
+     * pinned below, with its two `app.d.ts` sites suppressed.
      */
     // pedantic
     "oxc/branches-sharing-code": "error",
@@ -550,6 +551,55 @@ export default {
      */
     "typescript/no-deprecated": "error",
     "typescript/only-throw-error": "error",
+
+    /**
+     * Ported from the call-center fork, re-measured here against oxlint 1.83.0
+     * (vite-plus 0.3.3): 29 findings in all, every one autofixed or fixed by
+     * hand in the commit that pinned them, bar `node/no-process-env` (the
+     * overrides below) and two `no-unnecessary-qualifier` sites in `app.d.ts`.
+     *
+     * Rejected there and not retried here: `complexity` (the worst function
+     * is far past any useful ceiling, so it enforces nothing);
+     * `unicorn/prefer-ternary`, even `only-single-line` (makes a ternary of
+     * two `await`s); `vitest/prefer-strict-boolean-matchers` (every finding is
+     * a non-boolean, where `toBe(true)` is wrong);
+     * `typescript/strict-void-return` (flags `() => (n += 1)` timer
+     * callbacks); `class-methods-use-this` (interface implementations);
+     * `no-empty-function` (deliberate `.catch(() => {})`); `default-case`
+     * (defeats `switch-exhaustiveness-check`); `no-duplicate-imports`
+     * (`import/no-duplicates` covers imports; its only export findings are
+     * vendored barrels); `typescript/no-import-type-side-effects` (almost
+     * every finding is vendored shadcn); `vitest/prefer-each` (would only
+     * rename a table-driven test).
+     */
+    // pedantic
+    // Only where it changes behaviour: a promise returned unawaited from a
+    // `try` escapes its `catch`, and from an `await using` block outlives the
+    // disposal.
+    "typescript/return-await": ["error", "error-handling-correctness-only"],
+    "unicorn/prefer-string-replace-all": "error",
+    // restriction
+    // `$app/env/*`, never `process.env` (AGENTS.md → Environment variables).
+    // The exemptions are overrides below.
+    "node/no-process-env": "error",
+    // style
+    "func-names": "error",
+    "import/first": "error",
+    // `typeof import("./x")` is how a test asks for the real module past the
+    // mock wall.
+    "typescript/consistent-type-imports": [
+      "error",
+      { disallowTypeAnnotations: false },
+    ],
+    "typescript/array-type": "error",
+    // Suppressed at its two sites in `app.d.ts`, where `App.` is kept on
+    // purpose: inside that namespace a bare `Error` is `App.Error`, not the
+    // built-in, and the qualifier is what tells a reader so.
+    "typescript/no-unnecessary-qualifier": "error",
+    "typescript/prefer-readonly": "error",
+    "prefer-template": "error",
+    "unicorn/require-array-join-separator": "error",
+    "vitest/prefer-to-be": "error",
   },
 
   overrides: [
@@ -581,13 +631,28 @@ export default {
     },
     {
       // CLI entry points: printing and exiting is the job.
+      // They run as bare `node` or `vite-node`, where `process.env` is the
+      // environment.
       files: ["scripts/**"],
-      rules: { "no-console": "off", "unicorn/no-process-exit": "off" },
+      rules: {
+        "no-console": "off",
+        "unicorn/no-process-exit": "off",
+        "node/no-process-env": "off",
+      },
     },
     {
-      // Consumed by tooling that requires a default export.
-      files: ["*.config.ts", "*.config.js", "svelte.config.js"],
-      rules: { "import/no-default-export": "off" },
+      // Consumed by tooling that requires a default export, and read before
+      // kit (and so `$app/env`) exists.
+      files: ["*.config.ts", "*.config.js"],
+      rules: {
+        "import/no-default-export": "off",
+        "node/no-process-env": "off",
+      },
+    },
+    {
+      // Helpers declared inside a `describe` callback, which runs once.
+      files: ["**/*.test.ts"],
+      rules: { "unicorn/consistent-function-scoping": "off" },
     },
     {
       // This suite exists to exercise the `thisArg` parameter the rule bans.

@@ -23,16 +23,16 @@ export type SendEmailOptions = {
   /** The HTML version of the message */
   html: Branded<"SanitizedHTML">;
   /** File attachments (max 40MB total after base64 encoding) */
-  attachments?: Array<{
+  attachments?: {
     /** Name of the attached file */
     filename: string;
     /** File content as a Buffer or base64-encoded string */
     content: Buffer | string;
     /** MIME type; derived from filename if omitted */
     content_type?: string;
-  }>;
+  }[];
   /** Resend tags for filtering/searching in the Resend dashboard (max 5) */
-  tags?: Array<{ name: string; value: string }>;
+  tags?: { name: string; value: string }[];
   /** Tag used for the Sentry metric (e.g. "password-reset") */
   email_type?: string;
   /** ISO 8601 date string for deferred delivery (e.g. "2024-08-05T11:52:01.858Z") */

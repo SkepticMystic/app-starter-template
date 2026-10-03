@@ -25,7 +25,7 @@ describe("Json", () => {
     });
 
     it("should stringify undefined", () => {
-      expect(Json.str_or_stringify(undefined)).toBe(undefined);
+      expect(Json.str_or_stringify(undefined)).toBeUndefined();
     });
 
     it("should stringify numbers", () => {

@@ -470,7 +470,7 @@ export const auth = betterAuth({
           type PlanListResponse = {
             error?: unknown;
             data?: {
-              data: Array<{
+              data: {
                 name: string;
                 amount: number;
                 currency: string;
@@ -479,7 +479,7 @@ export const auth = betterAuth({
                 interval: string;
                 is_archived?: boolean;
                 is_deleted?: boolean;
-              }>;
+              }[];
             };
           };
           const plans = (await PaystackClient.plan.list(
@@ -535,23 +535,20 @@ export const auth = betterAuth({
                 clientId: POCKETID_CLIENT_ID,
                 clientSecret: POCKETID_CLIENT_SECRET,
 
-                discoveryUrl:
-                  POCKETID_BASE_URL + "/.well-known/openid-configuration",
+                discoveryUrl: `${POCKETID_BASE_URL}/.well-known/openid-configuration`,
                 // Declared here rather than at the call site: 1.7 registers this
                 // as a social provider, and `signIn.social` takes no `scopes`.
                 scopes: ["openid", "profile", "email"],
 
                 mapProfileToUser: (profile: unknown) => {
-                  Log.info(profile, providerId + " profile");
+                  Log.info(profile, `${providerId} profile`);
 
                   // NOTE: Typing profile directly in the callback arg gives a TS error, since better-auth expects Record<string, any>
                   const typed = profile as IAuth.GenericOAuthProfile;
 
                   const name = (
                     typed.name ||
-                    (typed.given_name || "") +
-                      " " +
-                      (typed.family_name || "") ||
+                    `${typed.given_name || ""} ${typed.family_name || ""}` ||
                     ""
                   )
                     .trim()

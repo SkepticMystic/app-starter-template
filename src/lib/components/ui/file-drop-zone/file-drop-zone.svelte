@@ -106,7 +106,7 @@
       // if pattern has wild card like video/*
       if (pattern.endsWith("/*")) {
         const base_type = pattern.slice(0, pattern.indexOf("/*"));
-        return file_type.startsWith(base_type + "/");
+        return file_type.startsWith(`${base_type}/`);
       }
 
       // otherwise it must be a specific type like video/mp4

@@ -8,7 +8,7 @@ const count_issue_metrics = (
   name: string,
 ) => {
   form.fields.allIssues()?.forEach((issue) => {
-    Sentry.metrics.count(name + ".issue", 1, {
+    Sentry.metrics.count(`${name}.issue`, 1, {
       unit: "issue",
       attributes: { issue },
     });

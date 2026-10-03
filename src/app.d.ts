@@ -54,6 +54,9 @@ declare global {
     };
 
     interface Locals {
+      // `App.` throughout: inside this namespace a bare `Error` is this one,
+      // not the built-in, so the qualifier is kept for the reader.
+      // oxlint-disable-next-line typescript/no-unnecessary-qualifier
       session?: App.Session;
     }
 
@@ -73,6 +76,7 @@ declare global {
 
     type Result<D> = import("#lib/interfaces/result.type.js").Result<
       D,
+      // oxlint-disable-next-line typescript/no-unnecessary-qualifier -- as above
       App.Error
     >;
   }
