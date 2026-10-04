@@ -8,10 +8,12 @@
   const signed_in = $derived(page.route.id?.startsWith("/(authed)") ?? false);
 
   let metatags = $derived.by(() => {
-    const merged = deepMerge(page.data.base_seo, page.data.seo);
-
+    // `deepMerge` can return `base_seo` itself, and `page.data` is read-only, so never mutate it.
     // The base title is the app's own name, so templating it would read "App · App".
-    if (!page.data.seo?.title) merged.titleTemplate = "%s";
+    const merged = {
+      ...deepMerge(page.data.base_seo, page.data.seo),
+      ...(page.data.seo?.title ? {} : { titleTemplate: "%s" }),
+    };
 
     if (signed_in) {
       return { ...merged, title: undefined, robots: "noindex,nofollow" };
