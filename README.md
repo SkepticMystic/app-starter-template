@@ -134,29 +134,24 @@ for a container deploy; the environment manifest itself lives in
 ### First-time setup
 
 ```bash
-# 1. Provider tokens come from the environment, never tfvars (see the comment
-#    above the providers in infra/main.tf for each one's scope)
-export NEON_API_KEY=… UPSTASH_EMAIL=… UPSTASH_API_KEY=… \
-  CLOUDFLARE_API_TOKEN=… SENTRY_AUTH_TOKEN=… VERCEL_API_TOKEN=…
-
-# 2. Fill in the rest: IDs, project config, app secrets
+# 1. Fill in credentials: provider tokens, IDs, project config, app secrets
 cp infra/terraform.tfvars.example infra/terraform.tfvars
 # edit infra/terraform.tfvars with your real values
 
-# 3. Initialise providers
+# 2. Initialise providers
 cd infra && tofu init
 
-# 4. Review the plan
+# 3. Review the plan
 tofu plan
 
-# 5. Apply
+# 4. Apply
 tofu apply
 
-# 6. Local env vars — .env.example lists every variable the app reads
+# 5. Local env vars — .env.example lists every variable the app reads
 cp .env.example .env
 # edit .env with your real values (tofu output has most of them)
 
-# 7. Migrate database
+# 6. Migrate database
 pnpm db:push
 
 # Optional, for the Vercel target: link the project and pull env vars instead
@@ -174,19 +169,14 @@ fine for one operator, wrong the moment two people apply. Moving to a shared
 backend (an S3-compatible bucket such as R2, with locking) is the first change
 to make when that happens.
 
-Treat the file as a secret. Provider tokens are kept out of it (they come from
-the environment, not variables), but the Neon role passwords, the Upstash REST
-token, the R2 secret access key and every value in `infra/app_env.tf` are
-resource attributes, and those are unavoidably in state. Keep a backup
-somewhere private; `.dockerignore` and `.gitignore` both exclude it.
+Treat the file as a secret. The Neon role passwords, the Upstash REST token,
+the R2 secret access key and every value in `infra/app_env.tf` are resource
+attributes, and those are unavoidably in state. Keep a backup somewhere
+private; `.dockerignore` and `.gitignore` both exclude it.
 
 **Losing it destroys nothing.** No resource is deleted and the app keeps
 running, but OpenTofu forgets what it manages: rebuilding means `tofu import`
 for each resource, or the next `apply` tries to create duplicates.
-
-### State
-
-State is stored locally in `infra/terraform.tfstate` (git-ignored). Keep this file backed up — it contains sensitive values (DB passwords, Redis URLs). To share state across a team, migrate to a [remote backend](https://opentofu.org/docs/language/settings/backends/).
 
 ## TODOs
 

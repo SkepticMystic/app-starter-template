@@ -1,6 +1,5 @@
 # ---------------------------------------------------------------------------
-# Provider config. The credentials themselves come from the environment; see
-# the comment above the providers in main.tf.
+# Provider credentials
 # ---------------------------------------------------------------------------
 
 variable "deploy_vercel" {
@@ -15,9 +14,32 @@ variable "cloudinary_upload_preset" {
   default     = ""
 }
 
+variable "neon_api_key" {
+  description = "Neon API key. Generate at https://console.neon.tech/app/settings/api-keys"
+  type        = string
+  sensitive   = true
+}
+
 variable "neon_org_id" {
   description = "Neon organization ID. Find at https://console.neon.tech/app/settings/organization"
   type        = string
+}
+
+variable "upstash_email" {
+  description = "Email address associated with your Upstash account"
+  type        = string
+}
+
+variable "upstash_api_key" {
+  description = "Upstash API key. Generate at https://console.upstash.com/account/api"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token with R2:Edit, Turnstile:Edit, and Zone:Read permissions"
+  type        = string
+  sensitive   = true
 }
 
 variable "cloudflare_account_id" {
@@ -25,10 +47,18 @@ variable "cloudflare_account_id" {
   type        = string
 }
 
+variable "vercel_api_token" {
+  description = "Vercel API token. Generate at https://vercel.com/account/tokens"
+  type        = string
+  sensitive   = true
+  # Defaulted so `deploy_vercel = false` does not demand Vercel credentials.
+  default = ""
+}
+
 variable "vercel_team_id" {
   description = "Vercel team ID (e.g. team_xxxx). Found in team settings."
   type        = string
-  # Defaulted so `deploy_vercel = false` does not demand Vercel settings.
+  # Defaulted so `deploy_vercel = false` does not demand Vercel credentials.
   default = ""
 }
 
@@ -147,6 +177,13 @@ variable "sentry_org_slug" {
 variable "sentry_team_slug" {
   description = "Sentry team slug"
   type        = string
+  default     = ""
+}
+
+variable "sentry_integration_token" {
+  description = "Sentry integration token so that OpenTofu can create a new project"
+  type        = string
+  sensitive   = true
   default     = ""
 }
 
