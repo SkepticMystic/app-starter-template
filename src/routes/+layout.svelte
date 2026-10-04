@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser, dev } from "$app/env";
+  import { dev } from "$app/env";
   import {
     PUBLIC_UMAMI_BASE_URL,
     PUBLIC_UMAMI_WEBSITE_ID,
@@ -12,31 +12,30 @@
   import { ModeWatcher } from "mode-watcher";
   import "./layout.css";
 
-  let { children } = $props();
+  let { children, data } = $props();
 
-  // NOTE: Currently this listener is _just_ for umami analytics
-  // We unsub as soon as they're identified.
-  // Imported lazily: the session store pulls in the whole auth client, which
-  // pages that never touch auth (marketing) would otherwise download and run.
-  const identify_to_umami = async () => {
-    const { session } = await import("#lib/stores/session.store.js");
+  // A primitive, so the effect below re-runs only when the user changes, not on every
+  // `invalidate("app:session")`.
+  const user_id = $derived(data.user?.id);
 
-    const session_listener = session.listen(($session) => {
-      if ($session.isRefetching || $session.isPending) return;
+  // The id only: a name, email or IP would make analytics a store of personal
+  // data, which the script's `data-do-not-track` says it is not.
+  const identify_to_umami = (id: string) => {
+    if (globalThis.umami) return void globalThis.umami.identify(id);
 
-      if (globalThis.umami && $session.data?.user) {
-        // The id only: a name, email or IP would make analytics a store of
-        // personal data, which the script's `data-do-not-track` says it is not.
-        globalThis.umami.identify($session.data.user.id);
-
-        session_listener();
-      }
-    });
+    // The script is `async`, so it may still be loading at hydration.
+    document
+      .querySelector("script[data-website-id]")
+      ?.addEventListener("load", () => globalThis.umami?.identify(id), {
+        once: true,
+      });
   };
 
-  if (browser && PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID) {
-    void identify_to_umami();
-  }
+  $effect(() => {
+    if (PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID && user_id) {
+      identify_to_umami(user_id);
+    }
+  });
 </script>
 
 <svelte:head>

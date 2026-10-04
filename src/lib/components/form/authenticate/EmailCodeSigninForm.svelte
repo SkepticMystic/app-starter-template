@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
-  import { BetterAuthClient } from "#lib/auth-client.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
@@ -35,8 +34,6 @@
     } else if (!form.fields.allIssues()?.length) {
       // The remote redirects on success, so there is no result to branch on:
       // anything that is neither an error nor an issue signed in.
-      BetterAuthClient.$store.notify("$sessionSignal");
-
       e.element.reset();
     }
   })}

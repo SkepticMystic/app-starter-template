@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { ResolvedPathname } from "$app/types";
   import { Toast } from "#lib/utils/toast.util.js";
-  import { BetterAuthClient } from "#lib/auth-client.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
@@ -34,10 +33,8 @@
     if (!res?.ok && res?.error) {
       Toast.err(res.error);
     } else if (!form.fields.allIssues()?.length) {
-      // NOTE: Bit weird. We throw a redirect in the remote form, so there isn't a suc result to branch on.
-      // Instead, we assume that any non-error result is successful, and notify the session signal
-      BetterAuthClient.$store.notify("$sessionSignal");
-
+      // The remote redirects on success, so there is no result to branch on:
+      // anything that is neither an error nor an issue signed in.
       e.element.reset();
     }
   })}

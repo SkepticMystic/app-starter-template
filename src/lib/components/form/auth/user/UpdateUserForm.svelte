@@ -1,6 +1,5 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
-  import { BetterAuthClient } from "#lib/auth-client.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
@@ -32,7 +31,6 @@
     metric: "update_user_form",
     suc_msg: "Profile updated",
     on_success: async () => {
-      BetterAuthClient.$store.notify("$sessionSignal");
       // The sidebar reads `page.data.user`.
       await invalidate("app:session");
 

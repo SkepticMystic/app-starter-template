@@ -333,8 +333,11 @@ Remote functions (in `src/lib/remote/`) use SvelteKit's experimental feature to 
 ### State Management
 
 - Svelte 5 runes for reactive state
-- Stores in `src/lib/stores/` for shared state (organizations, session)
-- Better-Auth client provides session management
+- Stores in `src/lib/stores/` for shared client state (`Confirm`)
+- The signed-in user and active org reach components as `page.data.user` /
+  `page.data.org`, from the root layout's server load. Not Better-Auth's
+  `useSession()`: it is empty during SSR, stale after a server-side change, and
+  subscribing to it costs a `get-session` fetch plus a refetch on every focus
 - **An effect may read state it writes, but only if it reaches a fixed
   point.** A converging write (`if (n === 0) n = 1`) runs once; `n = n + 1` or
   `xs = [...xs, x]` hits the loop guard and throws

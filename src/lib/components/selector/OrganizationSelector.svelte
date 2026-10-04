@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import { BetterAuthClient } from "#lib/auth-client.js";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import Field from "#lib/components/ui/field/Field.svelte";
   import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
   import Spinner from "#lib/components/ui/spinner/spinner.svelte";
-  import { session } from "#lib/stores/session.store.js";
 
   const organizations = BetterAuthClient.useListOrganizations();
 </script>
@@ -31,8 +31,7 @@
           label: `${org.name} (${org.slug})`,
         }))}
         bind:value={
-          () => $session.data?.session.activeOrganizationId ?? undefined,
-          (v) => OrganizationClient.set_active(v)
+          () => page.data.org?.id, (v) => OrganizationClient.set_active(v)
         }
       />
     {/snippet}

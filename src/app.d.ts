@@ -8,6 +8,7 @@ declare global {
        * not `BetterAuthClient.useSession()`, which is empty during SSR.
        */
       user?: {
+        id: string;
         name: string;
         email: string;
         image: string | null;

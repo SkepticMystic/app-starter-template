@@ -1,4 +1,5 @@
 import { invalidate } from "$app/navigation";
+import { page } from "$app/state";
 import { BetterAuthClient } from "#lib/auth-client.js";
 import {
   accept_invitation_remote,
@@ -10,7 +11,6 @@ import {
   admin_delete_organization_remote,
   owner_delete_organization_remote,
 } from "#lib/remote/auth/organization/organization.remote.js";
-import { session } from "#lib/stores/session.store.js";
 import { BetterAuth } from "#lib/utils/better-auth.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { Client } from "../index.client.js";
@@ -22,9 +22,7 @@ const set_active_org = async (organizationId: string | undefined) => {
     }),
   );
 
-  BetterAuthClient.$store.notify("$sessionSignal");
-
-  // The UI reads the new org and role through `page.data.org`, not the store above.
+  // The UI reads the new org and role through `page.data.org`.
   await invalidate("app:session");
 
   return res;
@@ -35,8 +33,7 @@ export const OrganizationClient = {
 
   leave: Client.wrap(
     async (/** Fallbacks to active org_id */ org_id?: string) => {
-      const organizationId =
-        org_id ?? session.get().data?.session.activeOrganizationId;
+      const organizationId = org_id ?? page.data.org?.id;
 
       if (!organizationId) {
         return result.err({
