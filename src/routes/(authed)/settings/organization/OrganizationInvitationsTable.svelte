@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { can } from "#lib/utils/auth/permission.util.js";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
   import { ORGANIZATION } from "#lib/const/auth/organization.const.js";
@@ -75,17 +76,20 @@
           title: "No invitations",
           description: "Invite a new member to your organization",
         }}
-  actions={(row) => [
-    {
-      icon: "lucide/x",
-      variant: "destructive",
-      title: "Cancel invitation",
-      disabled: row.original.status !== "pending",
+  actions={(row) =>
+    !can({ invitation: ["cancel"] })
+      ? []
+      : [
+          {
+            icon: "lucide/x",
+            variant: "destructive",
+            title: "Cancel invitation",
+            disabled: row.original.status !== "pending",
 
-      onselect: () =>
-        OrganizationClient.invitation.cancel(row.id, {
-          on_success: () => on_cancel?.(row.id),
-        }),
-    },
-  ]}
+            onselect: () =>
+              OrganizationClient.invitation.cancel(row.id, {
+                on_success: () => on_cancel?.(row.id),
+              }),
+          },
+        ]}
 ></DataTable>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Button from "#lib/components/ui/button/button.svelte";
   import { resolve } from "$app/paths";
   import Header from "#lib/components/ui/header/Header.svelte";
   import FormActions from "#lib/components/form/FormActions.svelte";
@@ -64,6 +65,8 @@
             <Input
               {...props}
               {...field?.as("text")}
+              required
+              maxlength={100}
               placeholder="API key name"
             />
           {/snippet}
@@ -94,12 +97,11 @@
       <FormErrors {form} />
 
       <FormActions cancel_href={resolve("/(authed)/settings/api-key")}>
-        <FormButton
-          {form}
-          disabled={Boolean(apikey)}
-        >
-          Create API key
-        </FormButton>
+        {#if apikey}
+          <Button href={resolve("/(authed)/settings/api-key")}>Done</Button>
+        {:else}
+          <FormButton {form}>Create API key</FormButton>
+        {/if}
       </FormActions>
     </Fieldset>
   </form>
@@ -107,7 +109,7 @@
   {#if apikey}
     <section>
       <Item
-        title="API Key Created"
+        title="API key created"
         description="Copy it to your clipboard to use it in your applications."
       >
         {#snippet actions()}

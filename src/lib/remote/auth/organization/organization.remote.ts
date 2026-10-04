@@ -4,8 +4,10 @@ import {
   define_guard,
   guarded_command,
   guarded_form,
-  USER,
+  ORG,
 } from "#lib/server/remote/guarded.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { result } from "#lib/utils/result.util.js";
 import { OrganizationService } from "#lib/server/services/auth/organization/organization.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
@@ -34,14 +36,17 @@ export const create_organization_remote = guarded_form(
     }
 
     return res;
-    // redirect(302, App.url("/organization"));
   },
 );
 
 export const owner_delete_organization_remote = guarded_command(
-  USER,
+  { ...ORG, session: { org_permissions: { organization: ["delete"] } } },
   z.uuid(),
-  async (org_id) => OrganizationService.owner_delete(org_id),
+  async (org_id, ctx) =>
+    // The permission was checked against the active org, so only that one.
+    org_id === ctx.org_id
+      ? OrganizationService.owner_delete(org_id)
+      : result.err(ERROR.FORBIDDEN),
 );
 
 export const admin_delete_organization_remote = guarded_command(

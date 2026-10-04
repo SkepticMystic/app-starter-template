@@ -5,7 +5,7 @@ import {
   memberAc,
   ownerAc,
 } from "better-auth/plugins/organization/access";
-import type { IOrganization } from "./organization.const";
+import type { IOrganization } from "./organization.const.js";
 
 /**
  * What each org role may do — independent of the global `user.role` in
@@ -15,7 +15,8 @@ import type { IOrganization } from "./organization.const";
  */
 const statement = {
   ...defaultStatements,
-  // project: ["create", "update", "delete"],
+  /** The resource Better-Auth's api-key plugin checks for org-owned keys. */
+  apiKey: ["create", "read", "update", "delete"],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -32,9 +33,15 @@ export const OrgAccessControl = {
     // The `...Ac.statements` spreads are load-bearing: passing `roles` to the
     // organization plugin replaces its defaults, including who can invite and
     // remove members.
-    member: ac.newRole({ ...memberAc.statements }),
-    admin: ac.newRole({ ...adminAc.statements }),
-    owner: ac.newRole({ ...ownerAc.statements }),
+    member: ac.newRole({ ...memberAc.statements, apiKey: ["read"] }),
+    admin: ac.newRole({
+      ...adminAc.statements,
+      apiKey: ["create", "read", "update", "delete"],
+    }),
+    owner: ac.newRole({
+      ...ownerAc.statements,
+      apiKey: ["create", "read", "update", "delete"],
+    }),
   } satisfies Record<IOrganization.RoleId, ReturnType<typeof ac.newRole>>,
 };
 

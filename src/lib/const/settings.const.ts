@@ -31,6 +31,7 @@ const NAV: readonly SettingsNavItem[] = [
     href: "/settings/api-key",
     icon: "lucide/key",
     org: true,
+    permissions: { apiKey: ["read"] },
   },
 ];
 

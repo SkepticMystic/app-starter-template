@@ -111,4 +111,22 @@ describe("Authz.can", () => {
       true,
     ]);
   });
+
+  it("lets every member read org API keys, but only admins and owners manage them", () => {
+    const reads = (role: string) =>
+      Authz.can(member(role), { apiKey: ["read"] });
+    const creates = (role: string) =>
+      Authz.can(member(role), { apiKey: ["create", "delete"] });
+
+    expect([reads("member"), reads("admin"), reads("owner")]).toEqual([
+      true,
+      true,
+      true,
+    ]);
+    expect([creates("member"), creates("admin"), creates("owner")]).toEqual([
+      false,
+      true,
+      true,
+    ]);
+  });
 });

@@ -1,5 +1,9 @@
-import { command, form } from "$app/server";
-import { guarded_query, USER } from "#lib/server/remote/guarded.js";
+import {
+  guarded_command,
+  guarded_form,
+  guarded_query,
+  USER,
+} from "#lib/server/remote/guarded.js";
 import { PasskeyService } from "#lib/server/services/auth/passkey/passkey.service.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
@@ -8,7 +12,8 @@ export const list_passkeys_remote = guarded_query(USER, async ({ session }) =>
   PasskeyService.list(session),
 );
 
-export const rename_passkey_remote = form(
+export const rename_passkey_remote = guarded_form(
+  USER,
   z.object({
     id: z.uuid(),
     name: z
@@ -27,9 +32,9 @@ export const rename_passkey_remote = form(
   },
 );
 
-export const delete_passkey_remote = command(
+export const delete_passkey_remote = guarded_command(
+  USER,
   z.uuid(),
-  async (passkey_id): Promise<App.Result<undefined>> => {
-    return await PasskeyService.remove(passkey_id);
-  },
+  async (passkey_id): Promise<App.Result<undefined>> =>
+    PasskeyService.remove(passkey_id),
 );

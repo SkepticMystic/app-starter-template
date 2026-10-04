@@ -11,6 +11,7 @@
   import { renderComponent } from "#lib/components/ui/data-table/index.js";
   import Code from "#lib/components/ui/elements/Code.svelte";
   import { Arrays } from "#lib/utils/array/array.util.js";
+  import { can } from "#lib/utils/auth/permission.util.js";
 
   let { data } = $props();
 
@@ -58,12 +59,14 @@
 <article>
   <Header title="API keys">
     {#snippet actions()}
-      <Button
-        icon="lucide/plus"
-        href={resolve("/(authed)/settings/api-key/create")}
-      >
-        Create API key
-      </Button>
+      {#if can({ apiKey: ["create"] })}
+        <Button
+          icon="lucide/plus"
+          href={resolve("/(authed)/settings/api-key/create")}
+        >
+          Create API key
+        </Button>
+      {/if}
     {/snippet}
   </Header>
 
@@ -76,18 +79,24 @@
         title: "No API keys",
         description: "Create an API key to use with your applications.",
       }}
-      actions={(row) => [
-        {
-          title: "Delete",
-          icon: "lucide/trash",
-          variant: "destructive",
-          onselect: () =>
-            APIKeyClient.delete(
-              { keyId: row.id },
-              { on_success: () => (apikeys = Arrays.remove(apikeys, row.id)) },
-            ),
-        },
-      ]}
+      actions={(row) =>
+        can({ apiKey: ["delete"] })
+          ? [
+              {
+                title: "Delete",
+                icon: "lucide/trash",
+                variant: "destructive",
+                onselect: () =>
+                  APIKeyClient.delete(
+                    { keyId: row.id },
+                    {
+                      on_success: () =>
+                        (apikeys = Arrays.remove(apikeys, row.id)),
+                    },
+                  ),
+              },
+            ]
+          : []}
     />
   </section>
 </article>

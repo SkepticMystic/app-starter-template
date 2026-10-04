@@ -12,7 +12,7 @@ import {
 import { session } from "#lib/stores/session.store.js";
 import { BetterAuth } from "#lib/utils/better-auth.util.js";
 import { result } from "#lib/utils/result.util.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 
 const set_active_org = async (organizationId: string | undefined) => {
   const res = await BetterAuth.to_result(
@@ -74,6 +74,7 @@ export const OrganizationClient = {
         "Delete this organization? Every member loses access, its API keys stop working and its data is deleted. This cannot be undone.",
       destructive: true,
       action_label: "Delete organization",
+      suc_msg: "Organization deleted",
     },
   ),
 

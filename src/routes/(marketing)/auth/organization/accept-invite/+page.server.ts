@@ -1,13 +1,13 @@
-import { auth } from "#lib/auth.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { read_session } from "#lib/server/services/auth.service.js";
 import { InvitationService } from "#lib/server/services/auth/organization/invitation.service.js";
 import { Strings } from "#lib/utils/strings.util.js";
 import { error } from "@sveltejs/kit";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ request, url }) => {
+export const load: PageServerLoad = async ({ url }) => {
   const search = {
     invite_id: url.searchParams.get("invite_id"),
   };
@@ -24,8 +24,8 @@ export const load: PageServerLoad = async ({ request, url }) => {
     return { search, prompt: "invalid_invite_id" as const };
   }
 
-  const [session, invitation] = await Promise.all([
-    auth.api.getSession({ headers: request.headers }),
+  const [read, invitation] = await Promise.all([
+    read_session(),
 
     Repo.query(
       db.query.invitation.findFirst({
@@ -49,12 +49,14 @@ export const load: PageServerLoad = async ({ request, url }) => {
    * so it never reaches the page HTML — along with the whole user row. The
    * branches that need identity return an email and nothing else.
    */
-  if (!session) {
+  const session = read.ok ? read.data : null;
+
+  if (read.ok && !session) {
     return {
       search,
       prompt: "signup_login" as const,
     };
-  } else if (!invitation.ok) {
+  } else if (!session || !invitation.ok) {
     return {
       search,
       prompt: "internal_server_error" as const,
@@ -75,7 +77,6 @@ export const load: PageServerLoad = async ({ request, url }) => {
     return {
       search,
       inviter: null,
-      invitation: null,
       organization: null,
       /**
        * Masked: this page is reachable by ANY signed-in user holding an invite
@@ -107,7 +108,7 @@ export const load: PageServerLoad = async ({ request, url }) => {
     };
   }
 
-  const { inviterId, organizationId } = invitation.data;
+  const { id: invitation_id, inviterId, organizationId } = invitation.data;
 
   const [organization, inviter, member] = await Promise.all([
     Repo.query(
@@ -150,12 +151,11 @@ export const load: PageServerLoad = async ({ request, url }) => {
      * not surfaced — the page's job is to say "you are already a member", which
      * it can do either way.
      */
-    await InvitationService.settle_for_existing_member(invitation.data.id);
+    await InvitationService.settle_for_existing_member(invitation_id);
 
     return {
       search,
       inviter: inviter.data,
-      invitation: invitation.data,
       organization: organization.data,
       prompt: "already_member" as const,
     };
@@ -163,7 +163,6 @@ export const load: PageServerLoad = async ({ request, url }) => {
     return {
       search,
       inviter: inviter.data,
-      invitation: invitation.data,
       organization: organization.data,
       prompt: "accept_invite" as const,
     };

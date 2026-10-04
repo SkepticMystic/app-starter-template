@@ -12,6 +12,7 @@
   import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
   import { ROLES, type RoleId } from "#lib/const/auth/role.const.js";
   import { Arrays } from "#lib/utils/array/array.util.js";
+  import { Format } from "#lib/utils/format.util.js";
   import BanUserForm from "./BanUserForm.svelte";
 
   let { data } = $props();
@@ -67,11 +68,16 @@
       filterFn: "equals",
 
       cell: ({ row, getValue }) =>
-        renderComponent(NativeSelect<RoleId>, {
-          value: getValue(),
-          options: ROLES.OPTIONS,
-          on_value_select: (role) => update_user_role({ role, userId: row.id }),
-        }),
+        // Demoting yourself would lock you out of this page.
+        row.id === data.self_id
+          ? (ROLES.OPTIONS.find((o) => o.value === getValue())?.label ??
+            getValue())
+          : renderComponent(NativeSelect<RoleId>, {
+              value: getValue(),
+              options: ROLES.OPTIONS,
+              on_value_select: (role) =>
+                update_user_role({ role, userId: row.id }),
+            }),
     }),
 
     column.accessor("banned", {
@@ -83,7 +89,12 @@
       // `autoRemove` only drops undefined/null/"".
       filterFn: "equals",
 
-      cell: ({ getValue }) => (getValue() ? "Yes" : "No"),
+      cell: ({ getValue, row }) => {
+        if (!getValue()) return "No";
+
+        const until = row.original.banExpires;
+        return until ? `Until ${Format.date(until)}` : "Yes";
+      },
     }),
 
     column.accessor("createdAt", {
@@ -149,36 +160,40 @@
         ],
       },
     ]}
-    actions={(row) => [
-      {
-        icon: "lucide/user-circle",
-        title: "Impersonate user",
-        onselect: () => AdminClient.impersonate_user(row.id),
-      },
-      { kind: "separator" },
-      row.original.banned
-        ? {
-            title: "Unban user",
-            icon: "lucide/check-circle-2",
-            onselect: () => unban_user(row.id),
-          }
-        : {
-            kind: "dialog",
-            title: "Ban user",
-            icon: "lucide/ban",
-            // A dialog, not a confirm: a ban wants a reason and a length, which a yes/no cannot ask.
-            dialog: {
-              title: `Ban ${row.original.name}?`,
-              description: "They won't be able to sign in until the ban ends.",
-              content: ban_dialog,
+    actions={(row) =>
+      row.id === data.self_id
+        ? []
+        : [
+            {
+              icon: "lucide/user-circle",
+              title: "Impersonate user",
+              onselect: () => AdminClient.impersonate_user(row.id),
             },
-          },
-      {
-        icon: "lucide/x",
-        title: "Delete user",
-        variant: "destructive",
-        onselect: () => delete_user(row.id),
-      },
-    ]}
+            { kind: "separator" },
+            row.original.banned
+              ? {
+                  title: "Unban user",
+                  icon: "lucide/check-circle-2",
+                  onselect: () => unban_user(row.id),
+                }
+              : {
+                  kind: "dialog",
+                  title: "Ban user",
+                  icon: "lucide/ban",
+                  // A dialog, not a confirm: a ban wants a reason and a length, which a yes/no cannot ask.
+                  dialog: {
+                    title: `Ban ${row.original.name}?`,
+                    description:
+                      "They won't be able to sign in until the ban ends.",
+                    content: ban_dialog,
+                  },
+                },
+            {
+              icon: "lucide/x",
+              title: "Delete user",
+              variant: "destructive",
+              onselect: () => delete_user(row.id),
+            },
+          ]}
   ></DataTable>
 </article>

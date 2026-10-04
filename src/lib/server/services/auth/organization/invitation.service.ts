@@ -93,19 +93,7 @@ const accept = async (invitation_id: string) => {
   try {
     const event = getRequestEvent();
 
-    // TODO: What happens if I don't have a session?
-    // Check what BA does if I'm not logged in
-    const session = await auth.api.getSession({
-      headers: event.request.headers,
-    });
-    if (!session) {
-      return result.err({
-        ...ERROR.UNAUTHORIZED,
-        message: "Sign in first to accept invitation",
-      });
-    }
-
-    // BA's acceptInvitation calls setActiveOrganization internally, which
+    // The remote's guard has already required a session. BA's acceptInvitation calls setActiveOrganization internally, which
     // fires our session.update databaseHook to populate org_id, member_id,
     // and member_role.
     const res = await auth.api.acceptInvitation({

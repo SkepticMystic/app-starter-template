@@ -61,6 +61,7 @@ export const AdminClient = {
     {
       confirm: "Unban this user? They'll be able to sign in again.",
       action_label: "Unban user",
+      suc_msg: "User unbanned",
     },
   ),
 
@@ -71,6 +72,7 @@ export const AdminClient = {
         "Delete this user? Their account is removed and they lose access to every organization. This cannot be undone.",
       destructive: true,
       action_label: "Delete user",
+      suc_msg: "User deleted",
     },
   ),
 };

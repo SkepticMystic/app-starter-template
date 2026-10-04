@@ -13,6 +13,9 @@ export const load = (async () => {
     redirect(302, "/onboarding");
   }
 
+  const allowed = await get_session({ org_permissions: { apiKey: ["read"] } });
+  if (!allowed.ok) raise(allowed.error);
+
   const apikeys = await Repo.query(
     db.query.apikey.findMany({
       where: { referenceId: session.data.session.org_id },
@@ -25,6 +28,7 @@ export const load = (async () => {
         expiresAt: true,
         lastRequest: true,
       },
+      orderBy: { createdAt: "desc" },
     }),
   );
 

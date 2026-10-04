@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { page } from "$app/state";
+  import { can } from "#lib/utils/auth/permission.util.js";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import { column_helper } from "#lib/utils/tanstack/table.util.js";
   import UserAvatar from "#lib/components/ui/avatar/UserAvatar.svelte";
@@ -29,6 +31,10 @@
   } = $props();
 
   type TData = NonNullable<typeof members>[number];
+
+  // Your own role and membership are changed by leaving, not from this table.
+  const is_self = (member: TData) =>
+    member.user.email === page.data.user?.email;
 
   const update_member_role = async (
     member: TData,
@@ -67,11 +73,15 @@
       meta: { label: "Role" },
 
       cell: ({ getValue, row }) =>
-        renderComponent(NativeSelect<IOrganization.RoleId>, {
-          value: getValue(),
-          options: ORGANIZATION.ROLES.OPTIONS,
-          on_value_select: (value) => update_member_role(row.original, value),
-        }),
+        can({ member: ["update"] }) && !is_self(row.original)
+          ? renderComponent(NativeSelect<IOrganization.RoleId>, {
+              value: getValue(),
+              options: ORGANIZATION.ROLES.OPTIONS,
+              on_value_select: (value) =>
+                update_member_role(row.original, value),
+            })
+          : (ORGANIZATION.ROLES.OPTIONS.find((o) => o.value === getValue())
+              ?.label ?? getValue()),
     }),
 
     column.accessor("createdAt", {
@@ -85,15 +95,18 @@
 <DataTable
   {columns}
   data={members}
-  actions={(row) => [
-    {
-      icon: "lucide/x",
-      title: "Remove member",
-      variant: "destructive",
-      onselect: () =>
-        OrganizationClient.member.remove(row.id, {
-          on_success: () => on_remove?.(row.id),
-        }),
-    },
-  ]}
+  actions={(row) =>
+    !can({ member: ["delete"] }) || is_self(row.original)
+      ? []
+      : [
+          {
+            icon: "lucide/x",
+            title: "Remove member",
+            variant: "destructive",
+            onselect: () =>
+              OrganizationClient.member.remove(row.id, {
+                on_success: () => on_remove?.(row.id),
+              }),
+          },
+        ]}
 ></DataTable>
