@@ -28,57 +28,71 @@ export const subscription_status_enum = pgEnum(
   SUBSCRIPTION.STATUS.IDS,
 );
 
-export const SubscriptionTable = snakeCase.table("subscription", {
-  ...Schema.id(),
+export const SubscriptionTable = snakeCase.table(
+  "subscription",
+  {
+    ...Schema.id(),
 
-  /** The ID of the subscription group. */
-  groupId: text(),
-  /** The number of seats purchased. */
-  seats: integer(),
-  /** Lowercased name of the active plan. */
-  plan: varchar({ length: 255 }).notNull(),
-  /** active, trialing, canceled, incomplete. */
-  status: subscription_status_enum().notNull().default("incomplete"),
+    /** The ID of the subscription group. */
+    groupId: text(),
+    /** The number of seats purchased. */
+    seats: integer(),
+    /** Lowercased name of the active plan. */
+    plan: varchar({ length: 255 }).notNull(),
+    /** active, trialing, canceled, incomplete. */
+    status: subscription_status_enum().notNull().default("incomplete"),
 
-  /** Associated User ID or Organization ID. */
-  referenceId: uuid().notNull(),
-  /** The user who owns the subscription. Required by the plugin. */
-  userId: uuid()
-    .references(() => UserTable.id, { onDelete: "cascade" })
-    .notNull(),
+    /** Associated User ID or Organization ID. */
+    referenceId: uuid().notNull(),
+    /** The user who owns the subscription. Required by the plugin. */
+    userId: uuid()
+      .references(() => UserTable.id, { onDelete: "cascade" })
+      .notNull(),
 
-  /** The Paystack customer code for this subscription. */
-  customerCode: text("paystack_customer_code"),
-  /** The unique code for the subscription (e.g., SUB_...). */
-  subscriptionCode: text("paystack_subscription_code").unique(),
-  /** The reference of the transaction that started the subscription. */
-  transactionReference: text("paystack_transaction_reference"),
-  /** The Paystack plan code backing {@link SubscriptionTable.plan}. */
-  planCode: text(),
-  /** Set when a plan change is scheduled rather than applied immediately. */
-  pendingPlan: text(),
-  /** The billing cadence Paystack reports for the active plan. */
-  billingInterval: text(),
+    /** The Paystack customer code for this subscription. */
+    customerCode: text("paystack_customer_code"),
+    /** The unique code for the subscription (e.g., SUB_...). */
+    subscriptionCode: text("paystack_subscription_code").unique(),
+    /** The reference of the transaction that started the subscription. */
+    transactionReference: text("paystack_transaction_reference"),
+    /** The Paystack plan code backing {@link SubscriptionTable.plan}. */
+    planCode: text(),
+    /** Set when a plan change is scheduled rather than applied immediately. */
+    pendingPlan: text(),
+    /** The billing cadence Paystack reports for the active plan. */
+    billingInterval: text(),
 
-  /** Start date of the current billing period. */
-  periodStart: timestamp({ mode: "date" }),
-  /** End date of the current billing period. */
-  periodEnd: timestamp({ mode: "date" }),
-  /** Start date of the trial period. */
-  trialStart: timestamp({ mode: "date" }),
-  /** End date of the trial period. */
-  trialEnd: timestamp({ mode: "date" }),
-  /** Whether to cancel at the end of the current period. */
-  cancelAtPeriodEnd: boolean().default(false),
-  /** When the subscription is scheduled to cancel. */
-  cancelAt: timestamp({ mode: "date" }),
-  /** When cancellation was requested. */
-  canceledAt: timestamp({ mode: "date" }),
-  /** When the subscription actually ended. */
-  endedAt: timestamp({ mode: "date" }),
+    /** Start date of the current billing period. */
+    periodStart: timestamp({ mode: "date" }),
+    /** End date of the current billing period. */
+    periodEnd: timestamp({ mode: "date" }),
+    /** Start date of the trial period. */
+    trialStart: timestamp({ mode: "date" }),
+    /** End date of the trial period. */
+    trialEnd: timestamp({ mode: "date" }),
+    /** Whether to cancel at the end of the current period. */
+    cancelAtPeriodEnd: boolean().default(false),
+    /** When the subscription is scheduled to cancel. */
+    cancelAt: timestamp({ mode: "date" }),
+    /** When cancellation was requested. */
+    canceledAt: timestamp({ mode: "date" }),
+    /** When the subscription actually ended. */
+    endedAt: timestamp({ mode: "date" }),
 
-  ...Schema.timestamps,
-});
+    ...Schema.timestamps,
+  },
+  (table) => [
+    // `get_active` filters on both on every billing render.
+    index("subscription_reference_id_status_idx").on(
+      table.referenceId,
+      table.status,
+    ),
+    index("subscription_transaction_reference_idx").on(
+      table.transactionReference,
+    ),
+    index("subscription_user_id_idx").on(table.userId),
+  ],
+);
 
 export type Subscription = typeof SubscriptionTable.$inferSelect;
 
@@ -118,7 +132,11 @@ export const PaystackTransactionTable = snakeCase.table(
 
     ...Schema.timestamps,
   },
-  (table) => [index("paystack_transaction_reference_idx").on(table.reference)],
+  // `reference` needs no index of its own: `.unique()` is one.
+  (table) => [
+    index("paystack_transaction_reference_id_idx").on(table.referenceId),
+    index("paystack_transaction_user_id_idx").on(table.userId),
+  ],
 );
 
 export type PaystackTransaction = typeof PaystackTransactionTable.$inferSelect;

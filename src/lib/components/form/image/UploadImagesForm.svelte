@@ -7,6 +7,7 @@
   import type { FileDropZoneProps } from "#lib/components/ui/file-drop-zone/types.js";
   import Item from "#lib/components/ui/item/Item.svelte";
   import ItemList from "#lib/components/ui/item/ItemList.svelte";
+  import { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
   import type { RESOURCE } from "#lib/const/resource/resource.const.js";
   import { upload_images_remote } from "#lib/remote/image/image.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
@@ -100,7 +101,7 @@
   <FileDropZone
     onUpload={on_upload}
     onFileRejected={on_file_rejected}
-    accept="image/*"
+    accept={IMAGE_HOSTING.LIMITS.MIME.join(",")}
     fileCount={form.fields.files.value()?.length ?? 0}
     {...form.fields.files.as("file multiple")}
   />

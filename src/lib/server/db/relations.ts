@@ -70,5 +70,10 @@ export const relations = defineRelations(schema, (r) => ({
   twoFactor: {},
 
   // === Tasks ===
-  task: {},
+  task: {
+    assignee: r.one.member({
+      from: r.task.assigned_member_id,
+      to: r.member.id,
+    }),
+  },
 }));

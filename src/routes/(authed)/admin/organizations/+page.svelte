@@ -32,7 +32,7 @@
     }),
 
     column.accessor("createdAt", {
-      meta: { label: "Join date" },
+      meta: { label: "Created" },
 
       cell: CellHelpers.time,
     }),

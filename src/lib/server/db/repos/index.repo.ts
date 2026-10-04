@@ -192,7 +192,8 @@ const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
 
   const [first] = res.data;
   if (!first) {
-    log.error("update_one.error no data");
+    // An ordinary answer — a stale or another org's id — so not an error log.
+    log.debug("update_one.not_found");
 
     return result.err(ERROR.NOT_FOUND);
   }
@@ -247,7 +248,7 @@ const delete_one = async (
   if (!res.ok) return res;
 
   if (!res.data.row_count) {
-    log.error("delete_one.error not found");
+    log.debug("delete_one.not_found");
 
     return result.err(ERROR.NOT_FOUND);
   }

@@ -45,7 +45,9 @@ export const TaskTable = snakeCase.table(
     ...Schema.timestamps,
   },
   (table) => [
-    index("idx_task_org_id").on(table["org_id"]),
+    // Leads with `org_id`, so it serves every org-scoped lookup, and the
+    // list's newest-first order without a sort.
+    index("idx_task_org_id_created_at").on(table["org_id"], table["createdAt"]),
     index("idx_task_user_id").on(table["user_id"]),
     index("idx_task_member_id").on(table["member_id"]),
     index("idx_task_assigned_member_id").on(table["assigned_member_id"]),
@@ -63,7 +65,10 @@ const pick = {
 } satisfies Partial<Record<keyof Task, true>>;
 
 const refinements = {
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(5000, "Description must be at most 5000 characters")
+    .optional(),
   assigned_member_id: z.uuid().optional(),
   /**
    * `datetime-local` carries no zone, so {@link WallClock} applies `TIME.ZONE` before coercion;

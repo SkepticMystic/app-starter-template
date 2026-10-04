@@ -1,26 +1,22 @@
-/**
- * Client-side wrappers for payment operations
- */
-
 import { get_transaction_invoice_remote } from "#lib/remote/transaction/transaction.remote.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 
 export const TransactionClient = {
-  /**
-   * Generate transaction invoice PDF and open in new tab
-   * The PDF is generated server-side, uploaded to R2, and a presigned URL is returned
-   */
+  /** Generate the invoice PDF server-side and open it in a new tab. */
   open_invoice: Client.wrap(
-    (transaction_id: string) =>
-      get_transaction_invoice_remote(transaction_id).then((r) => {
-        if (r.ok) {
-          // `<a target="_blank">` implies noopener; `window.open` does NOT,
-          // and would hand the opened document a live `window.opener` here.
-          window.open(r.data, "_blank", "noopener");
-        }
+    async (transaction_id: string) => {
+      // Opened before the await, while the click still counts as a user
+      // gesture; a `window.open` after it is blocked as a popup.
+      const tab = window.open("about:blank", "_blank");
+      // What `noopener` would do, without losing the handle to navigate it.
+      if (tab) tab.opener = null;
 
-        return r;
-      }),
-    { suc_msg: "Transaction invoice generated" },
+      const res = await get_transaction_invoice_remote(transaction_id);
+      if (res.ok && tab) tab.location.href = res.data;
+      else tab?.close();
+
+      return res;
+    },
+    { suc_msg: "Invoice ready" },
   ),
 };

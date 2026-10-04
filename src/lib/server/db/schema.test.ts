@@ -138,16 +138,12 @@ const foreign_keys = () =>
 describe("schema — foreign keys are indexed", () => {
   const SESSION =
     "Better-Auth's `session`, which `storeSessionInDatabase: false` leaves empty";
-  const FOLLOW_UP = "pre-existing; index in a follow-up migration";
 
   /** `table.column`, by database name. */
   const UNINDEXED: Record<string, string> = {
-    "invitation.inviter_id": FOLLOW_UP,
-    "paystack_transaction.user_id": FOLLOW_UP,
     "session.active_organization_id": SESSION,
     "session.impersonated_by": SESSION,
     "session.member_id": SESSION,
-    "subscription.user_id": FOLLOW_UP,
   };
 
   it("indexes every foreign key the list does not excuse", () => {

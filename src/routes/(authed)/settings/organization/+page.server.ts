@@ -1,7 +1,7 @@
 import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { get_session } from "#lib/server/services/auth.service.js";
-import { raise, result } from "#lib/utils/result.util.js";
+import { raise } from "#lib/utils/result.util.js";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
@@ -32,7 +32,7 @@ export const load = (async () => {
           },
         },
       }),
-    ).then((r) => result.unwrap_or(r, [])),
+    ),
     Repo.query(
       db.query.invitation.findMany({
         where: { organizationId: session.data.session.org_id },
@@ -43,9 +43,14 @@ export const load = (async () => {
           status: true,
           expiresAt: true,
         },
+        orderBy: { createdAt: "desc" },
       }),
-    ).then((r) => result.unwrap_or(r, [])),
+    ),
   ]);
 
-  return { members, invitations };
+  // A failed read is a fault, not an empty organization.
+  if (!members.ok) raise(members.error);
+  if (!invitations.ok) raise(invitations.error);
+
+  return { members: members.data, invitations: invitations.data };
 }) satisfies PageServerLoad;

@@ -1,24 +1,11 @@
-import { db } from "#lib/server/db/drizzle.db.js";
 import { TaskSchema, type Task } from "#lib/server/db/models/task.model.js";
-import { Repo } from "#lib/server/db/repos/index.repo.js";
 import {
   guarded_command,
   guarded_form,
-  guarded_query,
   ORG,
 } from "#lib/server/remote/guarded.js";
 import { TaskService } from "#lib/server/services/task/task.service.js";
 import { z } from "zod";
-
-export const get_all_tasks_remote = guarded_query(ORG, async ({ org_id }) =>
-  Repo.query(
-    db.query.task.findMany({
-      where: { org_id },
-
-      orderBy: { createdAt: "desc" },
-    }),
-  ),
-);
 
 export const create_task_remote = guarded_form(
   ORG,

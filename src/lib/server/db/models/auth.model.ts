@@ -110,7 +110,14 @@ export const AccountTable = snakeCase.table(
 
     ...Schema.timestamps,
   },
-  (table) => [index("account_user_id_idx").on(table.userId)],
+  (table) => [
+    index("account_user_id_idx").on(table.userId),
+    // Better-Auth looks an account up by this pair on every OAuth sign-in and link.
+    index("account_provider_id_account_id_idx").on(
+      table.providerId,
+      table.accountId,
+    ),
+  ],
 );
 
 export type Account = typeof AccountTable.$inferSelect;
@@ -138,9 +145,10 @@ export const OrganizationSchema = {
     name: z
       .string()
       .trim()
-      .min(2, "Organization name must be at least 2 characters"),
+      .min(2, "Organization name must be at least 2 characters")
+      .max(255, "Organization name must be at most 255 characters"),
     logo: z
-      .union([z.url("Logo must be a valid URL"), z.literal("")])
+      .union([z.url("Logo must be a valid URL").max(2048), z.literal("")])
       .transform((v) => v || undefined)
       .optional(),
   }).pick({
@@ -245,6 +253,8 @@ export const InvitationTable = snakeCase.table(
   (table) => [
     index("invitation_email_idx").on(table.email),
     index("invitation_organization_id_idx").on(table.organizationId),
+    // `user` deletion cascades through it.
+    index("invitation_inviter_id_idx").on(table.inviterId),
   ],
 );
 
@@ -253,7 +263,7 @@ export type NewInvitation = typeof InvitationTable.$inferInsert;
 
 export const InvitationSchema = {
   create: createInsertSchema(InvitationTable, {
-    email: z.email("Please enter a valid email address"),
+    email: z.email("Please enter a valid email address").max(255),
     role: z.enum(ORGANIZATION.ROLES.IDS).default("member"),
   }).pick({
     email: true,

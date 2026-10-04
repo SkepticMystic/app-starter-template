@@ -559,18 +559,62 @@ describe("date ranges", () => {
     expect(TableFilters.range_value(range)).toBe(range);
   });
 
-  it("reports a server-side date filter as unset rather than half-working", () => {
+  it("writes a complete range as a _from/_to pair and reads it back", () => {
+    const range = { start: day(1), end: day(7) };
+    const patch = TableFilters.write_param(CREATED, range);
+
+    expect(patch).toEqual({
+      createdAt_from: range.start.toString(),
+      createdAt_to: range.end.toString(),
+      offset: null,
+    });
+
+    const params = new URLSearchParams({
+      createdAt_from: range.start.toString(),
+      createdAt_to: range.end.toString(),
+    });
+    const read = TableFilters.read_param(CREATED, params);
+
+    expect(TableFilters.range_value(read)?.start?.toString()).toBe(
+      range.start.toString(),
+    );
+    expect(TableFilters.range_value(read)?.end?.toString()).toBe(
+      range.end.toString(),
+    );
+  });
+
+  it("writes a half-open range as nothing, since it narrows nothing", () => {
+    expect(
+      TableFilters.write_param(CREATED, { start: day(1), end: undefined }),
+    ).toEqual({ createdAt_from: null, createdAt_to: null, offset: null });
+  });
+
+  it("reads one end, or a malformed date, as unset", () => {
     expect(
       TableFilters.read_param(
         CREATED,
-        new URLSearchParams("createdAt=2026-08-01"),
+        new URLSearchParams("createdAt_from=2026-08-01"),
+      ),
+    ).toBeUndefined();
+    expect(
+      TableFilters.read_param(
+        CREATED,
+        new URLSearchParams("createdAt_from=nope&createdAt_to=2026-08-02"),
       ),
     ).toBeUndefined();
   });
 
-  it("writes nothing for one, so it is inert in both directions", () => {
+  it("clears and detects both of its params", () => {
+    expect(TableFilters.clear_params([CREATED])).toEqual({
+      createdAt_from: null,
+      createdAt_to: null,
+      offset: null,
+    });
     expect(
-      TableFilters.write_param(CREATED, { start: day(1), end: day(7) }),
-    ).toEqual({ createdAt: null, offset: null });
+      TableFilters.is_filtering_params(
+        [CREATED],
+        new URLSearchParams("createdAt_to=2026-08-02"),
+      ),
+    ).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { get_session } from "#lib/server/services/auth.service.js";
-import { raise, result } from "#lib/utils/result.util.js";
+import { raise } from "#lib/utils/result.util.js";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async () => {
@@ -26,7 +26,8 @@ export const load = (async () => {
         },
       },
     }),
-  ).then((r) => result.unwrap_or(r, []));
+  );
+  if (!orgs.ok) raise(orgs.error);
 
-  return { orgs };
+  return { orgs: orgs.data };
 }) satisfies PageServerLoad;

@@ -3,8 +3,9 @@ import type {
   DataTableFilter,
   DataTableFilterValue,
 } from "#lib/interfaces/tanstack/table.type.js";
-import { DateRanges } from "../date/date_range.util";
-import type { SearchParamValue } from "../urls";
+import { DateRanges } from "../date/date_range.util.js";
+import type { SearchParamValue } from "../urls.js";
+import { parseDate } from "@internationalized/date";
 import type { DateRange } from "bits-ui";
 import type { ColumnFiltersState } from "@tanstack/svelte-table";
 
@@ -66,7 +67,9 @@ const is_filtering_params = (
   params: URLSearchParams,
 ) =>
   filters.some((filter) =>
-    params.getAll(param_of(filter)).some((value) => value !== ""),
+    params_of(filter).some((key) =>
+      params.getAll(key).some((value) => value !== ""),
+    ),
   );
 
 /** A column's filter value as a search box can render it. `getFilterValue()` is `unknown`, and a
@@ -123,6 +126,23 @@ const facet_options = (
 /** The query param a descriptor rides in. */
 const param_of = (filter: DataTableFilter) => filter.param ?? filter.id;
 
+/** Every param a descriptor owns: a `date_range` is a pair of dates, so it rides in two. */
+const params_of = (filter: DataTableFilter) =>
+  filter.kind === "date_range"
+    ? [`${param_of(filter)}_from`, `${param_of(filter)}_to`]
+    : [param_of(filter)];
+
+/** A `YYYY-MM-DD` param as a calendar date, or `undefined` for anything else. */
+const parse_day = (raw: string | null) => {
+  if (!raw) return undefined;
+
+  try {
+    return parseDate(raw);
+  } catch {
+    return undefined;
+  }
+};
+
 /** Read one control's current value back out of the query string. The other half of
  * {@link write_param}, and they must agree: a `multi` writes one param per value, so it `getAll`s. */
 const read_param = (
@@ -138,9 +158,13 @@ const read_param = (
     return params.getAll(key);
   }
 
-  // See the `date_range` variant's NOTE: a pair of dates has no single-param encoding, and inventing
-  // one without a loader that reads it would be a filter that appears to work and narrows nothing.
-  if (filter.kind === "date_range") return undefined;
+  // Both ends or nothing: a half-open range narrows nothing, so it reads as unset.
+  if (filter.kind === "date_range") {
+    const start = parse_day(params.get(`${key}_from`));
+    const end = parse_day(params.get(`${key}_to`));
+
+    return start && end ? { start, end } : undefined;
+  }
 
   const raw = params.get(key);
   if (raw === null) return undefined;
@@ -169,19 +193,32 @@ const read_params = (
 const write_param = (
   filter: DataTableFilter,
   value: DataTableFilterValue,
-): Record<string, SearchParamValue> => ({
-  /** A pair of dates has no single-param encoding — see the `date_range` NOTE — so on a server
-   * table the control stays inert in *both* directions rather than writing a range no loader reads. */
-  [param_of(filter)]: is_empty_value(value) || is_range(value) ? null : value,
-  offset: null,
-});
+): Record<string, SearchParamValue> => {
+  if (filter.kind === "date_range") {
+    const range = is_range(value) && !is_empty_value(value) ? value : null;
+    const [from, to] = params_of(filter) as [string, string];
+
+    return {
+      [from]: range?.start?.toString() ?? null,
+      [to]: range?.end?.toString() ?? null,
+      offset: null,
+    };
+  }
+
+  return {
+    [param_of(filter)]: is_empty_value(value) || is_range(value) ? null : value,
+    offset: null,
+  };
+};
 
 /** The patch that empties every control at once — what Clear sends. Every param this toolbar
  * owns and no others: a Clear that rebuilt the query string would take `limit` with it. */
 const clear_params = (
   filters: DataTableFilter[],
 ): Record<string, SearchParamValue> => ({
-  ...Object.fromEntries(filters.map((filter) => [param_of(filter), null])),
+  ...Object.fromEntries(
+    filters.flatMap((filter) => params_of(filter).map((key) => [key, null])),
+  ),
   offset: null,
 });
 

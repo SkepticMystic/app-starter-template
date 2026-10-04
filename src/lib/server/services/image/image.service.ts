@@ -111,14 +111,21 @@ const upload = async (
     ]);
     if (!upload_res.ok) return upload_res;
 
+    // Every failure past this point leaves an asset nothing references.
+    const { external_id } = upload_res.data;
+    const discard = () =>
+      RuntimeService.defer(async () => ImageHostingService.delete(external_id));
+
     const moderation = await AIModerationService.image(upload_res.data.url);
-    if (!moderation.ok) return moderation;
-    else if (moderation.data.flagged) {
-      await ImageHostingService.delete(upload_res.data.external_id);
+    if (!moderation.ok) {
+      discard();
+      return moderation;
+    } else if (moderation.data.flagged) {
+      discard();
 
       return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Image moderation flagged",
+        ...ERROR.INVALID_INPUT,
+        message: "This image isn't allowed. Please choose another",
       });
     }
 
@@ -133,6 +140,7 @@ const upload = async (
 
       thumbhash: thumbhash.ok ? thumbhash.data : null,
     });
+    if (!image.ok) discard();
 
     return image;
   } catch (error) {
@@ -162,6 +170,13 @@ const delete_many = async (
   try {
     if (!session.session.org_id) {
       return result.err(ERROR.FORBIDDEN);
+    }
+    // With neither, the filter below would match every image in the org.
+    else if (!input.id && !input.resource_id) {
+      return result.err({
+        ...ERROR.INVALID_INPUT,
+        message: "An image or resource id is required",
+      });
     }
 
     const images = await Repo.query(

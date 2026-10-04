@@ -175,9 +175,8 @@ export type DataTableFilter =
       max_days?: number;
 
       /**
-       * NOTE: client-side only today. A URL cannot hold one param that is a pair
-       * of dates; a server version needs a `_from`/`_to` encoding and a loader,
-       * so `read_param` reports one as unset.
+       * On a server table it rides in `<param>_from` and `<param>_to`, each a
+       * `YYYY-MM-DD` calendar date, inclusive; the loader reads both.
        */
     })
   | (DataTableFilterBase & {

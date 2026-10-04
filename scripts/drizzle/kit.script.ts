@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 /**
  * This list exists so a typo gets our error instead of drizzle-kit's, which means a
@@ -38,11 +38,12 @@ if (!subcommand) {
   process.exit(1);
 }
 
-const command = "drizzle-kit " + args.join(" ");
-console.log({ command });
+console.log({ command: ["drizzle-kit", ...args] });
 
 try {
-  execSync(command, { stdio: "inherit" });
+  // An argument array, not a joined string: a shell would split a quoted
+  // value such as `--hints '[…]'` at its spaces and strip its quotes.
+  execFileSync("drizzle-kit", args, { stdio: "inherit" });
 } catch (error) {
   console.error("Command execution failed:", error);
   process.exit(1);

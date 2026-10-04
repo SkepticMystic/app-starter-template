@@ -30,6 +30,10 @@ export const upload_images_remote = guarded_form(
       .array(
         z
           .file()
+          .mime(
+            IMAGE_HOSTING.LIMITS.MIME,
+            "Only PNG, JPEG, WebP, GIF or AVIF images",
+          )
           .max(
             IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES,
             `File must be smaller than ${format_bytes(IMAGE_HOSTING.LIMITS.MAX_FILE_SIZE_BYTES)}`,

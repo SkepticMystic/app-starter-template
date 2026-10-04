@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { TaskClient } from "#lib/clients/tasks.client.js";
   import StatusBadge from "#lib/components/ui/badge/StatusBadge.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
   import Card from "#lib/components/ui/card/Card.svelte";
@@ -32,6 +34,17 @@
       >
         Edit task
       </Button>
+
+      <Button
+        variant="destructive"
+        icon="lucide/trash-2"
+        onclick={() =>
+          TaskClient.delete(task.id, {
+            on_success: () => goto(resolve("/(authed)/tasks")),
+          })}
+      >
+        Delete
+      </Button>
     {/snippet}
   </Header>
 
@@ -52,6 +65,14 @@
           <DescriptionList>
             <DescriptionItem label="Status">
               <StatusBadge status={TASKS.STATUS.MAP[task.status]} />
+            </DescriptionItem>
+
+            <DescriptionItem label="Assignee">
+              {#if task.assignee}
+                {task.assignee.user.name || task.assignee.user.email}
+              {:else}
+                <span class="text-muted-foreground">Unassigned</span>
+              {/if}
             </DescriptionItem>
 
             <DescriptionItem label="Due">
