@@ -9,7 +9,6 @@
   import DropdownMenuContent from "#lib/components/ui/dropdown-menu/dropdown-menu-content.svelte";
   import DropdownMenuGroup from "#lib/components/ui/dropdown-menu/dropdown-menu-group.svelte";
   import DropdownMenuItem from "#lib/components/ui/dropdown-menu/dropdown-menu-item.svelte";
-  import DropdownMenuLabel from "#lib/components/ui/dropdown-menu/dropdown-menu-label.svelte";
   import DropdownMenuRoot from "#lib/components/ui/dropdown-menu/dropdown-menu-root.svelte";
   import DropdownMenuSeparator from "#lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte";
   import DropdownMenuTrigger from "#lib/components/ui/dropdown-menu/dropdown-menu-trigger.svelte";
@@ -53,7 +52,7 @@
             <AvatarRoot class="size-8 rounded-md">
               <AvatarImage
                 src={user?.image}
-                alt={user?.name}
+                alt=""
               />
 
               <AvatarFallback class="rounded-md">
@@ -80,31 +79,31 @@
         class="w-(--bits-dropdown-menu-anchor-width) min-w-56 rounded-md"
         side={sidebar.isMobile ? "bottom" : "right"}
       >
-        <DropdownMenuLabel class="p-0 font-normal">
-          <a
-            class={[
-              "flex items-center gap-2 px-1 py-1.5 text-start text-sm",
-              "hover:bg-accent hover:text-accent-foreground",
-            ]}
-            href={resolve("/(authed)/settings/profile")}
-          >
-            <AvatarRoot class="size-8 rounded-md">
-              <AvatarImage
-                src={user?.image}
-                alt={user?.name}
-              />
+        <!-- An item rather than a label, so arrow keys reach it like the rest of the menu. -->
+        <DropdownMenuItem class="px-1">
+          {#snippet child({ props })}
+            <a
+              {...props}
+              href={resolve("/(authed)/settings/profile")}
+            >
+              <AvatarRoot class="size-8 rounded-md">
+                <AvatarImage
+                  src={user?.image}
+                  alt=""
+                />
 
-              <AvatarFallback class="rounded-md">
-                {user?.name.at(0) ?? ""}
-              </AvatarFallback>
-            </AvatarRoot>
+                <AvatarFallback class="rounded-md">
+                  {user?.name.at(0) ?? ""}
+                </AvatarFallback>
+              </AvatarRoot>
 
-            <div class="grid flex-1 text-start text-sm/tight">
-              <span class="truncate font-medium">{user?.name}</span>
-              <span class="truncate text-xs">{user?.email}</span>
-            </div>
-          </a>
-        </DropdownMenuLabel>
+              <div class="grid flex-1 text-start text-sm/tight">
+                <span class="truncate font-medium">{user?.name}</span>
+                <span class="truncate text-xs">{user?.email}</span>
+              </div>
+            </a>
+          {/snippet}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>

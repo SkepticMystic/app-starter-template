@@ -16,7 +16,9 @@
 </script>
 
 {#snippet icon_snippet()}
+  <!-- Decorative unless given an `aria-label`: `label` is visible text beside it, which already names the pair. -->
   <svg
+    aria-hidden={rest["aria-label"] ? undefined : "true"}
     class={[bg ? "icon-bg" : "icon", icon, "size-4", klass]}
     {...rest}
   ></svg>

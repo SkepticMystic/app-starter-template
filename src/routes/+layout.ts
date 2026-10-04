@@ -1,4 +1,5 @@
 import { APP } from "#lib/const/app.const.js";
+import { TIME } from "#lib/const/time.const.js";
 import type { LayoutLoad } from "./$types";
 
 export const load = (({ url, data }) => {
@@ -29,7 +30,8 @@ export const load = (({ url, data }) => {
       url: href,
       type: "website",
 
-      locale: "en_ZA",
+      // Open Graph spells a locale with an underscore.
+      locale: TIME.LOCALE.replace("-", "_"),
       images: [image],
       siteName: APP.NAME,
       description: APP.DESCRIPTION,

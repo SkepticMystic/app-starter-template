@@ -1,11 +1,17 @@
 <script lang="ts">
-  import { resetMode, setMode } from "mode-watcher";
-  import { buttonVariants } from "../../ui/button/button-root.svelte";
-  import DropdownMenuContent from "../../ui/dropdown-menu/dropdown-menu-content.svelte";
-  import DropdownMenuItem from "../../ui/dropdown-menu/dropdown-menu-item.svelte";
-  import DropdownMenuRoot from "../../ui/dropdown-menu/dropdown-menu-root.svelte";
-  import DropdownMenuTrigger from "../../ui/dropdown-menu/dropdown-menu-trigger.svelte";
-  import Icon from "../../ui/icon/Icon.svelte";
+  import { buttonVariants } from "#lib/components/ui/button/button-root.svelte";
+  import DropdownMenuContent from "#lib/components/ui/dropdown-menu/dropdown-menu-content.svelte";
+  import DropdownMenuRadioGroup from "#lib/components/ui/dropdown-menu/dropdown-menu-radio-group.svelte";
+  import DropdownMenuRadioItem from "#lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte";
+  import DropdownMenuRoot from "#lib/components/ui/dropdown-menu/dropdown-menu-root.svelte";
+  import DropdownMenuTrigger from "#lib/components/ui/dropdown-menu/dropdown-menu-trigger.svelte";
+  import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import { resetMode, setMode, userPrefersMode } from "mode-watcher";
+
+  const set = (mode: string) => {
+    if (mode === "light" || mode === "dark") setMode(mode);
+    else resetMode();
+  };
 </script>
 
 <DropdownMenuRoot>
@@ -32,8 +38,10 @@
   </DropdownMenuTrigger>
 
   <DropdownMenuContent align="end">
-    <DropdownMenuItem onclick={() => setMode("light")}>Light</DropdownMenuItem>
-    <DropdownMenuItem onclick={() => setMode("dark")}>Dark</DropdownMenuItem>
-    <DropdownMenuItem onclick={() => resetMode()}>System</DropdownMenuItem>
+    <DropdownMenuRadioGroup bind:value={() => userPrefersMode.current, set}>
+      <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+      <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+      <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+    </DropdownMenuRadioGroup>
   </DropdownMenuContent>
 </DropdownMenuRoot>

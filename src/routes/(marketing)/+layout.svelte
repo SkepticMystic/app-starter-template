@@ -3,6 +3,7 @@
   import { page } from "$app/state";
   import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
+  import FooterBlock from "#lib/components/blocks/footer/FooterBlock.svelte";
   import { APP } from "#lib/const/app.const.js";
 
   let { children } = $props();
@@ -12,7 +13,7 @@
   <header>
     <nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-3">
       <Button
-        href="/"
+        href={resolve("")}
         variant="ghost"
       >
         {APP.NAME}
@@ -20,17 +21,10 @@
 
       <ButtonGroup>
         {#if page.data.user}
-          <ButtonGroup>
-            <Button href={resolve("home")}>Home</Button>
-          </ButtonGroup>
+          <Button href={resolve("home")}>Home</Button>
         {:else}
-          <ButtonGroup>
-            <Button href={resolve("auth/signup")}>Sign up</Button>
-          </ButtonGroup>
-
-          <ButtonGroup>
-            <Button href={resolve("auth/signin")}>Sign in</Button>
-          </ButtonGroup>
+          <Button href={resolve("auth/signup")}>Sign up</Button>
+          <Button href={resolve("auth/signin")}>Sign in</Button>
         {/if}
       </ButtonGroup>
     </nav>
@@ -45,4 +39,6 @@
   >
     {@render children?.()}
   </main>
+
+  <FooterBlock />
 </div>

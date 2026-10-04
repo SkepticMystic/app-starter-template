@@ -13,7 +13,7 @@ export const AccountClient = {
         "Unlink this account? It stops being one of your sign-in methods.",
       destructive: true,
       action_label: "Unlink account",
-      suc_msg: "Account unlinked successfully",
+      suc_msg: "Account unlinked",
     },
   ),
 };

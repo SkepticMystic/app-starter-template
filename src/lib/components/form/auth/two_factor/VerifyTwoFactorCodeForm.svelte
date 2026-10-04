@@ -1,6 +1,5 @@
 <script lang="ts">
   import FormErrors from "#lib/components/form/FormErrors.svelte";
-  import { Toast } from "#lib/utils/toast.util.js";
   import Checkbox from "#lib/components/ui/checkbox/checkbox.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
   import InputOtp from "#lib/components/ui/input-otp/input-otp.svelte";
@@ -28,24 +27,14 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async (e) => {
-    await e.submit();
-
-    FormUtil.count_issue_metrics(form, "verify_two_factor_code_form");
-
-    const res = form.result;
-
-    if (res?.ok) {
-      e.element.reset();
-
-      on_success(res.data);
-    } else if (res?.error) {
-      Toast.err(res.error);
-    }
+  {...FormUtil.enhance(form, {
+    metric: "verify_two_factor_code_form",
+    on_success: (data) => on_success(data),
+    reset: true,
   })}
 >
   <Field
-    label="Pin code"
+    label="Authentication code"
     field={form.fields.code}
     description="The {TWO_FACTOR.TOTP.DIGITS} digit code from your 2FA app"
   >
@@ -61,7 +50,7 @@
     <Field
       orientation="horizontal"
       field={form.fields.trust_device}
-      label="Trust this device for 30 days?"
+      label="Trust this device for {TWO_FACTOR.TRUST_DAYS} days?"
     >
       {#snippet input({ props, field })}
         <Checkbox
@@ -78,7 +67,7 @@
     icon="lucide/lock"
     disabled={form.fields.code.value()?.length !== TWO_FACTOR.TOTP.DIGITS}
   >
-    Submit
+    Verify
   </FormButton>
 
   <FormErrors {form} />

@@ -1,10 +1,10 @@
 <script lang="ts">
+  import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
   import { SIDEBAR_KEYBOARD_SHORTCUT } from "#lib/components/ui/sidebar/constants.js";
   import SidebarTrigger from "#lib/components/ui/sidebar/sidebar-trigger.svelte";
   import Tip from "#lib/components/ui/tooltip/Tip.svelte";
   import { chord_label } from "#lib/utils/keyboard.util.js";
   import { apple_keyboard } from "#lib/utils/keyboard.util.svelte.js";
-  import ButtonGroup from "../../ui/button-group/button-group.svelte";
   import ThemeSelector from "./ThemeSelector.svelte";
 
   // The sidebar's window shortcut takes either modifier: `aria-keyshortcuts` spells both, the

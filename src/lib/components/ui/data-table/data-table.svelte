@@ -337,12 +337,14 @@
                 {label}
                 icon=""
                 variant="outline"
-                items={input.bulk_actions(selected_rows).map((item) => {
-                  if (item.kind === undefined || item.kind === "item") {
-                    item.disabled = item.disabled || selected_rows.length === 0;
-                  }
-                  return item;
-                })}
+                items={input.bulk_actions(selected_rows).map((item) =>
+                  item.kind === undefined || item.kind === "item"
+                    ? {
+                        ...item,
+                        disabled: item.disabled || selected_rows.length === 0,
+                      }
+                    : item,
+                )}
               ></DropdownMenu>
             {:else}
               <div class="text-sm text-muted-foreground">{label}</div>
@@ -370,7 +372,19 @@
                 {/if}
 
                 {#each header_group.headers as header (header.id)}
-                  <TableHead colspan={header.colSpan}>
+                  {@const sorted = header.column.getIsSorted()}
+
+                  <TableHead
+                    colspan={header.colSpan}
+                    aria-sort={!header.isPlaceholder &&
+                    header.column.getCanSort()
+                      ? sorted === "asc"
+                        ? "ascending"
+                        : sorted === "desc"
+                          ? "descending"
+                          : "none"
+                      : undefined}
+                  >
                     {#if !header.isPlaceholder}
                       {#if header.column.getCanSort() || header.column.getCanHide() || TanstackTableUtil.can_group(header.column)}
                         <DataTableColumnHeaderDropdownMenu {header} />
@@ -436,7 +450,7 @@
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          title={row.getIsExpanded() ? "Collapse" : "Expand"}
+                          aria-label="Toggle group"
                           aria-expanded={row.getIsExpanded()}
                           disabled={!row.getCanExpand()}
                           icon={row.getIsExpanded()

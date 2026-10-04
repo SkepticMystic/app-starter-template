@@ -87,10 +87,7 @@
       {/snippet}
     </Tip>
   {:else}
-    <ModalTrigger
-      {title}
-      class={buttonVariants({ variant, size })}
-    >
+    <ModalTrigger class={buttonVariants({ variant, size })}>
       <Icon {icon} />
       {@render trigger?.()}
     </ModalTrigger>

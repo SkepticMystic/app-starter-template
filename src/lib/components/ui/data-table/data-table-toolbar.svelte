@@ -52,6 +52,15 @@
     onchange: (filter: DataTableFilter, value: DataTableFilterValue) => void;
     onclear: () => void;
   } = $props();
+
+  /** The accessible name of a control with no `label` above it — otherwise a search box or select is named only by
+   * a placeholder, which is not a name. Trigger buttons (date range, multi) already read out their own text. */
+  const bare_name = (filter: DataTableFilter) =>
+    filter.kind === "search"
+      ? (filter.placeholder ?? filter.id)
+      : filter.kind === "select"
+        ? (filter.all_label ?? filter.id)
+        : undefined;
 </script>
 
 {#snippet control(filter: DataTableFilter, props: Record<string, unknown>)}
@@ -110,6 +119,7 @@
         class="max-w-xs"
         value={global_search.value}
         placeholder={global_search.placeholder}
+        aria-label={global_search.placeholder}
         on_value_change={global_search.onchange}
       />
     {/if}
@@ -128,7 +138,7 @@
           {/snippet}
         </Field>
       {:else}
-        {@render control(filter, {})}
+        {@render control(filter, { "aria-label": bare_name(filter) })}
       {/if}
     {/each}
 

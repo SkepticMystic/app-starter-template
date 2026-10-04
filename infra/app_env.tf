@@ -62,6 +62,9 @@ locals {
     APP_ENV                  = { key = "APP_ENV", value = "production", targets = ["production"], sensitive = false }
     APP_ENV_PREVIEW          = { key = "APP_ENV", value = "preview", targets = ["preview"], sensitive = false }
     APP_ENV_DEV              = { key = "APP_ENV", value = "development", targets = ["development"], sensitive = false }
+    PUBLIC_APP_ENV           = { key = "PUBLIC_APP_ENV", value = "production", targets = ["production"], sensitive = false }
+    PUBLIC_APP_ENV_PREVIEW   = { key = "PUBLIC_APP_ENV", value = "preview", targets = ["preview"], sensitive = false }
+    PUBLIC_APP_ENV_DEV       = { key = "PUBLIC_APP_ENV", value = "development", targets = ["development"], sensitive = false }
     CLOUDINARY_UPLOAD_PRESET = { key = "CLOUDINARY_UPLOAD_PRESET", value = var.cloudinary_upload_preset, targets = ["production", "preview", "development"], sensitive = false }
   }
 }

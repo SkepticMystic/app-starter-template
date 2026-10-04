@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import CredentialSignupForm from "#lib/components/form/authenticate/CredentialSignupForm.svelte";
   import OAuthSigninButton from "#lib/components/form/authenticate/OAuthSigninButton.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
@@ -32,6 +33,13 @@
       <Separator />
 
       <CredentialSignupForm redirect_uri={data.search.redirect_uri} />
+
+      <p class="text-xs text-muted-foreground">
+        By signing up you agree to our
+        <a href={resolve("legal/terms")}>terms of service</a>
+        and
+        <a href={resolve("legal/privacy")}>privacy policy</a>.
+      </p>
 
       <ul>
         <li>

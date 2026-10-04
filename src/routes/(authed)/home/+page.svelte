@@ -1,36 +1,76 @@
 <script lang="ts">
-  import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
+  import { page } from "$app/state";
+  import { resolve } from "$app/paths";
   import Button from "#lib/components/ui/button/button.svelte";
-  import Logo from "#lib/components/ui/image/Logo.svelte";
-  import { APP } from "#lib/const/app.const.js";
+  import Header from "#lib/components/ui/header/Header.svelte";
+  import Item from "#lib/components/ui/item/Item.svelte";
+  import { Format } from "#lib/utils/format.util.js";
+
+  let { data } = $props();
+
+  const first_name = $derived(page.data.user?.name.split(" ")[0]);
+
+  const stats = $derived([
+    {
+      title: "Open tasks",
+      icon: "lucide/list-todo",
+      value: data.stats.open,
+      href: resolve("/(authed)/tasks"),
+    },
+    {
+      title: "Overdue",
+      icon: "lucide/alarm-clock",
+      value: data.stats.overdue,
+      href: resolve("/(authed)/tasks"),
+    },
+    {
+      title: "Members",
+      icon: "lucide/users",
+      value: data.stats.members,
+      href: resolve("/(authed)/settings/organization"),
+    },
+  ]);
 </script>
 
-<!-- A hero rather than a `Header`, so it names its own tab: `SEO` leaves signed-in titles to the page. -->
-<svelte:head>
-  <title>Home · {APP.NAME}</title>
-</svelte:head>
+<article>
+  <Header
+    head_title="Home"
+    title={first_name ? `Welcome back, ${first_name}` : "Welcome back"}
+  />
 
-<article class="mx-auto mt-32 flex max-w-lg flex-col gap-y-7">
-  <header class="flex flex-col items-center gap-4">
-    <Logo size="size-16" />
-    <h1>{APP.NAME}</h1>
-    <p>{APP.DESCRIPTION}</p>
-  </header>
+  <section class="grid gap-3 sm:grid-cols-3">
+    {#each stats as stat (stat.title)}
+      <Item
+        variant="outline"
+        icon={stat.icon}
+        title={stat.title}
+        description={Format.number(stat.value)}
+      >
+        {#snippet actions()}
+          <Button
+            variant="ghost"
+            icon="lucide/arrow-right"
+            href={stat.href}
+            tip="Go to {stat.title.toLowerCase()}"
+          />
+        {/snippet}
+      </Item>
+    {/each}
+  </section>
 
-  <section class="flex justify-center pb-10">
-    <ButtonGroup>
-      <ButtonGroup>
-        <Button href="/tasks">Tasks</Button>
-      </ButtonGroup>
-
-      <ButtonGroup>
-        <Button
-          href="/settings/profile"
-          variant="secondary"
-        >
-          Profile
-        </Button>
-      </ButtonGroup>
-    </ButtonGroup>
+  <section class="flex flex-wrap gap-2">
+    <Button
+      icon="lucide/plus"
+      href={resolve("/(authed)/tasks")}
+    >
+      Go to tasks
+    </Button>
+    <Button
+      variant="secondary"
+      icon="lucide/user"
+      href={resolve("/(authed)/settings/profile")}
+    >
+      Edit profile
+    </Button>
   </section>
 </article>

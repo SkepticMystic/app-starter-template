@@ -19,7 +19,7 @@ const log = Log.child({ service: "Organization" });
 
 const create = async (
   input: z.output<typeof OrganizationSchema.create>,
-  session: { session: { token: string }; user: { id: string } },
+  session: { user: { id: string } },
 ): Promise<App.Result<Organization>> => {
   const l = log.child({ method: "create" });
 
@@ -42,9 +42,8 @@ const create = async (
       });
     }
 
-    // BA's createOrganization with keepCurrentActiveOrganization: false
-    // calls setActiveOrganization internally, which fires our session.update
-    // databaseHook to populate org_id, member_id, and member_role.
+    // Called without headers, so there is no session to switch: the client
+    // sets the new org active itself (`OrganizationClient.set_active`).
 
     return result.suc(org);
   } catch (error) {

@@ -1,5 +1,5 @@
 import { TIME } from "#lib/const/time.const.js";
-import { Guard } from "./guard.util";
+import { Guard } from "./guard.util.js";
 
 /** The empty-value sentinel, so the dash is written down once. */
 export const EMPTY = "-";
@@ -8,7 +8,7 @@ export const EMPTY = "-";
  * Dates read the South African way ("15 Aug 2026"). Numbers do not: `en-ZA` groups with a
  * space and decimals with a comma ("R 1 234,50"), which nobody here writes, so they use `en`.
  */
-const DATE_LOCALE = "en-ZA";
+const DATE_LOCALE = TIME.LOCALE;
 const NUMBER_LOCALE = "en";
 
 const DEFAULT_OPTIONS = {

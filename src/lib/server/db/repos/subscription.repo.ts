@@ -3,67 +3,37 @@ import { eq } from "drizzle-orm";
 import {
   SubscriptionTable,
   type Subscription,
-} from "../models/subscription.model";
-import { Repo } from "./index.repo";
+} from "../models/subscription.model.js";
+import { Repo } from "./index.repo.js";
 
 /**
- * Subscription Repository - CRUD operations for subscriptions
- *
- * Pure database operations without org-scoping.
- * Org-scoping is handled at service layer via authorization.
- * Uses Repo wrapper for consistent error handling.
+ * Pure database operations without org-scoping: the service layer checks the
+ * row's `referenceId` against the session's org.
  */
 
 const get_by_id = async (
   subscription_id: string,
-): Promise<App.Result<Subscription | undefined>> => {
-  return await Repo.query(
+): Promise<App.Result<Subscription | undefined>> =>
+  Repo.query(
     db.query.paystackSubscription.findFirst({
       where: { id: subscription_id },
     }),
   );
-};
 
-/**
- * Create a new subscription
- */
-const create = async (
-  input: typeof SubscriptionTable.$inferInsert,
-): Promise<App.Result<Subscription>> => {
-  return Repo.insert_one(
-    db.insert(SubscriptionTable).values(input).returning(),
-  );
-};
-
+/** The identity columns are left out, so a patch cannot move a row to another org. */
 const update_by_id = async (
   subscription_id: string,
-  input: Partial<Subscription>,
-): Promise<App.Result<Subscription>> => {
-  return await Repo.update_one(
+  input: Partial<Omit<Subscription, "id" | "referenceId" | "userId">>,
+): Promise<App.Result<Subscription>> =>
+  Repo.update_one(
     db
       .update(SubscriptionTable)
       .set(input)
       .where(eq(SubscriptionTable.id, subscription_id))
       .returning(),
   );
-};
-
-const update_by_reference = async (
-  reference: string,
-  input: Partial<Subscription>,
-): Promise<App.Result<Subscription>> => {
-  return await Repo.update_one(
-    db
-      .update(SubscriptionTable)
-      .set(input)
-      .where(eq(SubscriptionTable.transactionReference, reference))
-      .returning(),
-  );
-};
 
 export const SubscriptionRepo = {
   get_by_id,
-  create,
   update_by_id,
-  update_by_reference,
 };

@@ -71,6 +71,14 @@ const response_schema = z.object({
 const moderate = async (input: {
   input: string | MultiModalInput[];
 }): Promise<App.Result<{ flagged: boolean }[]>> => {
+  // Fails closed: unmoderated user content is the thing this exists to stop.
+  if (!OPENAI_API_KEY) {
+    return result.err({
+      ...ERROR.INTERNAL_SERVER_ERROR,
+      message: "Content moderation is not configured",
+    });
+  }
+
   try {
     const start_ms = Date.now();
 
@@ -107,7 +115,13 @@ const moderate = async (input: {
 
       captureException(data.error);
 
-      return result.err(ERROR.INVALID_INPUT);
+      // OpenAI being busy or down is not the input's fault.
+      return response.status === 429 || response.status >= 500
+        ? result.err({
+            ...ERROR.INTERNAL_SERVER_ERROR,
+            message: "Moderation is unavailable. Try again in a moment",
+          })
+        : result.err(ERROR.INVALID_INPUT);
     }
 
     const json = await response.json();

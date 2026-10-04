@@ -12,6 +12,7 @@
     class: className,
     logo,
     logoSize = 0.2,
+    label = "QR code",
   }: {
     value: string;
     size?: number;
@@ -22,6 +23,8 @@
     class?: string;
     logo?: string | Snippet;
     logoSize?: number;
+    /** The SVG's accessible name — what the code is for, where that helps. */
+    label?: string;
   } = $props();
 
   let matrix = $derived.by(() => {
@@ -65,6 +68,8 @@
     xmlns="http://www.w3.org/2000/svg"
     shape-rendering="crispEdges"
     class="size-full"
+    role="img"
+    aria-label={label}
   >
     <rect
       width={viewBoxSize}
@@ -99,7 +104,7 @@
       {#if typeof logo === "string"}
         <img
           src={logo}
-          alt="QR Logo"
+          alt=""
           class="size-full object-contain"
         />
       {:else}

@@ -12,6 +12,11 @@ const get_by_id = async (
 ): Promise<App.Result<{ id: string }>> => {
   switch (resource_kind) {
     case "user": {
+      // Only your own user, so there is nothing to look up for anyone else's.
+      if (resource_id !== session.session.userId) {
+        return result.err(ERROR.FORBIDDEN);
+      }
+
       const res = await Repo.query(
         db.query.user.findFirst({
           columns: { id: true },
@@ -23,14 +28,16 @@ const get_by_id = async (
         return res;
       } else if (!res.data) {
         return result.err(ERROR.NOT_FOUND);
-      } else if (res.data.id !== session.session.userId) {
-        return result.err(ERROR.FORBIDDEN);
       } else {
         return result.suc(res.data);
       }
     }
 
     case "organization": {
+      if (resource_id !== session.session.org_id) {
+        return result.err(ERROR.FORBIDDEN);
+      }
+
       const res = await Repo.query(
         db.query.organization.findFirst({
           columns: { id: true },
@@ -42,8 +49,6 @@ const get_by_id = async (
         return res;
       } else if (!res.data) {
         return result.err(ERROR.NOT_FOUND);
-      } else if (res.data.id !== session.session.org_id) {
-        return result.err(ERROR.FORBIDDEN);
       } else {
         return result.suc(res.data);
       }

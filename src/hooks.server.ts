@@ -82,7 +82,7 @@ const CSP_HEADERS = [
   "content-security-policy-report-only",
 ] as const;
 
-// SEO: Security headers improve trust signals and protect against common attacks.
+// Baseline security headers for every response.
 const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   const response = await resolve(event);
 
@@ -95,8 +95,9 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   // Control how much referrer info is sent
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  // Opt into browser XSS filtering (legacy, but cheap to add)
-  response.headers.set("X-XSS-Protection", "1; mode=block");
+  // `0`, not `1; mode=block`: the legacy filter it enabled could itself be
+  // abused to blank pages, and browsers that still honour it are better off.
+  response.headers.set("X-XSS-Protection", "0");
 
   // Only allow HTTPS connections going forward
   response.headers.set(
@@ -107,7 +108,7 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
   // Restrict browser features your app doesn't need
   response.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(self)",
+    "camera=(), microphone=(), geolocation=()",
   );
 
   if (SENTRY_CSP_URL) {

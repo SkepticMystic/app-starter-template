@@ -14,10 +14,11 @@
 
 <Toggle
   bind:ref
-  aria-label={state.root.opts.hidden.current
-    ? "Show password"
-    : "Hide password"}
-  bind:pressed={state.root.opts.hidden.current}
+  aria-label="Show password"
+  bind:pressed={
+    () => !state.root.opts.hidden.current,
+    (visible) => (state.root.opts.hidden.current = !visible)
+  }
   class={[
     `
       absolute top-1/2 right-0 size-9 min-w-0 -translate-y-1/2 p-0

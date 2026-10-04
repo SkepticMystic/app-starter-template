@@ -1,7 +1,6 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
   import { BetterAuthClient } from "#lib/auth-client.js";
-  import { Toast } from "#lib/utils/toast.util.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
@@ -29,24 +28,16 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async (e) => {
-    await e.submit();
-
-    FormUtil.count_issue_metrics(form, "update_user_form");
-
-    const res = form.result;
-
-    if (res?.ok) {
-      Toast.success("Profile updated");
-
+  {...FormUtil.enhance(form, {
+    metric: "update_user_form",
+    suc_msg: "Profile updated",
+    on_success: async () => {
       BetterAuthClient.$store.notify("$sessionSignal");
       // The sidebar reads `page.data.user`.
       await invalidate("app:session");
 
       await on_success?.();
-    } else if (res?.error) {
-      Toast.err(res.error);
-    }
+    },
   })}
 >
   <Field
@@ -58,6 +49,7 @@
         {...props}
         {...field?.as("text")}
         required
+        maxlength={100}
         autocomplete="name"
       />
     {/snippet}

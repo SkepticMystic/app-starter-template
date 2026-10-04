@@ -1,3 +1,4 @@
+import { resolve } from "$app/paths";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { get_session } from "#lib/server/services/auth.service.js";
@@ -11,7 +12,7 @@ export const load = (async ({ params }) => {
   if (!session.ok) {
     raise(session.error);
   } else if (!session.data.session.org_id) {
-    redirect(302, "/onboarding");
+    redirect(302, resolve("/(marketing)/onboarding"));
   }
 
   const task = await Repo.query(

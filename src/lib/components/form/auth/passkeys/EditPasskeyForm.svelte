@@ -67,6 +67,7 @@
         {...props}
         {...field?.as("text")}
         required
+        maxlength={100}
       />
     {/snippet}
   </Field>

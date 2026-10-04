@@ -29,15 +29,30 @@ import type { z } from "zod";
 
 const log = Log.child({ service: "R2" });
 
-// Initialize R2 client with S3-compatible endpoint
-const r2_client = new S3Client({
-  region: "auto",
-  endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY_ID,
-    secretAccessKey: R2_SECRET_ACCESS_KEY,
-  },
-});
+// `null` when the opt-in storage kit is not configured.
+const r2 =
+  CLOUDFLARE_ACCOUNT_ID &&
+  R2_ACCESS_KEY_ID &&
+  R2_SECRET_ACCESS_KEY &&
+  R2_BUCKET_NAME
+    ? {
+        bucket: R2_BUCKET_NAME,
+        client: new S3Client({
+          region: "auto",
+          endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+          credentials: {
+            accessKeyId: R2_ACCESS_KEY_ID,
+            secretAccessKey: R2_SECRET_ACCESS_KEY,
+          },
+        }),
+      }
+    : null;
+
+const not_configured = () =>
+  result.err({
+    ...ERROR.INTERNAL_SERVER_ERROR,
+    message: "File storage is not configured",
+  });
 
 type BlobPayloadInputTypes =
   | string
@@ -69,10 +84,12 @@ const put = async (input: {
 }): Promise<
   App.Result<PutObjectCommandOutput | CompleteMultipartUploadCommandOutput>
 > => {
+  if (!r2) return not_configured();
+
   try {
     const params = {
       Key: input.key,
-      Bucket: R2_BUCKET_NAME,
+      Bucket: r2.bucket,
       ContentType: input.content_type,
       Metadata: input.metadata,
 
@@ -88,7 +105,7 @@ const put = async (input: {
       // body is never buffered whole. `content_length` is not forwarded — on
       // `CreateMultipartUpload` it would describe a part, not the object.
       const upload = new Upload({
-        client: r2_client,
+        client: r2.client,
         params: { ...params, Body: input.body },
       });
 
@@ -99,7 +116,7 @@ const put = async (input: {
       return result.suc(res);
     }
 
-    const res = await r2_client.send(
+    const res = await r2.client.send(
       new PutObjectCommand({
         ...params,
         Body: input.body,
@@ -150,11 +167,13 @@ export const R2Service = {
    * @returns Result<void>
    */
   async delete(key: string): Promise<App.Result<void>> {
+    if (!r2) return not_configured();
+
     try {
-      const delete_res = await r2_client.send(
+      const delete_res = await r2.client.send(
         new DeleteObjectCommand({
           Key: key,
-          Bucket: R2_BUCKET_NAME,
+          Bucket: r2.bucket,
         }),
       );
 
@@ -179,9 +198,11 @@ export const R2Service = {
       metadata: Record<string, string> | undefined;
     }>
   > {
+    if (!r2) return not_configured();
+
     try {
-      const res = await r2_client.send(
-        new HeadObjectCommand({ Key: key, Bucket: R2_BUCKET_NAME }),
+      const res = await r2.client.send(
+        new HeadObjectCommand({ Key: key, Bucket: r2.bucket }),
       );
 
       return result.suc({
@@ -222,11 +243,13 @@ export const R2Service = {
   ): Promise<
     App.Result<{ buffer: Uint8Array; content_type: string; size: number }>
   > {
+    if (!r2) return not_configured();
+
     try {
-      const response = await r2_client.send(
+      const response = await r2.client.send(
         new GetObjectCommand({
           Key: key,
-          Bucket: R2_BUCKET_NAME,
+          Bucket: r2.bucket,
         }),
       );
 
@@ -264,12 +287,14 @@ export const R2Service = {
     key: string,
     expires_in: number = DOCUMENT.LIMITS.PRESIGNED_URL_EXPIRY,
   ): Promise<App.Result<string>> {
+    if (!r2) return not_configured();
+
     try {
       const url = await getSignedUrl(
-        r2_client,
+        r2.client,
         new GetObjectCommand({
           Key: key,
-          Bucket: R2_BUCKET_NAME,
+          Bucket: r2.bucket,
         }),
         { expiresIn: expires_in },
       );

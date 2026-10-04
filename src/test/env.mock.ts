@@ -22,6 +22,16 @@ const EXPLICIT: Readonly<Record<string, string>> = {
   /** Optional, but set, so the providers' registered branch is the one loaded. */
   GOOGLE_CLIENT_ID: "mock-google-id",
   GOOGLE_CLIENT_SECRET: "mock-google-secret",
+
+  /** The opt-in kits: set, so their configured branch is the one tested. */
+  CLOUDFLARE_ACCOUNT_ID: "mock-cloudflare-account",
+  R2_BUCKET_NAME: "mock-bucket",
+  R2_ACCESS_KEY_ID: "mock-r2-key",
+  R2_SECRET_ACCESS_KEY: "mock-r2-secret",
+  CLOUDINARY_CLOUD_NAME: "mock-cloud",
+  CLOUDINARY_API_KEY: "mock-cloudinary-key",
+  CLOUDINARY_API_SECRET: "mock-cloudinary-secret",
+  OPENAI_API_KEY: "mock-openai-key",
 };
 
 /**

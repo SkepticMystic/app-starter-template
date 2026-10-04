@@ -1,9 +1,8 @@
 <script lang="ts">
   import { UseClipboard } from "#lib/hooks/use-clipboard.svelte.js";
-  import type { ClassValue } from "svelte/elements";
   import Button from "../button/button.svelte";
   import Icon from "../icon/Icon.svelte";
-  import type { CopyButtonPropsWithoutHTML } from "./types";
+  import type { CopyButtonProps } from "./types.js";
 
   let {
     text,
@@ -12,20 +11,17 @@
     variant = "outline",
     onCopy,
     class: className,
-    tabindex = -1,
     children,
-  }: CopyButtonPropsWithoutHTML & {
-    class?: ClassValue;
-    tabindex?: number;
-  } = $props();
+    ...rest
+  }: CopyButtonProps = $props();
 
   const clipboard = new UseClipboard();
 </script>
 
 <Button
+  {...rest}
   {size}
   {variant}
-  {tabindex}
   class={["flex items-center gap-2", className]}
   type="button"
   onclick={async () => {
@@ -60,7 +56,10 @@
           tabindex={-1}
         />
       {/if}
-      <span class="sr-only">Copy</span>
+      <!-- Only when the button has no visible text, or it would read "Copy Copy". -->
+      {#if !children}
+        <span class="sr-only">Copy</span>
+      {/if}
     </div>
   {/if}
 

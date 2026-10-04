@@ -13,7 +13,6 @@ const PROVIDER_MAP: Record<
     icon: string;
 
     is_oidc: boolean;
-    is_social: boolean;
     force_email_verified: boolean;
   }
 > = {
@@ -22,7 +21,6 @@ const PROVIDER_MAP: Record<
     icon: "lucide/mail",
 
     is_oidc: false,
-    is_social: false,
     force_email_verified: false,
   },
   google: {
@@ -30,7 +28,6 @@ const PROVIDER_MAP: Record<
     icon: "devicon-plain/google",
 
     is_oidc: true,
-    is_social: true,
     force_email_verified: false,
   },
   "pocket-id": {
@@ -38,7 +35,6 @@ const PROVIDER_MAP: Record<
     icon: "lucide/pocket",
 
     is_oidc: true,
-    is_social: false,
     // NOTE: Pocket ID hasn't implemented email verification yet
     force_email_verified: true,
   },

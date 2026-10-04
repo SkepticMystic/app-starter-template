@@ -1,3 +1,4 @@
+import { resolve } from "$app/paths";
 import { TASKS } from "#lib/const/task.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { TaskTable } from "#lib/server/db/models/task.model.js";
@@ -41,7 +42,7 @@ export const load = (async ({ url, depends }) => {
   if (!session.ok) {
     raise(session.error);
   } else if (!session.data.session.org_id) {
-    redirect(302, "/onboarding");
+    redirect(302, resolve("/(marketing)/onboarding"));
   }
 
   const params = params_schema.parse({

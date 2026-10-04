@@ -15,10 +15,11 @@
   } = $props();
 </script>
 
-<Field
-  label=""
-  field={form.fields.captcha_token}
->
+<Field field={form.fields.captcha_token}>
+  {#snippet label()}
+    <span class="sr-only">Captcha</span>
+  {/snippet}
+
   {#snippet input({ props, field })}
     <Captcha
       {...props}

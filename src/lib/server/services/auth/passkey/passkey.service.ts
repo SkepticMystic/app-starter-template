@@ -1,42 +1,22 @@
 import { getRequestEvent } from "$app/server";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { auth } from "#lib/auth.js";
-import { ERROR } from "#lib/const/error.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
-import { captureException } from "@sentry/sveltekit";
 
 const log = Log.child({ service: "Passkey" });
 
-const list = async (session: App.Session) => {
-  const l = log.child({ method: "list" });
-
-  try {
-    const passkeys = await Repo.query(
-      db.query.passkey.findMany({
-        where: { userId: session.user.id },
-
-        orderBy: { createdAt: "desc" },
-
-        columns: {
-          id: true,
-          name: true,
-          createdAt: true,
-        },
-      }),
-    );
-
-    return passkeys;
-  } catch (error) {
-    l.error(error, "error unknown");
-
-    captureException(error);
-
-    return result.err(ERROR.INTERNAL_SERVER_ERROR);
-  }
-};
+// `Repo.query` returns a refusal rather than throwing, so there is nothing to catch.
+const list = async (session: App.Session) =>
+  Repo.query(
+    db.query.passkey.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      columns: { id: true, name: true, createdAt: true },
+    }),
+  );
 
 const rename = async (input: {
   id: string;

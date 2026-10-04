@@ -1,6 +1,5 @@
 <script lang="ts">
   import FormButton from "#lib/components/form/FormButton.svelte";
-  import { Toast } from "#lib/utils/toast.util.js";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
@@ -26,19 +25,11 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async (e) => {
-    await e.submit();
-
-    FormUtil.count_issue_metrics(form, "organization_invite_form");
-
-    const res = form.result;
-    if (res?.ok) {
-      Toast.success("Invitation sent");
-      on_success?.(res.data);
-      e.element.reset();
-    } else if (res?.error) {
-      Toast.err(res.error);
-    }
+  {...FormUtil.enhance(form, {
+    metric: "organization_invite_form",
+    suc_msg: "Invitation sent",
+    on_success: (data) => on_success?.(data),
+    reset: true,
   })}
 >
   <Field

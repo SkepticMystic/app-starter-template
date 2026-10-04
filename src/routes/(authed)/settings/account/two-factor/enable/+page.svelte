@@ -11,12 +11,28 @@
   import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
   import type { ResultData } from "#lib/interfaces/result.type.js";
   import type { enable_two_factor_remote } from "#lib/remote/auth/two_factor.remote.js";
+  import { APP } from "#lib/const/app.const.js";
+  import { Toast } from "#lib/utils/toast.util.js";
 
   let enable_data: ResultData<
     NonNullable<typeof enable_two_factor_remote.result>
   > | null = $state(null);
 
   let verified = $state(false);
+
+  const download_codes = (codes: string[]) => {
+    const url = URL.createObjectURL(
+      new Blob([`${codes.join("\n")}\n`], { type: "text/plain" }),
+    );
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${APP.NAME.toLowerCase().replaceAll(/\s+/g, "-")}-backup-codes.txt`;
+    a.click();
+
+    // Next tick: some browsers start the download asynchronously.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
 </script>
 
 <article>
@@ -79,6 +95,7 @@
             <VerifyTwoFactorCodeForm
               on_success={() => {
                 verified = true;
+                Toast.success("Two-factor enabled");
               }}
             />
           </div>
@@ -89,16 +106,26 @@
 
       <Card
         title="Two-factor recovery"
-        description="Save your backups codes. These will allow you to recover your account if you lose access to your 2FA device. Please store them separately and securely. They will only be shown once."
+        description="Save your backup codes. These will allow you to recover your account if you lose access to your 2FA device. Please store them separately and securely. They will only be shown once."
       >
         {#snippet children()}
           <div class="flex flex-col gap-3">
-            <CopyButton
-              variant="default"
-              text={backup_codes_str}
-            >
-              Copy backup codes
-            </CopyButton>
+            <div class="flex flex-wrap gap-2">
+              <CopyButton
+                variant="outline"
+                text={backup_codes_str}
+              >
+                Copy backup codes
+              </CopyButton>
+
+              <Button
+                variant="outline"
+                icon="lucide/download"
+                onclick={() => download_codes(enable_data?.backupCodes ?? [])}
+              >
+                Download .txt
+              </Button>
+            </div>
 
             <output>
               <ul class="flex flex-wrap gap-x-4 gap-y-2">
@@ -114,11 +141,10 @@
 
         {#snippet footer()}
           <Button
-            variant="outline"
-            icon="lucide/arrow-left"
+            icon="lucide/check"
             href={resolve("settings/account")}
           >
-            Go back
+            Done
           </Button>
         {/snippet}
       </Card>

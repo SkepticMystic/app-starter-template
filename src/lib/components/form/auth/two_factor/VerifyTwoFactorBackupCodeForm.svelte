@@ -4,6 +4,7 @@
   import Checkbox from "#lib/components/ui/checkbox/checkbox.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
+  import { TWO_FACTOR } from "#lib/const/auth/two_factor.const.js";
   import type { ResultData } from "#lib/interfaces/result.type.js";
   import { verify_two_factor_backup_code_remote } from "#lib/remote/auth/two_factor.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
@@ -59,6 +60,8 @@
       <Input
         {...props}
         {...field?.as("text")}
+        required
+        autocomplete="one-time-code"
       />
     {/snippet}
   </Field>
@@ -67,7 +70,7 @@
     <Field
       orientation="horizontal"
       field={form.fields.trust_device}
-      label="Trust this device for 30 days?"
+      label="Trust this device for {TWO_FACTOR.TRUST_DAYS} days?"
     >
       {#snippet input({ props, field })}
         <Checkbox
@@ -88,7 +91,9 @@
     class="w-full"
     icon="lucide/lock"
     disabled={!form.fields.code.value()}
-  ></FormButton>
+  >
+    Verify backup code
+  </FormButton>
 
   <FormErrors {form} />
 </form>

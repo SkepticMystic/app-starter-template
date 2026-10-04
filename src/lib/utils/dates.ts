@@ -55,17 +55,6 @@ const to_end_of_month = (date: Date): Date => {
   return end;
 };
 
-/**
- * Convert date to local time string (HH:MM format)
- */
-const to_local_time = (date: Date): string => {
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
-
 export const Dates = {
   add_ms,
   add_days,
@@ -75,5 +64,4 @@ export const Dates = {
   is_same_day,
   to_start_of_month,
   to_end_of_month,
-  to_local_time,
 };

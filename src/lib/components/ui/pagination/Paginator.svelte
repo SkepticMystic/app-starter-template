@@ -48,7 +48,7 @@
 
 <ButtonGroup class="rounded-lg! border border-border">
   <Button
-    title="Previous"
+    tip="Previous page"
     disabled={disabled || page === 0}
     variant="ghost"
     icon="lucide/chevron-left"
@@ -57,7 +57,7 @@
 
   <Button
     {disabled}
-    title="Reset"
+    tip="First page"
     variant="ghost"
     class="font-bold"
     onclick={() => set_skip(0)}
@@ -66,7 +66,7 @@
   </Button>
 
   <Button
-    title="Next"
+    tip="Next page"
     variant="ghost"
     icon="lucide/chevron-right"
     disabled={disabled || page === last_page || !has_more}

@@ -88,5 +88,8 @@ const drain_on_shutdown = async (reason: unknown) => {
 };
 
 process.on("sveltekit:shutdown", (reason) => {
-  void drain_on_shutdown(reason);
+  // A rejected dynamic import here would be an unhandled rejection at exit.
+  drain_on_shutdown(reason).catch((error: unknown) => {
+    console.error("[shutdown] drain failed", error);
+  });
 });

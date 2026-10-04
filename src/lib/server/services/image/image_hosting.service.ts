@@ -26,6 +26,16 @@ cloudinary.config({
   cloud_name: CLOUDINARY_CLOUD_NAME,
 });
 
+// The opt-in image kit: unset, every call answers "not configured".
+const configured = Boolean(
+  CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET,
+);
+const not_configured = () =>
+  result.err({
+    ...ERROR.INTERNAL_SERVER_ERROR,
+    message: "Image hosting is not configured",
+  });
+
 const provider =
   "cloudinary" as const satisfies (typeof IMAGE_HOSTING.PROVIDER.IDS)[number];
 
@@ -40,6 +50,8 @@ export const ImageHostingService = {
       >
     >
   > => {
+    if (!configured) return not_configured();
+
     try {
       const start_ms = performance.now();
 
@@ -111,6 +123,8 @@ export const ImageHostingService = {
   },
 
   delete: async (external_id: string): Promise<App.Result<null>> => {
+    if (!configured) return not_configured();
+
     try {
       const start_ms = performance.now();
 

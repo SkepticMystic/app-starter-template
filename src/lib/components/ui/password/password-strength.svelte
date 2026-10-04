@@ -10,6 +10,8 @@
 
   const score = $derived(state.score);
 
+  const LABELS = ["Very weak", "Weak", "Fair", "Good", "Strong"];
+
   const color = tv({
     base: "",
     variants: {
@@ -32,6 +34,8 @@
   ]}
   min={0}
   max={4}
+  aria-label="Password strength"
+  aria-valuetext={LABELS[score]}
 >
   <div
     class={["h-full transition-all duration-500", color({ score })]}

@@ -25,13 +25,9 @@
       if ($session.isRefetching || $session.isPending) return;
 
       if (globalThis.umami && $session.data?.user) {
-        globalThis.umami.identify($session.data.user.id, {
-          name: $session.data.user.name,
-          email: $session.data.user.email,
-          session_id: $session.data.session.id,
-          ip_address: $session.data.session.ipAddress,
-          user_agent: $session.data.session.userAgent,
-        });
+        // The id only: a name, email or IP would make analytics a store of
+        // personal data, which the script's `data-do-not-track` says it is not.
+        globalThis.umami.identify($session.data.user.id);
 
         session_listener();
       }
@@ -49,7 +45,6 @@
        SOURCE: https://svelte.dev/docs/kit/project-structure#Project-files-tsconfig.json -->
   {#if PUBLIC_UMAMI_BASE_URL && PUBLIC_UMAMI_WEBSITE_ID}
     <script
-      defer
       async
       data-do-not-track="true"
       data-tag={dev ? "dev" : "prod"}

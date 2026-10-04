@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
+  import { page } from "$app/state";
   import type { ResolvedPathname } from "$app/types";
   import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
   import Icon from "#lib/components/ui/icon/Icon.svelte";
@@ -15,27 +17,27 @@
     }[];
   };
 
+  // Shared by the marketing and signed-in layouts, so app links show only to a signed-in user.
   const sections: FooterSection[] = $derived([
-    {
-      title: "Pages",
-      links: [{ label: "Tasks", href: "/tasks" }],
-    },
+    ...(page.data.user
+      ? [
+          {
+            title: "Pages",
+            links: [{ label: "Tasks", href: resolve("tasks") }],
+          },
+        ]
+      : []),
     {
       title: "About",
+      links: [{ label: "Contact us", href: resolve("contact") }],
+    },
+    {
+      title: "Legal",
       links: [
-        // TODO
-        // { label: "Our mission", href: "/about" },
-        { label: "Contact us", href: "/contact" },
+        { label: "Privacy policy", href: resolve("legal/privacy") },
+        { label: "Terms of service", href: resolve("legal/terms") },
       ],
     },
-    // {
-    //   title: "Legal",
-    //   links: [
-    //     // TODO
-    //     { label: "Privacy policy", href: "/legal/privacy" },
-    //     { label: "Terms of service", href: "/legal/terms" },
-    //   ],
-    // },
   ]);
 
   const currentYear = new Date().getFullYear();
@@ -58,7 +60,7 @@
     >
       <!-- Brand Section -->
       <div class="lg:col-span-1">
-        <a href="/home">
+        <a href={page.data.user ? resolve("home") : resolve("")}>
           <div class="flex items-center gap-2">
             <Logo />
             <h3>{APP.NAME}</h3>
@@ -113,15 +115,10 @@
         {APP.NAME}. Made with
         <Icon
           icon="lucide/heart"
+          role="img"
+          aria-label="love"
           class="inline-block size-4"
         />
-        <!-- for {#each ANIMALS.SPECIES.IDS as species_id (species_id)}
-          {@const { icon } = ANIMALS.SPECIES.MAP[species_id]}
-          <Icon
-            {icon}
-            class="inline-block size-4"
-          />
-        {/each} -->
       </p>
     </div>
   </div>

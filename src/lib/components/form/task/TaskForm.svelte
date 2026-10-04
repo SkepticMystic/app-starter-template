@@ -67,6 +67,7 @@
         {...props}
         {...field?.as("text")}
         required
+        maxlength={255}
         class="w-full"
         placeholder="Task title"
       />
@@ -114,6 +115,7 @@
       <Textarea
         {...props}
         {...field?.as("text")}
+        maxlength={5000}
         placeholder="Task description"
       />
     {/snippet}

@@ -1,11 +1,12 @@
 import { dev } from "$app/env";
-import { PUBLIC_SENTRY_DSN } from "$app/env/public";
+import { PUBLIC_APP_ENV, PUBLIC_SENTRY_DSN } from "$app/env/public";
 import * as Sentry from "@sentry/sveltekit";
 import { handleErrorWithSentry } from "@sentry/sveltekit";
 
 Sentry.init({
   dsn: PUBLIC_SENTRY_DSN,
-  environment: dev ? "development" : "production",
+  // The tier, matching the server's `APP_ENV`, so preview errors are not filed as production.
+  environment: PUBLIC_APP_ENV ?? (dev ? "development" : "production"),
 
   tracesSampleRate: dev ? 1 : 0.2,
 
@@ -25,5 +26,4 @@ Sentry.init({
   ],
 });
 
-// If you have a custom error handler, pass it to `handleErrorWithSentry`
 export const handleError = handleErrorWithSentry();

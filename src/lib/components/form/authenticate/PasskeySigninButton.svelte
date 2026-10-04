@@ -21,8 +21,9 @@
 
   onMount(() => {
     void (async () => {
+      // Conditional UI surfaces on the sign-in form's `username webauthn` email field.
       const available =
-        await PublicKeyCredential?.isConditionalMediationAvailable?.();
+        await globalThis.PublicKeyCredential?.isConditionalMediationAvailable?.();
 
       if (available) {
         BetterAuthClient.signIn.passkey({ autoFill: true }, { onSuccess });
@@ -30,19 +31,6 @@
     })();
   });
 </script>
-
-<input
-  type="text"
-  name="name"
-  class="hidden"
-  autocomplete="username webauthn"
-/>
-<input
-  class="hidden"
-  type="password"
-  name="password"
-  autocomplete="current-password webauthn"
-/>
 
 <Button
   class="w-full"

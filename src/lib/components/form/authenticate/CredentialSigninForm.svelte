@@ -7,6 +7,7 @@
   import Input from "#lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "#lib/const/auth/auth.const.js";
   import { signin_credentials_remote } from "#lib/remote/auth/auth.remote.js";
+  import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
   import FormErrors from "../FormErrors.svelte";
 
   let {
@@ -25,6 +26,8 @@
   class="space-y-3"
   {...form.enhance(async (e) => {
     await e.submit();
+
+    FormUtil.count_issue_metrics(form, "credential_signin_form");
 
     const res = form.result;
 
@@ -50,7 +53,7 @@
         {...props}
         {...field?.as("email")}
         required
-        autocomplete="email"
+        autocomplete="username webauthn"
       />
     {/snippet}
   </Field>

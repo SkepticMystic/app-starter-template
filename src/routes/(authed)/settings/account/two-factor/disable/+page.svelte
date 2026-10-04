@@ -17,7 +17,7 @@
     {#snippet children()}
       <DisableTwoFactorForm
         on_success={async () => {
-          await goto("/settings/account");
+          await goto(resolve("settings/account"));
         }}
       />
     {/snippet}

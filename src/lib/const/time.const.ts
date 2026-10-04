@@ -21,8 +21,12 @@ const MONTH = YEAR / 12;
  */
 const ZONE = "Africa/Johannesburg";
 
+/** The BCP 47 locale dates render in, chosen alongside {@link ZONE}. */
+const LOCALE = "en-ZA";
+
 export const TIME = {
   ZONE,
+  LOCALE,
   MIN,
   HOUR,
   DAY,

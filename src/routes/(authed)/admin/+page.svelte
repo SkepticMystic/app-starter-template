@@ -1,48 +1,48 @@
 <script lang="ts">
-  import type { ResolvedPathname } from "$app/types";
+  import { resolve } from "$app/paths";
+  import Button from "#lib/components/ui/button/button.svelte";
   import Header from "#lib/components/ui/header/Header.svelte";
-  import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
+  import Item from "#lib/components/ui/item/Item.svelte";
+  import { Format } from "#lib/utils/format.util.js";
 
-  type Route = {
-    label: string;
-    routes?: Route[];
-    href: ResolvedPathname;
-  };
+  let { data } = $props();
 
-  const routes: Route[] = [
+  const sections = $derived([
     {
-      label: "Users",
-      href: "/admin/users",
+      title: "Users",
+      icon: "lucide/users",
+      description: `${Format.number(data.counts.users)} total`,
+      href: resolve("/(authed)/admin/users"),
     },
     {
-      label: "Organizations",
-      href: "/admin/organizations",
+      title: "Organizations",
+      icon: "lucide/building-2",
+      description: `${Format.number(data.counts.organizations)} total`,
+      href: resolve("/(authed)/admin/organizations"),
     },
-  ];
+  ]);
 </script>
 
 <article>
   <Header title="Admin" />
 
-  <ul class="list-inside list-disc">
-    {#each routes as route (route.href)}
-      <li>
-        <Anchor href={route.href}>
-          {route.label}
-        </Anchor>
-
-        {#if route.routes?.length}
-          <ul class="list-inside list-disc pl-5">
-            {#each route.routes as subroute (subroute.href)}
-              <li>
-                <Anchor href={subroute.href}>
-                  {subroute.label}
-                </Anchor>
-              </li>
-            {/each}
-          </ul>
-        {/if}
-      </li>
+  <section class="grid gap-3 sm:grid-cols-2">
+    {#each sections as section (section.href)}
+      <Item
+        variant="outline"
+        icon={section.icon}
+        title={section.title}
+        description={section.description}
+      >
+        {#snippet actions()}
+          <Button
+            variant="outline"
+            href={section.href}
+          >
+            Open
+          </Button>
+        {/snippet}
+      </Item>
     {/each}
-  </ul>
+  </section>
 </article>

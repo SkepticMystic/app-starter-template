@@ -56,15 +56,15 @@
     range = { start: value?.start, end: value?.end };
   });
 
-  /** Local zone, and only for the label. The dates themselves carry none — see
-   * `label` above for the caller that needs a different story. */
+  /** From the committed `value`, not `range`: a half-picked range filters nothing, so the trigger keeps naming what
+   * the caller still applies. Local zone, and only for the label — see `label` above for a caller that needs another. */
   const derived_label = $derived.by(() => {
-    if (!range.start || !range.end) return placeholder;
+    if (!value?.start || !value.end) return placeholder;
 
     const tz = getLocalTimeZone();
 
     return Format.daterange(
-      { start: range.start.toDate(tz), end: range.end.toDate(tz) },
+      { start: value.start.toDate(tz), end: value.end.toDate(tz) },
       { dateStyle: "medium", timeStyle: undefined },
     );
   });
@@ -79,7 +79,13 @@
   };
 </script>
 
-<PopoverRoot bind:open>
+<!-- Closing without a second click abandons the half-picked range, so the next open starts from what is applied. -->
+<PopoverRoot
+  bind:open
+  onOpenChange={(next) => {
+    if (!next) range = { start: value?.start, end: value?.end };
+  }}
+>
   <PopoverTrigger
     {id}
     class={buttonVariants({ variant: "outline" })}

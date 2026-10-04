@@ -16,7 +16,10 @@
     // oxlint-disable-next-line oxc/no-map-spread
     result.unwrap_or(accounts.current, []).map((acc) => {
       const provider_id = acc.providerId as IAuth.ProviderId;
-      const provider = AUTH.PROVIDERS.MAP[provider_id];
+      // A provider since removed from config still has rows to show and unlink.
+      const known: { name: string; icon: string } | undefined =
+        AUTH.PROVIDERS.MAP[provider_id];
+      const provider = known ?? { name: acc.providerId, icon: "lucide/key" };
 
       return {
         ...acc,
@@ -34,7 +37,7 @@
     loading: accounts.loading,
     icon: "lucide/user-plus",
     title: "No accounts linked",
-    description: "Link an account to get started.",
+    description: "Accounts you sign in with will appear here.",
   }}
 >
   {#snippet item(item)}
@@ -53,7 +56,6 @@
       {#snippet actions()}
         <Button
           variant="destructive"
-          title="Unlink account"
           icon="lucide/unlink"
           onclick={() =>
             AccountClient.unlink({

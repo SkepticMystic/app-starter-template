@@ -1,16 +1,14 @@
-import type { Branded } from "#lib/interfaces/zod/zod.type.js";
+import { HTMLUtil } from "#lib/utils/html/html.util.js";
 import { marked } from "marked";
 
-/**
- * Converts markdown to HTML with GitHub Flavored Markdown
- * Returns a branded type for XSS safety
- */
+/** Markdown to HTML (GitHub Flavored), sanitized: `marked` passes raw HTML through untouched. */
 export const Markdown = {
-  to_html: (markdown: string) => {
-    return marked.parse(markdown, {
-      gfm: true, // GitHub Flavored Markdown
-      async: false,
-      breaks: true, // Convert \n to <br>
-    }) as Branded<"PrerenderedHTML">;
-  },
+  to_html: (markdown: string) =>
+    HTMLUtil.sanitize(
+      marked.parse(markdown, {
+        gfm: true,
+        async: false,
+        breaks: true, // Convert \n to <br>
+      }),
+    ),
 };

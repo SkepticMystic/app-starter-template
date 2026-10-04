@@ -1,19 +1,22 @@
-import type { WithChildren, WithoutChildren } from "bits-ui";
+import type { UseClipboard } from "#lib/hooks/use-clipboard.svelte.js";
+import type { WithChildren } from "bits-ui";
 import type { ComponentProps, Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
-import type { UseClipboard } from "../../../hooks/use-clipboard.svelte";
 import type Button from "../button/button.svelte";
 
+type ButtonProps = ComponentProps<typeof Button>;
+
 export type CopyButtonPropsWithoutHTML = Partial<
-  Pick<ComponentProps<typeof Button>, "size" | "variant">
+  Pick<ButtonProps, "size" | "variant">
 > &
   WithChildren<{
-    ref?: HTMLButtonElement | null;
     text: string;
     icon?: Snippet;
-    animationDuration?: number;
     onCopy?: (status: UseClipboard["status"]) => void;
   }>;
 
+/** The rest is handed to `Button`; `type`, `onclick` and the content are the copy button's own. */
 export type CopyButtonProps = CopyButtonPropsWithoutHTML &
-  WithoutChildren<HTMLAttributes<HTMLButtonElement>>;
+  Omit<
+    ButtonProps,
+    keyof CopyButtonPropsWithoutHTML | "type" | "onclick" | "icon" | "label"
+  >;

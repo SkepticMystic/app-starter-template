@@ -7,7 +7,6 @@
   import Textarea from "#lib/components/ui/textarea/textarea.svelte";
   import { Toast } from "#lib/utils/toast.util.js";
   import { captureFeedback } from "@sentry/sveltekit";
-  import { preventDefault } from "svelte/legacy";
 
   let form = $state({
     name: page.data.user?.name ?? "",
@@ -34,7 +33,9 @@
   {#snippet content({ close })}
     <form
       class="flex flex-col gap-3"
-      onsubmit={preventDefault(() => {
+      onsubmit={(e) => {
+        e.preventDefault();
+
         captureFeedback({
           name: form.name,
           email: form.email,
@@ -43,7 +44,7 @@
 
         close();
         Toast.info("Thanks for your feedback");
-      })}
+      }}
     >
       <Field label="Name">
         {#snippet input({ props })}
@@ -71,6 +72,7 @@
           <Textarea
             {...props}
             required
+            maxlength={5000}
             placeholder="What happened?"
             bind:value={form.message}
           />

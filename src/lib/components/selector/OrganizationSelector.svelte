@@ -2,18 +2,15 @@
   import { BetterAuthClient } from "#lib/auth-client.js";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import Field from "#lib/components/ui/field/Field.svelte";
-  import Loading from "#lib/components/ui/loading/Loading.svelte";
   import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
+  import Spinner from "#lib/components/ui/spinner/spinner.svelte";
   import { session } from "#lib/stores/session.store.js";
 
   const organizations = BetterAuthClient.useListOrganizations();
 </script>
 
 {#if $organizations.isPending}
-  <Loading
-    loading
-    title="Fetching organizations..."
-  />
+  <Spinner aria-label="Fetching organizations" />
 {:else if !$organizations.data}
   <p>No organizations found.</p>
 {:else if $organizations.data.length === 0}

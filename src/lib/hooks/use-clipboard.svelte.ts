@@ -13,10 +13,10 @@ type Options = {
  * 		const clipboard = new UseClipboard();
  * </script>
  *
- * <button onclick={clipboard.copy('Hello, World!')}>
- *     {#if clipboard.copied === 'success'}
+ * <button onclick={() => clipboard.copy('Hello, World!')}>
+ *     {#if clipboard.status === 'success'}
  *         Copied!
- *     {:else if clipboard.copied === 'failure'}
+ *     {:else if clipboard.status === 'failure'}
  *         Failed to copy!
  *     {:else}
  *         Copy

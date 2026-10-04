@@ -1,25 +1,10 @@
 import { db } from "#lib/server/db/drizzle.db.js";
-import { ImageTable, type Image } from "#lib/server/db/models/image.model.js";
-import { eq } from "drizzle-orm";
-import { Repo } from "./index.repo";
+import { ImageTable } from "#lib/server/db/models/image.model.js";
+import { Repo } from "./index.repo.js";
 
-const create = async (input: typeof ImageTable.$inferInsert) => {
-  return Repo.insert_one(db.insert(ImageTable).values(input).returning());
-};
-
-const update = async (
-  image_id: string,
-  input: Partial<typeof ImageTable.$inferInsert>,
-): Promise<App.Result<Image>> =>
-  Repo.update_one(
-    db
-      .update(ImageTable)
-      .set(input)
-      .where(eq(ImageTable.id, image_id))
-      .returning(),
-  );
+const create = async (input: typeof ImageTable.$inferInsert) =>
+  Repo.insert_one(db.insert(ImageTable).values(input).returning());
 
 export const ImageRepo = {
   create,
-  update,
 };

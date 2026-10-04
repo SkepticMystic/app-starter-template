@@ -1,6 +1,5 @@
 <script lang="ts">
   import Field from "#lib/components/ui/field/Field.svelte";
-  import { Toast } from "#lib/utils/toast.util.js";
   import Input from "#lib/components/ui/input/input.svelte";
   import type { ResultData } from "#lib/interfaces/result.type.js";
   import { enable_two_factor_remote } from "#lib/remote/auth/two_factor.remote.js";
@@ -23,19 +22,10 @@
 
 <form
   class="space-y-3"
-  {...form.enhance(async (e) => {
-    await e.submit();
-
-    FormUtil.count_issue_metrics(form, "enable_two_factor_form");
-
-    const res = form.result;
-    if (res?.ok) {
-      e.element.reset();
-
-      on_success(res.data);
-    } else if (res?.error) {
-      Toast.err(res.error);
-    }
+  {...FormUtil.enhance(form, {
+    metric: "enable_two_factor_form",
+    on_success: (data) => on_success(data),
+    reset: true,
   })}
 >
   <Field

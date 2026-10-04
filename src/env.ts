@@ -130,6 +130,16 @@ export const variables = defineEnvVars({
     ...build_time_public,
     ...optional("Umami website id; see PUBLIC_UMAMI_BASE_URL"),
   },
+  PUBLIC_APP_ENV: {
+    ...build_time_public,
+    description:
+      "APP_ENV, for the browser: tags client-side Sentry events with the " +
+      "tier. Unset falls back to development under `vite dev`, else production.",
+    schema: z
+      .enum(["production", "preview", "development", ""])
+      .optional()
+      .transform((value) => value || undefined),
+  },
 
   // --- Data ------------------------------------------------------------------
 
@@ -164,19 +174,21 @@ export const variables = defineEnvVars({
   POCKETID_CLIENT_SECRET: optional("Pocket ID OAuth client secret"),
 
   // --- Object storage (Cloudflare R2, over the S3 API) -----------------------
+  // Opt-in: only invoice PDFs use it. Unset, `R2Service` answers "not configured".
 
-  CLOUDFLARE_ACCOUNT_ID: required(
+  CLOUDFLARE_ACCOUNT_ID: optional(
     "Cloudflare account id; forms the R2 endpoint",
   ),
-  R2_BUCKET_NAME: required("R2 bucket; one per tier"),
-  R2_ACCESS_KEY_ID: required("R2 access key id"),
-  R2_SECRET_ACCESS_KEY: required("R2 secret access key"),
+  R2_BUCKET_NAME: optional("R2 bucket; one per tier"),
+  R2_ACCESS_KEY_ID: optional("R2 access key id"),
+  R2_SECRET_ACCESS_KEY: optional("R2 secret access key"),
 
   // --- Image hosting (Cloudinary) --------------------------------------------
+  // Opt-in, for the image upload kit. Unset, uploads answer "not configured".
 
-  CLOUDINARY_CLOUD_NAME: required("Cloudinary cloud name"),
-  CLOUDINARY_API_KEY: required("Cloudinary API key"),
-  CLOUDINARY_API_SECRET: required("Cloudinary API secret"),
+  CLOUDINARY_CLOUD_NAME: optional("Cloudinary cloud name"),
+  CLOUDINARY_API_KEY: optional("Cloudinary API key"),
+  CLOUDINARY_API_SECRET: optional("Cloudinary API secret"),
   CLOUDINARY_UPLOAD_PRESET: optional(
     "Cloudinary upload preset applied to every upload; unset uploads with " +
       "the account defaults",
@@ -200,7 +212,10 @@ export const variables = defineEnvVars({
     "Cloudflare Turnstile secret key; server half of PUBLIC_CAPTCHA_SITE_KEY",
   ),
 
-  OPENAI_API_KEY: required("OpenAI key, used for image moderation only"),
+  OPENAI_API_KEY: optional(
+    "OpenAI key, used for image moderation only. Unset, custom avatars and " +
+      "image uploads are refused rather than accepted unmoderated",
+  ),
 
   // --- Presentation ----------------------------------------------------------
 
