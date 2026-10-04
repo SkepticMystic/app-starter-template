@@ -8,11 +8,12 @@ import {
   type ImageSchema,
 } from "#lib/server/db/models/image.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { filter_sql } from "#lib/server/db/sql.util.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { RuntimeService } from "../runtime/runtime.service.js";
-import { count, operators as o } from "drizzle-orm";
+import { operators as o } from "drizzle-orm";
 import type { z } from "zod/mini";
 import { AIModerationService } from "../moderation/ai.moderation.service.js";
 import { ResourceService } from "../resource/resource.service.js";
@@ -32,23 +33,20 @@ const check_count = async (
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const res = await Repo.query(
-      db
-        .select({ count: count(ImageTable.id) })
-        .from(ImageTable)
-        .where(
-          o.and(
-            o.eq(ImageTable.org_id, session.session.org_id),
-            o.eq(ImageTable.resource_id, input.resource_id),
-            o.eq(ImageTable.resource_kind, input.resource_kind),
-          ),
-        )
-        .execute(),
+    const res = await Repo.count(
+      db.$count(
+        ImageTable,
+        filter_sql(ImageTable, {
+          org_id: session.session.org_id,
+          resource_id: input.resource_id,
+          resource_kind: input.resource_kind,
+        }),
+      ),
     );
 
     if (!res.ok) return res;
 
-    const c = res.data[0]?.count ?? 0;
+    const c = res.data;
 
     if (c >= IMAGE_HOSTING.LIMITS.MAX_COUNT.PER_RESOURCE) {
       return result.err({

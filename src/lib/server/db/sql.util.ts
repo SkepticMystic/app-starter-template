@@ -1,4 +1,19 @@
-import { sql, type SQLWrapper } from "drizzle-orm";
+import {
+  relationsFilterToSQL,
+  sql,
+  type AnyTableFilter,
+  type SQLWrapper,
+  type Table,
+  type TableFilter,
+} from "drizzle-orm";
+
+/**
+ * A relational `where` object as SQL, for the APIs that still take SQL —
+ * `db.$count` — so a list and its total share one filter. drizzle's own
+ * signature takes an untyped filter; this one checks it against `table`.
+ */
+export const filter_sql = <T extends Table>(table: T, filter: TableFilter<T>) =>
+  relationsFilterToSQL(table, filter as AnyTableFilter);
 
 /**
  * Aggregate fragments for a reporting `select`. Each is mapped to a JS number

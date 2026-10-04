@@ -1,7 +1,6 @@
 import { ERROR } from "#lib/const/error.const.js";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { db } from "#lib/server/db/drizzle.db.js";
-import { MemberTable } from "#lib/server/db/models/auth.model.js";
 import {
   TaskSchema,
   TaskTable,
@@ -28,16 +27,11 @@ const check_assignee = async (
   if (!assigned_member_id) return result.suc(undefined);
 
   const found = await Repo.exists(
-    db
-      .select({ id: MemberTable.id })
-      .from(MemberTable)
-      .where(
-        operators.and(
-          operators.eq(MemberTable.id, assigned_member_id),
-          operators.eq(MemberTable.organizationId, org_id),
-        ),
-      )
-      .limit(1),
+    db.query.member.findMany({
+      columns: { id: true },
+      where: { id: assigned_member_id, organizationId: org_id },
+      limit: 1,
+    }),
   );
   if (!found.ok) return found;
 

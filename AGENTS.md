@@ -712,6 +712,17 @@ everything it imports run after `set_env`.
 - Timestamps use `Schema.timestamps` helper (createdAt, updatedAt)
 - Database columns in `snake_case`, TypeScript in `camelCase` — produced by
   declaring tables with `snakeCase.table(...)`
+- **Reads use the relational `{}` syntax**, `db.query.x.findMany({ columns,
+where, with, orderBy, limit })`, not the `db.select().from()` builder. A
+  `where` is an object (`{ userId, status: { in: [...] }, OR: [...] }`);
+  `undefined` keys are skipped and `in: []` compiles to `false`, so no
+  `xs.length ? … : undefined` guards. A join is a `with`, a computed column an
+  `extras`. Two traps: `findMany` aliases the table, so an `orderBy` or
+  `extras` callback must use the table it is handed, never the imported
+  `XTable`; and `db.$count` still takes SQL, so give it the same object through
+  `filter_sql(table, where)` (`sql.util.ts`), typed as `TableFilter<typeof
+XTable>`. Writes (`insert`/`update`/`delete`) have no object form and stay
+  on the builder
 - Wrap every statement in a `Repo.*` helper so failures become `App.Result`
   rather than throwing; use `Repo.contains()` for any LIKE/ILIKE search term,
   which escapes the wildcards

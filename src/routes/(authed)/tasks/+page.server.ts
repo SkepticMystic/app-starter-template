@@ -3,12 +3,13 @@ import { TASKS } from "#lib/const/task.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import { TaskTable } from "#lib/server/db/models/task.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { filter_sql } from "#lib/server/db/sql.util.js";
 import { get_session } from "#lib/server/services/auth.service.js";
 import { raise } from "#lib/utils/result.util.js";
 import { redirect } from "@sveltejs/kit";
 import { TIME } from "#lib/const/time.const.js";
 import { parseDate } from "@internationalized/date";
-import { and, eq, gte, ilike, inArray, lt } from "drizzle-orm";
+import type { TableFilter } from "drizzle-orm";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
@@ -65,34 +66,31 @@ export const load = (async ({ url, depends }) => {
         }
       : null;
 
-  const where = and(
-    eq(TaskTable.org_id, session.data.session.org_id),
-    params.title
-      ? ilike(TaskTable.title, Repo.contains(params.title))
-      : undefined,
-    params.status.length ? inArray(TaskTable.status, params.status) : undefined,
-    due ? gte(TaskTable.due_date, due.from) : undefined,
-    due ? lt(TaskTable.due_date, due.until) : undefined,
-  );
+  // One filter for both reads, so the page and its total cannot disagree.
+  const where: TableFilter<typeof TaskTable> = {
+    org_id: session.data.session.org_id,
+    title: params.title ? { ilike: Repo.contains(params.title) } : undefined,
+    status: params.status.length ? { in: params.status } : undefined,
+    due_date: due ? { gte: due.from, lt: due.until } : undefined,
+  };
 
   const [tasks, total] = await Promise.all([
     Repo.query(
-      db
-        .select()
-        .from(TaskTable)
-        .where(where)
+      db.query.task.findMany({
+        where,
         // Fixed: server mode turns column sorting off.
-        .orderBy(
-          ...Repo.order_by(
+        // `t`, not `TaskTable`: findMany aliases the table.
+        orderBy: (t) =>
+          Repo.order_by(
             { key: "createdAt", desc: true },
-            { createdAt: TaskTable.createdAt },
-            TaskTable.id,
+            { createdAt: t.createdAt },
+            t.id,
           ),
-        )
-        .limit(params.limit)
-        .offset(params.offset),
+        limit: params.limit,
+        offset: params.offset,
+      }),
     ),
-    Repo.count(db.$count(TaskTable, where)),
+    Repo.count(db.$count(TaskTable, filter_sql(TaskTable, where))),
   ]);
 
   if (!tasks.ok) raise(tasks.error);

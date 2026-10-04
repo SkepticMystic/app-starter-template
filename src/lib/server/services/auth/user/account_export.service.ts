@@ -1,21 +1,6 @@
 import { db } from "#lib/server/db/drizzle.db.js";
-import {
-  AccountTable,
-  InvitationTable,
-  MemberTable,
-  OrganizationTable,
-  PasskeyTable,
-  UserTable,
-} from "#lib/server/db/models/auth.model.js";
-import { ImageTable } from "#lib/server/db/models/image.model.js";
-import {
-  PaystackTransactionTable,
-  SubscriptionTable,
-} from "#lib/server/db/models/subscription.model.js";
-import { TaskTable } from "#lib/server/db/models/task.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { result } from "#lib/utils/result.util.js";
-import { operators as o } from "drizzle-orm";
 import { UserSessionService } from "./user_session.service.js";
 
 /**
@@ -33,130 +18,117 @@ const for_user = async (session: App.Session) => {
   const snapshot = await Repo.query(
     db.transaction(
       async (tx) => {
-        const [user] = await tx
-          .select({
-            id: UserTable.id,
-            name: UserTable.name,
-            email: UserTable.email,
-            email_verified: UserTable.emailVerified,
-            image: UserTable.image,
-            two_factor_enabled: UserTable.twoFactorEnabled,
-            created_at: UserTable.createdAt,
-            updated_at: UserTable.updatedAt,
-          })
-          .from(UserTable)
-          .where(o.eq(UserTable.id, user_id));
+        const user = await tx.query.user.findFirst({
+          columns: {
+            id: true,
+            name: true,
+            email: true,
+            emailVerified: true,
+            image: true,
+            twoFactorEnabled: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          where: { id: user_id },
+        });
 
-        const sign_in_methods = await tx
-          .select({
-            provider: AccountTable.providerId,
-            account_id: AccountTable.accountId,
-            created_at: AccountTable.createdAt,
-          })
-          .from(AccountTable)
-          .where(o.eq(AccountTable.userId, user_id));
+        const sign_in_methods = await tx.query.account.findMany({
+          columns: { providerId: true, accountId: true, createdAt: true },
+          where: { userId: user_id },
+        });
 
-        const passkeys = await tx
-          .select({
-            name: PasskeyTable.name,
-            device_type: PasskeyTable.deviceType,
-            backed_up: PasskeyTable.backedUp,
-            created_at: PasskeyTable.createdAt,
-          })
-          .from(PasskeyTable)
-          .where(o.eq(PasskeyTable.userId, user_id));
+        const passkeys = await tx.query.passkey.findMany({
+          columns: {
+            name: true,
+            deviceType: true,
+            backedUp: true,
+            createdAt: true,
+          },
+          where: { userId: user_id },
+        });
 
-        const memberships = await tx
-          .select({
-            member_id: MemberTable.id,
-            org_id: OrganizationTable.id,
-            org_name: OrganizationTable.name,
-            role: MemberTable.role,
-            joined_at: MemberTable.createdAt,
-          })
-          .from(MemberTable)
-          .innerJoin(
-            OrganizationTable,
-            o.eq(OrganizationTable.id, MemberTable.organizationId),
-          )
-          .where(o.eq(MemberTable.userId, user_id));
+        const memberships = await tx.query.member.findMany({
+          columns: { id: true, role: true, createdAt: true },
+          where: { userId: user_id },
+          with: { organization: { columns: { id: true, name: true } } },
+        });
 
-        const member_ids = memberships.map((m) => m.member_id);
+        const invitations_sent = await tx.query.invitation.findMany({
+          columns: {
+            email: true,
+            organizationId: true,
+            role: true,
+            status: true,
+            expiresAt: true,
+          },
+          where: { inviterId: user_id },
+        });
 
-        const invitations_sent = await tx
-          .select({
-            email: InvitationTable.email,
-            org_id: InvitationTable.organizationId,
-            role: InvitationTable.role,
-            status: InvitationTable.status,
-            expires_at: InvitationTable.expiresAt,
-          })
-          .from(InvitationTable)
-          .where(o.eq(InvitationTable.inviterId, user_id));
+        const tasks = await tx.query.task.findMany({
+          columns: {
+            id: true,
+            org_id: true,
+            title: true,
+            description: true,
+            status: true,
+            due_date: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          extras: {
+            created_by_me: (t, { sql }) =>
+              sql<boolean>`${t.user_id} = ${user_id}`,
+          },
+          where: {
+            OR: [
+              { user_id },
+              // `in: []` compiles to `false`.
+              { assigned_member_id: { in: memberships.map((m) => m.id) } },
+            ],
+          },
+        });
 
-        const tasks = await tx
-          .select({
-            id: TaskTable.id,
-            org_id: TaskTable.org_id,
-            title: TaskTable.title,
-            description: TaskTable.description,
-            status: TaskTable.status,
-            due_date: TaskTable.due_date,
-            created_by_me: o.eq(TaskTable.user_id, user_id),
-            created_at: TaskTable.createdAt,
-            updated_at: TaskTable.updatedAt,
-          })
-          .from(TaskTable)
-          .where(
-            o.or(
-              o.eq(TaskTable.user_id, user_id),
-              member_ids.length
-                ? o.inArray(TaskTable.assigned_member_id, member_ids)
-                : undefined,
-            ),
-          );
+        const images = await tx.query.image.findMany({
+          columns: {
+            url: true,
+            org_id: true,
+            resource_kind: true,
+            resource_id: true,
+            createdAt: true,
+          },
+          where: { user_id },
+        });
 
-        const images = await tx
-          .select({
-            url: ImageTable.url,
-            org_id: ImageTable.org_id,
-            resource_kind: ImageTable.resource_kind,
-            resource_id: ImageTable.resource_id,
-            created_at: ImageTable.createdAt,
-          })
-          .from(ImageTable)
-          .where(o.eq(ImageTable.user_id, user_id));
+        const subscriptions = await tx.query.paystackSubscription.findMany({
+          columns: {
+            plan: true,
+            status: true,
+            referenceId: true,
+            periodStart: true,
+            periodEnd: true,
+            createdAt: true,
+          },
+          where: { userId: user_id },
+        });
 
-        const subscriptions = await tx
-          .select({
-            plan: SubscriptionTable.plan,
-            status: SubscriptionTable.status,
-            reference_id: SubscriptionTable.referenceId,
-            period_start: SubscriptionTable.periodStart,
-            period_end: SubscriptionTable.periodEnd,
-            created_at: SubscriptionTable.createdAt,
-          })
-          .from(SubscriptionTable)
-          .where(o.eq(SubscriptionTable.userId, user_id));
-
-        const payments = await tx
-          .select({
-            reference: PaystackTransactionTable.reference,
-            amount: PaystackTransactionTable.amount,
-            currency: PaystackTransactionTable.currency,
-            status: PaystackTransactionTable.status,
-            plan: PaystackTransactionTable.plan,
-            product: PaystackTransactionTable.product,
-            created_at: PaystackTransactionTable.createdAt,
-          })
-          .from(PaystackTransactionTable)
-          .where(o.eq(PaystackTransactionTable.userId, user_id));
+        const payments = await tx.query.paystackTransaction.findMany({
+          columns: {
+            reference: true,
+            amount: true,
+            currency: true,
+            status: true,
+            plan: true,
+            product: true,
+            createdAt: true,
+          },
+          where: { userId: user_id },
+        });
 
         return {
           user,
           sign_in_methods,
           passkeys,
-          memberships: memberships.map(({ member_id: _, ...m }) => m),
+          memberships: memberships.map(({ id: _, ...m }) => m),
           invitations_sent,
           tasks,
           images,

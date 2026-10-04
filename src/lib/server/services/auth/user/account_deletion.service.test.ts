@@ -31,11 +31,34 @@ const queue = (input: {
 }) => {
   const query = vi.mocked(Repo.query);
 
-  query.mockResolvedValueOnce(result.suc(input.memberships));
+  // Rows as drizzle answers them, from the flatter shapes the cases read.
+  query.mockResolvedValueOnce(
+    result.suc(
+      input.memberships.map((m) => ({
+        organizationId: m.org_id,
+        role: m.role,
+        organization: { name: m.org_name },
+      })),
+    ),
+  );
   if (input.memberships.length) {
-    query.mockResolvedValueOnce(result.suc(input.others ?? []));
+    query.mockResolvedValueOnce(
+      result.suc(
+        (input.others ?? []).map((m) => ({
+          organizationId: m.org_id,
+          role: m.role,
+        })),
+      ),
+    );
   }
-  query.mockResolvedValueOnce(result.suc(input.subscriptions ?? []));
+  query.mockResolvedValueOnce(
+    result.suc(
+      (input.subscriptions ?? []).map((s) => ({
+        referenceId: s.reference_id,
+        subscriptionCode: s.code,
+      })),
+    ),
+  );
   query.mockResolvedValueOnce(result.suc(input.images ?? []));
 };
 
