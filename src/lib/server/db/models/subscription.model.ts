@@ -9,10 +9,10 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
-import { SUBSCRIPTION } from "../../../const/subscription.const";
-import { TRANSACTION } from "../../../const/transaction.const";
-import { UserTable } from "./auth.model";
-import { Schema } from "./index.schema";
+import { SUBSCRIPTION } from "../../../const/subscription.const.js";
+import { TRANSACTION } from "../../../const/transaction.const.js";
+import { UserTable } from "./auth.model.js";
+import { Schema } from "./index.schema.js";
 
 /**
  * These tables are owned by the `better-auth-paystack` plugin, which resolves a

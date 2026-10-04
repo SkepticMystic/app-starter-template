@@ -9,10 +9,10 @@ import {
 import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { createInsertSchema, createUpdateSchema } from "drizzle-orm/zod";
 import { z } from "zod";
-import { TASKS } from "../../../const/task.const";
-import { WallClock } from "../../../utils/wall_clock.util";
-import { MemberTable, OrganizationTable, UserTable } from "./auth.model";
-import { Schema } from "./index.schema";
+import { TASKS } from "../../../const/task.const.js";
+import { WallClock } from "../../../utils/wall_clock.util.js";
+import { MemberTable, OrganizationTable, UserTable } from "./auth.model.js";
+import { Schema } from "./index.schema.js";
 
 export const task_status_enum = pgEnum("task_status", TASKS.STATUS.IDS);
 

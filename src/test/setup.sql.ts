@@ -8,8 +8,8 @@
 
 import type { SQLWrapper } from "drizzle-orm";
 import { beforeEach, vi } from "vite-plus/test";
-import { reset_env } from "./env.mock";
-import { reset_recorder } from "./sql.mock";
+import { reset_env } from "./env.mock.js";
+import { reset_recorder } from "./sql.mock.js";
 
 /**
  * A real drizzle over `pg-proxy`, so every statement is compiled by the same
@@ -22,8 +22,8 @@ import { reset_recorder } from "./sql.mock";
  * array. There is no `transaction`: neon-http has none either.
  */
 vi.mock("#lib/server/db/drizzle.db.js", async () => {
-  const { memo } = await import("./automock");
-  const { recorder } = await import("./sql.mock");
+  const { memo } = await import("./automock.js");
+  const { recorder } = await import("./sql.mock.js");
   const { drizzle } = await import("drizzle-orm/pg-proxy");
   const { PgDialect } = await import("drizzle-orm/pg-core");
   const { relations } = await import("#lib/server/db/relations.js");
@@ -55,13 +55,13 @@ vi.mock("#lib/server/db/drizzle.db.js", async () => {
 });
 
 vi.mock("$app/env/private", async () => {
-  const { mock_env } = await import("./env.mock");
+  const { mock_env } = await import("./env.mock.js");
 
   return mock_env;
 });
 
 vi.mock("$app/env/public", async () => {
-  const { mock_public_env } = await import("./env.mock");
+  const { mock_public_env } = await import("./env.mock.js");
 
   return mock_public_env;
 });
@@ -74,7 +74,7 @@ vi.mock("$app/env", () => ({
 }));
 
 vi.mock("#lib/server/db/redis.db.js", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("sql:#lib/server/db/redis.db.js", async () => ({
     REDIS_PREFIX: "test:test",
@@ -89,7 +89,7 @@ vi.mock("#lib/server/db/redis.db.js", async () => {
 });
 
 vi.mock("@sentry/sveltekit", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("sql:@sentry/sveltekit", async () => ({
     captureException: vi.fn(),
@@ -106,7 +106,7 @@ vi.mock("@sentry/sveltekit", async () => {
 });
 
 vi.mock("#lib/utils/logger.util.js", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("sql:#lib/utils/logger.util.js", async () => {
     const logger: Record<string, unknown> = {

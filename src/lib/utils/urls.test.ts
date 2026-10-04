@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Url } from "./urls";
+import { Url } from "./urls.js";
 
 describe("Url", () => {
   describe("set_params", () => {

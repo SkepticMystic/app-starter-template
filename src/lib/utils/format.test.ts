@@ -6,7 +6,7 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import { Format } from "./format.util";
+import { Format } from "./format.util.js";
 
 // Whitespace aside: the locale puts a no-break space after the symbol.
 const bare = (text: string) => text.replaceAll(/\s/g, "");

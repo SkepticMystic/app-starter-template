@@ -1,6 +1,9 @@
 import { AUTH } from "#lib/const/auth/auth.const.js";
 import { describe, expect, it } from "vite-plus/test";
-import { existing_password_schema, password_schema } from "./password.schema";
+import {
+  existing_password_schema,
+  password_schema,
+} from "./password.schema.js";
 
 // Strong enough for zxcvbn, so only the length rules are under test.
 const strong = (length: number) =>

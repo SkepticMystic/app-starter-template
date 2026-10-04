@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { HashUtil } from "./hash.util";
+import { HashUtil } from "./hash.util.js";
 
 describe("HashUtil", () => {
   it("hashes to lowercase hex SHA-256", async () => {

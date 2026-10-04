@@ -1,4 +1,4 @@
-import { declared } from "../env";
+import { declared } from "../env.js";
 
 /**
  * The test environment, derived from `src/env.ts` so a newly declared variable

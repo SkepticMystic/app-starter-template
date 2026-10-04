@@ -1,5 +1,5 @@
-import { Format } from "../format.util";
-import { Strings } from "../strings.util";
+import { Format } from "../format.util.js";
+import { Strings } from "../strings.util.js";
 import type {
   ColumnVisibilityState,
   PaginationState,

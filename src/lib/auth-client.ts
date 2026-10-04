@@ -12,9 +12,9 @@ import {
   twoFactorClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/svelte";
-import type { auth } from "./auth";
-import { AccessControl } from "./const/auth/access_control.const";
-import { OrgAccessControl } from "./const/auth/organization_access_control.const";
+import type { auth } from "./auth.js";
+import { AccessControl } from "./const/auth/access_control.const.js";
+import { OrgAccessControl } from "./const/auth/organization_access_control.const.js";
 
 export const BetterAuthClient = createAuthClient({
   baseURL: PUBLIC_BASE_URL,

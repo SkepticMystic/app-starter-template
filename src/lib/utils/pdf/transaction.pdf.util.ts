@@ -5,7 +5,7 @@ import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { PDF, Standard14Font, StandardFonts, rgb } from "@libpdf/core";
 import { captureException } from "@sentry/sveltekit";
-import { Format } from "../format.util";
+import { Format } from "../format.util.js";
 
 /**
  * Real glyph metrics, not the `length * size * 0.55` estimate this used to

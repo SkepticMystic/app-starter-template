@@ -1,9 +1,13 @@
 import { APIKeyRepo } from "#lib/server/db/repos/apikey.repo.js";
 import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
-import { auth_mock } from "../../../../../test/auth.mock";
-import { makeSession, mocks, with_request } from "../../../../../test/helpers";
-import { OrganizationService } from "./organization.service";
+import { auth_mock } from "../../../../../test/auth.mock.js";
+import {
+  makeSession,
+  mocks,
+  with_request,
+} from "../../../../../test/helpers.js";
+import { OrganizationService } from "./organization.service.js";
 
 const ORG = "11111111-1111-4111-8111-111111111111";
 const OTHER_ORG = "22222222-2222-4222-8222-222222222222";

@@ -1,6 +1,6 @@
 import { db } from "#lib/server/db/drizzle.db.js";
-import { type PaystackTransaction } from "../models/subscription.model";
-import { Repo } from "./index.repo";
+import { type PaystackTransaction } from "../models/subscription.model.js";
+import { Repo } from "./index.repo.js";
 
 /**
  * PaystackTransaction Repository - CRUD operations for Paystack transactions

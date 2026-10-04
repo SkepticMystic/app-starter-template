@@ -1,7 +1,7 @@
-import * as AuthModels from "./models/auth.model";
-import * as ImageModels from "./models/image.model";
-import * as SubscriptionModels from "./models/subscription.model";
-import * as TaskModels from "./models/task.model";
+import * as AuthModels from "./models/auth.model.js";
+import * as ImageModels from "./models/image.model.js";
+import * as SubscriptionModels from "./models/subscription.model.js";
+import * as TaskModels from "./models/task.model.js";
 
 const {
   AccountTable,

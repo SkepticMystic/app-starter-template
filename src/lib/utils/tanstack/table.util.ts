@@ -52,7 +52,7 @@ import {
 } from "@tanstack/svelte-table";
 import type { DateRange } from "bits-ui";
 import type { ComponentProps } from "svelte";
-import { EMPTY, Format } from "../format.util";
+import { EMPTY, Format } from "../format.util.js";
 import {
   cell_title,
   count_label,
@@ -63,7 +63,7 @@ import {
   page_of_offset,
   row_id,
   rows_keyable_by_id,
-} from "./table_layout.util";
+} from "./table_layout.util.js";
 
 /**
  * Keeps rows whose date falls inside an inclusive bits-ui calendar range. A

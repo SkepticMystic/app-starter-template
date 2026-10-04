@@ -5,7 +5,7 @@ import { describe, expect, it } from "vite-plus/test";
 import {
   MemberSessionService,
   type SessionStore,
-} from "./member_session.service";
+} from "./member_session.service.js";
 
 /**
  * A real Better-Auth `internalAdapter`, configured as `auth.ts` is (sessions only in

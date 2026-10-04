@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { result } from "./result.util";
+import { result } from "./result.util.js";
 
 describe("result", () => {
   describe("suc", () => {

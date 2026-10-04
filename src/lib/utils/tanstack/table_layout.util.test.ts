@@ -9,7 +9,7 @@ import {
   header_label,
   row_id,
   rows_keyable_by_id,
-} from "./table_layout.util";
+} from "./table_layout.util.js";
 
 describe("header_label", () => {
   it("prefers meta.label over every other source", () => {

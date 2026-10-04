@@ -2,8 +2,8 @@ import { getRequestEvent } from "$app/server";
 import { auth } from "#lib/auth.js";
 import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { makeSession, with_request } from "../../../test/helpers";
-import { authorize_event, get_session, read_session } from "./auth.service";
+import { makeSession, with_request } from "../../../test/helpers.js";
+import { authorize_event, get_session, read_session } from "./auth.service.js";
 
 const ORG_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";

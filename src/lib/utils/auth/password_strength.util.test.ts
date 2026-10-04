@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { estimate_password_strength } from "./password_strength.util";
+import { estimate_password_strength } from "./password_strength.util.js";
 
 describe("estimate_password_strength", () => {
   it.each([

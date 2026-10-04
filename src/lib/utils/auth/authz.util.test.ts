@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Authz } from "./authz.util";
+import { Authz } from "./authz.util.js";
 
 const member = (role: string | null): Authz.Subject => ({
   user_role: "user",

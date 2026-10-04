@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Guard } from "./guard.util";
+import { Guard } from "./guard.util.js";
 
 describe("Guard", () => {
   describe("is_nullish", () => {

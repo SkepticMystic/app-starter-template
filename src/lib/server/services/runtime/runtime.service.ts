@@ -1,6 +1,6 @@
 import { Log } from "#lib/utils/logger.util.js";
 import { captureException } from "@sentry/sveltekit";
-import { AdapterService } from "../adapter/adapter.service";
+import { AdapterService } from "../adapter/adapter.service.js";
 
 const log = Log.child({ service: "Runtime" });
 

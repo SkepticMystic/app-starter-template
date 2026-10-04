@@ -2,9 +2,9 @@
 <script lang="ts">
   import { IMAGE_HOSTING } from "#lib/const/image/image_hosting.const.js";
   import { useId } from "bits-ui";
-  import { format_bytes } from "./file-drop-zone-utils";
+  import { format_bytes } from "./file-drop-zone-utils.js";
   import Icon from "../icon/Icon.svelte";
-  import type { FileDropZoneProps, FileRejectedReason } from "./types";
+  import type { FileDropZoneProps, FileRejectedReason } from "./types.js";
 
   let {
     accept,

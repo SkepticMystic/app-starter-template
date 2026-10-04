@@ -1,7 +1,7 @@
 import { db } from "#lib/server/db/drizzle.db.js";
 import { APIKeyTable } from "#lib/server/db/models/auth.model.js";
 import { eq } from "drizzle-orm";
-import { Repo } from "./index.repo";
+import { Repo } from "./index.repo.js";
 
 /**
  * System-triggered writes across every key an org holds, which Better-Auth's

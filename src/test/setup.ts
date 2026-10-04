@@ -15,7 +15,7 @@
  */
 
 import { beforeEach, vi } from "vite-plus/test";
-import { reset_env } from "./env.mock";
+import { reset_env } from "./env.mock.js";
 
 // ---------------------------------------------------------------------------
 // SvelteKit virtual modules
@@ -26,13 +26,13 @@ import { reset_env } from "./env.mock";
  * a copy, so `set_env()` reaches a reader that looks the value up at call time.
  */
 vi.mock("$app/env/private", async () => {
-  const { mock_env } = await import("./env.mock");
+  const { mock_env } = await import("./env.mock.js");
 
   return mock_env;
 });
 
 vi.mock("$app/env/public", async () => {
-  const { mock_public_env } = await import("./env.mock");
+  const { mock_public_env } = await import("./env.mock.js");
 
   return mock_public_env;
 });
@@ -49,7 +49,7 @@ vi.mock("$app/paths", () => ({
 }));
 
 vi.mock("$app/server", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   // `command` / `query` / `form` hand back their handler, so a test can call
   // what `guarded.ts` builds as a plain function.
@@ -75,7 +75,7 @@ vi.mock("$app/server", async () => {
  * that needs an answer mocks the `Repo` call around the query instead.
  */
 vi.mock("#lib/server/db/drizzle.db.js", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("#lib/server/db/drizzle.db.js", async () => {
     const handler: ProxyHandler<object> = {
@@ -96,7 +96,7 @@ vi.mock("#lib/server/db/drizzle.db.js", async () => {
  * so every export must be listed.
  */
 vi.mock("#lib/server/db/redis.db.js", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("#lib/server/db/redis.db.js", async () => ({
     REDIS_PREFIX: "test:test",
@@ -134,7 +134,7 @@ vi.mock("#lib/server/db/redis.db.js", async () => {
  * `ORDER BY`. Its own test runs in the `sql` project, against the real one.
  */
 vi.mock("#lib/server/db/repos/index.repo.js", async (io) => {
-  const { memo, automock } = await import("./automock");
+  const { memo, automock } = await import("./automock.js");
 
   return memo("#lib/server/db/repos/index.repo.js", async () => {
     const actual =
@@ -158,13 +158,13 @@ vi.mock("#lib/server/db/repos/index.repo.js", async (io) => {
  * its own test asks for the real one with `vi.importActual`.
  */
 vi.mock("#lib/server/db/repos/apikey.repo.js", async (io) => {
-  const { mock_module } = await import("./automock");
+  const { mock_module } = await import("./automock.js");
 
   return mock_module("#lib/server/db/repos/apikey.repo.js", io);
 });
 
 vi.mock("#lib/server/db/repos/organization.repo.js", async (io) => {
-  const { mock_module } = await import("./automock");
+  const { mock_module } = await import("./automock.js");
 
   return mock_module("#lib/server/db/repos/organization.repo.js", io);
 });
@@ -175,8 +175,8 @@ vi.mock("#lib/server/db/repos/organization.repo.js", async (io) => {
 
 /** Reduced to what the services under test reach; the knobs are `./auth.mock.ts`. */
 vi.mock("#lib/auth.js", async () => {
-  const { auth_mock } = await import("./auth.mock");
-  const { memo } = await import("./automock");
+  const { auth_mock } = await import("./auth.mock.js");
+  const { memo } = await import("./automock.js");
 
   return memo("#lib/auth.js", async () => ({
     auth: {
@@ -197,7 +197,7 @@ vi.mock("#lib/auth.js", async () => {
 // ---------------------------------------------------------------------------
 
 vi.mock("@sentry/sveltekit", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("@sentry/sveltekit", async () => ({
     captureException: vi.fn(),
@@ -221,8 +221,8 @@ vi.mock("@sentry/sveltekit", async () => {
  * wording. A class, since `RateLimiter` calls `new` on it.
  */
 vi.mock("@upstash/ratelimit", async () => {
-  const { ratelimit } = await import("./rate_limit.mock");
-  const { memo } = await import("./automock");
+  const { ratelimit } = await import("./rate_limit.mock.js");
+  const { memo } = await import("./automock.js");
 
   return memo("@upstash/ratelimit", async () => ({
     Ratelimit: class RatelimitStub {
@@ -239,7 +239,7 @@ vi.mock("@upstash/ratelimit", async () => {
 
 /** `RuntimeService.defer` hands work to it on Vercel. */
 vi.mock("@vercel/functions", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("@vercel/functions", async () => ({
     waitUntil: vi.fn(),
@@ -248,7 +248,7 @@ vi.mock("@vercel/functions", async () => {
 
 /** A streaming upload that finishes at once; the seam behind `R2Service.put`'s streaming path. */
 vi.mock("@aws-sdk/lib-storage", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("@aws-sdk/lib-storage", async () => ({
     Upload: vi.fn(
@@ -260,7 +260,7 @@ vi.mock("@aws-sdk/lib-storage", async () => {
 });
 
 vi.mock("#lib/server/services/email.service.js", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("#lib/server/services/email.service.js", async () => ({
     // Sent, as both of the real service's backends answer.
@@ -276,7 +276,7 @@ vi.mock("#lib/server/services/email.service.js", async () => {
  * spies.
  */
 vi.mock("#lib/utils/logger.util.js", async () => {
-  const { memo } = await import("./automock");
+  const { memo } = await import("./automock.js");
 
   return memo("#lib/utils/logger.util.js", async () => {
     const logger: Record<string, unknown> = {

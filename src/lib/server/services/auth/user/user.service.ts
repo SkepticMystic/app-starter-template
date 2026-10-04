@@ -7,7 +7,7 @@ import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError, type User } from "better-auth";
-import { AIModerationService } from "../../moderation/ai.moderation.service";
+import { AIModerationService } from "../../moderation/ai.moderation.service.js";
 
 const log = Log.child({ service: "User" });
 

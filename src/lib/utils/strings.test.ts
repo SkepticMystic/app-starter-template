@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Strings } from "./strings.util";
+import { Strings } from "./strings.util.js";
 
 describe("Strings", () => {
   describe("slugify", () => {

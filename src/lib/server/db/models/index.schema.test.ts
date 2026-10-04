@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import { integer, text, uuid } from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
-import { Schema } from "./index.schema";
+import { Schema } from "./index.schema.js";
 
 const Table = snakeCase.table("patcher_fixture", {
   ...Schema.id(),

@@ -13,7 +13,7 @@ import {
 import { getColumns, is } from "drizzle-orm";
 import { getTableConfig, PgTable } from "drizzle-orm/pg-core";
 import { describe, expect, it } from "vite-plus/test";
-import { schema } from "./schema";
+import { schema } from "./schema.js";
 
 /**
  * The drizzle adapter resolves a Better-Auth model by exact `schema[model]` key

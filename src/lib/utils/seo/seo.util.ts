@@ -1,6 +1,6 @@
 import { APP } from "#lib/const/app.const.js";
 import { transformUrl } from "unpic";
-import { Url } from "../urls";
+import { Url } from "../urls.js";
 
 type UTMData = {
   /**

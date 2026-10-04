@@ -24,7 +24,7 @@ import { passkey } from "@better-auth/passkey";
 import { captureException } from "@sentry/sveltekit";
 import type { APIError } from "better-auth";
 import { betterAuth } from "better-auth/minimal";
-import type { Branded } from "./interfaces/zod/zod.type";
+import type { Branded } from "./interfaces/zod/zod.type.js";
 import {
   admin,
   captcha,
@@ -37,24 +37,24 @@ import {
 } from "better-auth/plugins";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { createAuthMiddleware } from "better-auth/api";
-import { APP } from "./const/app.const";
-import { AccessControl } from "./const/auth/access_control.const";
-import { AUTH, type IAuth } from "./const/auth/auth.const";
-import { OrgAccessControl } from "./const/auth/organization_access_control.const";
-import { TWO_FACTOR } from "./const/auth/two_factor.const";
-import { db } from "./server/db/drizzle.db";
-import { type Session } from "./server/db/models/auth.model";
-import { REDIS_PREFIX, redis } from "./server/db/redis.db";
-import { Repo } from "./server/db/repos/index.repo";
-import { schema } from "./server/db/schema";
-import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk";
-import { AdapterService } from "./server/services/adapter/adapter.service";
-import { Dicebear } from "./server/services/dicebear/dicebear.service";
-import { EmailValidationService } from "./server/services/auth/email/email_validation.service";
-import { MemberSessionService } from "./server/services/auth/organization/member_session.service";
-import { EmailService } from "./server/services/email.service";
-import { RuntimeService } from "./server/services/runtime/runtime.service";
-import { Log } from "./utils/logger.util";
+import { APP } from "./const/app.const.js";
+import { AccessControl } from "./const/auth/access_control.const.js";
+import { AUTH, type IAuth } from "./const/auth/auth.const.js";
+import { OrgAccessControl } from "./const/auth/organization_access_control.const.js";
+import { TWO_FACTOR } from "./const/auth/two_factor.const.js";
+import { db } from "./server/db/drizzle.db.js";
+import { type Session } from "./server/db/models/auth.model.js";
+import { REDIS_PREFIX, redis } from "./server/db/redis.db.js";
+import { Repo } from "./server/db/repos/index.repo.js";
+import { schema } from "./server/db/schema.js";
+import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk.js";
+import { AdapterService } from "./server/services/adapter/adapter.service.js";
+import { Dicebear } from "./server/services/dicebear/dicebear.service.js";
+import { EmailValidationService } from "./server/services/auth/email/email_validation.service.js";
+import { MemberSessionService } from "./server/services/auth/organization/member_session.service.js";
+import { EmailService } from "./server/services/email.service.js";
+import { RuntimeService } from "./server/services/runtime/runtime.service.js";
+import { Log } from "./utils/logger.util.js";
 
 // SECTION: betterAuth init
 export const auth = betterAuth({
@@ -629,7 +629,7 @@ export const auth = betterAuth({
  * dynamic import is cached after the first send, so deferring costs nothing.
  */
 const templates = async () =>
-  (await import("./const/email.const")).EMAIL.TEMPLATES;
+  (await import("./const/email.const.js")).EMAIL.TEMPLATES;
 
 /**
  * Every Better-Auth secondary-storage key is namespaced through this — see

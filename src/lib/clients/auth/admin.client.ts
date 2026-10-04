@@ -2,7 +2,7 @@ import { BetterAuthClient } from "#lib/auth-client.js";
 import { TIME } from "#lib/const/time.const.js";
 import { App } from "#lib/utils/app.js";
 import { Format } from "#lib/utils/format.util.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 import { type RoleId, ROLES } from "#lib/const/auth/role.const.js";
 
 export const AdminClient = {

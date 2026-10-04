@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Arrays, type Resource } from "./array.util";
+import { Arrays, type Resource } from "./array.util.js";
 
 type TestResource = Resource<{ name: string; value: number }>;
 const createResource = (

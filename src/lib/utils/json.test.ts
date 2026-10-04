@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Json } from "./json";
+import { Json } from "./json.js";
 
 describe("Json", () => {
   describe("str_or_stringify", () => {

@@ -516,6 +516,9 @@ vite-plus bundles (`vp toolchain vitest`); a second copy would split mocks and
 8. Run `pnpm db:push` to create tables
 9. Configure auth provider credentials as needed (Google, Pocket ID)
 10. Configure email service (Resend) with `RESEND_API_KEY` and `EMAIL_FROM`
+11. Optional kits: R2 (invoice PDFs), Cloudinary (image upload) and OpenAI
+    (moderation) may stay unset; their services answer "not configured", and
+    moderation fails closed, refusing custom avatars and uploads
 
 ## Deployment
 

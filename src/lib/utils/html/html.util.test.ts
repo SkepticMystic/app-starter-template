@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { HTMLUtil } from "./html.util";
+import { HTMLUtil } from "./html.util.js";
 
 describe("HTMLUtil.escape", () => {
   it("escapes the five markup characters", () => {

@@ -1,10 +1,10 @@
 import { index, integer, pgEnum, uuid, varchar } from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { createInsertSchema } from "drizzle-orm/zod";
-import { IMAGE_HOSTING } from "../../../const/image/image_hosting.const";
-import { RESOURCE } from "../../../const/resource/resource.const";
-import { MemberTable, OrganizationTable, UserTable } from "./auth.model";
-import { Schema } from "./index.schema";
+import { IMAGE_HOSTING } from "../../../const/image/image_hosting.const.js";
+import { RESOURCE } from "../../../const/resource/resource.const.js";
+import { MemberTable, OrganizationTable, UserTable } from "./auth.model.js";
+import { Schema } from "./index.schema.js";
 
 export const image_provider_enum = pgEnum(
   "image_providers",

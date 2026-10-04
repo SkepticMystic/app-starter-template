@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { run_chunked } from "./chunked.util";
+import { run_chunked } from "./chunked.util.js";
 
 describe("run_chunked", () => {
   it("runs `concurrency` at a time, and settles every item", async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { active_href } from "./active_href.util";
+import { active_href } from "./active_href.util.js";
 
 describe("active_href", () => {
   const hrefs = ["/settings", "/settings/api-key", "/tasks"];

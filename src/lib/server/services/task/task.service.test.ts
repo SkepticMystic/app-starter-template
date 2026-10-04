@@ -1,8 +1,8 @@
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { result } from "#lib/utils/result.util.js";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { makeSession } from "../../../../test/helpers";
-import { TaskService } from "./task.service";
+import { makeSession } from "../../../../test/helpers.js";
+import { TaskService } from "./task.service.js";
 
 const ORG_ID = "11111111-1111-4111-8111-111111111111";
 const ASSIGNEE_ID = "33333333-3333-4333-8333-333333333333";

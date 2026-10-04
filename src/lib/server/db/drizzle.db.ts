@@ -1,7 +1,7 @@
 import { DATABASE_URL } from "$app/env/private";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { relations } from "./relations";
+import { relations } from "./relations.js";
 
 const client = neon(DATABASE_URL);
 

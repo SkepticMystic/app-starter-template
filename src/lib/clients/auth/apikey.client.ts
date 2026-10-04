@@ -1,5 +1,5 @@
 import { delete_apikey_remote } from "#lib/remote/auth/apikey.remote.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 
 export const APIKeyClient = {
   delete: Client.wrap(delete_apikey_remote, {

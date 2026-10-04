@@ -2,7 +2,7 @@ import { db } from "#lib/server/db/drizzle.db.js";
 import { OrganizationTable } from "#lib/server/db/models/auth.model.js";
 import { result } from "#lib/utils/result.util.js";
 import { eq } from "drizzle-orm";
-import { Repo } from "./index.repo";
+import { Repo } from "./index.repo.js";
 
 /**
  * The user's membership of an org as it is now, or `undefined` if there is

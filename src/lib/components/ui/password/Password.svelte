@@ -4,7 +4,7 @@
   import PasswordRoot from "./password-root.svelte";
   import PasswordStrength from "./password-strength.svelte";
   import PasswordToggleVisibility from "./password-toggle-visibility.svelte";
-  import type { PasswordInputProps } from "./types";
+  import type { PasswordInputProps } from "./types.js";
 
   let {
     value,

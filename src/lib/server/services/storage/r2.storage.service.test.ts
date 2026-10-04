@@ -2,7 +2,7 @@ import { NotFound, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { R2Service } from "./r2.storage.service";
+import { R2Service } from "./r2.storage.service.js";
 
 const send = vi.spyOn(S3Client.prototype, "send");
 

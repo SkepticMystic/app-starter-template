@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { HealthService, type HealthDeps } from "./health.service";
+import { HealthService, type HealthDeps } from "./health.service.js";
 
 // Deps and timeout are injected, not mocked or faked — see `HealthService.check`.
 const ok = async () => "ok";

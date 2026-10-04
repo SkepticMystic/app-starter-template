@@ -1,8 +1,8 @@
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import { describe, expect, it, vi } from "vite-plus/test";
-import { makeSession } from "../../../test/helpers";
-import { ba_error, session_member, session_org } from "./service.util";
+import { makeSession } from "../../../test/helpers.js";
+import { ba_error, session_member, session_org } from "./service.util.js";
 
 const log = { error: vi.fn(), info: vi.fn() };
 

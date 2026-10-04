@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vite-plus/test";
-import { declared, variables } from "../env";
+import { declared, variables } from "../env.js";
 
 /**
  * `.env.example` is the onboarding manifest and the list `infra/` mirrors, so

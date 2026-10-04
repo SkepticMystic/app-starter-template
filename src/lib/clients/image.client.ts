@@ -1,7 +1,7 @@
 import { delete_image_remote } from "#lib/remote/image/image.remote.js";
 import type { Image } from "#lib/server/db/models/image.model.js";
 import { thumbHashToDataURL } from "thumbhash";
-import { Client } from "./index.client";
+import { Client } from "./index.client.js";
 
 export const ImageClient = {
   delete: Client.wrap(delete_image_remote, {

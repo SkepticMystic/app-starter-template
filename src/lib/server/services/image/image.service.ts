@@ -12,13 +12,13 @@ import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
-import { RuntimeService } from "../runtime/runtime.service";
+import { RuntimeService } from "../runtime/runtime.service.js";
 import { count, operators as o } from "drizzle-orm";
 import type { z } from "zod/mini";
-import { AIModerationService } from "../moderation/ai.moderation.service";
-import { ResourceService } from "../resource/resource.service";
-import { ImageHostingService } from "./image_hosting.service";
-import { ThumbhashService } from "./thumbhash.image.service";
+import { AIModerationService } from "../moderation/ai.moderation.service.js";
+import { ResourceService } from "../resource/resource.service.js";
+import { ImageHostingService } from "./image_hosting.service.js";
+import { ThumbhashService } from "./thumbhash.image.service.js";
 
 const log = Log.child({ service: "image" });
 

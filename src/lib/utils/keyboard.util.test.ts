@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { chord_label, is_apple_keyboard } from "./keyboard.util";
+import { chord_label, is_apple_keyboard } from "./keyboard.util.js";
 
 describe("is_apple_keyboard", () => {
   it.each([

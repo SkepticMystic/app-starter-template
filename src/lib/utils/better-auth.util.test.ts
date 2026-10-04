@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { BetterAuth } from "./better-auth.util";
+import { BetterAuth } from "./better-auth.util.js";
 
 describe("BetterAuth.to_result", () => {
   it("treats a success with falsy data as a success", async () => {

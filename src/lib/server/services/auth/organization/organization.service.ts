@@ -12,8 +12,8 @@ import { APIError } from "better-auth";
 import { generateRandomString } from "better-auth/crypto";
 import type { Organization } from "better-auth/plugins";
 import type { z } from "zod";
-import { authorize_event } from "../../auth.service";
-import { MemberSessionService } from "./member_session.service";
+import { authorize_event } from "../../auth.service.js";
+import { MemberSessionService } from "./member_session.service.js";
 
 const log = Log.child({ service: "Organization" });
 

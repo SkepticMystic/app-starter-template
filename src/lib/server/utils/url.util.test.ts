@@ -5,7 +5,7 @@ import {
   is_blocked_address,
   is_blocked_hostname,
   type Lookup,
-} from "./url.util";
+} from "./url.util.js";
 
 const lookup_to =
   (...addresses: string[]): Lookup =>

@@ -6,7 +6,7 @@ import { PgDialect, integer, text, uuid } from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { describe, expect, it, vi } from "vite-plus/test";
 // The real wrapper: repo tests run in the `sql` project, off the mock wall.
-import { Repo } from "./index.repo";
+import { Repo } from "./index.repo.js";
 
 describe("Repo.contains", () => {
   it("wraps an ordinary term in wildcards", () => {

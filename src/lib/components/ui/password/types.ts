@@ -5,7 +5,7 @@ import type {
   WithoutChildren,
 } from "bits-ui";
 import type { HTMLAttributes, HTMLInputAttributes } from "svelte/elements";
-import type { CopyButtonProps } from "../copy-button/types";
+import type { CopyButtonProps } from "../copy-button/types.js";
 
 export type PasswordRootPropsWithoutHTML = WithChildren<{
   ref?: HTMLDivElement | null;

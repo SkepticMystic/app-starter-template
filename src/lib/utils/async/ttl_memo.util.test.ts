@@ -7,7 +7,7 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import { ttl_memo } from "./ttl_memo.util";
+import { ttl_memo } from "./ttl_memo.util.js";
 
 beforeEach(() => {
   vi.useFakeTimers();

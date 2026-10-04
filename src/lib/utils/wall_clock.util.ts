@@ -5,7 +5,7 @@ import {
   toZoned,
 } from "@internationalized/date";
 // Relative, not `#lib`: `task.model.ts` imports this, and drizzle-kit loads the models.
-import { TIME } from "../const/time.const";
+import { TIME } from "../const/time.const.js";
 
 /**
  * The inverse of `Format.datetime`. A `datetime-local` input posts wall clock with no zone,

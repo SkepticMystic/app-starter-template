@@ -2,7 +2,13 @@ import { eq } from "drizzle-orm";
 import { integer, PgDialect, text } from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { describe, expect, it } from "vite-plus/test";
-import { avg_of, avg_where, count_where, sum_of, sum_where } from "./sql.util";
+import {
+  avg_of,
+  avg_where,
+  count_where,
+  sum_of,
+  sum_where,
+} from "./sql.util.js";
 
 const Table = snakeCase.table("sql_util_fixture", {
   status: text(),

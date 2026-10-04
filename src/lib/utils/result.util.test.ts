@@ -1,7 +1,7 @@
 import { ERROR } from "#lib/const/error.const.js";
 import { isHttpError } from "@sveltejs/kit";
 import { describe, expect, it } from "vite-plus/test";
-import { raise, result } from "./result.util";
+import { raise, result } from "./result.util.js";
 
 describe("raise", () => {
   it("throws kit's own error with the App.Error's status and body", () => {

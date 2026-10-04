@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vite-plus/test";
 import { z } from "zod";
-import { query_schema, where_schema } from "./query.schema";
+import { query_schema, where_schema } from "./query.schema.js";
 
 describe("query_schema", () => {
   it("should validate basic query", () => {

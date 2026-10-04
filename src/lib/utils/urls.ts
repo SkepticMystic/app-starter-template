@@ -1,5 +1,5 @@
 import { captureException } from "@sentry/sveltekit";
-import { Json } from "./json";
+import { Json } from "./json.js";
 
 const add_search = (
   url: URL,

@@ -3,7 +3,7 @@ import { Toast } from "#lib/utils/toast.util.js";
 import { resolve } from "$app/paths";
 import { BetterAuthClient } from "#lib/auth-client.js";
 import { App } from "#lib/utils/app.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 
 export const UserClient = {
   send_verification_email: Client.better_auth(

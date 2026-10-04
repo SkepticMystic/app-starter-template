@@ -1,5 +1,5 @@
 import { onMount } from "svelte";
-import { is_apple_keyboard } from "./keyboard.util";
+import { is_apple_keyboard } from "./keyboard.util.js";
 
 /**
  * Whether to label shortcuts for an Apple keyboard (`chord_label`). `false` until

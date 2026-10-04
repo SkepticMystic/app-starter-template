@@ -2,8 +2,8 @@ import { DATABASE_URL, LOG_LEVEL } from "$app/env/private";
 import { PUBLIC_BASE_URL } from "$app/env/public";
 import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
 import { describe, expect, it } from "vite-plus/test";
-import { set_env } from "./env.mock";
-import { install_mock, mocks } from "./helpers";
+import { set_env } from "./env.mock.js";
+import { install_mock, mocks } from "./helpers.js";
 
 /** The wall's own guarantees, which every other suite leans on without saying so. */
 

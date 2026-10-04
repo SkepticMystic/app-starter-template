@@ -2,7 +2,7 @@ import {
   list_accounts_remote,
   unlink_account_remote,
 } from "#lib/remote/auth/account.remote.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 
 export const AccountClient = {
   unlink: Client.wrap(

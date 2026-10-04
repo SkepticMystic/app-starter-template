@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vite-plus/test";
-import { Dates } from "./dates";
+import { Dates } from "./dates.js";
 
 describe("Dates", () => {
   describe("is_same_day", () => {

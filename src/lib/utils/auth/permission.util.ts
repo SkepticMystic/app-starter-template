@@ -1,6 +1,6 @@
 import { page } from "$app/state";
 import type { OrgPermissions } from "#lib/const/auth/organization_access_control.const.js";
-import { Authz } from "./authz.util";
+import { Authz } from "./authz.util.js";
 
 /**
  * The client's side of {@link Authz}, asked of `page.data.org` — the role the

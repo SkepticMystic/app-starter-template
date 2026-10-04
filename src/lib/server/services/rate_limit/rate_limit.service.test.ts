@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 
-import { ratelimit } from "../../../../test/rate_limit.mock";
-import { RateLimiter } from "./rate_limit.service";
+import { ratelimit } from "../../../../test/rate_limit.mock.js";
+import { RateLimiter } from "./rate_limit.service.js";
 
 // ---------------------------------------------------------------------------
 // Shared fixtures

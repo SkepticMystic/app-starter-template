@@ -13,10 +13,10 @@ import {
 import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { createInsertSchema } from "drizzle-orm/zod";
 import { z } from "zod";
-import { AUTH } from "../../../const/auth/auth.const";
-import { ORGANIZATION } from "../../../const/auth/organization.const";
-import { ROLES } from "../../../const/auth/role.const";
-import { Schema } from "./index.schema";
+import { AUTH } from "../../../const/auth/auth.const.js";
+import { ORGANIZATION } from "../../../const/auth/organization.const.js";
+import { ROLES } from "../../../const/auth/role.const.js";
+import { Schema } from "./index.schema.js";
 
 export const user_role_enum = pgEnum("user_role", ROLES.IDS);
 

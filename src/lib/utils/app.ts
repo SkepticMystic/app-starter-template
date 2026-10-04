@@ -1,6 +1,6 @@
 import type { ResolvedPathname } from "$app/types";
 import { APP } from "#lib/const/app.const.js";
-import { Url } from "./urls";
+import { Url } from "./urls.js";
 
 const full_url = (
   path: ResolvedPathname,

@@ -1,6 +1,6 @@
 import { ERROR } from "#lib/const/error.const.js";
 import { describe, expect, it } from "vite-plus/test";
-import { Toast } from "./toast.util";
+import { Toast } from "./toast.util.js";
 
 const PENDING = "This email already has a pending invite.";
 

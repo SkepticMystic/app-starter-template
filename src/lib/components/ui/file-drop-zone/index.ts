@@ -8,5 +8,5 @@ export {
   GIGABYTE,
   KILOBYTE,
   MEGABYTE,
-} from "./file-drop-zone-utils";
-export type { FileDropZoneProps, FileRejectedReason } from "./types";
+} from "./file-drop-zone-utils.js";
+export type { FileDropZoneProps, FileRejectedReason } from "./types.js";

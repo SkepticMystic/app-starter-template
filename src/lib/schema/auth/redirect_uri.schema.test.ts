@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { redirect_uri_schema } from "./redirect_uri.schema";
+import { redirect_uri_schema } from "./redirect_uri.schema.js";
 
 const parse = (value?: string) => redirect_uri_schema().parse(value);
 

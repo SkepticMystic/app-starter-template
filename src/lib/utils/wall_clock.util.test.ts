@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import { TaskSchema } from "#lib/server/db/models/task.model.js";
-import { WallClock } from "./wall_clock.util";
+import { WallClock } from "./wall_clock.util.js";
 
 /**
  * `Africa/Johannesburg` is UTC+2 with no DST. Expectations are literals rather than derived from

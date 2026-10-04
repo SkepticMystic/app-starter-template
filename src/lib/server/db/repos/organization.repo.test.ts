@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
-import { recorder } from "../../../../test/sql.mock";
-import { OrganizationRepo } from "./organization.repo";
+import { recorder } from "../../../../test/sql.mock.js";
+import { OrganizationRepo } from "./organization.repo.js";
 
 const ORG_ID = "11111111-1111-4111-8111-111111111111";
 const USER_ID = "22222222-2222-4222-8222-222222222222";

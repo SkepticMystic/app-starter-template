@@ -1,5 +1,5 @@
 import { disable_subscription_remote } from "#lib/remote/subscription/subscription.remote.js";
-import { Client } from "../index.client";
+import { Client } from "../index.client.js";
 
 export const SubscriptionClient = {
   disable: Client.wrap(disable_subscription_remote, {

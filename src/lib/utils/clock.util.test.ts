@@ -7,7 +7,7 @@ import {
   vi,
 } from "vite-plus/test";
 import { TIME } from "#lib/const/time.const.js";
-import { Clock } from "./clock.util";
+import { Clock } from "./clock.util.js";
 
 describe("Clock", () => {
   describe("period_for", () => {

@@ -13,7 +13,7 @@ import {
 import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { z } from "zod";
-import { makeSession } from "../../../test/helpers";
+import { makeSession } from "../../../test/helpers.js";
 
 // `$app/server`'s `command` / `query` / `form` are stubbed in `src/test/setup.ts`
 // to hand back the handler they were given, so what `guarded_*` builds is
