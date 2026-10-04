@@ -8,9 +8,9 @@ import { relations } from "./relations.js";
 
 /**
  * node-postgres over a pool, so `db.transaction` is a real interactive
- * transaction, and any Postgres works — Neon (point serverless hosts at the
- * `-pooler` endpoint), a container, or a local one. Nothing connects until the
- * first query.
+ * transaction, and any Postgres 18+ works (`Schema.id()` defaults to
+ * `uuidv7()`) — Neon (point serverless hosts at the `-pooler` endpoint), a
+ * container, or a local one. Nothing connects until the first query.
  *
  * `max` is per instance: on Vercel every warm function holds its own pool, so
  * keep it small and let Neon's pgbouncer do the fan-in.

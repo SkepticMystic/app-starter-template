@@ -134,7 +134,9 @@ hook `auth.ts` uses, rather than a fake that agrees with us.
 
 Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) that invokes drizzle-kit:
 
-- `pnpm db:push` - Push schema changes to database (development)
+- `pnpm db:push` - Push schema changes to database (development). Not for an
+  empty database: it cannot reproduce hand-edited migrations (see Database
+  Architecture)
 - `pnpm db:generate` - Generate migrations (production env)
 - `pnpm db:check` - Verify the migrations folder is consistent (it does NOT
   connect to a database, despite the name)
@@ -230,7 +232,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 
 ### Database Architecture
 
-- **Drizzle ORM** with PostgreSQL (Neon, or any Postgres), over
+- **Drizzle ORM** with PostgreSQL (Neon, or any Postgres 18+), over
   `node-postgres`: `drizzle.db.ts` exports a `pg` Pool and `db`, so
   `db.transaction` is a real interactive transaction. The pool is small per
   instance (`max: 5`), handed to `AdapterService.attach_db_pool` so Vercel
@@ -249,7 +251,17 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   - `subscription.model.ts` - Subscription and the Paystack plugin's tables
   - `task.model.ts` - the worked example of an application table
   - `index.schema.ts` - shared helpers (`Schema.id()`, `Schema.timestamps`)
-- All tables use UUID primary keys (custom ID generation, not BetterAuth's nanoid)
+- All tables use UUIDv7 primary keys from Postgres 18's `uuidv7()` (the
+  `Schema.id()` default; Better-Auth's `generateId: false` defers to it), not
+  BetterAuth's nanoid
+- A row naming both an org and a member keys them together,
+  `(member_id, org_id)` → `member(id, organization_id)`, so the database
+  refuses another org's member whatever the service checks. The assignee's key
+  needs `ON DELETE SET NULL ("assigned_member_id")`, which drizzle cannot
+  express, so that migration is **hand-edited** and listed in
+  `migrations.test.ts`. Build an empty database with `db:migrate`, never
+  `db:push`: push emits the bare `SET NULL`, which nulls `org_id` too and
+  fails every member removal. On a migrated database push leaves it alone
 - Tables are declared with `snakeCase.table(...)` from
   `drizzle-orm/pg-core/casing`, NOT `pgTable`. That is what produces
   `snake_case` column names; drizzle v1 removed the `casing` config option, so
@@ -596,7 +608,8 @@ vite-plus bundles (`vp toolchain vitest`); a second copy would split mocks and
    (for Better-Auth session storage, rate limiting and caching), and set
    `APP_ENV` — it namespaces every Redis key and the build fails without it
 7. Run `pnpm install` to install dependencies
-8. Run `pnpm db:push` to create tables
+8. Run `pnpm db:migrate` to create tables (not `db:push`, which cannot
+   reproduce the hand-edited migrations)
 9. Configure auth provider credentials as needed (Google, Pocket ID)
 10. Configure email service (Resend) with `RESEND_API_KEY` and `EMAIL_FROM`
 11. Optional kits: R2 (invoice PDFs), Cloudinary (image upload) and OpenAI

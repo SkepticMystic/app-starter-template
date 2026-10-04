@@ -1,4 +1,4 @@
-import { getColumns, type InferInsertModel } from "drizzle-orm";
+import { getColumns, sql, type InferInsertModel } from "drizzle-orm";
 import type { PgTable, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { timestamp, uuid } from "drizzle-orm/pg-core";
 
@@ -20,8 +20,16 @@ type Patched<T extends PgTable, P> = Pick<
 type Columns<T extends PgTable> = keyof InferInsertModel<T> & string;
 
 export const Schema = {
+  /**
+   * Postgres 18's `uuidv7()`: time-ordered, so new rows append to the primary
+   * key's index instead of splitting a random page, and ids sort by creation.
+   * Better-Auth's tables get it too, since `generateId: false` leaves the id to
+   * this default. An id therefore reveals when its row was created.
+   */
   id: () => ({
-    id: uuid().primaryKey().defaultRandom(),
+    id: uuid()
+      .primaryKey()
+      .default(sql`uuidv7()`),
   }),
 
   timestamps: {

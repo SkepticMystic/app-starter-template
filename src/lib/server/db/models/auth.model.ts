@@ -193,6 +193,12 @@ export const MemberTable = snakeCase.table(
       table.userId,
       table.organizationId,
     ),
+    // Unique already, since `id` is; it exists to be the target of the
+    // `(member_id, org_id)` foreign keys that keep a row's member in its org.
+    uniqueIndex("member_id_organization_id_uidx").on(
+      table.id,
+      table.organizationId,
+    ),
   ],
 );
 

@@ -1,0 +1,20 @@
+ALTER TABLE "audit_event" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "apiKey" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "account" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "invitation" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "member" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "organization" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "passkey" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "session" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "two_factor" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "user" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "verification" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "image" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "paystack_customer" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "paystack_payment_credential" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "paystack_plan" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "paystack_product" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "paystack_transaction" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "paystack_webhook_event" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "subscription" ALTER COLUMN "id" SET DEFAULT uuidv7();--> statement-breakpoint
+ALTER TABLE "task" ALTER COLUMN "id" SET DEFAULT uuidv7();

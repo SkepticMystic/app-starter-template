@@ -1,4 +1,5 @@
 import {
+  foreignKey,
   index,
   pgEnum,
   text,
@@ -31,20 +32,36 @@ export const TaskTable = snakeCase.table(
     org_id: uuid()
       .notNull()
       .references(() => OrganizationTable.id, { onDelete: "cascade" }),
-    member_id: uuid()
-      .notNull()
-      .references(() => MemberTable.id, { onDelete: "cascade" }),
+    member_id: uuid().notNull(),
     user_id: uuid()
       .notNull()
       .references(() => UserTable.id, { onDelete: "cascade" }),
 
-    assigned_member_id: uuid().references(() => MemberTable.id, {
-      onDelete: "set null",
-    }),
+    assigned_member_id: uuid(),
 
     ...Schema.timestamps,
   },
   (table) => [
+    // Both members are keyed with `org_id`, so neither can name a member of
+    // another org, whatever the service checks.
+    foreignKey({
+      name: "task_member_org_fkey",
+      columns: [table.member_id, table.org_id],
+      foreignColumns: [MemberTable.id, MemberTable.organizationId],
+    }).onDelete("cascade"),
+    /**
+     * HAND-EDITED in `drizzle/20261004185714_tenant_member_fkeys`: the migration
+     * says `ON DELETE SET NULL ("assigned_member_id")`, which drizzle cannot
+     * express. A bare `set null` would null `org_id` too, and since that is
+     * NOT NULL, removing an assignee — or deleting their org — would fail.
+     * `db:push` emits the bare form, so a database built by push has the bug;
+     * `migrations.test.ts` keeps the edit from being regenerated away.
+     */
+    foreignKey({
+      name: "task_assignee_org_fkey",
+      columns: [table.assigned_member_id, table.org_id],
+      foreignColumns: [MemberTable.id, MemberTable.organizationId],
+    }).onDelete("set null"),
     // Leads with `org_id`, so it serves every org-scoped lookup, and the
     // list's newest-first order without a sort.
     index("idx_task_org_id_created_at").on(table["org_id"], table["createdAt"]),

@@ -1,4 +1,11 @@
-import { index, integer, pgEnum, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  foreignKey,
+  index,
+  integer,
+  pgEnum,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { snakeCase } from "drizzle-orm/pg-core/casing";
 import { createInsertSchema } from "drizzle-orm/zod";
 import { IMAGE_HOSTING } from "../../../const/image/image_hosting.const.js";
@@ -28,9 +35,7 @@ export const ImageTable = snakeCase.table(
     org_id: uuid()
       .notNull()
       .references(() => OrganizationTable.id, { onDelete: "cascade" }),
-    member_id: uuid()
-      .notNull()
-      .references(() => MemberTable.id, { onDelete: "cascade" }),
+    member_id: uuid().notNull(),
 
     // NOT unique! Many images for one resource
     resource_id: uuid().notNull(),
@@ -49,6 +54,12 @@ export const ImageTable = snakeCase.table(
     ...Schema.timestamps,
   },
   (table) => [
+    // Keyed with `org_id`, so the uploader is always a member of the image's org.
+    foreignKey({
+      name: "image_member_org_fkey",
+      columns: [table.member_id, table.org_id],
+      foreignColumns: [MemberTable.id, MemberTable.organizationId],
+    }).onDelete("cascade"),
     index("idx_image_user_id").on(table["user_id"]),
     index("idx_image_org_id").on(table["org_id"]),
     index("idx_image_member_id").on(table["member_id"]),
