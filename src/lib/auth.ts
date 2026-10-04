@@ -1,4 +1,3 @@
-import { dev } from "$app/env";
 import { getRequestEvent } from "$app/server";
 import {
   BETTER_AUTH_SECRET,
@@ -59,7 +58,7 @@ import { MembershipQuery } from "./server/services/auth/membership.query.js";
 import { MemberSessionService } from "./server/services/auth/organization/member_session.service.js";
 import { SecondFactorHook } from "./server/services/auth/two_factor/second_factor.hook.js";
 import { AccountDeletionService } from "./server/services/auth/user/account_deletion.service.js";
-import { EmailService } from "./server/services/email.service.js";
+import { Mailer } from "./server/email/email.mailer.js";
 import { RuntimeService } from "./server/services/runtime/runtime.service.js";
 import { Log } from "./utils/logger.util.js";
 
@@ -343,26 +342,18 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        if (dev) Log.debug(url);
-
-        await EmailService.send(
-          (await templates())["change-email-confirmation"]({
-            url,
-            user,
-            new_email: newEmail,
-          }),
-        );
+        await Mailer.send("change-email-confirmation", {
+          url,
+          user,
+          new_email: newEmail,
+        });
       },
     },
 
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
-        if (dev) Log.debug(url);
-
-        await EmailService.send(
-          (await templates())["delete-account-verification"]({ url, user }),
-        );
+        await Mailer.send("delete-account-verification", { url, user });
       },
     },
   },
@@ -392,11 +383,7 @@ export const auth = betterAuth({
     maxPasswordLength: AUTH.PASSWORD.MAX_LENGTH,
 
     sendResetPassword: async ({ user, url }) => {
-      if (dev) Log.debug(url);
-
-      await EmailService.send(
-        (await templates())["password-reset"]({ url, user }),
-      );
+      await Mailer.send("password-reset", { url, user });
     },
 
     onPasswordReset: async ({ user }) => {
@@ -409,11 +396,7 @@ export const auth = betterAuth({
     sendOnSignIn: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
-      if (dev) Log.debug(url);
-
-      await EmailService.send(
-        (await templates())["email-verification"]({ url, user }),
-      );
+      await Mailer.send("email-verification", { url, user });
     },
   },
 
@@ -483,7 +466,7 @@ export const auth = betterAuth({
       requireEmailVerificationOnInvitation: true,
 
       sendInvitationEmail: async (data) => {
-        await EmailService.send((await templates())["org-invite"](data));
+        await Mailer.send("org-invite", data);
       },
 
       /**
@@ -656,13 +639,11 @@ export const auth = betterAuth({
           return;
         }
 
-        await EmailService.send(
-          (await templates())["signin-code"]({
-            email,
-            code: otp,
-            expires_in_minutes: EMAIL_OTP.EXPIRES_IN_SECONDS / 60,
-          }),
-        );
+        await Mailer.send("signin-code", {
+          email,
+          code: otp,
+          expires_in_minutes: EMAIL_OTP.EXPIRES_IN_SECONDS / 60,
+        });
       },
     }),
 
@@ -723,17 +704,6 @@ export const auth = betterAuth({
 // !SECTION
 
 // SECTION: Helper functions
-/**
- * `email.const` pulls in `isomorphic-dompurify`, which loads jsdom to sanitise
- * the attacker-controlled `user.name` interpolated into every template — about
- * 310ms at module load, and load-bearing, so it is not going away. Importing it
- * statically charged that to every consumer of this module for four callbacks
- * that usually never fire. All four call sites are already async and the
- * dynamic import is cached after the first send, so deferring costs nothing.
- */
-const templates = async () =>
-  (await import("./const/email.const.js")).EMAIL.TEMPLATES;
-
 /**
  * Every Better-Auth secondary-storage key is namespaced through this — see
  * {@link REDIS_PREFIX} for why a bare key is never correct.

@@ -1,9 +1,8 @@
 import { form } from "$app/server";
-import { EMAIL } from "#lib/const/email.const.js";
 import { ERROR } from "#lib/const/error.const.js";
+import { Mailer } from "#lib/server/email/email.mailer.js";
 import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
-import { EmailService } from "#lib/server/services/email.service.js";
 import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -49,9 +48,11 @@ export const contact_us_remote = form(
       const captcha = await CaptchaService.verify(input.captcha_token);
       if (!captcha.ok) return captcha;
 
-      const sent = await EmailService.send(
-        EMAIL.TEMPLATES["admin-contact-form"](input),
-      );
+      const sent = await Mailer.send("admin-contact-form", {
+        name: input.name,
+        email: input.email,
+        message: input.message,
+      });
       if (!sent.ok) return sent;
 
       return result.suc(undefined);

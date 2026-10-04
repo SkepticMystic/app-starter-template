@@ -2,7 +2,7 @@ import { AUTH } from "#lib/const/auth/auth.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
 import type { AuditEvent } from "#lib/server/db/models/audit.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
-import { EmailService } from "#lib/server/services/email.service.js";
+import { Mailer } from "#lib/server/email/email.mailer.js";
 import { Format } from "#lib/utils/format.util.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -98,10 +98,6 @@ const alert_for = (
   }
 };
 
-/** `email.const` loads jsdom, so it is imported on the first alert rather than with the auth stack. */
-const templates = async () =>
-  (await import("#lib/const/email.const.js")).EMAIL.TEMPLATES;
-
 /**
  * Emails the account's owner about `event`, if it is one {@link alert_for}
  * names. Only to a verified address, so an alert never becomes a way to mail a
@@ -140,16 +136,15 @@ const notify = async (
         : undefined;
   if (!to) return result.suc({ sent: false });
 
-  const sent = await EmailService.send(
-    (await templates())["security-alert"]({
-      user: user.data,
-      to,
-      ...alert,
-      when: Format.datetime(event.createdAt),
-      device: event.device,
-      location: event.country,
-    }),
-  );
+  const sent = await Mailer.send("security-alert", {
+    user: user.data,
+    to,
+    ...alert,
+    // The reader's zone is unknown, so the time names its own.
+    when: Format.datetime_zoned(event.createdAt),
+    device: event.device,
+    location: event.country,
+  });
   if (!sent.ok) {
     log.warn({ type: event.type, error: sent.error }, "notify.send_failed");
     return sent;

@@ -187,9 +187,9 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
     account with 2FA; keep it in `session.create.before`
 - **Permissions** managed through `src/lib/const/auth/access_control.const.ts`
   with Better-Auth's AccessControl
-- Email templates are imported lazily in `auth.ts`, because `email.const` pulls
-  in `isomorphic-dompurify` (jsdom, ~310ms at module load) for four callbacks
-  that usually never fire. `SecurityAlertService` does the same
+- Every auth email goes through `Mailer.send(type, props)` (see Service
+  Pattern). It is imported statically: the templates are Svelte components and
+  load no DOMPurify, which only `HTMLUtil.sanitize` (markdown) needs
 
 ### Security log
 
@@ -391,12 +391,30 @@ Services live in `src/lib/server/services/` as plain objects of async methods
 that return `App.Result` rather than throw. There is no DI container: an
 implementation is picked at module load.
 
-- **Email Service** (`src/lib/server/services/email.service.ts`):
-  - `EmailService` is `of_resend` (Resend, with a Sentry timing metric) in
-    production and `of_console_log` (logs the message) under `dev`
-  - Both answer `App.Result`, so a caller checks `.ok` the same way in either
-  - Used by `auth.ts` for verification emails, password resets and org
-    invites, and by the contact form
+- **Email** — send with `Mailer.send("password-reset", props)` from
+  `src/lib/server/email/email.mailer.ts`, never `EmailService.send` with
+  hand-built HTML:
+  - Each email is a Svelte component in `src/lib/server/email/templates/`,
+    built from the primitives beside it (`EmailLayout`, `EmailButton`,
+    `FallbackLink`, `EmailDetails`, …) and registered in `email.registry.ts`
+    with an envelope (`to`, `subject`, `preheader`, `reply_to`). The key is
+    the email's type: it tags the Resend message (`type`, `env`), the Sentry
+    `email.send` metric and the idempotency key
+  - `Mailer.render` renders with `svelte/server`, strips **every** HTML
+    comment (Svelte's hydration markers), wraps the document shell and derives
+    the plain-text part (`email_text.util.ts`). So: **inline styles only** —
+    a component's `<style>` is extracted, never rendered — and no Outlook
+    conditional comments. Svelte's `{value}` is the escaping; no `{@html}`
+  - The text part reads two markers the primitives set: `data-text-skip`
+    drops an element, `data-label` reads a cell as "Label: value"
+  - A new template needs a fixture in `email.fixtures.ts` (the type checker
+    says so); `/dev/emails` renders each one as HTML or text, desktop or
+    mobile, light or dark, and `email.mailer.test.ts` loops over them all
+  - `EmailService` is `of_resend` in production and `of_console_log` (the
+    plain-text part, so links are readable) under `dev`; both answer
+    `App.Result`. `of_resend` retries a transient refusal (rate limit, 5xx, no
+    response; not a quota or validation error) up to 3 times, under an
+    idempotency key so a retry cannot deliver twice
 - **Shared tails** (`service.util.ts`): `ServiceUtil.internal` logs, files to
   Sentry and answers 500; `ServiceUtil.ba_error` relays a Better-Auth
   `APIError` with its own status, filing it to Sentry only when it is a 5xx

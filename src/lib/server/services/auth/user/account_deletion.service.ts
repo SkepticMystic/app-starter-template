@@ -5,8 +5,8 @@ import {
   OrganizationTable,
 } from "#lib/server/db/models/auth.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
+import { Mailer } from "#lib/server/email/email.mailer.js";
 import { PaystackClient } from "#lib/server/sdk/payment/paystack/paystack.payment.sdk.js";
-import { EmailService } from "#lib/server/services/email.service.js";
 import { RuntimeService } from "#lib/server/services/runtime/runtime.service.js";
 import { run_chunked } from "#lib/utils/async/chunked.util.js";
 import { Log } from "#lib/utils/logger.util.js";
@@ -316,10 +316,7 @@ const after = async (user: { id: string; email: string; name: string }) => {
   }
 
   RuntimeService.defer(async () => {
-    const templates = (await import("#lib/const/email.const.js")).EMAIL
-      .TEMPLATES;
-
-    await EmailService.send(templates["user-deleted"]({ user }));
+    await Mailer.send("user-deleted", { user });
   });
 };
 

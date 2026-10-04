@@ -96,8 +96,10 @@ describe("SecurityAlertService.notify", () => {
     const sent = vi.mocked(EmailService.send).mock.lastCall?.[0];
     expect(sent?.to).toBe("ada@example.com");
     expect(sent?.subject).toMatch(/^Two-factor authentication was turned off/);
-    expect(sent?.html).toContain("Chrome on macOS, ZA");
-    expect(sent?.html).toContain("&lt;b&gt;Ada&lt;/b&gt;");
+    expect(sent?.text).toContain("Device: Chrome on macOS");
+    expect(sent?.text).toContain("Location: ZA");
+    expect(sent?.html).not.toContain("<b>Ada");
+    expect(sent?.html).toContain("&lt;b>Ada&lt;/b>");
   });
 
   it("does not mail an unverified address", async () => {

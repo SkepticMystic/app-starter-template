@@ -45,6 +45,20 @@ const DEFAULT_OPTIONS = {
     timeZone: TIME.ZONE,
   } satisfies Intl.DateTimeFormatOptions,
 
+  /**
+   * For a reader whose zone is unknown, as in an email: "04 Oct 2026, 17:27 SAST". Spelled out
+   * in fields, since `timeZoneName` cannot sit beside `dateStyle`/`timeStyle`.
+   */
+  datetime_zoned: {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+    timeZone: TIME.ZONE,
+  } satisfies Intl.DateTimeFormatOptions,
+
   daterange: {
     dateStyle: "medium",
     timeStyle: "short",
@@ -216,7 +230,7 @@ const duration_format: (parts: DurationParts) => string = DURATION_FORMAT
         .join(" ");
 
 const temporal =
-  (kind: "date" | "datetime") =>
+  (kind: "date" | "datetime" | "datetime_zoned") =>
   (
     date: Date | string | number | undefined | null,
     opts?: Intl.DateTimeFormatOptions,
@@ -245,6 +259,7 @@ export const Format = {
 
   date: temporal("date"),
   datetime: temporal("datetime"),
+  datetime_zoned: temporal("datetime_zoned"),
 
   boolean: (bool: boolean, opts?: { type?: "Y/N" | "emoji" }) => {
     switch (opts?.type) {

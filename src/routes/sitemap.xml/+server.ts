@@ -17,7 +17,7 @@ export const GET: RequestHandler = async () => {
     // Matched against the route id with its groups stripped, so `(authed)`
     // cannot appear here. Keep in step with `robots.txt`.
     excludeRoutePatterns: [
-      /^\/(home|tasks|settings|admin|onboarding)(\/|$)/,
+      /^\/(home|tasks|settings|admin|onboarding|dev)(\/|$)/,
       /^\/auth\/(?!signin$|signup$)/,
     ],
 

@@ -23,6 +23,9 @@ Disallow: /settings
 Disallow: /admin
 Disallow: /onboarding
 
+# Dev-only tools, 404 in a built app
+Disallow: /dev
+
 # Training-only crawlers are blocked. Search crawlers (OAI-SearchBot,
 # Claude-SearchBot, PerplexityBot) are allowed, so the site can appear in AI
 # search results. GPTBot, ClaudeBot and Google-Extended collect training data:

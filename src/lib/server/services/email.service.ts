@@ -3,6 +3,7 @@ import { EMAIL_FROM, RESEND_API_KEY } from "$app/env/private";
 import { APP } from "#lib/const/app.const.js";
 import { ERROR } from "#lib/const/error.const.js";
 import type { Branded } from "#lib/interfaces/zod/zod.type.js";
+import { retry } from "#lib/utils/async/retry.util.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import * as Sentry from "@sentry/sveltekit";
@@ -17,6 +18,8 @@ export type SendEmailOptions = {
   from?: string;
   /** Comma separated list or an array of recipients e-mail addresses that will appear on the To: field */
   to: string | string[];
+  /** Where a reply goes, when not back to `from`: the submitter, on the contact form. */
+  reply_to?: string;
   /** The subject of the e-mail */
   subject: string;
   /** The plaintext version of the message */
@@ -38,6 +41,11 @@ export type SendEmailOptions = {
   email_type?: string;
   /** ISO 8601 date string for deferred delivery (e.g. "2024-08-05T11:52:01.858Z") */
   scheduled_at?: string;
+  /**
+   * Resend answers a repeat of this key within 24h with the first send's result, so a retry
+   * after a send that landed but timed out cannot deliver twice. At most 256 characters.
+   */
+  idempotency_key?: string;
 };
 
 function format_from(from: string | undefined): string {
@@ -46,58 +54,124 @@ function format_from(from: string | undefined): string {
 }
 
 const resend = new Resend(RESEND_API_KEY);
+
+type ResendSend = Awaited<ReturnType<typeof resend.emails.send>>;
+
+/**
+ * Refusals another attempt can fix. A quota or validation refusal answers the same again —
+ * and a quota refusal is a 429 too, which is why this goes by name rather than status.
+ * `application_error` is also what the SDK answers when the request never got a response.
+ */
+const TRANSIENT = new Set<string>([
+  "rate_limit_exceeded",
+  "concurrent_idempotent_requests",
+  "application_error",
+  "internal_server_error",
+]);
+
+const is_transient = (outcome: PromiseSettledResult<ResendSend>) => {
+  if (outcome.status === "rejected") return true;
+
+  const { error } = outcome.value;
+  if (!error) return false;
+
+  return TRANSIENT.has(error.name) || (error.statusCode ?? 0) >= 500;
+};
+
 const of_resend = {
   send: async (input: SendEmailOptions): Promise<App.Result<unknown>> => {
-    try {
-      const start_ms = performance.now();
-      const res = await resend.emails.send({
-        to: input.to,
-        text: input.text,
-        html: input.html,
-        subject: input.subject,
-        attachments: input.attachments,
-        tags: input.tags,
-        scheduledAt: input.scheduled_at,
-        from: format_from(input.from),
-      });
+    const start_ms = performance.now();
 
-      Sentry.metrics.distribution("email.send", performance.now() - start_ms, {
-        unit: "millisecond",
-        attributes: {
-          email_type: input.email_type ?? "unknown",
-          ok: !res.error,
+    // Sends run deferred (Better-Auth's background tasks, `RuntimeService.defer`), so the
+    // backoff is never a user's wait — except the contact form's, which accepts it.
+    const { outcome, attempts } = await retry(
+      () =>
+        resend.emails.send(
+          {
+            to: input.to,
+            replyTo: input.reply_to,
+            text: input.text,
+            html: input.html,
+            subject: input.subject,
+            attachments: input.attachments,
+            tags: input.tags,
+            scheduledAt: input.scheduled_at,
+            from: format_from(input.from),
+          },
+          input.idempotency_key
+            ? { idempotencyKey: input.idempotency_key }
+            : undefined,
+        ),
+      {
+        attempts: 3,
+        should_retry: is_transient,
+        delay_ms: (attempt) => attempt * 1000 + Math.random() * 250,
+        on_retry: (failed, attempt) => {
+          log.warn(
+            {
+              attempt,
+              email_type: input.email_type,
+              error:
+                failed.status === "rejected"
+                  ? failed.reason
+                  : failed.value.error,
+            },
+            "send.retry",
+          );
         },
-      });
+      },
+    );
 
-      if (res.error) {
-        log.error(res.error, "send.error response");
+    const ok = outcome.status === "fulfilled" && !outcome.value.error;
 
-        captureException(res.error);
+    Sentry.metrics.distribution("email.send", performance.now() - start_ms, {
+      unit: "millisecond",
+      attributes: {
+        email_type: input.email_type ?? "unknown",
+        ok,
+        attempts,
+      },
+    });
 
-        return result.err({
-          ...ERROR.INTERNAL_SERVER_ERROR,
-          message: "Failed to send email",
-        });
-      } else {
-        return result.suc(res.data);
-      }
-    } catch (error) {
-      log.error(error, "send.error unknown");
+    if (outcome.status === "rejected") {
+      log.error(outcome.reason, "send.error unknown");
 
-      captureException(error);
+      captureException(outcome.reason);
 
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,
         message: "Failed to send email",
       });
+    } else if (outcome.value.error) {
+      log.error(outcome.value.error, "send.error response");
+
+      captureException(outcome.value.error);
+
+      return result.err({
+        ...ERROR.INTERNAL_SERVER_ERROR,
+        message: "Failed to send email",
+      });
+    } else {
+      return result.suc(outcome.value.data);
     }
   },
 };
 
-/** Answers like {@link of_resend}, so a caller that checks the result type-checks in both. */
+/**
+ * Answers like {@link of_resend}, so a caller that checks the result type-checks in both. Logs
+ * the plain-text part, which reads every link, rather than the HTML.
+ */
 const of_console_log = {
   send: async (input: SendEmailOptions): Promise<App.Result<undefined>> => {
-    log.info(input, "Sending email:");
+    log.info(
+      {
+        to: input.to,
+        reply_to: input.reply_to,
+        subject: input.subject,
+        email_type: input.email_type,
+      },
+      `Email not sent (dev):\n\n${input.text ?? "(no plain-text part)"}\n`,
+    );
 
     return result.suc(undefined);
   },
