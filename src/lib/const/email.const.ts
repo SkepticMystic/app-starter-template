@@ -176,6 +176,68 @@ ${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
       };
     },
 
+    /**
+     * Tells the owner something changed on their account, with enough of where
+     * it came from to recognise it — or not.
+     */
+    "security-alert": (input: {
+      user: Pick<User, "name">;
+      /** Usually the account's address; the old one, for an email change. */
+      to: string;
+      title: string;
+      detail: string;
+      when: string;
+      device: string | null;
+      location: string | null;
+    }): SendEmailOptions => {
+      const where = [input.device, input.location].filter(Boolean).join(", ");
+
+      const html = HTMLUtil.html`<p>Hi ${input.user.name},</p>
+<p>${input.detail}</p>
+<p>
+  <strong>When:</strong> ${input.when}<br />
+  ${where ? HTMLUtil.raw(HTMLUtil.html`<strong>From:</strong> ${where}`) : ""}
+</p>
+<p>
+  If this was you, there is nothing to do. If it wasn't,
+  <a href="${App.full_url("/auth/forgot-password")}">reset your password</a> now
+  and review your <a href="${App.full_url("/settings/activity")}">security activity</a>.
+</p>
+
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
+
+      return {
+        html,
+        to: input.to,
+        subject: `${input.title} · ${APP.NAME}`,
+      };
+    },
+
+    "signin-code": (input: {
+      email: string;
+      code: string;
+      expires_in_minutes: number;
+    }): SendEmailOptions => {
+      const html = HTMLUtil.html`<p>Hi,</p>
+<p>Your ${APP.NAME} sign-in code is:</p>
+<p style="font-size: 24px; font-weight: 600; letter-spacing: 4px;">${input.code}</p>
+<p>
+  It expires in ${input.expires_in_minutes} minutes and works once. Never share
+  it: ${APP.NAME} will never ask you for it.
+</p>
+<p>
+  If you did not try to sign in, you can safely ignore this email.
+</p>
+
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
+
+      return {
+        html,
+        to: input.email,
+        subject: `${input.code} is your ${APP.NAME} sign-in code`,
+      };
+    },
+
     "admin-contact-form": (input: {
       name: string;
       email: string;

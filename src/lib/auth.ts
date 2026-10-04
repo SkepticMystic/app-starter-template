@@ -28,6 +28,7 @@ import type { Branded } from "./interfaces/zod/zod.type.js";
 import {
   admin,
   captcha,
+  emailOTP,
   genericOAuth,
   haveIBeenPwned,
   lastLoginMethod,
@@ -40,6 +41,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { APP } from "./const/app.const.js";
 import { AccessControl } from "./const/auth/access_control.const.js";
 import { AUTH, type IAuth } from "./const/auth/auth.const.js";
+import { EMAIL_OTP } from "./const/auth/email_otp.const.js";
 import { OrgAccessControl } from "./const/auth/organization_access_control.const.js";
 import { TWO_FACTOR } from "./const/auth/two_factor.const.js";
 import { db } from "./server/db/drizzle.db.js";
@@ -49,10 +51,13 @@ import { Repo } from "./server/db/repos/index.repo.js";
 import { schema } from "./server/db/schema.js";
 import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.sdk.js";
 import { AdapterService } from "./server/services/adapter/adapter.service.js";
+import { audit_plugin } from "./server/services/audit/audit.plugin.js";
+import { AuditService } from "./server/services/audit/audit.service.js";
 import { Dicebear } from "./server/services/dicebear/dicebear.service.js";
 import { EmailValidationService } from "./server/services/auth/email/email_validation.service.js";
 import { MembershipQuery } from "./server/services/auth/membership.query.js";
 import { MemberSessionService } from "./server/services/auth/organization/member_session.service.js";
+import { SecondFactorHook } from "./server/services/auth/two_factor/second_factor.hook.js";
 import { AccountDeletionService } from "./server/services/auth/user/account_deletion.service.js";
 import { EmailService } from "./server/services/email.service.js";
 import { RuntimeService } from "./server/services/runtime/runtime.service.js";
@@ -85,6 +90,25 @@ export const auth = betterAuth({
   rateLimit: {
     customRules: AUTH.ROUTER_RATE_LIMIT_RULES,
   },
+
+  /**
+   * Every `emailOTP` route, closed to direct HTTP. Sign-in by code goes through
+   * `send_signin_code_remote` and `signin_code_remote` instead, which add the
+   * captcha and the per-IP and per-address limits a direct POST would skip; the
+   * rest (email OTP for verification, reset and email change) is unused. Only
+   * the router checks this list, so `auth.api` still reaches all of them.
+   */
+  disabledPaths: [
+    "/email-otp/send-verification-otp",
+    "/sign-in/email-otp",
+    "/email-otp/check-verification-otp",
+    "/email-otp/verify-email",
+    "/email-otp/request-password-reset",
+    "/forget-password/email-otp",
+    "/email-otp/reset-password",
+    "/email-otp/request-email-change",
+    "/email-otp/change-email",
+  ],
 
   advanced: {
     // Better-Auth hands over an already-started promise; the thunk only lets
@@ -204,9 +228,18 @@ export const auth = betterAuth({
         },
       },
     },
+    account: {
+      create: {
+        after: async (account) => {
+          AuditService.on_account_created(account);
+        },
+      },
+    },
     session: {
       create: {
-        before: async (session) => {
+        before: async (session, ctx) => {
+          await SecondFactorHook.refuse_code_sign_in(session, ctx);
+
           const geo = AdapterService.get_geo();
 
           const data = await get_active_org(session);
@@ -364,6 +397,10 @@ export const auth = betterAuth({
       await EmailService.send(
         (await templates())["password-reset"]({ url, user }),
       );
+    },
+
+    onPasswordReset: async ({ user }) => {
+      AuditService.on_password_reset(user);
     },
   },
 
@@ -597,6 +634,40 @@ export const auth = betterAuth({
           : null,
       ].flatMap((cfg) => (cfg ? [cfg] : [])),
     }),
+
+    /**
+     * Sign-in by emailed code, for existing accounts only: a new one still
+     * comes through sign-up, which asks for a name and a captcha. Its routes
+     * are closed to direct HTTP — see `disabledPaths`.
+     */
+    emailOTP({
+      otpLength: EMAIL_OTP.LENGTH,
+      expiresIn: EMAIL_OTP.EXPIRES_IN_SECONDS,
+      allowedAttempts: EMAIL_OTP.ALLOWED_ATTEMPTS,
+      // Defaults to "plain": a Redis read would otherwise be a working code.
+      storeOTP: "hashed",
+      disableSignUp: true,
+
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        // `/email-otp/send-verification-otp` accepts other types, though
+        // nothing here can redeem them; send nothing for them either.
+        if (type !== "sign-in") {
+          Log.warn({ type }, "auth.email_otp.unexpected_type");
+          return;
+        }
+
+        await EmailService.send(
+          (await templates())["signin-code"]({
+            email,
+            code: otp,
+            expires_in_minutes: EMAIL_OTP.EXPIRES_IN_SECONDS / 60,
+          }),
+        );
+      },
+    }),
+
+    // After `twoFactor`: see `audit_plugin`.
+    audit_plugin(AuditService.after_endpoint),
 
     // NOTE: Must be last, as it needs the request event
     // SOURCE: https://www.better-auth.com/docs/integrations/svelte-kit#server-action-cookies

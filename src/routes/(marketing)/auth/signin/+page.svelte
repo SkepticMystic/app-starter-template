@@ -10,7 +10,7 @@
   import Card from "#lib/components/ui/card/Card.svelte";
   import Separator from "#lib/components/ui/separator/separator.svelte";
   import { APP } from "#lib/const/app.const.js";
-  import { AUTH, type IAuth } from "#lib/const/auth/auth.const.js";
+  import { AUTH } from "#lib/const/auth/auth.const.js";
   import { App } from "#lib/utils/app.js";
 
   let { data } = $props();
@@ -43,18 +43,26 @@
         <ButtonGroup class="w-full">
           <PasskeySigninButton redirect_uri={data.search.redirect_uri} />
         </ButtonGroup>
+
+        <ButtonGroup class="w-full">
+          <Button
+            class="w-full"
+            icon="lucide/mail"
+            href={App.url("/auth/signin/code", {
+              redirect_uri: data.search.explicit,
+            })}
+          >
+            Email me a sign-in code
+          </Button>
+        </ButtonGroup>
       </ButtonGroup>
 
       {#if last_method}
-        {@const provider = AUTH.PROVIDERS.MAP[last_method as IAuth.ProviderId]}
-
-        {#if provider}
-          <div class="flex w-full justify-center">
-            <Badge variant="outline">
-              Last signed in with {provider.name}
-            </Badge>
-          </div>
-        {/if}
+        <div class="flex w-full justify-center">
+          <Badge variant="outline">
+            Last signed in with {AUTH.sign_in_method_label(last_method)}
+          </Badge>
+        </div>
       {/if}
 
       <Separator />

@@ -21,10 +21,22 @@ const NAV: readonly SettingsNavItem[] = [
   { label: "Profile", href: "/settings/profile", icon: "lucide/user" },
   { label: "Account", href: "/settings/account", icon: "lucide/badge-check" },
   {
+    label: "Security activity",
+    href: "/settings/activity",
+    icon: "lucide/shield",
+  },
+  {
     label: "Organization",
     href: "/settings/organization",
     icon: "lucide/building-2",
     org: true,
+  },
+  {
+    label: "Organization activity",
+    href: "/settings/organization/activity",
+    icon: "lucide/history",
+    org: true,
+    permissions: { audit: ["read"] },
   },
   {
     label: "API keys",

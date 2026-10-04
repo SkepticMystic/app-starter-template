@@ -21,6 +21,12 @@
       description: `${Format.number(data.counts.organizations)} total`,
       href: resolve("/(authed)/admin/organizations"),
     },
+    {
+      title: "Security log",
+      icon: "lucide/shield",
+      description: "Sign-ins and account changes, across every user",
+      href: resolve("/(authed)/admin/audit"),
+    },
   ]);
 </script>
 

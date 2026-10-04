@@ -17,6 +17,8 @@ const statement = {
   ...defaultStatements,
   /** The resource Better-Auth's api-key plugin checks for org-owned keys. */
   apiKey: ["create", "read", "update", "delete"],
+  /** The org's security log: member and API-key changes, and who made them. */
+  audit: ["read"],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -37,10 +39,12 @@ export const OrgAccessControl = {
     admin: ac.newRole({
       ...adminAc.statements,
       apiKey: ["create", "read", "update", "delete"],
+      audit: ["read"],
     }),
     owner: ac.newRole({
       ...ownerAc.statements,
       apiKey: ["create", "read", "update", "delete"],
+      audit: ["read"],
     }),
   } satisfies Record<IOrganization.RoleId, ReturnType<typeof ac.newRole>>,
 };

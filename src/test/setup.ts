@@ -163,6 +163,21 @@ vi.mock("#lib/server/services/auth/membership.query.js", async (io) => {
   return mock_module("#lib/server/services/auth/membership.query.js", io);
 });
 
+vi.mock("#lib/server/services/audit/audit.query.js", async (io) => {
+  const { mock_module } = await import("./automock.js");
+
+  return mock_module("#lib/server/services/audit/audit.query.js", io);
+});
+
+vi.mock("#lib/server/services/audit/security_alert.service.js", async (io) => {
+  const { mock_module } = await import("./automock.js");
+
+  return mock_module(
+    "#lib/server/services/audit/security_alert.service.js",
+    io,
+  );
+});
+
 // ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------

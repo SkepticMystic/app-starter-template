@@ -26,8 +26,9 @@ import { schema } from "./schema.js";
 /**
  * Only the options that change the model set. A hand-kept copy — `auth.ts`
  * cannot load under test, it opens the database and Redis at import — so keep
- * it in step with `auth.ts`'s `plugins`. `captcha`, `genericOAuth` and
- * `sveltekitCookies` add no models and are left out.
+ * it in step with `auth.ts`'s `plugins`. `captcha`, `emailOTP`,
+ * `genericOAuth`, the `audit` plugin and `sveltekitCookies` add no models and
+ * are left out.
  *
  * `session.additionalFields` is left out too: `storeSessionInDatabase: false`
  * keeps sessions in Redis, so those fields never reach the adapter.

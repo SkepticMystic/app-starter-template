@@ -1,3 +1,4 @@
+import * as AuditModels from "./models/audit.model.js";
 import * as AuthModels from "./models/auth.model.js";
 import * as ImageModels from "./models/image.model.js";
 import * as SubscriptionModels from "./models/subscription.model.js";
@@ -36,6 +37,8 @@ const { ImageTable, ...image_rest } = ImageModels;
 
 const { TaskTable, TaskSchema: _TaskSchema, ...task_rest } = TaskModels;
 
+const { AuditEventTable, ...audit_rest } = AuditModels;
+
 export const schema = {
   // Auth
   user: UserTable,
@@ -70,4 +73,8 @@ export const schema = {
   // Task
   task: TaskTable,
   ...task_rest,
+
+  // Audit
+  audit_event: AuditEventTable,
+  ...audit_rest,
 };

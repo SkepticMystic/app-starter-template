@@ -124,6 +124,12 @@ Tests are colocated as `*.test.ts` next to the module. Coverage is scoped to
 `src/lib/server/services/**` and has no thresholds. `src/routes/` and
 `.svelte` files have no tests — Svelte correctness comes from `pnpm check`.
 
+`auth.ts` cannot load under test (it opens Postgres and Redis at import), so
+where the property under test is Better-Auth's own behaviour — hook order,
+what a hook sees, `disabledPaths` — a test builds a real one over memory with
+`make_better_auth` (`src/test/better_auth.harness.ts`) and the same plugin or
+hook `auth.ts` uses, rather than a fake that agrees with us.
+
 ### Database Commands
 
 Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) that invokes drizzle-kit:
@@ -173,11 +179,40 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   - Google OAuth
   - Generic OAuth (Pocket ID)
   - Passkeys
+  - Email code (`emailOTP`), sign-in only, for existing accounts. Every
+    `emailOTP` route is in `disabledPaths`, which only the router checks, so
+    `send_signin_code_remote` / `signin_code_remote` — with their captcha and
+    per-IP and per-address limits — are the only way in. `twoFactor` intercepts
+    password sign-in alone, so `SecondFactorHook` refuses a code sign-in to an
+    account with 2FA; keep it in `session.create.before`
 - **Permissions** managed through `src/lib/const/auth/access_control.const.ts`
   with Better-Auth's AccessControl
 - Email templates are imported lazily in `auth.ts`, because `email.const` pulls
   in `isomorphic-dompurify` (jsdom, ~310ms at module load) for four callbacks
-  that usually never fire
+  that usually never fire. `SecurityAlertService` does the same
+
+### Security log
+
+- `audit_event` rows are appended, never updated: who it happened to
+  (`user_id`), who did it when that was someone else (`actor_user_id`), the
+  org, and the request's IP, device and country. `type` is a `varchar` checked
+  by `IAudit.EventId`, so a new event needs no migration
+- Captured by the `audit` plugin (`audit.plugin.ts`), which **must stay after
+  `twoFactor` in `plugins`**: plugin after-hooks run in that order, and only
+  after `twoFactor`'s does a password sign-in still owed a second factor show
+  no session. `audit.plugin.test.ts` pins this over a real Better-Auth
+- `AuditCapture.capture` is the whole path → event mapping, pure. A new event
+  is an id and label in `AUDIT.EVENTS` and a case there; a path that cannot
+  say whose account it was (`/reset-password`) is captured from a Better-Auth
+  callback instead (`onPasswordReset`, `account.create.after`)
+- `AuditService.record` runs after the response (`RuntimeService.defer`), so
+  a lost row is logged, never a failed sign-in. It flags a sign-in from a
+  device unseen for 90 days; `SecurityAlertService.alert_for` decides which
+  events email the owner, never while an admin impersonates them
+- Three views over `AuditQuery.page`, each naming its own columns:
+  `/settings/activity` (the user's own; never names who else acted),
+  `/settings/organization/activity` (org `audit: ["read"]`, no IPs) and
+  `/admin/audit`. Nothing prunes the table yet
 
 ### Database Architecture
 

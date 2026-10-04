@@ -69,11 +69,33 @@ const ROUTER_RATE_LIMIT_RULES = {
   "/send-verification-email": { window: 60, max: 10 },
 } satisfies Record<string, { window: number; max: number }>;
 
+/**
+ * How a session was started, by the id `lastLoginMethod` and the security log
+ * use. Wider than {@link PROVIDER_IDS}: a passkey or an emailed code signs in
+ * without being an `account` row, and `provider_id` is a database enum.
+ */
+const SIGN_IN_METHOD_LABELS: Record<IAuth.SignInMethod, string> = {
+  credential: "Password",
+  google: PROVIDER_MAP.google.name,
+  "pocket-id": PROVIDER_MAP["pocket-id"].name,
+  passkey: "Passkey",
+  "email-otp": "Email code",
+  "email-verification": "Email verification link",
+};
+
+/** {@link SIGN_IN_METHOD_LABELS}, falling back to the raw id for one added later. */
+const sign_in_method_label = (method: string): string =>
+  Object.hasOwn(SIGN_IN_METHOD_LABELS, method)
+    ? SIGN_IN_METHOD_LABELS[method as IAuth.SignInMethod]
+    : method;
+
 export const AUTH = {
   PROVIDERS: {
     IDS: PROVIDER_IDS,
     MAP: PROVIDER_MAP,
   },
+
+  sign_in_method_label,
 
   PASSWORD,
   ROUTER_RATE_LIMIT_RULES,
@@ -81,6 +103,13 @@ export const AUTH = {
 
 export declare namespace IAuth {
   export type ProviderId = (typeof PROVIDER_IDS)[number];
+
+  /** What `lastLoginMethod` resolves a sign-in to: a provider, or a way in that has no account row. */
+  export type SignInMethod =
+    | ProviderId
+    | "passkey"
+    | "email-otp"
+    | "email-verification";
 
   export type GenericOAuthProfile = {
     /** ["00000000-0000-4000-8000-000000000000"] */

@@ -1,23 +1,25 @@
-import { form, getRequestEvent } from "$app/server";
-import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
-import type { ResolvedPathname } from "$app/types";
 import { auth, is_ba_error_code } from "#lib/auth.js";
+import { EMAIL_OTP } from "#lib/const/auth/email_otp.const.js";
 import { ERROR } from "#lib/const/error.const.js";
+import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
 import {
   existing_password_schema,
   password_schema,
 } from "#lib/schema/password/password.schema.js";
+import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
 import { EmailValidationService } from "#lib/server/services/auth/email/email_validation.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
+import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
+import { HashUtil } from "#lib/server/utils/hash.util.js";
 import { App } from "#lib/utils/app.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
+import { form, getRequestEvent } from "$app/server";
+import type { ResolvedPathname } from "$app/types";
 import { captureException } from "@sentry/sveltekit";
 import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
-import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
-import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
-import { HashUtil } from "#lib/server/utils/hash.util.js";
+import { REGEXP_ONLY_DIGITS } from "bits-ui";
 import { z } from "zod";
 
 /**
@@ -188,5 +190,142 @@ export const signup_credentials_remote = form(
     }
 
     redirect(302, "/auth/verify-email");
+  },
+);
+
+/**
+ * Asking for a sign-in code sends an email, so it is limited per IP and, to
+ * keep it from being turned on one inbox, per address. Both are spent on the
+ * attempt, not the outcome: the answer is the same whether or not the address
+ * has an account.
+ */
+const signin_code_ip_limiter = new RateLimiter("auth:signin_code:ip", {
+  max_tokens: 10,
+  refill_rate: 10,
+  refill_interval: 600,
+});
+
+const signin_code_address_limiter = new RateLimiter(
+  "auth:signin_code:address",
+  {
+    max_tokens: 3,
+    refill_rate: 3,
+    refill_interval: 600,
+  },
+);
+
+/**
+ * Redeeming a code. Better-Auth's `allowedAttempts` caps guesses per code;
+ * this caps them per IP across codes and addresses.
+ */
+const signin_code_verify_limiter = new RateLimiter(
+  "auth:signin_code:verify:ip",
+  { max_tokens: 20, refill_rate: 20, refill_interval: 600 },
+);
+
+export const send_signin_code_remote = form(
+  z.object({
+    email: z.email("Please enter a valid email address"),
+    captcha_token: z.string().min(1, "Please complete the captcha"),
+  }),
+  async (input) => {
+    const ip = AdapterService.get_ip();
+    if (ip) {
+      const rate = await signin_code_ip_limiter.enforce(ip, {
+        message: "Too many sign-in codes requested.",
+      });
+      if (!rate.ok) return rate;
+    }
+
+    const captcha = await CaptchaService.verify(input.captcha_token);
+    if (!captcha.ok) return captcha;
+
+    const address_rate = await signin_code_address_limiter.enforce(
+      await HashUtil.email_key(input.email),
+      { message: "Too many sign-in codes requested for this address." },
+    );
+    if (!address_rate.ok) return address_rate;
+
+    try {
+      // Answers `{ success: true }` for an unknown address too, sending nothing.
+      await auth.api.sendVerificationOTP({
+        body: { email: input.email, type: "sign-in" },
+        headers: getRequestEvent().request.headers,
+      });
+    } catch (error) {
+      if (error instanceof APIError) {
+        Log.info(error.body, "send_signin_code_remote.error better-auth");
+        if (error.statusCode >= 500) captureException(error);
+
+        return result.from_ba_error(error);
+      }
+
+      Log.error(error, "send_signin_code_remote.error unknown");
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
+
+    return result.suc({ email: input.email.trim().toLowerCase() });
+  },
+);
+
+export const signin_code_remote = form(
+  z.object({
+    email: z.email("Please enter a valid email address"),
+    code: z
+      .string()
+      .length(EMAIL_OTP.LENGTH, `Enter the ${EMAIL_OTP.LENGTH}-digit code`)
+      .regex(
+        new RegExp(REGEXP_ONLY_DIGITS),
+        `Enter the ${EMAIL_OTP.LENGTH}-digit code`,
+      ),
+    redirect_uri: redirect_uri_schema(),
+  }),
+  async (input, issue) => {
+    const ip = AdapterService.get_ip();
+    if (ip) {
+      const rate = await signin_code_verify_limiter.enforce(ip, {
+        message: "Too many sign-in attempts.",
+      });
+      if (!rate.ok) return rate;
+    }
+
+    try {
+      await auth.api.signInEmailOTP({
+        body: { email: input.email, otp: input.code },
+        headers: getRequestEvent().request.headers,
+      });
+    } catch (error) {
+      if (error instanceof APIError) {
+        Log.info(error.body, "signin_code_remote.error better-auth");
+
+        if (error.body?.code === EMAIL_OTP.ERRORS.TWO_FACTOR_REQUIRED.code) {
+          return result.err({
+            ...ERROR.FORBIDDEN,
+            message: EMAIL_OTP.ERRORS.TWO_FACTOR_REQUIRED.message,
+          });
+        } else if (is_ba_error_code(error, "INVALID_OTP")) {
+          invalid(
+            issue.code("That code is wrong. Check the email and try again."),
+          );
+        } else if (is_ba_error_code(error, "OTP_EXPIRED")) {
+          invalid(issue.code("That code has expired. Send a new one."));
+        } else if (is_ba_error_code(error, "TOO_MANY_ATTEMPTS")) {
+          invalid(issue.code("Too many wrong codes. Send a new one."));
+        }
+
+        if (error.statusCode >= 500) captureException(error);
+
+        return result.from_ba_error(error);
+      }
+
+      Log.error(error, "signin_code_remote.error unknown");
+      captureException(error);
+
+      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+    }
+
+    redirect(302, input.redirect_uri);
   },
 );
