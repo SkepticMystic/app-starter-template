@@ -126,6 +126,14 @@ export default defineConfig({
         // maps (`build.sourcemap` does), it silently turns build telemetry back
         // on, and it drops the plugin that injects `__sentry_sveltekit_output_dir`,
         // so server frames lose their `chunks/` path.
+        //
+        // Off because it crashes the Vercel function at boot. Orchestrion
+        // bundles `pg` and injects `require("@sentry/server-utils")` into its CJS,
+        // whose `@opentelemetry/api` Sentry rewrites to an external
+        // `__require("@sentry/sveltekit/opentelemetry-api")`. adapter-vercel's
+        // file tracer does not follow `__require`, so `build/cjs/opentelemetryApi.js`
+        // is never shipped. Costs only the automatic `pg` spans.
+        buildTimeInstrumentation: false,
         bundleSizeOptimizations: {
           excludeDebugStatements: true,
           excludeReplayShadowDom: true,
