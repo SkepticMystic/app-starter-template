@@ -69,19 +69,19 @@
                 close();
 
                 /**
-                 * Drop any pending invite already held by this address before
-                 * adding the new one. `cancelPendingInvitationsOnReInvite` is on
-                 * server-side, so the old row IS cancelled — but nothing told the
-                 * table, which went on rendering two live-looking invites for one
-                 * person until a reload.
+                 * `cancelPendingInvitationsOnReInvite` cancels this address's
+                 * live pending invite server-side; mirror that here rather than
+                 * render two live-looking invites until a reload. An expired one
+                 * is not "pending" to Better-Auth and is left as it is.
                  */
+                const now = new Date();
                 invitations = [
-                  ...invitations.filter(
-                    (i) =>
-                      !(
-                        i.status === "pending" &&
-                        i.email.toLowerCase() === d.email.toLowerCase()
-                      ),
+                  ...invitations.map((i) =>
+                    i.status === "pending" &&
+                    i.expiresAt > now &&
+                    i.email.toLowerCase() === d.email.toLowerCase()
+                      ? { ...i, status: "canceled" as const }
+                      : i,
                   ),
                   d,
                 ];
@@ -95,7 +95,14 @@
     <OrganizationInvitationsTable
       {invitations}
       on_cancel={(id) => {
-        invitations = Arrays.remove(invitations, id);
+        invitations = Arrays.patch(invitations, id, { status: "canceled" });
+      }}
+      on_resend={(id, sent) => {
+        // A live invite keeps its row; an expired one is replaced by a new row.
+        invitations =
+          sent.id === id
+            ? Arrays.patch(invitations, id, { expiresAt: sent.expiresAt })
+            : [...invitations, sent];
       }}
     />
   </section>

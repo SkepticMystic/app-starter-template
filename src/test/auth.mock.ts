@@ -10,6 +10,8 @@ export const auth_mock: {
   is_ba_error_code: Mock;
   /** `auth.api.deleteOrganization`, the owner's path out of an org. */
   deleteOrganization: Mock;
+  /** `auth.api.createInvitation`, which also re-sends one. */
+  createInvitation: Mock;
   /**
    * `(await auth.$context).internalAdapter`, reduced to the `SessionStore`
    * slice `MemberSessionService` reads. Lists no sessions by default.
@@ -23,6 +25,7 @@ export const auth_mock: {
   getSession: vi.fn(async () => null),
   is_ba_error_code: vi.fn(() => false),
   deleteOrganization: vi.fn(async () => ({})),
+  createInvitation: vi.fn(async () => ({})),
   internalAdapter: {
     listSessions: vi.fn(async () => []),
     deleteSessions: vi.fn(async () => undefined),

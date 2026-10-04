@@ -177,6 +177,7 @@ vi.mock("#lib/auth.js", async () => {
       api: {
         getSession: auth_mock.getSession,
         deleteOrganization: auth_mock.deleteOrganization,
+        createInvitation: auth_mock.createInvitation,
       },
       get $context() {
         return Promise.resolve({ internalAdapter: auth_mock.internalAdapter });

@@ -10,15 +10,23 @@ import { ERROR } from "#lib/const/error.const.js";
 import type { InvitationSchema } from "#lib/server/db/models/auth.model.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
-import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import type { Invitation } from "better-auth/plugins";
 import type { z } from "zod";
 
 const log = Log.child({ service: "Invitation" });
 
+/**
+ * `organizationId` is the org the remote's guard authorised and rate-limited,
+ * passed explicitly rather than left to Better-Auth's active-org fallback.
+ * `resend` keeps the same row and link, re-sends the email and extends the
+ * expiry; without it `cancelPendingInvitationsOnReInvite` replaces the row.
+ */
 const create = async (
-  input: z.output<typeof InvitationSchema.create>,
+  input: z.output<typeof InvitationSchema.create> & {
+    organizationId: string;
+    resend?: boolean;
+  },
 ): Promise<App.Result<Invitation & { role: IOrganization.RoleId }>> => {
   const l = log.child({ method: "create" });
 
@@ -30,36 +38,32 @@ const create = async (
 
     return result.suc(data);
   } catch (error) {
-    if (error instanceof APIError) {
+    if (
+      error instanceof APIError &&
+      is_ba_error_code(
+        error,
+        "USER_IS_ALREADY_A_MEMBER_OF_THIS_ORGANIZATION",
+        "USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION",
+      )
+    ) {
       l.info(error.body, "error better-auth");
 
-      if (
-        is_ba_error_code(
-          error,
-          "USER_IS_ALREADY_A_MEMBER_OF_THIS_ORGANIZATION",
-          "USER_IS_ALREADY_INVITED_TO_THIS_ORGANIZATION",
-        )
-      ) {
-        return result.from_ba_error(error, { path: ["email"] });
-      } else if (
-        is_ba_error_code(
-          error,
-          "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
-        )
-      ) {
-        return result.from_ba_error(error, { path: ["role"] });
-      } else {
-        captureException(error);
+      return result.from_ba_error(error, { path: ["email"] });
+    } else if (
+      error instanceof APIError &&
+      is_ba_error_code(
+        error,
+        "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
+      )
+    ) {
+      l.info(error.body, "error better-auth");
 
-        return result.from_ba_error(error);
-      }
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
+      return result.from_ba_error(error, { path: ["role"] });
     }
+
+    // A refusal such as INVITATION_LIMIT_REACHED is the inviter's to fix, not
+    // a fault, so only a 5xx or a non-APIError reaches Sentry.
+    return ServiceUtil.ba_error(error, { log: l });
   }
 };
 

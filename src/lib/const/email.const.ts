@@ -6,8 +6,10 @@ import type {
 } from "#lib/server/db/models/auth.model.js";
 import type { SendEmailOptions } from "#lib/server/services/email.service.js";
 import { App } from "#lib/utils/app.js";
+import { Format } from "#lib/utils/format.util.js";
 import { HTMLUtil } from "#lib/utils/html/html.util.js";
 import { APP } from "./app.const.js";
+import { ORGANIZATION } from "./auth/organization.const.js";
 
 const HTML_SIGNATURE = `
 <p>
@@ -67,23 +69,33 @@ ${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
 
     "org-invite": (input: {
       organization: Pick<Organization, "name">;
-      invitation: Pick<Invitation, "id" | "email">;
+      // Better-Auth hands the role over as a plain string.
+      invitation: Pick<Invitation, "id" | "email" | "expiresAt"> & {
+        role: string;
+      };
       inviter: { user: Pick<User, "email" | "name"> };
     }): SendEmailOptions => {
       const href = App.full_url("/auth/organization/accept-invite", {
         invite_id: input.invitation.id,
       });
 
+      const { name, email } = input.inviter.user;
+      const roles: Record<string, { label: string } | undefined> =
+        ORGANIZATION.ROLES.MAP;
+      const role = roles[input.invitation.role]?.label ?? input.invitation.role;
+
+      // Relative, since the recipient's time zone is unknown here.
       const html = HTMLUtil.html`<p>Hi,</p>
 <p>
-  You have been invited by <strong>${input.inviter.user.email}</strong>
-  to join the organization <strong>${input.organization.name}</strong>.
+  <strong>${name || email}</strong>${name ? ` (${email})` : ""} has invited you
+  to join <strong>${input.organization.name}</strong> with the ${role} role.
 </p>
 <p>
-  Click <a href="${href}">here</a> to accept the invitation.
+  <a href="${href}">Accept the invitation</a>. It expires
+  ${Format.relative(input.invitation.expiresAt)}.
 </p>
 <p>
-  If you did not request this, you can safely ignore this email.
+  If you were not expecting this, you can safely ignore this email.
 </p>
 
 ${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;

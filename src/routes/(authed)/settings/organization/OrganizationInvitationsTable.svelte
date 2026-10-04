@@ -1,23 +1,28 @@
 <script lang="ts">
-  import { can } from "#lib/utils/auth/permission.util.js";
   import { OrganizationClient } from "#lib/clients/auth/organization.client.js";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
   import { ORGANIZATION } from "#lib/const/auth/organization.const.js";
   import type { Invitation } from "#lib/server/db/models/auth.model.js";
+  import { can } from "#lib/utils/auth/permission.util.js";
   import {
-    column_helper,
     CellHelpers,
+    column_helper,
   } from "#lib/utils/tanstack/table.util.js";
 
   let {
     invitations,
     on_cancel,
+    on_resend,
   }: {
     invitations: Pick<
       Invitation,
       "id" | "email" | "role" | "status" | "expiresAt"
     >[];
     on_cancel?: (invitation_id: string) => void;
+    on_resend?: (
+      invitation_id: string,
+      sent: Pick<Invitation, "id" | "email" | "role" | "status" | "expiresAt">,
+    ) => void;
   } = $props();
 
   const column = column_helper<NonNullable<typeof invitations>[number]>();
@@ -37,7 +42,13 @@
 
       filterFn: "arrHas",
 
-      cell: (c) => CellHelpers.label(c, ORGANIZATION.INVITATIONS.STATUSES.MAP),
+      // Better-Auth never moves an expired invite out of `pending`, so the
+      // stored status (which the filter reads) would show it as live.
+      cell: (c) =>
+        c.row.original.status === "pending" &&
+        c.row.original.expiresAt < new Date()
+          ? "Expired"
+          : CellHelpers.label(c, ORGANIZATION.INVITATIONS.STATUSES.MAP),
     }),
 
     column.accessor("expiresAt", {
@@ -76,20 +87,29 @@
           title: "No invitations",
           description: "Invite a new member to your organization",
         }}
-  actions={(row) =>
-    !can({ invitation: ["cancel"] })
-      ? []
-      : [
-          {
-            icon: "lucide/x",
-            variant: "destructive",
-            title: "Cancel invitation",
-            disabled: row.original.status !== "pending",
+  actions={(row) => [
+    {
+      icon: "lucide/send",
+      title: "Resend invitation",
+      hide: !can({ invitation: ["create"] }),
+      disabled: row.original.status !== "pending",
 
-            onselect: () =>
-              OrganizationClient.invitation.cancel(row.id, {
-                on_success: () => on_cancel?.(row.id),
-              }),
-          },
-        ]}
+      onselect: () =>
+        OrganizationClient.invitation.resend(row.id, {
+          on_success: (sent) => on_resend?.(row.id, sent),
+        }),
+    },
+    {
+      icon: "lucide/x",
+      variant: "destructive",
+      title: "Cancel invitation",
+      hide: !can({ invitation: ["cancel"] }),
+      disabled: row.original.status !== "pending",
+
+      onselect: () =>
+        OrganizationClient.invitation.cancel(row.id, {
+          on_success: () => on_cancel?.(row.id),
+        }),
+    },
+  ]}
 ></DataTable>

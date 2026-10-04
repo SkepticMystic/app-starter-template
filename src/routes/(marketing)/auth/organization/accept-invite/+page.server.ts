@@ -96,16 +96,6 @@ export const load: PageServerLoad = async ({ url }) => {
       email: session.user.email,
       prompt: "email_not_verified" as const,
     };
-  } else if (invitation.data.status !== "pending") {
-    return {
-      search,
-      prompt: "invite_not_pending" as const,
-    };
-  } else if (invitation.data.expiresAt < new Date()) {
-    return {
-      search,
-      prompt: "invite_expired" as const,
-    };
   }
 
   const { id: invitation_id, inviterId, organizationId } = invitation.data;
@@ -145,6 +135,9 @@ export const load: PageServerLoad = async ({ url }) => {
     error(400, "Invalid invitation: inviter does not exist");
   } else if (member.ok && member.data) {
     /**
+     * Ahead of the status and expiry checks, so a member reopening an old link
+     * is told they are in rather than to ask for a new invitation.
+     *
      * A write from a `load`, which is justified here: this is the only request
      * that ever learns the invitation is moot, and nothing else will ever close
      * it. Idempotent and guarded on `status = 'pending'`, and its failure is
@@ -158,6 +151,16 @@ export const load: PageServerLoad = async ({ url }) => {
       inviter: inviter.data,
       organization: organization.data,
       prompt: "already_member" as const,
+    };
+  } else if (invitation.data.status !== "pending") {
+    return {
+      search,
+      prompt: "invite_not_pending" as const,
+    };
+  } else if (invitation.data.expiresAt < new Date()) {
+    return {
+      search,
+      prompt: "invite_expired" as const,
     };
   } else {
     return {

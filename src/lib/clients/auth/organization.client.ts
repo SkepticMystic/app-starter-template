@@ -3,6 +3,7 @@ import { BetterAuthClient } from "#lib/auth-client.js";
 import {
   accept_invitation_remote,
   cancel_invitation_remote,
+  resend_invitation_remote,
 } from "#lib/remote/auth/organization/invitation.remote.js";
 import { remove_member_remote } from "#lib/remote/auth/organization/member.remote.js";
 import {
@@ -79,9 +80,13 @@ export const OrganizationClient = {
   ),
 
   invitation: {
+    // Better-Auth makes the org active server-side, and the page reloads after.
     accept: Client.wrap(accept_invitation_remote, {
       suc_msg: "Invitation accepted",
-      on_success: (d) => set_active_org(d.member.organizationId),
+    }),
+
+    resend: Client.wrap(resend_invitation_remote, {
+      suc_msg: "Invitation resent",
     }),
 
     cancel: Client.wrap(cancel_invitation_remote, {
