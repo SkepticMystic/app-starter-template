@@ -1,4 +1,7 @@
-import { admin, emailOTP, organization } from "better-auth/plugins";
+import { apiKey } from "@better-auth/api-key";
+import { passkey } from "@better-auth/passkey";
+import { paystack } from "better-auth-paystack";
+import { admin, emailOTP, organization, twoFactor } from "better-auth/plugins";
 import { describe, expect, it } from "vite-plus/test";
 import { make_better_auth } from "../../../test/better_auth.harness.js";
 import { AUTH } from "./auth.const.js";
@@ -13,6 +16,17 @@ describe("AUTH.DISABLED_PATHS", () => {
         organization(),
         admin(),
         emailOTP({ sendVerificationOTP: async () => {} }),
+        twoFactor(),
+        passkey(),
+        apiKey([{ configId: "default", references: "organization" }]),
+        paystack({
+          // Only its routes are read; nothing here reaches Paystack.
+          paystackClient: {} as never,
+          secretKey: "sk_test",
+          paystackWebhookSecret: "sk_test",
+          organization: { enabled: true },
+          subscription: { enabled: true, plans: [] },
+        }),
       ],
     });
 

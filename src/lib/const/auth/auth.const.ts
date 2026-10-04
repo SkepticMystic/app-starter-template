@@ -55,25 +55,31 @@ const PASSWORD = {
  * Better-Auth's router limiter (`rateLimit.customRules`), per IP and path.
  * Its built-in rules are sized for one person — 3 per 10s on `/sign-in/*` —
  * so everyone behind one shared IP (an office NAT, a campus, carrier-grade NAT
- * on mobile) refuses everyone else. Loosened only where the route is cheap to
+ * on mobile) refuses everyone else. Loosened where the route is cheap to
  * abuse: `/sign-in/social` only starts an OAuth redirect, and the provider
- * checks the credential. Deliberately not `/sign-in/*`: `/sign-in/email` keeps
- * its built-in limit, the only per-IP check a direct POST to it meets.
+ * checks the credential.
  */
 const ROUTER_RATE_LIMIT_RULES = {
   "/sign-in/social": { window: 10, max: 30 },
 } satisfies Record<string, { window: number; max: number }>;
 
 /**
- * Better-Auth routes closed to direct HTTP (`disabledPaths`), because a remote
- * function calling `auth.api` is the only way in. Only the router checks this
- * list, by exact path, so `auth.api` still reaches every one of them, and
- * `/delete-user/callback` (the emailed confirmation link) stays open.
+ * Better-Auth routes closed to direct HTTP (`disabledPaths`): every one the
+ * app reaches through a remote function calling `auth.api`, so the remote —
+ * with its guard and its own limiters, which `auth.api` calls never get from
+ * the router — is the only way in. Only the router checks this list, by exact
+ * path, so `auth.api` still reaches all of them.
+ *
+ * Left open on purpose: the browser ceremonies `auth-client.ts` runs (passkey
+ * options and verification, `/sign-in/social`), `/callback/*`, the emailed
+ * links (`/verify-email`, `/reset-password/:token`, `/delete-user/callback`),
+ * `/paystack/webhook`, and `/get-session`.
  */
 const DISABLED_PATHS = [
-  // `send_signin_code_remote` / `signin_code_remote` add the captcha and the
-  // per-IP and per-address limits a direct POST would skip. The rest (email
-  // OTP for verification, reset and email change) is unused.
+  // `auth.remote.ts`. Email OTP is sign-in only: verification, reset and email
+  // change by code are unused.
+  "/sign-in/email",
+  "/sign-up/email",
   "/email-otp/send-verification-otp",
   "/sign-in/email-otp",
   "/email-otp/check-verification-otp",
@@ -84,8 +90,38 @@ const DISABLED_PATHS = [
   "/email-otp/request-email-change",
   "/email-otp/change-email",
 
-  // `send_verification_email_remote`, with its own per-IP and per-address limits.
+  // `user.remote.ts`
+  "/update-user",
+  "/change-password",
+  "/change-email",
+  "/request-password-reset",
+  "/reset-password",
   "/send-verification-email",
+  "/delete-user",
+
+  // `session.remote.ts`
+  "/list-sessions",
+  "/revoke-session",
+  "/revoke-other-sessions",
+  "/sign-out",
+
+  // `account.remote.ts`
+  "/list-accounts",
+  "/unlink-account",
+
+  // `two_factor.remote.ts`
+  "/two-factor/enable",
+  "/two-factor/disable",
+  "/two-factor/verify-totp",
+  "/two-factor/verify-backup-code",
+
+  // `passkey.remote.ts`
+  "/passkey/update-passkey",
+  "/passkey/delete-passkey",
+
+  // `apikey.remote.ts`
+  "/api-key/create",
+  "/api-key/delete",
 
   // `admin.remote.ts`
   "/admin/set-role",
@@ -95,15 +131,22 @@ const DISABLED_PATHS = [
   "/admin/unban-user",
   "/admin/remove-user",
 
-  // `organization.remote.ts`, `member.remote.ts`
+  // `organization.remote.ts`, `member.remote.ts`, `invitation.remote.ts`
+  "/organization/create",
+  "/organization/delete",
   "/organization/set-active",
   "/organization/leave",
   "/organization/list",
   "/organization/update-member-role",
+  "/organization/remove-member",
+  "/organization/invite-member",
+  "/organization/cancel-invitation",
+  "/organization/accept-invitation",
 
-  // `sign_out_remote`, `request_account_deletion_remote`
-  "/sign-out",
-  "/delete-user",
+  // `subscription.remote.ts`
+  "/paystack/upgrade-subscription",
+  "/paystack/enable-subscription",
+  "/paystack/disable-subscription",
 ] as const;
 
 /**
