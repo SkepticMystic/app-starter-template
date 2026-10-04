@@ -46,6 +46,13 @@
             raised ?? "The page you're looking for doesn't exist or has moved.",
         };
       case 401:
+        return {
+          icon: "lucide/log-in",
+          title: "Sign in to continue",
+          description:
+            raised ??
+            "Your session has ended. Sign in again to pick up where you left off.",
+        };
       case 403:
         return {
           icon: "lucide/lock",

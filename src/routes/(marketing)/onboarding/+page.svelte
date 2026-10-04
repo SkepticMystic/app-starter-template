@@ -6,9 +6,25 @@
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import { create_organization_remote } from "#lib/remote/auth/organization/organization.remote.js";
-  import { App } from "#lib/utils/app.js";
+  import { goto } from "$app/navigation";
+  import { resolve } from "$app/paths";
 
   const form = create_organization_remote;
+
+  // Set when the org was created but switching to it failed, so a retry
+  // switches rather than creating a second org.
+  let created_id = $state<string>();
+
+  const enter = async (org_id: string) => {
+    const res = await OrganizationClient.set_active(org_id);
+    if (!res.ok) {
+      created_id = org_id;
+      Toast.err(res.error);
+      return;
+    }
+
+    await goto(resolve("/(authed)/settings/organization"));
+  };
 </script>
 
 <article>
@@ -22,6 +38,8 @@
   <form
     class="space-y-6"
     {...form.enhance(async (e) => {
+      if (created_id) return enter(created_id);
+
       await e.submit();
 
       const res = form.result;
@@ -29,10 +47,7 @@
       if (res?.ok) {
         Toast.success("Organization created");
 
-        await OrganizationClient.set_active(res.data.id);
-        // BetterAuthClient.$store.notify("$sessionSignal");
-
-        window.location.href = App.url("/settings/organization");
+        await enter(res.data.id);
       } else if (res?.ok === false) {
         Toast.err(res.error);
       }

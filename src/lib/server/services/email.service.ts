@@ -1,6 +1,7 @@
 import { dev } from "$app/env";
 import { EMAIL_FROM, RESEND_API_KEY } from "$app/env/private";
 import { APP } from "#lib/const/app.const.js";
+import { ERROR } from "#lib/const/error.const.js";
 import type { Branded } from "#lib/interfaces/zod/zod.type.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -46,7 +47,7 @@ function format_from(from: string | undefined): string {
 
 const resend = new Resend(RESEND_API_KEY);
 const of_resend = {
-  send: async (input: SendEmailOptions) => {
+  send: async (input: SendEmailOptions): Promise<App.Result<unknown>> => {
     try {
       const start_ms = performance.now();
       const res = await resend.emails.send({
@@ -73,7 +74,10 @@ const of_resend = {
 
         captureException(res.error);
 
-        return result.err({ message: "Failed to send email" });
+        return result.err({
+          ...ERROR.INTERNAL_SERVER_ERROR,
+          message: "Failed to send email",
+        });
       } else {
         return result.suc(res.data);
       }
@@ -82,7 +86,10 @@ const of_resend = {
 
       captureException(error);
 
-      return result.err({ message: "Failed to send email" });
+      return result.err({
+        ...ERROR.INTERNAL_SERVER_ERROR,
+        message: "Failed to send email",
+      });
     }
   },
 };

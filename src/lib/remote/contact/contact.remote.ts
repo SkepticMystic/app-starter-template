@@ -18,16 +18,21 @@ const rate_limiter = new RateLimiter("contact_us_remote", {
 
 export const contact_us_remote = form(
   z.object({
-    name: z.string().min(1, "Please enter your name"),
-    email: z.email("Please enter a valid email address"),
-    message: z.string().trim().min(1, "Please enter a message"),
+    name: z
+      .string()
+      .trim()
+      .min(1, "Please enter your name")
+      .max(100, "Name must be at most 100 characters"),
+    email: z.email("Please enter a valid email address").max(255),
+    message: z
+      .string()
+      .trim()
+      .min(1, "Please enter a message")
+      .max(5000, "Message must be at most 5000 characters"),
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input) => {
     try {
-      const captcha = await CaptchaService.verify(input.captcha_token);
-      if (!captcha.ok) return captcha;
-
       const ip = AdapterService.get_ip();
       if (!ip) {
         return result.err({
@@ -35,15 +40,19 @@ export const contact_us_remote = form(
           message: "Failed to get IP address",
         });
       }
-      /**
-       * `enforce`, not `consume`: the old call checked only that the limiter
-       * itself had not errored and never read `allowed`, so this bucket spent
-       * tokens and refused nobody.
-       */
+
+      // Before the captcha, so a flood is refused for the cost of a Redis read
+      // rather than a Turnstile round trip.
       const rate_limit = await rate_limiter.enforce(ip);
       if (!rate_limit.ok) return rate_limit;
 
-      await EmailService.send(EMAIL.TEMPLATES["admin-contact-form"](input));
+      const captcha = await CaptchaService.verify(input.captcha_token);
+      if (!captcha.ok) return captcha;
+
+      const sent = await EmailService.send(
+        EMAIL.TEMPLATES["admin-contact-form"](input),
+      );
+      if (!sent.ok) return sent;
 
       return result.suc(undefined);
     } catch (error) {

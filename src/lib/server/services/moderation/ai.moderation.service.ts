@@ -119,7 +119,7 @@ const moderate = async (input: {
       "AIModerationService.moderate.latency",
       Date.now() - start_ms,
       {
-        unit: "milliseconds",
+        unit: "millisecond",
         attributes: {
           provider: "openai",
           model: data.model,

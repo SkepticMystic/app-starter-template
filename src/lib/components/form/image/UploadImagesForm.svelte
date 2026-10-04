@@ -24,10 +24,11 @@
     after_upload?: (results: NonNullable<typeof form.result>) => void;
   } = $props();
 
-  let urls = new SvelteMap<string, string>();
+  // Keyed by the `File` itself: two picked files can share a name.
+  let urls = new SvelteMap<File, string>();
   const revoke_urls = () => {
-    urls.forEach((url, name) => {
-      urls.delete(name);
+    urls.forEach((url, file) => {
+      urls.delete(file);
       URL.revokeObjectURL(url);
     });
   };
@@ -44,7 +45,7 @@
     revoke_urls();
 
     for (const file of files) {
-      urls.set(file.name, URL.createObjectURL(file));
+      urls.set(file, URL.createObjectURL(file));
     }
 
     form.fields.files.set(files);
@@ -112,10 +113,14 @@
     }}
     items={form.fields.files
       .value()
-      ?.flatMap((f) => (f ? [{ id: f.name, file: f }] : [])) ?? []}
+      ?.flatMap((f, i) =>
+        f
+          ? [{ id: `${i}:${f.name}:${f.size}:${f.lastModified}`, file: f }]
+          : [],
+      ) ?? []}
   >
     {#snippet item(item, i)}
-      {@const url = urls.get(item.file.name)}
+      {@const url = urls.get(item.file)}
 
       <Item
         size="sm"
@@ -125,7 +130,7 @@
         {#snippet media()}
           <img
             src={url}
-            alt={item.file.name}
+            alt=""
             width={100}
             height={100}
             class="object-cover"
@@ -136,10 +141,11 @@
           <Button
             icon="lucide/x"
             variant="outline"
+            tip="Remove {item.file.name}"
             disabled={form.pending > 0}
             onclick={() => {
               if (url) {
-                urls.delete(item.file.name);
+                urls.delete(item.file);
                 URL.revokeObjectURL(url);
               }
 

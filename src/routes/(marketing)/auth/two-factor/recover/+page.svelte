@@ -8,13 +8,16 @@
 
 <article>
   <Card
+    heading="h1"
     title="Two-factor recovery"
+    description="Enter one of your backup codes. Each code works once, so set up two-factor again on a new device afterwards."
     class="mx-auto w-full max-w-xs"
   >
     {#snippet children()}
       <VerifyTwoFactorBackupCodeForm
         on_success={() => {
-          goto(resolve("settings/profile"), { refreshAll: true });
+          // To account settings, where two-factor can be set up again.
+          goto(resolve("settings/account"), { refreshAll: true });
         }}
       />
     {/snippet}

@@ -4,18 +4,55 @@ import {
   existing_password_schema,
   password_schema,
 } from "#lib/schema/password/password.schema.js";
+import { guarded_form, USER } from "#lib/server/remote/guarded.js";
+import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
 import { UserService } from "#lib/server/services/auth/user/user.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
+import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
+import { HashUtil } from "#lib/server/utils/hash.util.js";
 import { invalid } from "@sveltejs/kit";
 import { z } from "zod";
 
-export const update_user_remote = form(
+// An avatar that is not a dicebear URL costs a moderation call.
+const update_user_limiter = new RateLimiter("user:update", {
+  max_tokens: 10,
+  refill_rate: 10,
+  refill_interval: 300,
+});
+
+// Called directly, so Better-Auth's own router limit never applies. Per-IP
+// caps a flood; per-address stops one inbox being bombed from many IPs.
+const verification_ip_limiter = new RateLimiter("user:verify_email:ip", {
+  max_tokens: 5,
+  refill_rate: 5,
+  refill_interval: 600,
+});
+
+const verification_email_limiter = new RateLimiter(
+  "user:verify_email:address",
+  { max_tokens: 3, refill_rate: 3, refill_interval: 3600 },
+);
+
+export const update_user_remote = guarded_form(
+  {
+    ...USER,
+    limit: {
+      limiter: update_user_limiter,
+      by: "user",
+      message: "Too many profile updates.",
+    },
+  },
   z.object({
     name: z
       .string()
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be at most 100 characters"),
-    image: z.union([z.url(), z.literal("").transform(() => null)]).optional(),
+    image: z
+      .union([
+        z.url({ protocol: /^https$/ }).max(2048),
+        z.literal("").transform(() => null),
+      ])
+      .optional(),
   }),
   async (input) => {
     const res = await UserService.update(input);
@@ -50,7 +87,7 @@ export const request_password_reset_remote = form(
 
 export const reset_password_remote = form(
   z.object({
-    token: z.string(),
+    token: z.string().max(512),
     new_password: password_schema,
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
@@ -74,6 +111,20 @@ export const send_verification_email_remote = form(
     redirect_uri: redirect_uri_schema(),
   }),
   async (input) => {
+    const ip = AdapterService.get_ip();
+    if (ip) {
+      const rate = await verification_ip_limiter.enforce(ip, {
+        message: "Too many verification emails requested.",
+      });
+      if (!rate.ok) return rate;
+    }
+
+    const rate = await verification_email_limiter.enforce(
+      await HashUtil.email_key(input.email),
+      { message: "Too many verification emails for this address." },
+    );
+    if (!rate.ok) return rate;
+
     const res = await UserService.send_verification_email(input);
 
     if (!res.ok && res.error.path) {
@@ -84,7 +135,8 @@ export const send_verification_email_remote = form(
   },
 );
 
-export const change_password_remote = form(
+export const change_password_remote = guarded_form(
+  USER,
   z.object({
     current_password: existing_password_schema,
     new_password: password_schema,

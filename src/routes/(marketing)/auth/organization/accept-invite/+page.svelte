@@ -54,7 +54,7 @@
   {#if data.prompt === "accept_invite"}
     <p>
       You've been invited by <strong>
-        {data.inviter.name ?? data.inviter.email}
+        {data.inviter.name || data.inviter.email}
       </strong>
       to join the org:
       <strong>{data.organization.name}</strong>.
@@ -109,7 +109,9 @@
       The invitation link is invalid. Please check the link or contact the
       inviter.
     </p>
-  {:else}
-    <p class="text-warning">Invalid prompt type.</p>
+  {:else if data.prompt === "internal_server_error"}
+    <p class="text-warning">
+      We couldn't load this invitation. Try again in a moment.
+    </p>
   {/if}
 </article>

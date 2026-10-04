@@ -1,5 +1,5 @@
 import type { MaybePromise } from "#lib/interfaces/index.js";
-import { result } from "./result.util";
+import { result } from "./result.util.js";
 
 export type BetterAuthResult<D> =
   | {
@@ -23,15 +23,15 @@ export const BetterAuth = {
   ): Promise<App.Result<D>> => {
     const awaited = res instanceof Promise ? await res : res;
 
-    if (awaited.data) {
+    // On `error`, not `data`: a success can carry a falsy `data`.
+    if (awaited.error === null) {
       return result.suc(awaited.data);
     } else {
-      console.warn("BetterAuth error:", awaited.error);
       return result.err({
-        status: awaited.error?.status ?? 500,
+        status: awaited.error.status || 500,
         message:
-          awaited.error?.message ??
-          awaited.error?.statusText ??
+          awaited.error.message ||
+          awaited.error.statusText ||
           "An unknown error occurred",
       });
     }

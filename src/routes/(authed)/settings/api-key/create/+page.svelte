@@ -84,7 +84,7 @@
                 { value: (60 * 60 * 24 * 7).toFixed(), label: "1 week" },
                 { value: (60 * 60 * 24 * 30).toFixed(), label: "1 month" },
                 { value: (60 * 60 * 24 * 365).toFixed(), label: "1 year" },
-                { value: undefined, label: "Never" },
+                { value: "", label: "Never" },
               ]}
             />
           {/snippet}

@@ -1,6 +1,4 @@
-import { getRequestEvent } from "$app/server";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
-import { auth } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
 import type { PaystackTransaction } from "#lib/server/db/models/subscription.model.js";
 import { PaystackTransactionRepo } from "#lib/server/db/repos/paystack_transaction.repo.js";
@@ -8,9 +6,7 @@ import { Log } from "#lib/utils/logger.util.js";
 import { generate_transaction_pdf } from "#lib/utils/pdf/transaction.pdf.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
-import { RuntimeService } from "../runtime/runtime.service";
-import { APIError } from "better-auth";
-import { R2Service } from "../storage/r2.storage.service";
+import { R2Service } from "../storage/r2.storage.service.js";
 
 const log = Log.child({ service: "Paystack" });
 
@@ -38,37 +34,6 @@ const get_by_id = async (
   }
 };
 
-const initialize_transaction = async (
-  input: NonNullable<
-    Parameters<(typeof auth.api)["initializeTransaction"]>[0]
-  >["body"],
-) => {
-  const l = log.child({ method: "initialize_transaction" });
-
-  try {
-    const data = await auth.api["initializeTransaction"]({
-      headers: getRequestEvent().request.headers,
-      body: input,
-    });
-
-    return result.suc(data);
-  } catch (error) {
-    return ServiceUtil.ba_error(error, { log: l });
-  }
-};
-
-const create_r2_log = async (
-  reference: string,
-  verify: Awaited<ReturnType<(typeof auth.api)["verifyTransaction"]>>,
-) => {
-  return R2Service.put({
-    body: JSON.stringify(verify),
-    content_type: "application/json",
-    expires_in: 1_000 * 60 * 60 * 24 * 7, // 1 week
-    key: `system/paystack/verify-transaction/${reference}/${Date.now()}`,
-  });
-};
-
 const get_transaction_invoice = async (
   transaction_id: string,
   session: App.Session,
@@ -91,7 +56,7 @@ const get_transaction_invoice = async (
       body: pdf.data.buffer,
       content_type: pdf.data.content_type,
       content_length: pdf.data.file_size,
-      expires_in: 1_000 * 60 * 60 * 24 * 7, // 1 week
+      http_expires_in: 1_000 * 60 * 60 * 24 * 7, // 1 week
     });
     if (!upload.ok) return upload;
 
@@ -107,42 +72,6 @@ const get_transaction_invoice = async (
   }
 };
 
-const verify_transaction = async ({ reference }: { reference: string }) => {
-  const l = log.child({ method: "verify_transaction" });
-
-  try {
-    const verify = await auth.api["verifyTransaction"]({
-      body: { reference },
-      headers: getRequestEvent().request.headers,
-    });
-
-    RuntimeService.defer(async () => create_r2_log(reference, verify));
-
-    l.info(verify, "verify res");
-    if (verify.status !== "success") {
-      l.warn(verify, "verify.status !== 'success'");
-    }
-
-    return result.suc(verify);
-  } catch (error) {
-    if (error instanceof APIError) {
-      l.info(error, "error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      l.error(error, "error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
-  }
-};
-
 export const PaystackService = {
-  initialize_transaction,
-  verify_transaction,
   get_transaction_invoice,
 };

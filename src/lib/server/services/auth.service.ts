@@ -166,11 +166,8 @@ export const get_session = async (
 
     event.locals.session = session;
 
-    setUser({
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-    });
+    // The id only: the email and name would ride along on every Sentry event.
+    setUser({ id: session.user.id });
 
     return result.suc(session);
   } catch (error) {

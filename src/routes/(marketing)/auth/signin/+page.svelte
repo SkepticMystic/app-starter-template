@@ -2,9 +2,8 @@
   import { resolve } from "$app/paths";
   import { BetterAuthClient } from "#lib/auth-client.js";
   import CredentialSigninForm from "#lib/components/form/authenticate/CredentialSigninForm.svelte";
-  import GenericOAuthSigninButton from "#lib/components/form/authenticate/GenericOAuthSigninButton.svelte";
+  import OAuthSigninButton from "#lib/components/form/authenticate/OAuthSigninButton.svelte";
   import PasskeySigninButton from "#lib/components/form/authenticate/PasskeySigninButton.svelte";
-  import SocialSigninButton from "#lib/components/form/authenticate/SocialSigninButton.svelte";
   import Badge from "#lib/components/ui/badge/badge.svelte";
   import ButtonGroup from "#lib/components/ui/button-group/button-group.svelte";
   import Button from "#lib/components/ui/button/button.svelte";
@@ -12,6 +11,7 @@
   import Separator from "#lib/components/ui/separator/separator.svelte";
   import { APP } from "#lib/const/app.const.js";
   import { AUTH, type IAuth } from "#lib/const/auth/auth.const.js";
+  import { App } from "#lib/utils/app.js";
 
   let { data } = $props();
 
@@ -20,6 +20,7 @@
 
 <Card
   class="mx-auto w-full max-w-xs"
+  heading="h1"
   title="Sign in to {APP.NAME}"
 >
   {#snippet children()}
@@ -29,21 +30,12 @@
         orientation="vertical"
       >
         {#each AUTH.PROVIDERS.IDS as provider_id (provider_id)}
-          {@const { is_social, is_oidc } = AUTH.PROVIDERS.MAP[provider_id]}
-
-          {#if is_oidc}
+          {#if AUTH.PROVIDERS.MAP[provider_id].is_oidc}
             <ButtonGroup class="w-full">
-              {#if is_social}
-                <SocialSigninButton
-                  {provider_id}
-                  redirect_uri={data.search.redirect_uri}
-                />
-              {:else}
-                <GenericOAuthSigninButton
-                  {provider_id}
-                  redirect_uri={data.search.redirect_uri}
-                />
-              {/if}
+              <OAuthSigninButton
+                {provider_id}
+                redirect_uri={data.search.redirect_uri}
+              />
             </ButtonGroup>
           {/if}
         {/each}
@@ -82,7 +74,9 @@
         <ButtonGroup>
           <Button
             variant="link"
-            href={resolve("auth/signup")}
+            href={App.url("/auth/signup", {
+              redirect_uri: data.search.explicit,
+            })}
           >
             Don't have an account? Sign up
           </Button>

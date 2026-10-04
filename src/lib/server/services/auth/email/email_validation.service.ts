@@ -45,7 +45,7 @@ const has_mx_records = async (
 
       log.info(
         {
-          email,
+          domain: email.split("@").at(-1),
           code: error.code,
           message: error.message,
         },
@@ -57,8 +57,7 @@ const has_mx_records = async (
       log.error(error, "has_mx_records.error unknown");
 
       captureException(error, {
-        tags: { email },
-        contexts: { has_mx_records: { email } },
+        contexts: { has_mx_records: { domain: email.split("@").at(-1) } },
       });
 
       return result.err({

@@ -246,7 +246,7 @@ vi.mock("@vercel/functions", async () => {
   }));
 });
 
-/** A streaming upload that finishes at once; `R2Service.upload_stream`'s seam. */
+/** A streaming upload that finishes at once; the seam behind `R2Service.put`'s streaming path. */
 vi.mock("@aws-sdk/lib-storage", async () => {
   const { memo } = await import("./automock");
 

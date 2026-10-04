@@ -17,6 +17,7 @@ import { invalid, isValidationError, redirect } from "@sveltejs/kit";
 import { APIError } from "better-auth";
 import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
 import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
+import { HashUtil } from "#lib/server/utils/hash.util.js";
 import { z } from "zod";
 
 /**
@@ -43,19 +44,6 @@ const signin_account_limiter = new RateLimiter("auth:signin:account", {
   refill_interval: 900,
 });
 
-/**
- * The address is hashed rather than used directly, so it never reaches Redis —
- * or Upstash's analytics — as plaintext.
- */
-const account_key = async (email: string) => {
-  const bytes = new TextEncoder().encode(email.trim().toLowerCase());
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-
-  return [...new Uint8Array(digest)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-};
-
 export const signin_credentials_remote = form(
   z.object({
     email: z.email("Please enter a valid email address"),
@@ -74,7 +62,7 @@ export const signin_credentials_remote = form(
       if (!rate.ok) return rate;
     }
 
-    const key = await account_key(input.email);
+    const key = await HashUtil.email_key(input.email);
 
     // Checked without spending: the token is charged below, and only when the
     // password was actually wrong.

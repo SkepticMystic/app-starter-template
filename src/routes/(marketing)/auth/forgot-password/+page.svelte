@@ -15,6 +15,7 @@
 
 <article>
   <Card
+    heading="h1"
     title="Forgot your password?"
     description="Enter your email to reset it"
     class="mx-auto w-full max-w-xs"
@@ -25,11 +26,10 @@
         {...form.enhance(async (e) => {
           await e.submit();
 
-          if (form.fields.allIssues()?.length) {
-            reset_captcha?.();
-          }
+          // A Turnstile token is single-use, whatever the outcome.
+          reset_captcha?.();
 
-          const res = request_password_reset_remote.result;
+          const res = form.result;
           if (res?.ok) {
             e.element.reset();
             Toast.success(res.data.message);

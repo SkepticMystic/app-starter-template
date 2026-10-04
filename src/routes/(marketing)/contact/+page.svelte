@@ -35,9 +35,8 @@
         {...form.enhance(async (e) => {
           await e.submit();
 
-          if (form.fields.allIssues()?.length) {
-            reset_captcha?.();
-          }
+          // A Turnstile token is single-use, whatever the outcome.
+          reset_captcha?.();
 
           const res = form.result;
           if (res?.ok) {
@@ -58,6 +57,7 @@
               {...props}
               {...field?.as("text")}
               required
+              maxlength={100}
               autocomplete="name"
               placeholder="Your name"
             />
@@ -89,6 +89,7 @@
               {...props}
               {...field?.as("text")}
               required
+              maxlength={5000}
               class="max-h-72 min-h-24"
               placeholder="Your message"
             />

@@ -9,7 +9,8 @@ import { z } from "zod";
  *   off-origin;
  * - `/\evil.test`, which several browsers normalise to the same thing;
  * - any whitespace, because a newline in a `Location` header is a response
- *   splitting primitive, not just a malformed path.
+ *   splitting primitive, not just a malformed path;
+ * - anything longer than {@link MAX_LENGTH}.
  *
  * It falls back to the default rather than raising a validation error on
  * purpose: the person holding the correct password is not the person to show a
@@ -17,9 +18,12 @@ import { z } from "zod";
  * on the default page is both safe and unremarkable.
  */
 const PATH = /^\/(?![/\\])\S*$/;
+const MAX_LENGTH = 2048;
 
 export const redirect_uri_schema = (fallback = "/onboarding") =>
   z
     .string()
     .default(fallback)
-    .transform((value) => (PATH.test(value) ? value : fallback));
+    .transform((value) =>
+      value.length <= MAX_LENGTH && PATH.test(value) ? value : fallback,
+    );

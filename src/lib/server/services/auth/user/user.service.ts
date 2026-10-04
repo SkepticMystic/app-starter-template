@@ -33,9 +33,9 @@ const moderate = async (input: {
       return moderation;
     } else if (moderation.data.flagged) {
       return result.err({
-        ...ERROR.INTERNAL_SERVER_ERROR,
+        ...ERROR.INVALID_INPUT,
         path: ["image"],
-        message: "Image moderation flagged",
+        message: "This image isn't allowed. Please choose another",
       });
     }
 
@@ -81,13 +81,13 @@ const update = async (
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");
 
-      captureException(error, { contexts: { update: { input } } });
+      captureException(error);
 
       return result.from_ba_error(error);
     } else {
       l.error(error, "error unknown");
 
-      captureException(error, { contexts: { update: { input } } });
+      captureException(error);
 
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,
@@ -189,11 +189,10 @@ const change_password = async (input: {
       },
     });
 
-    l.info(res, "res");
-
-    // return res.status
-    return result.suc(undefined);
-    // : Result.err({ message: "Failed to change password" });
+    // `res` carries the new session token, so it is never logged.
+    return res.user
+      ? result.suc(undefined)
+      : result.err(ERROR.INTERNAL_SERVER_ERROR);
   } catch (error) {
     if (error instanceof APIError) {
       l.info(error.body, "error better-auth");

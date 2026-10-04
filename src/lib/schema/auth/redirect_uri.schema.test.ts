@@ -25,6 +25,10 @@ describe("redirect_uri_schema", () => {
     expect(parse("//evil.test")).toBe("/onboarding");
   });
 
+  it("rejects an over-long path", () => {
+    expect(parse(`/${"a".repeat(2048)}`)).toBe("/onboarding");
+  });
+
   it("rejects the backslash variant", () => {
     expect(parse(String.raw`/\evil.test`)).toBe("/onboarding");
   });

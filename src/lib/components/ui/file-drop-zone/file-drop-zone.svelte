@@ -49,9 +49,10 @@
       currentTarget: EventTarget & HTMLLabelElement;
     },
   ) => {
-    if (disabled || !can_upload) return;
-
+    // First, so a refused drop does not fall through to the browser opening the file.
     e.preventDefault();
+
+    if (disabled || !can_upload) return;
 
     const dropped = Array.from(e.dataTransfer?.files ?? []);
 
@@ -121,25 +122,30 @@
   const upload = async (upload_files: File[]) => {
     uploading = true;
 
-    const valid_files: File[] = [];
+    try {
+      const valid_files: File[] = [];
 
-    for (let i = 0; i < upload_files.length; i++) {
-      const file = upload_files[i];
-      if (!file) continue;
+      for (let i = 0; i < upload_files.length; i++) {
+        const file = upload_files[i];
+        if (!file) continue;
 
-      const reject_reason = should_accept_file(file, (fileCount ?? 0) + i + 1);
+        const reject_reason = should_accept_file(
+          file,
+          (fileCount ?? 0) + i + 1,
+        );
 
-      if (reject_reason) {
-        onFileRejected?.({ file, reason: reject_reason });
-        continue;
+        if (reject_reason) {
+          onFileRejected?.({ file, reason: reject_reason });
+          continue;
+        }
+
+        valid_files.push(file);
       }
 
-      valid_files.push(file);
+      await onUpload(valid_files);
+    } finally {
+      uploading = false;
     }
-
-    await onUpload(valid_files);
-
-    uploading = false;
   };
 
   const can_upload = $derived(
@@ -162,6 +168,7 @@
     `
       flex h-48 w-full place-items-center justify-center rounded-lg border-2
       border-dashed border-border p-6 transition-all
+      focus-within:ring-2 focus-within:ring-ring
       hover:cursor-pointer hover:bg-accent/25
       aria-disabled:opacity-50
       aria-disabled:hover:cursor-not-allowed
@@ -192,7 +199,10 @@
         {#if maxFiles || maxFileSize}
           <span class="text-sm text-muted-foreground/75">
             {#if maxFiles}
-              <span>You can upload {maxFiles} files</span>
+              <span>
+                You can upload {maxFiles}
+                {maxFiles === 1 ? "file" : "files"}
+              </span>
             {/if}
             {#if maxFiles && maxFileSize}
               <span>(up to {format_bytes(maxFileSize)} each)</span>
@@ -211,7 +221,7 @@
     {id}
     {accept}
     type="file"
-    class="hidden"
+    class="sr-only"
     onchange={change}
     {disabled}
     onclick={click}

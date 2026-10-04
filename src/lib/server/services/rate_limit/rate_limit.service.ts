@@ -5,7 +5,7 @@ import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { metrics } from "@sentry/sveltekit";
 import { Ratelimit } from "@upstash/ratelimit";
-import { AdapterService } from "../adapter/adapter.service";
+import { AdapterService } from "../adapter/adapter.service.js";
 
 const log = Log.child({ service: "RateLimiter" });
 
@@ -100,14 +100,9 @@ export class RateLimiter {
         });
       }
 
+      // Low-cardinality and anonymous: no IP, user agent or bucket key.
       metrics.count("rate_limit_blocked", 1, {
-        attributes: {
-          ip,
-          geo,
-          user_agent,
-          key,
-          prefix: this.prefix,
-        },
+        attributes: { geo, prefix: this.prefix },
       });
 
       const retry_after_sec = Math.max(

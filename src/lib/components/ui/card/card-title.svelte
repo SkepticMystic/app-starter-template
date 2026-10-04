@@ -6,15 +6,20 @@
     ref = $bindable(null),
     class: className,
     children,
+    heading,
     ...restProps
-  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+  }: WithElementRef<HTMLAttributes<HTMLElement>> & {
+    /** Render as a heading, for a card that is the page's main content. */
+    heading?: "h1" | "h2" | "h3";
+  } = $props();
 </script>
 
-<div
+<svelte:element
+  this={heading ?? "div"}
   bind:this={ref}
   data-slot="card-title"
   class={["leading-none font-semibold", className]}
   {...restProps}
 >
   {@render children?.()}
-</div>
+</svelte:element>

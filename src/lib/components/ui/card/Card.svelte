@@ -18,8 +18,11 @@
     action,
     footer,
     description,
+    heading,
     class: klass,
   }: {
+    /** Render `title` as this heading — `h1` when the card is the whole page. */
+    heading?: "h1" | "h2" | "h3";
     header?: Snippet;
     class?: ClassValue;
     title?: MaybeSnippet;
@@ -40,7 +43,7 @@
   {#if title || description || action}
     <CardHeader>
       {#if title}
-        <CardTitle>
+        <CardTitle {heading}>
           <ExtractSnippet snippet={title} />
         </CardTitle>
       {/if}

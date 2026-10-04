@@ -12,7 +12,6 @@ import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { RuntimeService } from "../runtime/runtime.service";
-import { APIError } from "better-auth";
 
 const log = Log.child({ service: "SubscriptionService" });
 
@@ -53,6 +52,7 @@ const get_active = async (session: {
           status: "active",
           referenceId: session.session.org_id,
         },
+        orderBy: { createdAt: "desc" },
       }),
     );
 
@@ -123,31 +123,20 @@ const upgrade = async (
       },
     });
 
-    log.info(res, "upgrade.res");
-
-    const url = checkout_url(res);
-    if (!url) {
+    if (!res) {
       return result.err({
         ...ERROR.INTERNAL_SERVER_ERROR,
-        message: "Failed to get upgrade url",
+        message: "Failed to start the plan change",
       });
     }
 
-    return result.suc({ url });
+    // `url` is null for "scheduled" and "prorated": Paystack applied the change
+    // against the stored card, so there is nowhere to send the buyer.
+    return result.suc({ kind: res.kind, url: checkout_url(res) });
   } catch (error) {
-    if (error instanceof APIError) {
-      log.info(error.body, "upgrade.error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      log.error(error, "upgrade.error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, {
+      log: log.child({ method: "upgrade" }),
+    });
   }
 };
 
@@ -167,7 +156,7 @@ const disable = async (subscription_id: string, session: App.Session) => {
         message: "Subscription is already canceled",
       });
     } else if (!subscription.data.subscriptionCode) {
-      l.error(subscription.data, "error no subscriptionCode");
+      l.error({ subscription_id }, "error no subscriptionCode");
 
       return result.err({
         ...ERROR.INVALID_INPUT,
@@ -182,8 +171,6 @@ const disable = async (subscription_id: string, session: App.Session) => {
         subscriptionCode: subscription.data.subscriptionCode,
       },
     });
-
-    l.info(res, "res");
 
     return result.suc(res.status);
   } catch (error) {
@@ -200,7 +187,7 @@ const enable = async (subscription_id: string, session: App.Session) => {
     const subscription = await get_by_id(subscription_id, session);
     if (!subscription.ok) return subscription;
     else if (!subscription.data.subscriptionCode) {
-      log.error(subscription.data, "enable.error no subscriptionCode");
+      log.error({ subscription_id }, "enable.error no subscriptionCode");
       return result.err({
         ...ERROR.INVALID_INPUT,
         message: "Subscription has no code",
@@ -215,23 +202,11 @@ const enable = async (subscription_id: string, session: App.Session) => {
       },
     });
 
-    log.info(res, "enable.res");
-
     return result.suc(res.status);
   } catch (error) {
-    if (error instanceof APIError) {
-      log.info(error.body, "enable.error better-auth");
-
-      captureException(error);
-
-      return result.from_ba_error(error);
-    } else {
-      log.error(error, "enable.error unknown");
-
-      captureException(error);
-
-      return result.err(ERROR.INTERNAL_SERVER_ERROR);
-    }
+    return ServiceUtil.ba_error(error, {
+      log: log.child({ method: "enable" }),
+    });
   }
 };
 

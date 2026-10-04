@@ -83,7 +83,6 @@ export namespace TaskService {
       return ServiceUtil.internal(error, {
         log,
         scope: "create",
-        extra: { input },
       });
     }
   }
@@ -117,7 +116,7 @@ export namespace TaskService {
       return ServiceUtil.internal(error, {
         log,
         scope: "update",
-        extra: { input },
+        extra: { task_id: input.id },
       });
     }
   }

@@ -1,38 +1,28 @@
-import { query } from "$app/server";
 import {
   guarded_command,
   guarded_form,
-  USER,
+  guarded_query,
+  ORG,
 } from "#lib/server/remote/guarded.js";
-import { get_session } from "#lib/server/services/auth.service.js";
 import { SubscriptionService } from "#lib/server/services/subscription/subscription.service.js";
-import { result } from "#lib/utils/result.util.js";
 import { z } from "zod";
 
-export const get_active_subscription_remote = query(async () => {
-  const session = await get_session();
-  if (!session.ok) return undefined;
-  else if (!session.data.session.org_id) {
-    return undefined;
-  }
-
-  const res = await SubscriptionService.get_active(session.data).then((r) =>
-    result.unwrap_or(r, undefined),
-  );
-
-  return res;
-});
+export const get_active_subscription_remote = guarded_query(
+  ORG,
+  async ({ session }) => SubscriptionService.get_active(session),
+);
 
 export const upgrade_plan_remote = guarded_form(
-  USER,
+  ORG,
   z.object({
-    plan: z.string().trim().min(1, "Plan required"),
+    // Plan names are stored lowercased (`subscription.model.ts`).
+    plan: z.string().trim().toLowerCase().min(1, "Plan required").max(64),
   }),
   async (input, { session }) => SubscriptionService.upgrade(input, session),
 );
 
 export const disable_subscription_remote = guarded_command(
-  USER,
+  ORG,
   z.object({
     subscription_id: z.uuid(),
   }),
@@ -51,7 +41,7 @@ export const disable_subscription_remote = guarded_command(
 );
 
 export const enable_subscription_remote = guarded_command(
-  USER,
+  ORG,
   z.object({
     subscription_id: z.uuid(),
   }),

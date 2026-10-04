@@ -16,8 +16,11 @@
 
   let user = $derived(data.account);
 
-  let has_credential_account = $derived(
+  const credential_account = $derived(
     get_account_by_provider_id_remote("credential").current,
+  );
+  const has_credential_account = $derived(
+    credential_account?.ok === true && credential_account.data !== null,
   );
 </script>
 
@@ -48,7 +51,7 @@
 
   <Separator />
 
-  <section class="">
+  <section>
     {#if has_credential_account}
       <Item
         variant="default"

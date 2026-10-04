@@ -541,15 +541,12 @@ export const auth = betterAuth({
                 scopes: ["openid", "profile", "email"],
 
                 mapProfileToUser: (profile: unknown) => {
-                  Log.info(profile, `${providerId} profile`);
-
                   // NOTE: Typing profile directly in the callback arg gives a TS error, since better-auth expects Record<string, any>
                   const typed = profile as IAuth.GenericOAuthProfile;
 
                   const name = (
                     typed.name ||
-                    `${typed.given_name || ""} ${typed.family_name || ""}` ||
-                    ""
+                    `${typed.given_name || ""} ${typed.family_name || ""}`
                   )
                     .trim()
                     .replaceAll(/\s+/g, " ");

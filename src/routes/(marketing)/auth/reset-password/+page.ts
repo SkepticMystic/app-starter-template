@@ -1,3 +1,4 @@
+import { SEOUtil } from "#lib/utils/seo/seo.util.js";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ url }) => {
@@ -8,5 +9,9 @@ export const load = (async ({ url }) => {
 
   return {
     search,
+    seo: {
+      ...SEOUtil.transform({ title: "Reset password" }),
+      robots: "noindex,nofollow",
+    },
   };
 }) satisfies PageLoad;

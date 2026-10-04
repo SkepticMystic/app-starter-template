@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import FormButton from "#lib/components/form/FormButton.svelte";
   import { Toast } from "#lib/utils/toast.util.js";
   import FormErrors from "#lib/components/form/FormErrors.svelte";
@@ -8,19 +9,15 @@
   import { send_verification_email_remote } from "#lib/remote/auth/user.remote.js";
 
   const form = send_verification_email_remote;
-</script>
 
-<svelte:head>
-  <meta
-    name="robots"
-    content="noindex,nofollow"
-  />
-</svelte:head>
+  if (page.data.user) form.fields.email.set(page.data.user.email);
+</script>
 
 <Card
   class="mx-auto max-w-sm"
+  heading="h1"
   title="Verify your email address"
-  description="A verification link has been sent to your email address. Please check your inbox and click the link to verify your email."
+  description="Check your inbox for a verification link. If it hasn't arrived, request another below."
 >
   {#snippet children()}
     <form

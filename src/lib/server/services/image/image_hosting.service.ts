@@ -81,7 +81,6 @@ export const ImageHostingService = {
         },
       );
 
-      log.info(res, "res");
       if (!res.ok) {
         log.error(res.error, "upload.error");
 
@@ -131,7 +130,7 @@ export const ImageHostingService = {
         "ImageHostingService.delete",
         performance.now() - start_ms,
         {
-          unit: "millsecond",
+          unit: "millisecond",
           attributes: { provider },
         },
       );

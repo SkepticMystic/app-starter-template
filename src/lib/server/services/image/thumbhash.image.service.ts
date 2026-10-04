@@ -28,7 +28,7 @@ export const ThumbhashService = {
         "ThumbhashService.generate",
         performance.now() - start_ms,
         {
-          unit: "millsecond",
+          unit: "millisecond",
           attributes: { buffer_size: buffer.length },
         },
       );

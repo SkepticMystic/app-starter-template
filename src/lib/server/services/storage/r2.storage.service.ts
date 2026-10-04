@@ -60,7 +60,12 @@ const put = async (input: {
   /** Stored as `x-amz-meta-*`, and read back by `R2Service.head`. */
   metadata?: Record<string, string>;
 
-  expires_in?: number;
+  /**
+   * Milliseconds until the HTTP `Expires` header, which tells caches when to
+   * revalidate. It does NOT delete the object: R2 keeps it until a bucket
+   * lifecycle rule (configured on the bucket, not here) removes it.
+   */
+  http_expires_in?: number;
 }): Promise<
   App.Result<PutObjectCommandOutput | CompleteMultipartUploadCommandOutput>
 > => {
@@ -71,7 +76,9 @@ const put = async (input: {
       ContentType: input.content_type,
       Metadata: input.metadata,
 
-      Expires: input.expires_in ? Dates.add_ms(input.expires_in) : undefined,
+      Expires: input.http_expires_in
+        ? Dates.add_ms(input.http_expires_in)
+        : undefined,
     };
 
     if (is_stream(input.body)) {

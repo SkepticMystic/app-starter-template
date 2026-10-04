@@ -87,29 +87,29 @@ export declare namespace IAuth {
   export type ProviderId = (typeof PROVIDER_IDS)[number];
 
   export type GenericOAuthProfile = {
-    /** ["8e988433-165d-4b69-ac0d-15e2a5f0a3e1"] */
+    /** ["00000000-0000-4000-8000-000000000000"] */
     aud: string[];
-    /**  "rossk29@gmail.com" */
+    /**  "jane@example.com" */
     email: string;
     /**  false */
     email_verified: boolean;
     /**  "2025-08-26T08:31:11.896042775Z" */
     exp: string;
-    /**  "Keenan" */
+    /**  "Doe" */
     family_name: string;
-    /**  "Ross" */
+    /**  "Jane" */
     given_name: string;
     /**  "2025-08-26T07:31:11.896042775Z" */
     iat: string;
-    /**  "https://id.keencloud.co.za" */
+    /**  "https://id.example.com" */
     iss: string;
-    /**  "Ross Keenan" */
+    /**  "Jane Doe" */
     name: string;
-    /**  "https://id.keencloud.co.za/api/users/90ec9e5a-5bb6-44c6-b95e-a8c2c54932b5/profile-picture.png" */
+    /**  "https://id.example.com/api/users/11111111-1111-4111-8111-111111111111/profile-picture.png" */
     picture: string;
-    /**  "ross" */
+    /**  "jane" */
     preferred_username: string;
-    /**  "90ec9e5a-5bb6-44c6-b95e-a8c2c54932b5" */
+    /**  "11111111-1111-4111-8111-111111111111" */
     sub: string;
     /**  "id-token" */
     type: string;
