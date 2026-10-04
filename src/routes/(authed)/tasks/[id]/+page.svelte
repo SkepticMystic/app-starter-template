@@ -10,6 +10,7 @@
   import Time from "#lib/components/ui/elements/Time.svelte";
   import Header from "#lib/components/ui/header/Header.svelte";
   import DetailLayout from "#lib/components/ui/layout/DetailLayout.svelte";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import { TASKS } from "#lib/const/task.const.js";
 
   let { data } = $props();
@@ -17,7 +18,7 @@
   const task = $derived(data.task);
 </script>
 
-<article>
+<Page>
   <Header
     title={task.title}
     back={{ href: resolve("/(authed)/tasks"), label: "Tasks" }}
@@ -100,4 +101,4 @@
       </Card>
     {/snippet}
   </DetailLayout>
-</article>
+</Page>

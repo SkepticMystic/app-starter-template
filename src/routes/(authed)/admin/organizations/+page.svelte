@@ -7,6 +7,7 @@
     column_helper,
   } from "#lib/utils/tanstack/table.util.js";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import { Arrays } from "#lib/utils/array/array.util.js";
   import { Format } from "#lib/utils/format.util.js";
 
@@ -46,7 +47,7 @@
   };
 </script>
 
-<article>
+<Page>
   <Header
     title="Organizations"
     back={{ href: resolve("/(authed)/admin"), label: "Admin" }}
@@ -73,4 +74,4 @@
       },
     ]}
   ></DataTable>
-</article>
+</Page>

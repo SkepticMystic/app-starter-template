@@ -27,13 +27,9 @@
       <Navbar />
     </header>
 
-    <main
-      class="
-      mx-auto mt-3 mb-12 w-full max-w-7xl grow px-2
-      sm:px-3
-      md:px-5
-    "
-    >
+    <!-- No width or gutter: each page sets its own through `Page`. A column, so a `flush` page
+      can grow to the footer. -->
+    <main class="flex w-full min-w-0 grow flex-col">
       {@render children?.()}
     </main>
 

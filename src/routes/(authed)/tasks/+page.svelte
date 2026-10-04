@@ -6,6 +6,7 @@
   import { TaskClient } from "#lib/clients/tasks.client.js";
   import TaskForm from "#lib/components/form/task/TaskForm.svelte";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import Sheet from "#lib/components/ui/sheet/Sheet.svelte";
   import { TASKS } from "#lib/const/task.const.js";
   import {
@@ -50,7 +51,7 @@
   ];
 </script>
 
-<article>
+<Page>
   <Header title="Tasks">
     {#snippet actions()}
       <Sheet
@@ -130,4 +131,4 @@
       },
     ]}
   ></DataTable>
-</article>
+</Page>

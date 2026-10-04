@@ -4,6 +4,7 @@
   import Button from "#lib/components/ui/button/button.svelte";
   import Header from "#lib/components/ui/header/Header.svelte";
   import Item from "#lib/components/ui/item/Item.svelte";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import { Format } from "#lib/utils/format.util.js";
 
   let { data } = $props();
@@ -32,7 +33,7 @@
   ]);
 </script>
 
-<article>
+<Page>
   <Header
     head_title="Home"
     title={first_name ? `Welcome back, ${first_name}` : "Welcome back"}
@@ -73,4 +74,4 @@
       Edit profile
     </Button>
   </section>
-</article>
+</Page>

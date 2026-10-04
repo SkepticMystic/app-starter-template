@@ -9,6 +9,7 @@
   import UserAvatar from "#lib/components/ui/avatar/UserAvatar.svelte";
   import DataTable from "#lib/components/ui/data-table/data-table.svelte";
   import { renderComponent } from "#lib/components/ui/data-table/index.js";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import NativeSelect from "#lib/components/ui/native-select/native-select.svelte";
   import { ROLES, type RoleId } from "#lib/const/auth/role.const.js";
   import { Arrays } from "#lib/utils/array/array.util.js";
@@ -126,7 +127,7 @@
   />
 {/snippet}
 
-<article>
+<Page>
   <Header
     title="Users"
     back={{ href: resolve("/(authed)/admin"), label: "Admin" }}
@@ -196,4 +197,4 @@
             },
           ]}
   ></DataTable>
-</article>
+</Page>

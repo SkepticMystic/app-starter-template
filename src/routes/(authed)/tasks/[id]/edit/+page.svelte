@@ -3,12 +3,13 @@
   import { resolve } from "$app/paths";
   import Header from "#lib/components/ui/header/Header.svelte";
   import TaskForm from "#lib/components/form/task/TaskForm.svelte";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import { WallClock } from "#lib/utils/wall_clock.util.js";
 
   let { data } = $props();
 </script>
 
-<article>
+<Page>
   <Header
     title="Edit task"
     head_title={`Edit ${data.task.title}`}
@@ -36,4 +37,4 @@
     cancel_href={resolve("/(authed)/tasks/[id]", data.task)}
     on_success={() => goto(resolve("/(authed)/tasks/[id]", data.task))}
   />
-</article>
+</Page>

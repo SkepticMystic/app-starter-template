@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import Icon from "#lib/components/ui/icon/Icon.svelte";
+  import Page from "#lib/components/ui/layout/Page.svelte";
   import { SETTINGS } from "#lib/const/settings.const.js";
   import { can } from "#lib/utils/auth/permission.util.js";
   import { active_href } from "#lib/utils/nav/active_href.util.js";
@@ -24,7 +25,14 @@
   );
 </script>
 
-<div class="flex flex-col gap-4 md:flex-row md:gap-8">
+<!-- The frame is here, so each settings page keeps a plain `<article>`. -->
+<Page
+  as="div"
+  class="
+    flex flex-col gap-4
+    md:flex-row md:gap-8
+  "
+>
   <!-- A row that scrolls on a phone, a column beside the page from `md`. -->
   <nav
     aria-label="Settings"
@@ -72,4 +80,4 @@
   <div class="min-w-0 flex-1">
     {@render children()}
   </div>
-</div>
+</Page>
