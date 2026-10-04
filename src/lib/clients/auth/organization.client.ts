@@ -1,26 +1,23 @@
 import { invalidate } from "$app/navigation";
-import { page } from "$app/state";
-import { BetterAuthClient } from "#lib/auth-client.js";
 import {
   accept_invitation_remote,
   cancel_invitation_remote,
   resend_invitation_remote,
 } from "#lib/remote/auth/organization/invitation.remote.js";
-import { remove_member_remote } from "#lib/remote/auth/organization/member.remote.js";
+import {
+  remove_member_remote,
+  update_member_role_remote,
+} from "#lib/remote/auth/organization/member.remote.js";
 import {
   admin_delete_organization_remote,
+  leave_organization_remote,
   owner_delete_organization_remote,
+  set_active_organization_remote,
 } from "#lib/remote/auth/organization/organization.remote.js";
-import { BetterAuth } from "#lib/utils/better-auth.util.js";
-import { result } from "#lib/utils/result.util.js";
 import { Client } from "../index.client.js";
 
-const set_active_org = async (organizationId: string | undefined) => {
-  const res = await BetterAuth.to_result(
-    BetterAuthClient.organization.setActive({
-      organizationId,
-    }),
-  );
+const set_active_org = async (org_id: string) => {
+  const res = await set_active_organization_remote(org_id);
 
   // The UI reads the new org and role through `page.data.org`.
   await invalidate("app:session");
@@ -31,31 +28,14 @@ const set_active_org = async (organizationId: string | undefined) => {
 export const OrganizationClient = {
   set_active: set_active_org,
 
-  leave: Client.wrap(
-    async (/** Fallbacks to active org_id */ org_id?: string) => {
-      const organizationId = org_id ?? page.data.org?.id;
-
-      if (!organizationId) {
-        return result.err({
-          status: 400,
-          message: "Organization ID is required",
-        });
-      }
-
-      const res = await BetterAuthClient.organization.leave({
-        organizationId,
-      });
-
-      return BetterAuth.to_result(res);
-    },
-    {
-      confirm:
-        "Leave this organization? You'll lose access to it until someone invites you back.",
-      destructive: true,
-      action_label: "Leave organization",
-      suc_msg: "Left organization",
-    },
-  ),
+  /** Leaves the active org. */
+  leave: Client.wrap(leave_organization_remote, {
+    confirm:
+      "Leave this organization? You'll lose access to it until someone invites you back.",
+    destructive: true,
+    action_label: "Leave organization",
+    suc_msg: "Left organization",
+  }),
 
   delete: Client.wrap(owner_delete_organization_remote, {
     confirm:
@@ -95,25 +75,12 @@ export const OrganizationClient = {
   },
 
   member: {
-    update_role: Client.wrap(
-      async (
-        input: Parameters<
-          typeof BetterAuthClient.organization.updateMemberRole
-        >[0],
-      ) => {
-        const update_res = await BetterAuth.to_result(
-          BetterAuthClient.organization.updateMemberRole(input),
-        );
-
-        return update_res;
-      },
-      {
-        suc_msg: "Member role updated",
-        confirm:
-          "Change this member's role? It changes what they can see and do in this organization.",
-        action_label: "Change role",
-      },
-    ),
+    update_role: Client.wrap(update_member_role_remote, {
+      suc_msg: "Member role updated",
+      confirm:
+        "Change this member's role? It changes what they can see and do in this organization.",
+      action_label: "Change role",
+    }),
 
     remove: Client.wrap(remove_member_remote, {
       confirm:

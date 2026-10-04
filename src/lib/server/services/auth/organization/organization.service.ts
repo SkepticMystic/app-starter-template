@@ -47,8 +47,8 @@ const create = async (
       });
     }
 
-    // Called without headers, so there is no session to switch: the client
-    // sets the new org active itself (`OrganizationClient.set_active`).
+    // Called without headers, so there is no session to switch: onboarding
+    // sets the new org active itself (`set_active_organization_remote`).
 
     return result.suc(org);
   } catch (error) {
@@ -181,8 +181,59 @@ const admin_delete = async (org_id: string) => {
   return deleted;
 };
 
+/** Sets the caller's active org; the organization plugin refuses one they are not a member of. */
+const set_active = async (org_id: string): Promise<App.Result<undefined>> => {
+  try {
+    await auth.api.setActiveOrganization({
+      body: { organizationId: org_id },
+      headers: getRequestEvent().request.headers,
+    });
+
+    return result.suc(undefined);
+  } catch (error) {
+    return ServiceUtil.ba_error(error, {
+      log: log.child({ method: "set_active" }),
+    });
+  }
+};
+
+/**
+ * Better-Auth fires no organization hook for leaving, so the departed member's
+ * sessions are revoked by `MemberSessionService.after_endpoint` instead.
+ */
+const leave = async (org_id: string): Promise<App.Result<undefined>> => {
+  try {
+    await auth.api.leaveOrganization({
+      body: { organizationId: org_id },
+      headers: getRequestEvent().request.headers,
+    });
+
+    return result.suc(undefined);
+  } catch (error) {
+    return ServiceUtil.ba_error(error, { log: log.child({ method: "leave" }) });
+  }
+};
+
+/** The caller's orgs, for switching between them. */
+const list = async (): Promise<
+  App.Result<Pick<Organization, "id" | "name" | "slug">[]>
+> => {
+  try {
+    const orgs = await auth.api.listOrganizations({
+      headers: getRequestEvent().request.headers,
+    });
+
+    return result.suc(orgs.map(({ id, name, slug }) => ({ id, name, slug })));
+  } catch (error) {
+    return ServiceUtil.ba_error(error, { log: log.child({ method: "list" }) });
+  }
+};
+
 export const OrganizationService = {
   create,
+  set_active,
+  leave,
+  list,
   owner_delete,
   admin_delete,
 };

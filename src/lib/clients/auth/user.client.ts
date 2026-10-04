@@ -1,35 +1,25 @@
 import { goto } from "$app/navigation";
 import { Toast } from "#lib/utils/toast.util.js";
 import { resolve } from "$app/paths";
-import { BetterAuthClient } from "#lib/auth-client.js";
-import { export_account_data_remote } from "#lib/remote/auth/user.remote.js";
+import { sign_out_remote } from "#lib/remote/auth/session.remote.js";
+import {
+  export_account_data_remote,
+  request_account_deletion_remote,
+} from "#lib/remote/auth/user.remote.js";
 import { APP } from "#lib/const/app.const.js";
-import { App } from "#lib/utils/app.js";
 import { Client } from "../index.client.js";
 
 export const UserClient = {
-  send_verification_email: Client.better_auth(
-    (input: Parameters<typeof BetterAuthClient.sendVerificationEmail>[0]) =>
-      BetterAuthClient.sendVerificationEmail(input),
-    { suc_msg: "Verification email sent" },
-  ),
-
-  request_deletion: Client.better_auth(
-    () =>
-      BetterAuthClient.deleteUser({
-        callbackURL: App.url("/auth/account-deleted"),
-      }),
-    {
-      suc_msg: {
-        title: "Account deletion requested",
-        description: "Check your email to confirm it.",
-      },
-      confirm:
-        "Delete your account? We'll email you a link to confirm it. Once you do, it cannot be undone.",
-      destructive: true,
-      action_label: "Delete account",
+  request_deletion: Client.wrap(request_account_deletion_remote, {
+    suc_msg: {
+      title: "Account deletion requested",
+      description: "Check your email to confirm it.",
     },
-  ),
+    confirm:
+      "Delete your account? We'll email you a link to confirm it. Once you do, it cannot be undone.",
+    destructive: true,
+    action_label: "Delete account",
+  }),
 
   /** Saved as a file in the browser; the server never writes one. */
   export_data: Client.wrap(
@@ -55,18 +45,20 @@ export const UserClient = {
   ),
 
   signout: async () => {
-    await BetterAuthClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          Toast.info("Signed out");
-          // `refreshAll`: the root layout's `page.data.user` would otherwise outlive the session.
-          return goto(resolve("auth/signin"), { refreshAll: true });
-        },
-        onError: (error: unknown) => {
-          console.error("Error signing out:", error);
-          location.reload();
-        },
-      },
+    const res = await sign_out_remote().catch((error: unknown) => {
+      console.error("Error signing out:", error);
+      return null;
     });
+
+    if (!res?.ok) {
+      location.reload();
+    } else if (res.data.url) {
+      // The provider's end-session page, to sign out there too.
+      location.href = res.data.url;
+    } else {
+      Toast.info("Signed out");
+      // `refreshAll`: the root layout's `page.data.user` would otherwise outlive the session.
+      await goto(resolve("auth/signin"), { refreshAll: true });
+    }
   },
 };

@@ -53,21 +53,64 @@ const PASSWORD = {
 
 /**
  * Better-Auth's router limiter (`rateLimit.customRules`), per IP and path.
- * Its built-in rules are sized for one person — 3 per 10s on `/sign-in/*`, 3
- * per 60s on `/send-verification-email` — so everyone behind one shared IP (an
- * office NAT, a campus, carrier-grade NAT on mobile) refuses everyone else.
- * Loosened only where the route is cheap to abuse:
- *
- * - `/sign-in/social` only starts an OAuth redirect; the provider checks the
- *   credential. Deliberately not `/sign-in/*`: `/sign-in/email` keeps its
- *   built-in limit, the only per-IP check a direct POST to it meets.
- * - `/send-verification-email` sends nothing for an unknown or verified
- *   address.
+ * Its built-in rules are sized for one person — 3 per 10s on `/sign-in/*` —
+ * so everyone behind one shared IP (an office NAT, a campus, carrier-grade NAT
+ * on mobile) refuses everyone else. Loosened only where the route is cheap to
+ * abuse: `/sign-in/social` only starts an OAuth redirect, and the provider
+ * checks the credential. Deliberately not `/sign-in/*`: `/sign-in/email` keeps
+ * its built-in limit, the only per-IP check a direct POST to it meets.
  */
 const ROUTER_RATE_LIMIT_RULES = {
   "/sign-in/social": { window: 10, max: 30 },
-  "/send-verification-email": { window: 60, max: 10 },
 } satisfies Record<string, { window: number; max: number }>;
+
+/**
+ * Better-Auth routes closed to direct HTTP (`disabledPaths`), because a remote
+ * function calling `auth.api` is the only way in. Only the router checks this
+ * list, by exact path, so `auth.api` still reaches every one of them, and
+ * `/delete-user/callback` (the emailed confirmation link) stays open.
+ */
+const DISABLED_PATHS = [
+  // `send_signin_code_remote` / `signin_code_remote` add the captcha and the
+  // per-IP and per-address limits a direct POST would skip. The rest (email
+  // OTP for verification, reset and email change) is unused.
+  "/email-otp/send-verification-otp",
+  "/sign-in/email-otp",
+  "/email-otp/check-verification-otp",
+  "/email-otp/verify-email",
+  "/email-otp/request-password-reset",
+  "/forget-password/email-otp",
+  "/email-otp/reset-password",
+  "/email-otp/request-email-change",
+  "/email-otp/change-email",
+
+  // `send_verification_email_remote`, with its own per-IP and per-address limits.
+  "/send-verification-email",
+
+  // `admin.remote.ts`
+  "/admin/set-role",
+  "/admin/impersonate-user",
+  "/admin/stop-impersonating",
+  "/admin/ban-user",
+  "/admin/unban-user",
+  "/admin/remove-user",
+
+  // `organization.remote.ts`, `member.remote.ts`
+  "/organization/set-active",
+  "/organization/leave",
+  "/organization/list",
+  "/organization/update-member-role",
+
+  // `sign_out_remote`, `request_account_deletion_remote`
+  "/sign-out",
+  "/delete-user",
+] as const;
+
+/**
+ * `lastLoginMethod`'s cookie, passed to the plugin as `cookieName` and read by
+ * the sign-in page's server load. Not httpOnly, so the browser can write it.
+ */
+const LAST_LOGIN_METHOD_COOKIE = "better-auth.last_used_login_method";
 
 /**
  * How a session was started, by the id `lastLoginMethod` and the security log
@@ -83,11 +126,12 @@ const SIGN_IN_METHOD_LABELS: Record<IAuth.SignInMethod, string> = {
   "email-verification": "Email verification link",
 };
 
+const is_sign_in_method = (method: string): method is IAuth.SignInMethod =>
+  Object.hasOwn(SIGN_IN_METHOD_LABELS, method);
+
 /** {@link SIGN_IN_METHOD_LABELS}, falling back to the raw id for one added later. */
 const sign_in_method_label = (method: string): string =>
-  Object.hasOwn(SIGN_IN_METHOD_LABELS, method)
-    ? SIGN_IN_METHOD_LABELS[method as IAuth.SignInMethod]
-    : method;
+  is_sign_in_method(method) ? SIGN_IN_METHOD_LABELS[method] : method;
 
 export const AUTH = {
   PROVIDERS: {
@@ -95,10 +139,13 @@ export const AUTH = {
     MAP: PROVIDER_MAP,
   },
 
+  is_sign_in_method,
   sign_in_method_label,
 
   PASSWORD,
   ROUTER_RATE_LIMIT_RULES,
+  DISABLED_PATHS,
+  LAST_LOGIN_METHOD_COOKIE,
 };
 
 export declare namespace IAuth {

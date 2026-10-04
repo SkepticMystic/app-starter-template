@@ -294,9 +294,30 @@ const change_email = async (input: {
   }
 };
 
+/**
+ * Emails a confirmation link (`sendDeleteAccountVerification` in `auth.ts`);
+ * nothing is deleted until it is followed. Better-Auth asks for a fresh
+ * session first, and `AccountDeletionService.before` can still refuse then.
+ */
+const request_deletion = async (): Promise<App.Result<undefined>> => {
+  try {
+    await auth.api.deleteUser({
+      headers: getRequestEvent().request.headers,
+      body: { callbackURL: App.url("/auth/account-deleted") },
+    });
+
+    return result.suc(undefined);
+  } catch (error) {
+    return ServiceUtil.ba_error(error, {
+      log: log.child({ method: "request_deletion" }),
+    });
+  }
+};
+
 export const UserService = {
   update,
   change_email,
+  request_deletion,
   send_verification_email,
   request_password_reset,
   reset_password,

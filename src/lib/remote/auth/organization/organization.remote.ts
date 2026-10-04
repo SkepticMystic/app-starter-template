@@ -4,7 +4,9 @@ import {
   define_guard,
   guarded_command,
   guarded_form,
+  guarded_query,
   ORG,
+  USER,
 } from "#lib/server/remote/guarded.js";
 import { ERROR } from "#lib/const/error.const.js";
 import { result } from "#lib/utils/result.util.js";
@@ -37,6 +39,22 @@ export const create_organization_remote = guarded_form(
 
     return res;
   },
+);
+
+export const set_active_organization_remote = guarded_command(
+  ONBOARDING,
+  z.uuid(),
+  async (org_id) => OrganizationService.set_active(org_id),
+);
+
+/** Leaves the active org, the one the guard resolved the membership in. */
+export const leave_organization_remote = guarded_command(
+  ORG,
+  async ({ org_id }) => OrganizationService.leave(org_id),
+);
+
+export const list_organizations_remote = guarded_query(USER, async () =>
+  OrganizationService.list(),
 );
 
 export const owner_delete_organization_remote = guarded_command(

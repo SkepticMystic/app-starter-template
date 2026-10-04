@@ -45,7 +45,7 @@
     }
 
     return await OrganizationClient.member.update_role(
-      { role: role_id, memberId: member.id },
+      { role: role_id, member_id: member.id },
       { on_success: (d) => on_update_role?.(d) },
     );
   };

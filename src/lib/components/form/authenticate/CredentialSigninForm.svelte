@@ -1,12 +1,13 @@
 <script lang="ts">
-  import type { ResolvedPathname } from "$app/types";
-  import { Toast } from "#lib/utils/toast.util.js";
   import FormButton from "#lib/components/form/FormButton.svelte";
+  import Checkbox from "#lib/components/ui/checkbox/checkbox.svelte";
   import Field from "#lib/components/ui/field/Field.svelte";
   import Input from "#lib/components/ui/input/input.svelte";
   import { AUTH, type IAuth } from "#lib/const/auth/auth.const.js";
   import { signin_credentials_remote } from "#lib/remote/auth/auth.remote.js";
   import { FormUtil } from "#lib/utils/form/form.util.svelte.js";
+  import { Toast } from "#lib/utils/toast.util.js";
+  import type { ResolvedPathname } from "$app/types";
   import FormErrors from "../FormErrors.svelte";
 
   let {
@@ -75,11 +76,7 @@
     field={form.fields.remember}
   >
     {#snippet input({ props, field })}
-      <!-- NOTE: We have to do this weird type thing...
-     - If I use a Checkbox without the type attr (and let field.as('checkbox') add its type), we get a TS error and bad form behvaiour (submitting the form just checks this box)
-     - If I use an Input, no TS errors, but a runtime svelte error about binding to value instead of checked
-     - A regular <input /> works, but no styling -->
-      <input
+      <Checkbox
         {...props}
         {...field?.as("checkbox")}
       />

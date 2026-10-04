@@ -118,9 +118,7 @@
           variant="outline"
           icon="lucide/log-out"
           onclick={() =>
-            OrganizationClient.leave(page.data.org?.id, {
-              on_success: after_exit,
-            })}
+            OrganizationClient.leave(undefined, { on_success: after_exit })}
         >
           Leave
         </Button>

@@ -193,6 +193,10 @@ vi.mock("#lib/auth.js", async () => {
         getSession: auth_mock.getSession,
         deleteOrganization: auth_mock.deleteOrganization,
         createInvitation: auth_mock.createInvitation,
+        banUser: auth_mock.banUser,
+        unbanUser: auth_mock.unbanUser,
+        updateMemberRole: auth_mock.updateMemberRole,
+        signOut: auth_mock.signOut,
       },
       get $context() {
         return Promise.resolve({ internalAdapter: auth_mock.internalAdapter });

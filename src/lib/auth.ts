@@ -90,24 +90,8 @@ export const auth = betterAuth({
     customRules: AUTH.ROUTER_RATE_LIMIT_RULES,
   },
 
-  /**
-   * Every `emailOTP` route, closed to direct HTTP. Sign-in by code goes through
-   * `send_signin_code_remote` and `signin_code_remote` instead, which add the
-   * captcha and the per-IP and per-address limits a direct POST would skip; the
-   * rest (email OTP for verification, reset and email change) is unused. Only
-   * the router checks this list, so `auth.api` still reaches all of them.
-   */
-  disabledPaths: [
-    "/email-otp/send-verification-otp",
-    "/sign-in/email-otp",
-    "/email-otp/check-verification-otp",
-    "/email-otp/verify-email",
-    "/email-otp/request-password-reset",
-    "/forget-password/email-otp",
-    "/email-otp/reset-password",
-    "/email-otp/request-email-change",
-    "/email-otp/change-email",
-  ],
+  // Routes a remote function replaces; see `AUTH.DISABLED_PATHS`.
+  disabledPaths: [...AUTH.DISABLED_PATHS],
 
   advanced: {
     // Better-Auth hands over an already-started promise; the thunk only lets
@@ -446,6 +430,7 @@ export const auth = betterAuth({
     }),
 
     lastLoginMethod({
+      cookieName: AUTH.LAST_LOGIN_METHOD_COOKIE,
       customResolveMethod: (ctx) => {
         // NOTE: The plugin uses different terminology to the rest of the lib...
         if (ctx.path === "/sign-in/email" || ctx.path === "/sign-up/email") {
@@ -472,9 +457,9 @@ export const auth = betterAuth({
       /**
        * The derived session fields do not follow `member`, so a membership
        * change pushes to the stored sessions itself. `read_session` re-reads
-       * the membership per request anyway; this keeps what Redis holds (and
-       * what the client's `useSession` shows) from contradicting it. Leaving
-       * fires no organization hook — see `hooks.after`.
+       * the membership per request anyway; this keeps what Redis holds from
+       * contradicting it. Leaving fires no organization hook — see
+       * `hooks.after`.
        * @see MemberSessionService
        */
       organizationHooks: {
@@ -621,7 +606,7 @@ export const auth = betterAuth({
     /**
      * Sign-in by emailed code, for existing accounts only: a new one still
      * comes through sign-up, which asks for a name and a captcha. Its routes
-     * are closed to direct HTTP — see `disabledPaths`.
+     * are closed to direct HTTP — see `AUTH.DISABLED_PATHS`.
      */
     emailOTP({
       otpLength: EMAIL_OTP.LENGTH,

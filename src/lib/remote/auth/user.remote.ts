@@ -209,6 +209,10 @@ export const export_account_data_remote = guarded_command(
   async ({ session }) => AccountExportService.for_user(session),
 );
 
+export const request_account_deletion_remote = guarded_command(USER, async () =>
+  UserService.request_deletion(),
+);
+
 export const account_deletion_blockers_remote = guarded_query(
   USER,
   async ({ user_id }) => AccountDeletionService.blockers(user_id),

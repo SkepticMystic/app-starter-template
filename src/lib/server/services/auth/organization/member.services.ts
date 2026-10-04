@@ -1,6 +1,8 @@
 import { getRequestEvent } from "$app/server";
 import { auth, is_ba_error_code } from "#lib/auth.js";
+import type { IOrganization } from "#lib/const/auth/organization.const.js";
 import { ERROR } from "#lib/const/error.const.js";
+import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
@@ -57,6 +59,34 @@ const remove = async (member_id: string) => {
   }
 };
 
+/**
+ * Answers what the members table patches. `afterUpdateMemberRole` in
+ * `auth.ts` rewrites the member's stored sessions to match.
+ */
+const update_role = async (input: {
+  org_id: string;
+  member_id: string;
+  role: IOrganization.RoleId;
+}): Promise<App.Result<{ id: string; role: IOrganization.RoleId }>> => {
+  try {
+    await auth.api.updateMemberRole({
+      body: {
+        organizationId: input.org_id,
+        memberId: input.member_id,
+        role: input.role,
+      },
+      headers: getRequestEvent().request.headers,
+    });
+
+    return result.suc({ id: input.member_id, role: input.role });
+  } catch (error) {
+    return ServiceUtil.ba_error(error, {
+      log: log.child({ method: "update_role" }),
+    });
+  }
+};
+
 export const MemberService = {
   remove,
+  update_role,
 };

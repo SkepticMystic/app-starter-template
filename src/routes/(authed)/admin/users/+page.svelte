@@ -38,7 +38,7 @@
         (users = Arrays.patch(users, user_id, {
           banReason: d.user.banReason,
           banExpires: d.user.banExpires,
-          banned: d.user.banned ?? false,
+          banned: d.user.banned,
         })),
     });
 
@@ -120,7 +120,7 @@
       users = Arrays.patch(users, row.id, {
         banReason: d.user.banReason,
         banExpires: d.user.banExpires,
-        banned: d.user.banned ?? false,
+        banned: d.user.banned,
       });
       close();
     }}

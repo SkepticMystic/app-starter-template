@@ -1,6 +1,5 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
-  import { BetterAuthClient } from "#lib/auth-client.js";
   import CredentialSigninForm from "#lib/components/form/authenticate/CredentialSigninForm.svelte";
   import OAuthSigninButton from "#lib/components/form/authenticate/OAuthSigninButton.svelte";
   import PasskeySigninButton from "#lib/components/form/authenticate/PasskeySigninButton.svelte";
@@ -14,8 +13,6 @@
   import { App } from "#lib/utils/app.js";
 
   let { data } = $props();
-
-  const last_method = BetterAuthClient.getLastUsedLoginMethod();
 </script>
 
 <Card
@@ -57,10 +54,10 @@
         </ButtonGroup>
       </ButtonGroup>
 
-      {#if last_method}
+      {#if data.last_method}
         <div class="flex w-full justify-center">
           <Badge variant="outline">
-            Last signed in with {AUTH.sign_in_method_label(last_method)}
+            Last signed in with {AUTH.sign_in_method_label(data.last_method)}
           </Badge>
         </div>
       {/if}

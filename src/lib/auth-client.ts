@@ -1,42 +1,18 @@
 import { Toast } from "#lib/utils/toast.util.js";
 import { PUBLIC_BASE_URL } from "$app/env/public";
-import { paystackClient } from "better-auth-paystack/client";
-import { apiKeyClient } from "@better-auth/api-key/client";
 import { passkeyClient } from "@better-auth/passkey/client";
-import {
-  adminClient,
-  inferAdditionalFields,
-  inferOrgAdditionalFields,
-  lastLoginMethodClient,
-  organizationClient,
-  twoFactorClient,
-} from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/svelte";
-import type { auth } from "./auth.js";
-import { AccessControl } from "./const/auth/access_control.const.js";
-import { OrgAccessControl } from "./const/auth/organization_access_control.const.js";
+import { createAuthClient } from "better-auth/client";
 
+/**
+ * Only for what has to run in the browser: the WebAuthn ceremony
+ * (`PasskeySigninButton`, `PasskeyClient.create`) and the redirect to an OAuth
+ * provider (`OAuthSigninButton`). Every other auth action is a remote function
+ * calling `auth.api` on the server, so add nothing here.
+ */
 export const BetterAuthClient = createAuthClient({
   baseURL: PUBLIC_BASE_URL,
 
-  plugins: [
-    inferAdditionalFields<typeof auth>(),
-    passkeyClient(),
-    twoFactorClient(),
-    lastLoginMethodClient(),
-    organizationClient({
-      ac: OrgAccessControl.ac,
-      roles: OrgAccessControl.roles,
-      schema: inferOrgAdditionalFields<typeof auth>(),
-    }),
-    adminClient({
-      ac: AccessControl.ac,
-      roles: AccessControl.roles,
-    }),
-    apiKeyClient(),
-
-    paystackClient({ subscription: true }),
-  ],
+  plugins: [passkeyClient()],
 
   fetchOptions: {
     onError: (ctx) => {

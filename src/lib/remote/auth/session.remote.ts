@@ -1,3 +1,4 @@
+import { command } from "$app/server";
 import {
   guarded_command,
   guarded_query,
@@ -18,4 +19,9 @@ export const revoke_session_remote = guarded_command(
 
 export const revoke_other_sessions_remote = guarded_command(USER, async () =>
   UserSessionService.revoke_others(),
+);
+
+// Unguarded: a stale session must still be able to clear its cookies.
+export const sign_out_remote = command(async () =>
+  UserSessionService.sign_out(),
 );

@@ -3,10 +3,7 @@ declare global {
     interface PageData {
       seo?: import("svelte-meta-tags").MetaTagsProps;
       base_seo?: import("svelte-meta-tags").MetaTagsProps;
-      /**
-       * The signed-in user as the root layout's server load read it, `null` signed out. Read this,
-       * not `BetterAuthClient.useSession()`, which is empty during SSR.
-       */
+      /** The signed-in user as the root layout's server load read it, `null` signed out. */
       user?: {
         id: string;
         name: string;

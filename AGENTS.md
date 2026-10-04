@@ -170,7 +170,21 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 ### Authentication Architecture
 
 - **Better-Auth** integration with custom configuration in `src/lib/auth.ts`
-- Split between client (`src/lib/auth-client.ts`) and server (`src/lib/auth.ts`)
+- **Auth actions are remote functions calling `auth.api`**, through a service
+  (`AdminService`, `OrganizationService`, …), never the Better-Auth browser
+  client. `src/lib/auth-client.ts` holds only what must run in the browser —
+  the WebAuthn ceremony (`passkeyClient`) and the redirect to an OAuth provider
+  (`signIn.social`) — so add nothing to it. A route a remote replaces goes in
+  `AUTH.DISABLED_PATHS` (`auth.const.ts`), which only the router checks, by
+  exact path; `auth.const.test.ts` fails an entry no route has. Two traps on
+  this path:
+  - An `auth.api` call that sets a cookie (set-active, impersonate, sign-out,
+    a passkey challenge, an OAuth state) must run in a `command` or `form`.
+    In a `query` kit forbids cookies and `sveltekitCookies` swallows the
+    throw, so the cookie silently never lands
+  - `auth.api` skips the router's rate limiter and its `callbackURL` origin
+    check, so a remote that can be reached signed out brings its own
+    `RateLimiter` and validates URLs with `redirect_uri_schema()`
 - Database session storage disabled in favor of cookie caching
 - Custom session fields for organization membership (`member_id`, `member_role`)
 - Automatic organization creation on first login via database hook
@@ -180,7 +194,7 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   - Generic OAuth (Pocket ID)
   - Passkeys
   - Email code (`emailOTP`), sign-in only, for existing accounts. Every
-    `emailOTP` route is in `disabledPaths`, which only the router checks, so
+    `emailOTP` route is in `AUTH.DISABLED_PATHS`, so
     `send_signin_code_remote` / `signin_code_remote` — with their captcha and
     per-IP and per-address limits — are the only way in. `twoFactor` intercepts
     password sign-in alone, so `SecondFactorHook` refuses a code sign-in to an
@@ -815,7 +829,8 @@ true }`) and answers exactly that row: `Columns`, `NonEmpty`, `Projected`
   error passes through
 - Log errors with context: `Log.error(error, "context_identifier")`
 - Better-Auth API errors are instances of `APIError` with `body.code` for error types
-- Custom error codes defined in `#lib/auth-client.ts` as `$ERROR_CODES`
+- Match a Better-Auth error code with `is_ba_error_code(error, "CODE")` from
+  `#lib/auth.ts`, typed against `auth.$ERROR_CODES`
 
 <!--VITE PLUS START-->
 

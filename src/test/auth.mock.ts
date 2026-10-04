@@ -12,6 +12,13 @@ export const auth_mock: {
   deleteOrganization: Mock;
   /** `auth.api.createInvitation`, which also re-sends one. */
   createInvitation: Mock;
+  /** `auth.api.banUser` / `unbanUser`, answering `{ user }`. */
+  banUser: Mock;
+  unbanUser: Mock;
+  /** `auth.api.updateMemberRole`. */
+  updateMemberRole: Mock;
+  /** `auth.api.signOut`, with no provider to sign out of by default. */
+  signOut: Mock;
   /**
    * `(await auth.$context).internalAdapter`, reduced to the `SessionStore`
    * slice `MemberSessionService` reads. Lists no sessions by default.
@@ -26,6 +33,10 @@ export const auth_mock: {
   is_ba_error_code: vi.fn(() => false),
   deleteOrganization: vi.fn(async () => ({})),
   createInvitation: vi.fn(async () => ({})),
+  banUser: vi.fn(async () => ({ user: {} })),
+  unbanUser: vi.fn(async () => ({ user: {} })),
+  updateMemberRole: vi.fn(async () => ({})),
+  signOut: vi.fn(async () => ({ success: true })),
   internalAdapter: {
     listSessions: vi.fn(async () => []),
     deleteSessions: vi.fn(async () => undefined),

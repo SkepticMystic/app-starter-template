@@ -216,7 +216,7 @@
                 disabled_trigger: true,
               }
             : null}
-          onclick={UserClient.request_deletion}
+          onclick={() => UserClient.request_deletion()}
         >
           Delete
         </Button>

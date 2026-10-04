@@ -4,10 +4,8 @@ import { result } from "#lib/utils/result.util.js";
 import type { LayoutServerLoad } from "./$types";
 
 /**
- * The signed-in user and the session's org-scoped fields, on `page.data` for every route, so a
- * component need not read `BetterAuthClient.useSession()` — empty during SSR, so the sidebar's
- * name and the marketing nav's "Home" painted blank or wrong until hydration, and stale after a
- * server-side change (see `permission.util.ts`).
+ * The signed-in user and the session's org-scoped fields, on `page.data` for every route: the one
+ * place a component reads the session from, rendered on the server and fresh per request.
  *
  * `depends("app:session")`: a client that changes the session (`set_active`, a profile update)
  * calls `invalidate("app:session")` rather than reloading. A plain `goto` does not re-run this.

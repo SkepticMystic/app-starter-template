@@ -120,8 +120,28 @@ const revoke_others = async (): Promise<App.Result<null>> => {
   }
 };
 
+/**
+ * Clears the session cookies, with or without a live session. `url` is the
+ * provider's end-session page (RP-initiated logout, Pocket ID) when the user
+ * signed in through one that has it; the browser goes there instead.
+ */
+const sign_out = async (): Promise<App.Result<{ url: string | null }>> => {
+  try {
+    const res = await auth.api.signOut({
+      headers: getRequestEvent().request.headers,
+    });
+
+    return result.suc({ url: (res.redirect && res.url) || null });
+  } catch (error) {
+    return ServiceUtil.ba_error(error, {
+      log: log.child({ method: "sign_out" }),
+    });
+  }
+};
+
 export const UserSessionService = {
   list,
   revoke,
   revoke_others,
+  sign_out,
 };
