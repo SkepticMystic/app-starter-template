@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@plugin "@tailwindcss/forms";
 
 @plugin "@iconify/tailwind4" {
   prefixes: lucide;
@@ -56,19 +55,23 @@
 
   --radius: 0.5rem;
 
-  --shadow-2xs: 0px 4px 8px -1px oklch(0 0 0 / 0.05);
-  --shadow-xs: 0px 4px 8px -1px oklch(0 0 0 / 0.05);
+  /* A ladder: each step lifts further than the last, so an input's `shadow-xs` stays a hairline
+     and a popover's `shadow-lg` reads as floating. */
+  --shadow-2xs: 0px 1px 0px 0px oklch(0 0 0 / 0.05);
+  --shadow-xs: 0px 1px 2px 0px oklch(0 0 0 / 0.05);
   --shadow-sm:
-    0px 4px 8px -1px oklch(0 0 0 / 0.1), 0px 1px 2px -2px oklch(0 0 0 / 0.1);
+    0px 1px 3px 0px oklch(0 0 0 / 0.1), 0px 1px 2px -1px oklch(0 0 0 / 0.1);
   --shadow:
-    0px 4px 8px -1px oklch(0 0 0 / 0.1), 0px 1px 2px -2px oklch(0 0 0 / 0.1);
+    0px 1px 3px 0px oklch(0 0 0 / 0.1), 0px 1px 2px -1px oklch(0 0 0 / 0.1);
   --shadow-md:
-    0px 4px 8px -1px oklch(0 0 0 / 0.1), 0px 2px 4px -2px oklch(0 0 0 / 0.1);
+    0px 4px 6px -1px oklch(0 0 0 / 0.1), 0px 2px 4px -2px oklch(0 0 0 / 0.1);
   --shadow-lg:
-    0px 4px 8px -1px oklch(0 0 0 / 0.1), 0px 4px 6px -2px oklch(0 0 0 / 0.1);
+    0px 10px 15px -3px oklch(0 0 0 / 0.1), 0px 4px 6px -4px oklch(0 0 0 / 0.1);
   --shadow-xl:
-    0px 4px 8px -1px oklch(0 0 0 / 0.1), 0px 8px 10px -2px oklch(0 0 0 / 0.1);
-  --shadow-2xl: 0px 4px 8px -1px oklch(0 0 0 / 0.25);
+    0px 20px 25px -5px oklch(0 0 0 / 0.1), 0px 8px 10px -6px oklch(0 0 0 / 0.1);
+  --shadow-2xl: 0px 25px 50px -12px oklch(0 0 0 / 0.25);
+
+  color-scheme: light;
 }
 
 .dark {
@@ -117,6 +120,9 @@
   --shadow-xl:
     0px 1px 2px 0px oklch(0 0 0 / 0.1), 0px 8px 10px -1px oklch(0 0 0 / 0.1);
   --shadow-2xl: 0px 1px 2px 0px oklch(0 0 0 / 0.25);
+
+  /* Scrollbars, date pickers, `<select>` popups and autofill follow the theme. */
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -174,8 +180,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Clears the sticky navbar (`h-14`) for every anchor target, not just headings. */
+  html {
+    @apply scroll-pt-18;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  ::selection {
+    @apply bg-primary/25;
+  }
+  /* Native checkboxes, radios and ranges in the brand colour. */
+  :root {
+    accent-color: var(--primary);
+  }
+  /* Tailwind v4 dropped the pointer cursor on buttons. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary {
+    @apply cursor-pointer;
   }
 }
 
@@ -239,29 +263,46 @@
    `<section class="space-y-2">` got `space-y-5`. */
 @layer base {
   article {
-    @apply mx-auto space-y-7 sm:container;
+    @apply mx-auto sm:container;
   }
 
-  section {
+  /* Not on a flex or grid container: `space-y` is a margin on every child but the last, which
+     stacks on `gap` there, and a stretched last item fills the margin the others keep. */
+  article:not(.flex, .grid, .inline-flex, .inline-grid) {
+    @apply space-y-7;
+  }
+
+  section:not(.flex, .grid, .inline-flex, .inline-grid) {
     @apply space-y-5;
   }
 
   /* A dense app's scale: a page title one step above a section, a section one step above a
      card title (`text-base`). A landing page sizes its own display headings. */
   h1 {
-    @apply scroll-m-20 text-2xl font-semibold tracking-tight;
+    @apply text-2xl font-semibold tracking-tight;
   }
 
   h2 {
-    @apply scroll-m-20 text-lg font-semibold tracking-tight transition-colors;
+    @apply text-lg font-semibold tracking-tight;
   }
 
   h3 {
-    @apply scroll-m-20 text-base font-semibold tracking-tight;
+    @apply text-base font-semibold tracking-tight;
   }
 
   h4 {
-    @apply scroll-m-20 text-sm font-semibold tracking-tight;
+    @apply text-sm font-semibold tracking-tight;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-balance;
+  }
+
+  p {
+    @apply text-pretty;
   }
 }
 

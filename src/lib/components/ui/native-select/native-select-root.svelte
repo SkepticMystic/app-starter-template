@@ -1,6 +1,7 @@
 <script lang="ts">
   import { type WithElementRef } from "#lib/utils/shadcn.util.js";
   import type { HTMLSelectAttributes } from "svelte/elements";
+  import Icon from "../icon/Icon.svelte";
 
   let {
     ref = $bindable(null),
@@ -54,4 +55,13 @@
   >
     {@render children?.()}
   </select>
+
+  <Icon
+    icon="lucide/chevron-down"
+    data-slot="native-select-icon"
+    class="
+      pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2
+      text-muted-foreground opacity-50 select-none
+    "
+  />
 </div>
