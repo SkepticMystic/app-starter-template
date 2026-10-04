@@ -37,6 +37,8 @@ export const EMAIL_FIXTURES = {
     url: `${APP.URL}/api/auth/verify-email?token=tok_change&callbackURL=%2Fsettings%2Faccount`,
   },
 
+  "account-exists": { user: USER },
+
   "delete-account-verification": {
     user: USER,
     url: `${APP.URL}/api/auth/delete-user/callback?token=tok_delete`,

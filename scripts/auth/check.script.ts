@@ -16,10 +16,15 @@
  * `src/env.ts`, so a newly declared variable is covered the moment it exists.
  * It wins over anything already set, since a static diff needs no real value.
  *
+ * The same graph reaches the email templates, which are `.svelte` and which
+ * jiti cannot load, so the CLI gets `svelte_stub.hooks.ts` preloaded.
+ *
  * Run under `vite-node`, not bare node, so `src/env.ts` resolves its imports.
  */
 import { spawnSync } from "node:child_process";
 import { mock_env, mock_public_env } from "../../src/test/env.mock.ts";
+
+const svelte_stub = new URL("svelte_stub.hooks.ts", import.meta.url).href;
 
 const placeholders = Object.fromEntries(
   Object.entries({ ...mock_env, ...mock_public_env }).filter(
@@ -29,7 +34,13 @@ const placeholders = Object.fromEntries(
 
 const run = spawnSync("auth", ["check", "schema"], {
   stdio: "inherit",
-  env: { ...process.env, ...placeholders },
+  env: {
+    ...process.env,
+    ...placeholders,
+    NODE_OPTIONS: [process.env.NODE_OPTIONS, `--import=${svelte_stub}`]
+      .filter(Boolean)
+      .join(" "),
+  },
 });
 
 if (run.error) {

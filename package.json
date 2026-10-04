@@ -57,6 +57,7 @@
     "better-auth-paystack": "3.2.1",
     "bits-ui": "^2.19.4",
     "cloudinary": "^2.11.0",
+    "disposable-email-domains-js": "^1.26.0",
     "drizzle-orm": "1.0.0-rc.4",
     "ipaddr.js": "^2.5.0",
     "isomorphic-dompurify": "^4.4.0",

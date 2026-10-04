@@ -1,14 +1,27 @@
+import { AccountDeletionService } from "#lib/server/services/auth/user/account_deletion.service.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { auth_mock } from "../../../../../test/auth.mock.js";
 import { with_request } from "../../../../../test/helpers.js";
 import { AdminService } from "./admin.service.js";
 
 const USER_ID = "11111111-1111-4111-8111-111111111111";
+const ADMIN_ID = "22222222-2222-4222-8222-222222222222";
 
 beforeEach(() => {
   with_request();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe("AdminService.ban", () => {
@@ -60,5 +73,49 @@ describe("AdminService.unban", () => {
       ok: true,
       data: { user: { banned: false, banReason: null, banExpires: null } },
     });
+  });
+});
+
+describe("AdminService.remove", () => {
+  it("refuses removing yourself before checking or cancelling anything", async () => {
+    const before = vi.spyOn(AccountDeletionService, "before");
+
+    const res = await AdminService.remove(ADMIN_ID, ADMIN_ID);
+
+    expect(!res.ok && res.error.status).toBe(400);
+    expect(before).not.toHaveBeenCalled();
+    expect(auth_mock.removeUser).not.toHaveBeenCalled();
+  });
+
+  it("never reaches Better-Auth when the deletion is refused", async () => {
+    vi.spyOn(AccountDeletionService, "before").mockRejectedValue(
+      new APIError("BAD_REQUEST", {
+        message: "This account can't be deleted yet",
+      }),
+    );
+
+    const res = await AdminService.remove(USER_ID, ADMIN_ID);
+
+    expect(!res.ok && res.error).toMatchObject({
+      status: 400,
+      message: "This account can't be deleted yet",
+    });
+    expect(auth_mock.removeUser).not.toHaveBeenCalled();
+  });
+
+  it("checks the deletion before Better-Auth removes anything", async () => {
+    const order: string[] = [];
+    vi.spyOn(AccountDeletionService, "before").mockImplementation(async () => {
+      order.push("before");
+    });
+    auth_mock.removeUser.mockImplementation(async () => {
+      order.push("removeUser");
+      return { success: true };
+    });
+
+    const res = await AdminService.remove(USER_ID, ADMIN_ID);
+
+    expect(res.ok).toBe(true);
+    expect(order).toEqual(["before", "removeUser"]);
   });
 });

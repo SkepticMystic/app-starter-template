@@ -1,0 +1,1 @@
+CREATE INDEX "user_email_key_idx" ON "user" (regexp_replace(regexp_replace(regexp_replace(lower("email"), '\+[^@]*@', '@'), '@googlemail\.com$', '@gmail.com'), '\.(?=[^@]*@gmail\.com$)', '', 'g'));

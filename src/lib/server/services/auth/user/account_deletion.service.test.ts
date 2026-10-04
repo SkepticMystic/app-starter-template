@@ -3,6 +3,7 @@ import { PaystackClient } from "#lib/server/sdk/payment/paystack/paystack.paymen
 import { EmailService } from "#lib/server/services/email.service.js";
 import { RuntimeService } from "#lib/server/services/runtime/runtime.service.js";
 import { result } from "#lib/utils/result.util.js";
+import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
 import {
   afterEach,
@@ -191,6 +192,48 @@ describe("AccountDeletionService.before", () => {
 
     // No solo orgs were recorded, so no transaction ran.
     expect(Repo.query).not.toHaveBeenCalled();
+  });
+});
+
+describe("AccountDeletionService.backstop", () => {
+  const blocked = () =>
+    queue({
+      memberships: [{ org_id: SHARED, org_name: "Acme", role: "owner" }],
+      others: [{ org_id: SHARED, role: "member" }],
+    });
+
+  it("trusts a `before` that just passed, reading nothing", async () => {
+    const user = { id: "u-prepared" };
+    queue({ memberships: [] });
+    await AccountDeletionService.before(user);
+
+    vi.mocked(Repo.query).mockClear();
+    await AccountDeletionService.backstop(user);
+
+    expect(Repo.query).not.toHaveBeenCalled();
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it("runs `before` late for a path that skipped it, and files the path", async () => {
+    blocked();
+
+    await expect(
+      AccountDeletionService.backstop({ id: "u-unprepared" }),
+    ).rejects.toThrow(/only owner of Acme/);
+    expect(captureException).toHaveBeenCalledOnce();
+  });
+
+  it("does not trust a `before` left by a delete that failed long ago", async () => {
+    const user = { id: "u-stale" };
+    queue({ memberships: [] });
+    await AccountDeletionService.before(user);
+
+    vi.spyOn(Date, "now").mockReturnValue(Date.now() + 61_000);
+    blocked();
+
+    await expect(AccountDeletionService.backstop(user)).rejects.toThrow(
+      /only owner of Acme/,
+    );
   });
 });
 

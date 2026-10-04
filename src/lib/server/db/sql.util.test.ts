@@ -6,11 +6,13 @@ import {
   avg_of,
   avg_where,
   count_where,
+  email_key_sql,
   sum_of,
   sum_where,
 } from "./sql.util.js";
 
 const Table = snakeCase.table("sql_util_fixture", {
+  email: text(),
   status: text(),
   amount: integer(),
 });
@@ -53,5 +55,21 @@ describe("sql.util", () => {
     expect(decode(avg_of(Table.amount), null)).toBeNull();
     expect(decode(avg_of(Table.amount), "2.5000")).toBe(2.5);
     expect(decode(avg_where(Table.amount, done), null)).toBeNull();
+  });
+
+  // The text Postgres was shown to fold `J.ohnSmith+x@googlemail.com` and
+  // `john.smith@gmail.com` to one key with. The patterns must stay literals,
+  // single-backslashed, or the index on this expression stops matching.
+  it("renders the inbox key with literal patterns and one parameter", () => {
+    const key = (subject: string) =>
+      `regexp_replace(regexp_replace(regexp_replace(lower(${subject}), '\\+[^@]*@', '@'), '@googlemail\\.com$', '@gmail.com'), '\\.(?=[^@]*@gmail\\.com$)', '', 'g')`;
+
+    expect(render(email_key_sql(Table.email))).toBe(
+      key('"sql_util_fixture"."email"'),
+    );
+
+    const input = new PgDialect().sqlToQuery(email_key_sql("A+b@x.com"));
+    expect(input.sql).toBe(key("$1"));
+    expect(input.params).toEqual(["A+b@x.com"]);
   });
 });

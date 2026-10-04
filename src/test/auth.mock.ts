@@ -15,6 +15,8 @@ export const auth_mock: {
   /** `auth.api.banUser` / `unbanUser`, answering `{ user }`. */
   banUser: Mock;
   unbanUser: Mock;
+  /** `auth.api.removeUser`. */
+  removeUser: Mock;
   /** `auth.api.updateMemberRole`. */
   updateMemberRole: Mock;
   /** `auth.api.signOut`, with no provider to sign out of by default. */
@@ -35,6 +37,7 @@ export const auth_mock: {
   createInvitation: vi.fn(async () => ({})),
   banUser: vi.fn(async () => ({ user: {} })),
   unbanUser: vi.fn(async () => ({ user: {} })),
+  removeUser: vi.fn(async () => ({ success: true })),
   updateMemberRole: vi.fn(async () => ({})),
   signOut: vi.fn(async () => ({ success: true })),
   internalAdapter: {

@@ -50,8 +50,10 @@ export const unban_user_remote = guarded_command(
   async (user_id) => AdminService.unban(user_id),
 );
 
+// Better-Auth's own permission check runs after `AdminService.remove` has
+// cancelled the user's billing, so this one has to refuse first.
 export const remove_user_remote = guarded_command(
-  ADMIN,
+  { ...ADMIN, session: { admin: true, permissions: { user: ["delete"] } } },
   z.uuid(),
-  async (user_id) => AdminService.remove(user_id),
+  async (target_id, { user_id }) => AdminService.remove(target_id, user_id),
 );

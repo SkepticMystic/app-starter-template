@@ -1,41 +1,21 @@
 import { describe, expect, it } from "vite-plus/test";
 import { redirect_uri_schema } from "./redirect_uri.schema.js";
 
-const parse = (value?: string) => redirect_uri_schema().parse(value);
-
+// The cases themselves are `safe_redirect_uri`'s; this is the wiring.
 describe("redirect_uri_schema", () => {
-  it("keeps an ordinary same-origin path", () => {
-    expect(parse("/home")).toBe("/home");
-  });
-
-  it("keeps a path with a query string", () => {
-    expect(parse("/tasks?status=open")).toBe("/tasks?status=open");
+  it("keeps a same-origin path", () => {
+    expect(redirect_uri_schema().parse("/home")).toBe("/home");
   });
 
   it("falls back when nothing was supplied", () => {
-    expect(parse()).toBe("/onboarding");
+    expect(redirect_uri_schema().parse(undefined)).toBe("/onboarding");
   });
 
-  it("rejects an absolute URL", () => {
-    expect(parse("https://evil.test/steal")).toBe("/onboarding");
-  });
-
-  it("rejects a protocol-relative URL", () => {
-    // A browser follows `//evil.test` off-origin.
-    expect(parse("//evil.test")).toBe("/onboarding");
-  });
-
-  it("rejects an over-long path", () => {
-    expect(parse(`/${"a".repeat(2048)}`)).toBe("/onboarding");
-  });
-
-  it("rejects the backslash variant", () => {
-    expect(parse(String.raw`/\evil.test`)).toBe("/onboarding");
-  });
-
-  it("rejects whitespace, which is a response-splitting primitive", () => {
-    expect(parse("/home\nLocation: https://evil.test")).toBe("/onboarding");
-    expect(parse("/home there")).toBe("/onboarding");
+  it("falls back on a rejected value rather than failing", () => {
+    expect(redirect_uri_schema().safeParse("//evil.test")).toEqual({
+      success: true,
+      data: "/onboarding",
+    });
   });
 
   it("honours a caller's own fallback", () => {

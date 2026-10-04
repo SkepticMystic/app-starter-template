@@ -16,30 +16,37 @@ import { z } from "zod";
 import { AUTH } from "../../../const/auth/auth.const.js";
 import { ORGANIZATION } from "../../../const/auth/organization.const.js";
 import { ROLES } from "../../../const/auth/role.const.js";
+import { email_key_sql } from "../sql.util.js";
 import { Schema } from "./index.schema.js";
 
 export const user_role_enum = pgEnum("user_role", ROLES.IDS);
 
 // Define User table schema
-export const UserTable = snakeCase.table("user", {
-  ...Schema.id(),
+export const UserTable = snakeCase.table(
+  "user",
+  {
+    ...Schema.id(),
 
-  // NOTE: BetterAuth defaults name to ''
-  name: varchar({ length: 255 }).notNull().default(""),
-  email: varchar({ length: 255 }).notNull().unique(),
-  emailVerified: boolean().default(false).notNull(),
-  image: varchar({ length: 2048 }),
+    // NOTE: BetterAuth defaults name to ''
+    name: varchar({ length: 255 }).notNull().default(""),
+    email: varchar({ length: 255 }).notNull().unique(),
+    emailVerified: boolean().default(false).notNull(),
+    image: varchar({ length: 2048 }),
 
-  // Admin fields
-  role: user_role_enum().default("user").notNull(),
-  banned: boolean().default(false).notNull(),
-  banReason: text(),
-  banExpires: timestamp({ mode: "date" }),
+    // Admin fields
+    role: user_role_enum().default("user").notNull(),
+    banned: boolean().default(false).notNull(),
+    banReason: text(),
+    banExpires: timestamp({ mode: "date" }),
 
-  twoFactorEnabled: boolean().default(false).notNull(),
+    twoFactorEnabled: boolean().default(false).notNull(),
 
-  ...Schema.timestamps,
-});
+    ...Schema.timestamps,
+  },
+  // Not unique: OAuth sign-ups are not held to it, so two rows may share a
+  // key. `InboxQuery.owner` reads through it.
+  (table) => [index("user_email_key_idx").on(email_key_sql(table.email))],
+);
 
 // Export type for use in application
 export type User = typeof UserTable.$inferSelect;

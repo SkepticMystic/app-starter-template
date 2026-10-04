@@ -40,6 +40,25 @@ const verification_email_limiter = new RateLimiter(
   { max_tokens: 3, refill_rate: 3, refill_interval: 3600 },
 );
 
+// A reset email, limited like a verification email: the answer is the same
+// whether or not the address has an account, so both are spent on the attempt.
+const reset_request_ip_limiter = new RateLimiter(
+  "user:password_reset_request:ip",
+  { max_tokens: 5, refill_rate: 5, refill_interval: 600 },
+);
+
+const reset_request_email_limiter = new RateLimiter(
+  "user:password_reset_request:address",
+  { max_tokens: 3, refill_rate: 3, refill_interval: 3600 },
+);
+
+// Redeeming a reset token: Better-Auth checks the token, this caps tries per IP.
+const reset_ip_limiter = new RateLimiter("user:password_reset:ip", {
+  max_tokens: 10,
+  refill_rate: 10,
+  refill_interval: 600,
+});
+
 // Each one emails the current address, and the new one after that.
 const change_email_limiter = new RateLimiter("user:change_email", {
   max_tokens: 3,
@@ -92,8 +111,22 @@ export const request_password_reset_remote = form(
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input) => {
+    const ip = AdapterService.get_ip();
+    if (ip) {
+      const rate = await reset_request_ip_limiter.enforce(ip, {
+        message: "Too many password resets requested.",
+      });
+      if (!rate.ok) return rate;
+    }
+
     const captcha = await CaptchaService.verify(input.captcha_token);
     if (!captcha.ok) return captcha;
+
+    const address_rate = await reset_request_email_limiter.enforce(
+      await HashUtil.email_key(input.email),
+      { message: "Too many password resets requested for this address." },
+    );
+    if (!address_rate.ok) return address_rate;
 
     const res = await UserService.request_password_reset({
       email: input.email,
@@ -113,6 +146,14 @@ export const reset_password_remote = form(
     captcha_token: z.string().min(1, "Please complete the captcha"),
   }),
   async (input) => {
+    const ip = AdapterService.get_ip();
+    if (ip) {
+      const rate = await reset_ip_limiter.enforce(ip, {
+        message: "Too many password reset attempts.",
+      });
+      if (!rate.ok) return rate;
+    }
+
     const captcha = await CaptchaService.verify(input.captcha_token);
     if (!captcha.ok) return captcha;
 
@@ -183,10 +224,13 @@ export const change_email_remote = guarded_form(
     },
   },
   z.object({
-    new_email: z.email("Please enter a valid email address").max(255),
+    new_email: z
+      .email("Please enter a valid email address")
+      .max(255)
+      .brand<"EmailAddress">(),
   }),
-  async (input) => {
-    const res = await UserService.change_email(input);
+  async (input, { user_id }) => {
+    const res = await UserService.change_email({ ...input, user_id });
 
     if (!res.ok && res.error.path) {
       invalid(res.error);

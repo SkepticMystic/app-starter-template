@@ -1,6 +1,7 @@
 import { EMAIL_FROM } from "$app/env/private";
 import { APP } from "#lib/const/app.const.js";
 import type { Component, ComponentProps } from "svelte";
+import AccountExists from "./templates/AccountExists.svelte";
 import AdminContactForm from "./templates/AdminContactForm.svelte";
 import ChangeEmailConfirmation from "./templates/ChangeEmailConfirmation.svelte";
 import DeleteAccountVerification from "./templates/DeleteAccountVerification.svelte";
@@ -67,6 +68,12 @@ export const EMAILS = {
       preheader: `Someone asked to change your email address to ${new_email}.`,
     }),
   ),
+
+  "account-exists": define(AccountExists, ({ user }) => ({
+    to: user.email,
+    subject: `You already have a ${APP.NAME} account`,
+    preheader: `Sign in as ${user.email} instead of creating a new one.`,
+  })),
 
   "delete-account-verification": define(
     DeleteAccountVerification,

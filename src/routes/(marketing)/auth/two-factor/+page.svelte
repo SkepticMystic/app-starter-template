@@ -5,7 +5,7 @@
   import VerifyTwoFactorCodeForm from "#lib/components/form/auth/two_factor/VerifyTwoFactorCodeForm.svelte";
   import Anchor from "#lib/components/ui/anchor/Anchor.svelte";
   import Card from "#lib/components/ui/card/Card.svelte";
-  import { redirect_uri_schema } from "#lib/schema/auth/redirect_uri.schema.js";
+  import { safe_redirect_uri } from "#lib/utils/auth/redirect_uri.util.js";
   import type { ResolvedPathname } from "$app/types";
 </script>
 
@@ -21,8 +21,9 @@
         on_success={() => {
           // `refreshAll`: the session is new, and the root layout's `page.data.user` is not.
           goto(
-            redirect_uri_schema("/home").parse(
-              page.url.searchParams.get("redirect_uri") ?? undefined,
+            safe_redirect_uri(
+              page.url.searchParams.get("redirect_uri"),
+              "/home",
             ) as ResolvedPathname,
             { refreshAll: true },
           );

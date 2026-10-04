@@ -1,6 +1,8 @@
 import { getRequestEvent } from "$app/server";
 import { auth } from "#lib/auth.js";
 import type { RoleId } from "#lib/const/auth/role.const.js";
+import { ERROR } from "#lib/const/error.const.js";
+import { AccountDeletionService } from "#lib/server/services/auth/user/account_deletion.service.js";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -112,8 +114,27 @@ const unban = async (user_id: string): Promise<App.Result<BanState>> => {
   }
 };
 
-const remove = async (user_id: string): Promise<App.Result<undefined>> => {
+/**
+ * `removeUser` deletes the user's sign-in methods before any hook of ours can
+ * refuse, and never calls `deleteUser.beforeDelete`, so the deletion's checks
+ * run here first. `before` cancels billing, so every refusal Better-Auth would
+ * make comes ahead of it: `user: ["delete"]` is the remote's guard, and a
+ * missing user is one `before` finds nothing to do for.
+ */
+const remove = async (
+  user_id: string,
+  actor_id: string,
+): Promise<App.Result<undefined>> => {
+  if (user_id === actor_id) {
+    return result.err({
+      ...ERROR.INVALID_INPUT,
+      message: "You cannot remove yourself",
+    });
+  }
+
   try {
+    await AccountDeletionService.before({ id: user_id });
+
     await auth.api.removeUser({
       body: { userId: user_id },
       headers: getRequestEvent().request.headers,

@@ -16,7 +16,7 @@
     back={[
       { href: resolve("/(authed)/tasks"), label: "Tasks" },
       {
-        href: resolve("/(authed)/tasks/[id]", data.task),
+        href: resolve("/(authed)/tasks/[id=uuid]", data.task),
         label: data.task.title,
       },
     ]}
@@ -34,7 +34,7 @@
         ? WallClock.to_input_value(data.task.due_date)
         : "",
     }}
-    cancel_href={resolve("/(authed)/tasks/[id]", data.task)}
-    on_success={() => goto(resolve("/(authed)/tasks/[id]", data.task))}
+    cancel_href={resolve("/(authed)/tasks/[id=uuid]", data.task)}
+    on_success={() => goto(resolve("/(authed)/tasks/[id=uuid]", data.task))}
   />
 </Page>

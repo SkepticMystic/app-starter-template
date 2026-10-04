@@ -2,12 +2,15 @@ import { getRequestEvent } from "$app/server";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { auth, is_ba_error_code } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
+import type { Branded } from "#lib/interfaces/zod/zod.type.js";
 import { App } from "#lib/utils/app.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError, type User } from "better-auth";
 import { AIModerationService } from "../../moderation/ai.moderation.service.js";
+import { EmailValidationService } from "../email/email_validation.service.js";
+import { InboxQuery } from "../email/inbox.query.js";
 
 const log = Log.child({ service: "User" });
 
@@ -253,12 +256,32 @@ const send_verification_email = async (input: {
  * Starts the change; nothing moves until a link is followed. A verified user
  * approves from their current address first (`changeEmail` in `auth.ts`).
  * Better-Auth answers success for an address that is already taken too, so
- * the response says nothing about who has an account.
+ * the response says nothing about who has an account; an address reaching
+ * another account's inbox (`InboxQuery.owner`) is answered the same way.
  */
 const change_email = async (input: {
-  new_email: string;
+  new_email: Branded<"EmailAddress">;
+  user_id: string;
 }): Promise<App.Result<{ message: string }>> => {
   const l = log.child({ method: "change_email" });
+  const started = { message: "Check your inbox to approve the change" };
+
+  const refused = await EmailValidationService.refusal(input.new_email);
+  if (!refused.ok) return refused;
+  if (refused.data) {
+    return result.err({
+      ...ERROR.INVALID_INPUT,
+      path: ["new_email"],
+      message: refused.data,
+    });
+  }
+
+  const owner = await InboxQuery.owner(
+    { email: input.new_email, except_user_id: input.user_id },
+    { id: true },
+  );
+  if (!owner.ok) return owner;
+  if (owner.data) return result.suc(started);
 
   try {
     const res = await auth.api.changeEmail({
@@ -270,7 +293,7 @@ const change_email = async (input: {
     });
 
     return res.status
-      ? result.suc({ message: "Check your inbox to approve the change" })
+      ? result.suc(started)
       : result.err({
           ...ERROR.INTERNAL_SERVER_ERROR,
           message: "Failed to start the email change",

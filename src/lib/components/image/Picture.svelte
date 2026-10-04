@@ -1,7 +1,9 @@
 <script lang="ts">
   import { ImageClient } from "#lib/clients/image.client.js";
   import type { Image as ImageModel } from "#lib/server/db/models/image.model.js";
-  import { Image } from "@unpic/svelte";
+  // The base component with one transformer: the default one bundles every CDN's.
+  import { Image } from "@unpic/svelte/base";
+  import { transform } from "unpic/providers/cloudinary";
   import type { ClassValue } from "svelte/elements";
   import Anchor from "../ui/anchor/Anchor.svelte";
 
@@ -52,9 +54,8 @@
       layout={resolved_layout}
       breakpoints={BREAKPOINTS}
       background={thumbhash_url}
-      operations={{
-        cloudinary: { q: "auto", f: "auto", c: "auto", g: "auto" },
-      }}
+      transformer={transform}
+      operations={{ q: "auto", f: "auto", c: "auto", g: "auto" }}
       class={["rounded-md", klass]}
     />
   {:else if fallback}

@@ -28,8 +28,12 @@ const log = Log.child({ service: "AccountDeletion" });
  *   tracked it cascaded away, so it is cancelled at Paystack first;
  * - image files live at the host, not in the table.
  *
- * Runs from Better-Auth's `databaseHooks.user.delete`, so the self-service
- * confirmation link and an admin's `removeUser` both go through it.
+ * `before` must run before Better-Auth deletes anything: `deleteUser` removes
+ * the user's `account` rows before the `user.delete` hook fires, with no
+ * transaction, so a refusal from that hook would still strip every sign-in
+ * method. The confirmation link reaches it through `deleteUser.beforeDelete`,
+ * an admin through `AdminService.remove`; `backstop` (the hook) catches a path
+ * that reached neither, and `after` cleans up.
  */
 
 export type DeletionBlocker = {
@@ -46,13 +50,21 @@ type Survey = {
   subscription_codes: string[];
 };
 
-type Cleanup = { solo_org_ids: string[]; external_ids: string[] };
+type Cleanup = {
+  solo_org_ids: string[];
+  external_ids: string[];
+  /** When `before` passed; an older entry was left by a delete that then failed. */
+  at: number;
+};
 
 /**
- * `before` to `after`, per user, in this process. Both run inside the same
- * `deleteUser` call, so the entry never has to cross a request.
+ * `before` to `after`, per user, in this process. Both run in the request that
+ * deletes, so the entry never has to cross one.
  */
 const pending = new Map<string, Cleanup>();
+
+/** How long a passed `before` vouches for the delete that follows it. */
+const PREPARED_FOR_MS = 60_000;
 
 const is_owner = (role: string) => role.split(",").includes("owner");
 
@@ -186,9 +198,10 @@ const cancel_at_paystack = async (code: string): Promise<App.Result<null>> => {
 };
 
 /**
- * Refuses by throwing, which Better-Auth relays to whoever asked — the
+ * Refuses by throwing an `APIError`, relayed to whoever asked — the
  * confirmation link or the admin. Billing is cancelled here, before anything
- * is deleted: a deletion that cannot stop the charges does not happen.
+ * is deleted: a deletion that cannot stop the charges does not happen. So a
+ * caller runs it only once nothing else can refuse the delete.
  */
 const before = async (user: { id: string }): Promise<void> => {
   const l = log.child({ method: "before", user_id: user.id });
@@ -234,6 +247,7 @@ const before = async (user: { id: string }): Promise<void> => {
     solo_org_ids,
     // A failed read costs orphaned files, not the deletion.
     external_ids: images.ok ? images.data.map((i) => i.external_id) : [],
+    at: Date.now(),
   });
 
   l.info(
@@ -246,6 +260,25 @@ const before = async (user: { id: string }): Promise<void> => {
   );
 };
 
+/**
+ * The `user.delete.before` hook. The sign-in methods are already gone by now,
+ * so this only catches a deletion path that skipped `before`: it runs `before`
+ * late — an ownerless org or a live charge is worse than a stripped account —
+ * and files the path to be wired up.
+ */
+const backstop = async (user: { id: string }): Promise<void> => {
+  const entry = pending.get(user.id);
+  if (entry && Date.now() - entry.at < PREPARED_FOR_MS) return;
+
+  log.error({ user_id: user.id }, "backstop.before_skipped");
+  captureException(
+    new Error("A user deletion skipped AccountDeletionService.before"),
+    { extra: { user_id: user.id } },
+  );
+
+  await before(user);
+};
+
 /** Bounds the file cleanup, which runs after the response. */
 const CLEANUP_BUDGET_MS = 20_000;
 
@@ -256,13 +289,11 @@ const CLEANUP_BUDGET_MS = 20_000;
 const after = async (user: { id: string; email: string; name: string }) => {
   const l = log.child({ method: "after", user_id: user.id });
 
-  const cleanup = pending.get(user.id) ?? {
+  const { solo_org_ids, external_ids } = pending.get(user.id) ?? {
     solo_org_ids: [],
     external_ids: [],
   };
   pending.delete(user.id);
-
-  const { solo_org_ids, external_ids } = cleanup;
 
   if (solo_org_ids.length) {
     // One transaction: keys that outlive their org would keep verifying.
@@ -323,5 +354,6 @@ const after = async (user: { id: string; email: string; name: string }) => {
 export const AccountDeletionService = {
   blockers,
   before,
+  backstop,
   after,
 };

@@ -54,6 +54,8 @@ import { audit_plugin } from "./server/services/audit/audit.plugin.js";
 import { AuditService } from "./server/services/audit/audit.service.js";
 import { Dicebear } from "./server/services/dicebear/dicebear.service.js";
 import { EmailValidationService } from "./server/services/auth/email/email_validation.service.js";
+import { ExistingAccountService } from "./server/services/auth/email/existing_account.service.js";
+import { InboxQuery } from "./server/services/auth/email/inbox.query.js";
 import { MembershipQuery } from "./server/services/auth/membership.query.js";
 import { MemberSessionService } from "./server/services/auth/organization/member_session.service.js";
 import { SecondFactorHook } from "./server/services/auth/two_factor/second_factor.hook.js";
@@ -200,11 +202,11 @@ export const auth = betterAuth({
         },
       },
 
-      // Here rather than `user.deleteUser.beforeDelete`, which the admin
-      // plugin's `removeUser` never calls. @see AccountDeletionService
+      // Fires after `deleteUser` has removed the account rows, too late to
+      // refuse; `before` runs earlier. @see AccountDeletionService
       delete: {
         before: async (user) => {
-          await AccountDeletionService.before(user);
+          await AccountDeletionService.backstop(user);
         },
         after: async (user) => {
           await AccountDeletionService.after(user);
@@ -294,14 +296,15 @@ export const auth = betterAuth({
 
   user: {
     /**
-     * MX-checks every new identity, whatever the auth method, at the
-     * `createUser` / `linkAccount` seam — so Google and Pocket ID sign-ups are
-     * covered too, not just the email form. On `/sign-up/email` Better-Auth
-     * turns any refusal into a fake duplicate-email success, so
-     * `signup_remote`'s own pre-flight check is still what shows the error.
+     * Refuses a disposable or mail-less domain on every new identity, whatever
+     * the auth method, at the `createUser` / `linkAccount` seam — so Google
+     * and Pocket ID sign-ups are covered too, not just the email form. On
+     * `/sign-up/email` Better-Auth turns any refusal into a fake
+     * duplicate-email success, so `signup_remote`'s own pre-flight check is
+     * still what shows the error.
      *
-     * Fails open when the lookup itself breaks: a DNS outage must not become a
-     * sign-up outage. Only a definite "this domain takes no mail" refuses.
+     * Fails open when a lookup itself breaks: a DNS or database outage must
+     * not become a sign-up outage. Only a definite answer refuses.
      */
     validateUserInfo: async ({ user, source }) => {
       if (source.action !== "create-user" && source.action !== "link-account") {
@@ -311,14 +314,38 @@ export const auth = betterAuth({
       const email = user.email;
       if (typeof email !== "string") return undefined;
 
-      const valid = await EmailValidationService.has_mx_records(
+      const refused = await EmailValidationService.refusal(
         email as Branded<"EmailAddress">,
       );
-      if (valid.ok && !valid.data) {
+      if (refused.ok && refused.data) {
         return {
-          error: "email_domain_undeliverable",
-          errorDescription: "Email address is not valid",
+          error: "email_address_refused",
+          errorDescription: refused.data,
         };
+      }
+
+      // A password sign-up for an inbox that already has an account under
+      // another spelling (`j.ohn+x@gmail.com` for `john@gmail.com`). The fake
+      // success is the answer, and the owner is told which address to use. A
+      // provider's sign-up is let through: it verified the inbox, and refusing
+      // would lock its owner out of that button.
+      if (
+        source.action === "create-user" &&
+        source.method === "email-password"
+      ) {
+        const owner = await InboxQuery.owner(
+          { email },
+          { id: true, name: true, email: true, emailVerified: true },
+        );
+        if (owner.ok && owner.data) {
+          const existing = owner.data;
+          RuntimeService.defer(() => ExistingAccountService.notify(existing));
+
+          return {
+            error: "email_inbox_taken",
+            errorDescription: "An account already uses this inbox",
+          };
+        }
       }
 
       // `undefined` is "accepted".
@@ -346,6 +373,11 @@ export const auth = betterAuth({
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
         await Mailer.send("delete-account-verification", { url, user });
+      },
+      // After the link's token is checked, before anything is deleted. The
+      // admin plugin's `removeUser` never calls this: `AdminService.remove`.
+      beforeDelete: async (user) => {
+        await AccountDeletionService.before(user);
       },
     },
   },
@@ -380,6 +412,12 @@ export const auth = betterAuth({
 
     onPasswordReset: async ({ user }) => {
       AuditService.on_password_reset(user);
+    },
+
+    // A sign-up for a taken address is answered as if it had worked; this
+    // tells the owner to sign in instead.
+    onExistingUserSignUp: async ({ user }) => {
+      await ExistingAccountService.notify(user);
     },
   },
 

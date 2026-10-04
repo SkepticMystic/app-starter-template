@@ -16,6 +16,16 @@ export const filter_sql = <T extends Table>(table: T, filter: TableFilter<T>) =>
   relationsFilterToSQL(table, filter as AnyTableFilter);
 
 /**
+ * An address as the inbox it reaches: lowercased, without a `+tag`, and on
+ * Gmail without the dots it ignores, `googlemail.com` folded into `gmail.com`.
+ * Dots elsewhere are kept, since other providers treat them as part of the
+ * name. The patterns are literals, never parameters, so `user_email_key_idx`
+ * — built from this same expression — can answer a lookup by it.
+ */
+export const email_key_sql = (email: SQLWrapper | string) =>
+  sql<string>`regexp_replace(regexp_replace(regexp_replace(lower(${email}), '\\+[^@]*@', '@'), '@googlemail\\.com$', '@gmail.com'), '\\.(?=[^@]*@gmail\\.com$)', '', 'g')`;
+
+/**
  * Aggregate fragments for a reporting `select`. Each is mapped to a JS number
  * because Postgres returns `count()` as a bigint and `sum()`/`avg()` over
  * `numeric` as strings, which the driver hands over untouched.

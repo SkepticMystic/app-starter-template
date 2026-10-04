@@ -114,12 +114,12 @@
             title: "No tasks yet",
             description: "Create a task to get started.",
           }}
-    href={(row) => resolve("/(authed)/tasks/[id]", row.original)}
+    href={(row) => resolve("/(authed)/tasks/[id=uuid]", row.original)}
     actions={(row) => [
       {
         title: "Edit task",
         icon: "lucide/pencil",
-        href: resolve("/(authed)/tasks/[id]/edit", row.original),
+        href: resolve("/(authed)/tasks/[id=uuid]/edit", row.original),
       },
 
       {

@@ -32,5 +32,8 @@
     "erasableSyntaxOnly": true,
     "noEmit": true
   },
-  "include": ["scripts/db/migrate.script.ts"]
+  "include": [
+    "scripts/db/migrate.script.ts",
+    "scripts/auth/svelte_stub.hooks.ts"
+  ]
 }

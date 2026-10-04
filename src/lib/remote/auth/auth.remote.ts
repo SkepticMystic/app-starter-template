@@ -118,6 +118,23 @@ export const signin_credentials_remote = form(
   },
 );
 
+/**
+ * Signing up hashes a password, looks up MX records and sends a verification
+ * email, and `auth.api.signUpEmail` skips the router's limiter. Per-IP caps a
+ * flood; per-address keeps one inbox from being sent verification emails.
+ */
+const signup_ip_limiter = new RateLimiter("auth:signup:ip", {
+  max_tokens: 10,
+  refill_rate: 10,
+  refill_interval: 3600,
+});
+
+const signup_address_limiter = new RateLimiter("auth:signup:address", {
+  max_tokens: 3,
+  refill_rate: 3,
+  refill_interval: 3600,
+});
+
 export const signup_credentials_remote = form(
   z.object({
     name: z
@@ -134,16 +151,28 @@ export const signup_credentials_remote = form(
   }),
   async (input, issue) => {
     try {
+      const ip = AdapterService.get_ip();
+      if (ip) {
+        const rate = await signup_ip_limiter.enforce(ip, {
+          message: "Too many sign-up attempts.",
+        });
+        if (!rate.ok) return rate;
+      }
+
       const captcha = await CaptchaService.verify(input.captcha_token);
       if (!captcha.ok) return captcha;
 
-      const email_valid = await EmailValidationService.has_mx_records(
-        input.email,
+      const address_rate = await signup_address_limiter.enforce(
+        await HashUtil.email_key(input.email),
+        { message: "Too many sign-up attempts for this address." },
       );
-      if (!email_valid.ok) {
-        return email_valid;
-      } else if (!email_valid.data) {
-        invalid(issue.email("Email address is not valid"));
+      if (!address_rate.ok) return address_rate;
+
+      const refused = await EmailValidationService.refusal(input.email);
+      if (!refused.ok) {
+        return refused;
+      } else if (refused.data) {
+        invalid(issue.email(refused.data));
       }
 
       await auth.api.signUpEmail({

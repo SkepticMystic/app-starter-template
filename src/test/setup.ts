@@ -195,6 +195,7 @@ vi.mock("#lib/auth.js", async () => {
         createInvitation: auth_mock.createInvitation,
         banUser: auth_mock.banUser,
         unbanUser: auth_mock.unbanUser,
+        removeUser: auth_mock.removeUser,
         updateMemberRole: auth_mock.updateMemberRole,
         signOut: auth_mock.signOut,
       },

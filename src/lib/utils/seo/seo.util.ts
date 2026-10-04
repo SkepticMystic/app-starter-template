@@ -1,5 +1,7 @@
 import { APP } from "#lib/const/app.const.js";
-import { transformUrl } from "unpic";
+// One provider, not `unpic`: its `transformUrl` bundles every CDN's parser into
+// each universal load that builds SEO.
+import { transform as cloudinary } from "unpic/providers/cloudinary";
 import { Url } from "../urls.js";
 
 type UTMData = {
@@ -57,14 +59,13 @@ const transform = (
 
     ...img,
 
-    url:
-      transformUrl({
-        url: img.url,
-        format: "auto",
-        quality: "auto",
-        width: img.width || 1200,
-        height: img.height || 630,
-      }) || img.url,
+    // Hands back any URL that is not Cloudinary's unchanged.
+    url: cloudinary(img.url, {
+      format: "auto",
+      quality: "auto",
+      width: img.width || 1200,
+      height: img.height || 630,
+    }),
   }));
 
   return Object.freeze({
