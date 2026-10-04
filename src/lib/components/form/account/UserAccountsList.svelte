@@ -59,7 +59,7 @@
           icon="lucide/unlink"
           onclick={() =>
             AccountClient.unlink({
-              id: item.accountId,
+              id: item.id,
               providerId: item.provider_id,
             })}
         >

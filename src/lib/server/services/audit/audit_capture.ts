@@ -93,7 +93,6 @@ const RoleBody = UserIdBody.extend({
   role: z.union([z.string(), z.array(z.string())]),
 });
 const NewEmailBody = z.object({ newEmail: z.string() });
-const ProviderIdBody = z.object({ providerId: z.string() });
 const ApiKeyBody = z.object({ organizationId: z.string().optional() });
 const Named = z.object({ name: z.string().nullish() });
 const Member = z.object({
@@ -372,13 +371,6 @@ const capture_action = (call: EndpointCall): AuditDraft | null => {
     case "/passkey/delete-passkey":
       return by_self(session, "passkey_removed");
 
-    case "/unlink-account": {
-      const provider = parse(ProviderIdBody, call.body)?.providerId;
-      return by_self(session, "account_unlinked", {
-        metadata: provider ? { provider } : {},
-      });
-    }
-
     case "/revoke-session":
       return by_self(session, "session_revoked");
     case "/revoke-sessions":
@@ -531,4 +523,25 @@ const capture = (call: EndpointCall): AuditDraft[] => {
   );
 };
 
-export const AuditCapture = { capture };
+/**
+ * An `account` row's deletion, from Better-Auth's `account.delete.after`.
+ * `/unlink-account` names the row only by id, and the row is gone by the
+ * after-hook, so the provider has to come from here. Deleting a user removes
+ * their accounts through the same hook, which is no unlink.
+ */
+const account_deleted = (
+  account: { userId: string; providerId: string },
+  call: Pick<EndpointCall, "path" | "session">,
+): AuditDraft[] => {
+  if (call.path !== "/unlink-account") return [];
+
+  const metadata = { provider: account.providerId };
+
+  return [
+    call.session
+      ? by_self(call.session, "account_unlinked", { metadata })
+      : { type: "account_unlinked", user_id: account.userId, metadata },
+  ];
+};
+
+export const AuditCapture = { capture, account_deleted };

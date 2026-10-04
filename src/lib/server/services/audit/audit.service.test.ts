@@ -281,3 +281,27 @@ describe("AuditService.on_account_created", () => {
     expect(AuditQuery.insert).not.toHaveBeenCalled();
   });
 });
+
+describe("AuditService.on_account_deleted", () => {
+  it("records the provider an unlink removed", async () => {
+    AuditService.on_account_deleted(
+      { userId: "u1", providerId: "google" },
+      {
+        path: "/unlink-account",
+        session: {
+          session: { id: "s1", impersonatedBy: null },
+          user: { id: "u1", email: "u1@example.com" },
+        },
+      },
+    );
+    await RuntimeService.drain(1_000);
+
+    expect(mocks(AuditQuery).insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "account_unlinked",
+        user_id: "u1",
+        metadata: { provider: "google" },
+      }),
+    );
+  });
+});

@@ -494,3 +494,48 @@ describe("AuditCapture.capture — acting on others", () => {
     ).toEqual([]);
   });
 });
+
+describe("AuditCapture.account_deleted", () => {
+  const google = { userId: "u1", providerId: "google" };
+
+  it("records which provider an unlink removed", () => {
+    expect(
+      AuditCapture.account_deleted(google, {
+        path: "/unlink-account",
+        session: as("u1"),
+      }),
+    ).toEqual([
+      {
+        type: "account_unlinked",
+        user_id: "u1",
+        actor_user_id: null,
+        metadata: { provider: "google" },
+      },
+    ]);
+  });
+
+  it("names the admin who unlinked while impersonating", () => {
+    expect(
+      AuditCapture.account_deleted(google, {
+        path: "/unlink-account",
+        session: as("u1", { impersonated_by: "admin" }),
+      }),
+    ).toEqual([
+      {
+        type: "account_unlinked",
+        user_id: "u1",
+        actor_user_id: "admin",
+        metadata: { impersonated: true, provider: "google" },
+      },
+    ]);
+  });
+
+  it("records nothing for the accounts a user's deletion removes", () => {
+    expect(
+      AuditCapture.account_deleted(google, {
+        path: "/delete-user/callback",
+        session: as("u1"),
+      }),
+    ).toEqual([]);
+  });
+});

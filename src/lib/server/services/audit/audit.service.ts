@@ -211,9 +211,18 @@ const on_password_reset = (user: { id: string }): void => {
   record_later([{ type: "password_reset", user_id: user.id }]);
 };
 
+/** @see AuditCapture.account_deleted */
+const on_account_deleted = (
+  account: { userId: string; providerId: string },
+  call: Pick<EndpointCall, "path" | "session">,
+): void => {
+  record_later(AuditCapture.account_deleted(account, call));
+};
+
 export const AuditService = {
   record,
   after_endpoint,
   on_account_created,
+  on_account_deleted,
   on_password_reset,
 };

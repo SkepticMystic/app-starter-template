@@ -217,6 +217,14 @@ export const auth = betterAuth({
           AuditService.on_account_created(account);
         },
       },
+      delete: {
+        after: async (account, ctx) => {
+          AuditService.on_account_deleted(account, {
+            path: ctx?.path,
+            session: ctx?.context.session ?? null,
+          });
+        },
+      },
     },
     session: {
       create: {
