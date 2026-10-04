@@ -70,8 +70,8 @@ docker build \
   --secret id=SENTRY_AUTH_TOKEN,env=SENTRY_AUTH_TOKEN \
   -t app .
 
-# Migrations are a separate one-shot step, never the entrypoint: replicas
-# starting together would race, and neon-http has no transactions to lock with.
+# Migrations are a separate one-shot step, not the entrypoint. They run in one
+# transaction under an advisory lock, against a direct (not -pooler) connection.
 # The runtime image has no pnpm; this is what `pnpm db:migrate:run` runs.
 docker run --rm --env-file .env app node scripts/db/migrate.script.ts
 

@@ -51,7 +51,9 @@ import { PaystackClient } from "./server/sdk/payment/paystack/paystack.payment.s
 import { AdapterService } from "./server/services/adapter/adapter.service.js";
 import { Dicebear } from "./server/services/dicebear/dicebear.service.js";
 import { EmailValidationService } from "./server/services/auth/email/email_validation.service.js";
+import { MembershipQuery } from "./server/services/auth/membership.query.js";
 import { MemberSessionService } from "./server/services/auth/organization/member_session.service.js";
+import { AccountDeletionService } from "./server/services/auth/user/account_deletion.service.js";
 import { EmailService } from "./server/services/email.service.js";
 import { RuntimeService } from "./server/services/runtime/runtime.service.js";
 import { Log } from "./utils/logger.util.js";
@@ -190,6 +192,17 @@ export const auth = betterAuth({
           return { data: user };
         },
       },
+
+      // Here rather than `user.deleteUser.beforeDelete`, which the admin
+      // plugin's `removeUser` never calls. @see AccountDeletionService
+      delete: {
+        before: async (user) => {
+          await AccountDeletionService.before(user);
+        },
+        after: async (user) => {
+          await AccountDeletionService.after(user);
+        },
+      },
     },
     session: {
       create: {
@@ -286,6 +299,27 @@ export const auth = betterAuth({
 
       // `undefined` is "accepted".
       return undefined;
+    },
+
+    /**
+     * A verified user confirms from the address they have before the new one
+     * is sent its own verification link, so a hijacked session cannot move
+     * the account to an inbox the attacker controls. An unverified user's
+     * change goes straight to that link.
+     */
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+        if (dev) Log.debug(url);
+
+        await EmailService.send(
+          (await templates())["change-email-confirmation"]({
+            url,
+            user,
+            new_email: newEmail,
+          }),
+        );
+      },
     },
 
     deleteUser: {
@@ -508,11 +542,9 @@ export const auth = betterAuth({
         },
 
         async authorizeReference(data) {
-          const member = await Repo.query(
-            db.query.member.findFirst({
-              columns: { role: true },
-              where: { userId: data.user.id, organizationId: data.referenceId },
-            }),
+          const member = await MembershipQuery.for_user(
+            { org_id: data.referenceId, user_id: data.user.id },
+            { role: true },
           );
 
           if (!member.ok || member.data?.role !== "owner") {
@@ -723,11 +755,9 @@ const derive_org_session = async ({
   });
 
   try {
-    const member = await Repo.query(
-      db.query.member.findFirst({
-        columns: { id: true, role: true },
-        where: { userId, organizationId: org_id },
-      }),
+    const member = await MembershipQuery.for_user(
+      { org_id, user_id: userId },
+      { id: true, role: true },
     );
 
     if (!member.ok || !member.data) {

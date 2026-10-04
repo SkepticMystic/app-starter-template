@@ -249,8 +249,54 @@ const send_verification_email = async (input: {
   }
 };
 
+/**
+ * Starts the change; nothing moves until a link is followed. A verified user
+ * approves from their current address first (`changeEmail` in `auth.ts`).
+ * Better-Auth answers success for an address that is already taken too, so
+ * the response says nothing about who has an account.
+ */
+const change_email = async (input: {
+  new_email: string;
+}): Promise<App.Result<{ message: string }>> => {
+  const l = log.child({ method: "change_email" });
+
+  try {
+    const res = await auth.api.changeEmail({
+      headers: getRequestEvent().request.headers,
+      body: {
+        newEmail: input.new_email,
+        callbackURL: App.url("/settings/account"),
+      },
+    });
+
+    return res.status
+      ? result.suc({ message: "Check your inbox to approve the change" })
+      : result.err({
+          ...ERROR.INTERNAL_SERVER_ERROR,
+          message: "Failed to start the email change",
+        });
+  } catch (error) {
+    if (
+      error instanceof APIError &&
+      is_ba_error_code(
+        error,
+        "USER_ALREADY_EXISTS",
+        "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL",
+        "EMAIL_CAN_NOT_BE_UPDATED",
+      )
+    ) {
+      l.info(error.body, "error better-auth");
+
+      return result.from_ba_error(error, { path: ["new_email"] });
+    }
+
+    return ServiceUtil.ba_error(error, { log: l });
+  }
+};
+
 export const UserService = {
   update,
+  change_email,
   send_verification_email,
   request_password_reset,
   reset_password,

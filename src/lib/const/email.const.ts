@@ -115,6 +115,31 @@ ${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
       };
     },
 
+    "change-email-confirmation": (input: {
+      user: Pick<User, "email" | "name">;
+      new_email: string;
+      url: string;
+    }): SendEmailOptions => {
+      const html = HTMLUtil.html`<p>Hi ${input.user.name},</p>
+<p>
+  We've received a request to change the email address on your ${APP.NAME} account to <strong>${input.new_email}</strong>.
+</p>
+<p>
+  Please click <a href="${input.url}">here</a> to approve it. We'll then send a link to the new address to verify it.
+</p>
+<p>
+  If you did not request this, ignore this email and change your password — someone may have access to your account.
+</p>
+
+${HTMLUtil.raw(COMMON.SIGNATURE.HTML)}`;
+
+      return {
+        html,
+        to: input.user.email,
+        subject: `Approve the email change on your ${APP.NAME} account`,
+      };
+    },
+
     "delete-account-verification": (input: {
       user: Pick<User, "email" | "name">;
       url: string;

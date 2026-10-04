@@ -4,8 +4,15 @@ import {
   existing_password_schema,
   password_schema,
 } from "#lib/schema/password/password.schema.js";
-import { guarded_form, USER } from "#lib/server/remote/guarded.js";
+import {
+  guarded_command,
+  guarded_form,
+  guarded_query,
+  USER,
+} from "#lib/server/remote/guarded.js";
 import { AdapterService } from "#lib/server/services/adapter/adapter.service.js";
+import { AccountDeletionService } from "#lib/server/services/auth/user/account_deletion.service.js";
+import { AccountExportService } from "#lib/server/services/auth/user/account_export.service.js";
 import { UserService } from "#lib/server/services/auth/user/user.service.js";
 import { CaptchaService } from "#lib/server/services/captcha/captcha.service.js";
 import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
@@ -32,6 +39,20 @@ const verification_email_limiter = new RateLimiter(
   "user:verify_email:address",
   { max_tokens: 3, refill_rate: 3, refill_interval: 3600 },
 );
+
+// Each one emails the current address, and the new one after that.
+const change_email_limiter = new RateLimiter("user:change_email", {
+  max_tokens: 3,
+  refill_rate: 3,
+  refill_interval: 3600,
+});
+
+// A dozen reads in one transaction; plenty for someone taking their data.
+const export_limiter = new RateLimiter("user:export", {
+  max_tokens: 3,
+  refill_rate: 3,
+  refill_interval: 3600,
+});
 
 export const update_user_remote = guarded_form(
   {
@@ -150,4 +171,45 @@ export const change_password_remote = guarded_form(
 
     return res;
   },
+);
+
+export const change_email_remote = guarded_form(
+  {
+    ...USER,
+    limit: {
+      limiter: change_email_limiter,
+      by: "user",
+      message: "Too many email change requests.",
+    },
+  },
+  z.object({
+    new_email: z.email("Please enter a valid email address").max(255),
+  }),
+  async (input) => {
+    const res = await UserService.change_email(input);
+
+    if (!res.ok && res.error.path) {
+      invalid(res.error);
+    }
+
+    return res;
+  },
+);
+
+/** A command, not a query: it is large, and fetched on a click rather than rendered. */
+export const export_account_data_remote = guarded_command(
+  {
+    ...USER,
+    limit: {
+      limiter: export_limiter,
+      by: "user",
+      message: "Too many exports.",
+    },
+  },
+  async ({ session }) => AccountExportService.for_user(session),
+);
+
+export const account_deletion_blockers_remote = guarded_query(
+  USER,
+  async ({ user_id }) => AccountDeletionService.blockers(user_id),
 );

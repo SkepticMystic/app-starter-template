@@ -2,7 +2,7 @@ import { ERROR } from "#lib/const/error.const.js";
 import type { Sort } from "#lib/schema/query/query.schema.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
-import type { FullQueryResults } from "@neondatabase/serverless";
+import type { QueryResult } from "pg";
 import { captureException } from "@sentry/sveltekit";
 import {
   Column,
@@ -20,9 +20,9 @@ const log = Log.child({ service: "Repo" });
  * A driver failure we recognise: by SQLSTATE first, and by message text as a
  * fallback for a failure re-raised without its code.
  *
- * The code is the reliable half. `@neondatabase/serverless` copies `code` (and
- * `constraint`, `detail`, …) off the HTTP error body onto its `NeonDbError`,
- * which drizzle hands over as the `DrizzleQueryError`'s `cause`. The message is
+ * The code is the reliable half. node-postgres puts `code` (and `constraint`,
+ * `detail`, …) on its `DatabaseError`, which drizzle hands over as the
+ * `DrizzleQueryError`'s `cause`. The message is
  * locale-dependent and carries the constraint name mid-sentence, so it only
  * ever backs the code up.
  */
@@ -40,8 +40,8 @@ const FOREIGN_KEY: Signature = {
 
 /**
  * SQLSTATEs that mean "run it again": the statement lost a race and nothing is
- * broken. Rare on neon-http, which has no interactive transactions, but a
- * `db.batch()` runs as one and can still deadlock against another.
+ * broken. A `db.transaction` can deadlock against another, or fail to
+ * serialize under a stricter isolation level.
  */
 const RETRYABLE = new Set([
   // serialization_failure
@@ -122,8 +122,11 @@ const to_error = (
   return ERROR.INTERNAL_SERVER_ERROR;
 };
 
-/** What neon-http resolves a statement without `RETURNING` to. */
-type NoRows = Omit<FullQueryResults<false>, "rows"> & { rows: never[] };
+/**
+ * What node-postgres resolves a statement without `RETURNING` to. `rowCount`
+ * is `null` only for a command that reports none, never for DML.
+ */
+type NoRows = Omit<QueryResult, "rows"> & { rows: never[] };
 
 const run = async <D>(
   scope: string,
@@ -163,7 +166,7 @@ const insert_count = async (
   const res = await run("insert", promise, ON_DUPLICATE);
   if (!res.ok) return res;
 
-  return result.suc({ row_count: res.data.rowCount });
+  return result.suc({ row_count: res.data.rowCount ?? 0 });
 };
 
 const insert_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
@@ -204,15 +207,15 @@ const update_one = async <D>(promise: Promise<D[]>): Promise<App.Result<D>> => {
 /**
  * Execute an update without returning data.
  * Validates that **at least** 1 row was affected — which is what the
- * `rowCount === 0` check below actually tests.
+ * `rowCount` check below actually tests.
  */
 const update_void = async (
-  promise: Promise<{ rowCount: number }>,
+  promise: Promise<{ rowCount: number | null }>,
 ): Promise<App.Result<void>> => {
   const res = await run("update_void", promise, ON_DUPLICATE);
   if (!res.ok) return res;
 
-  if (res.data.rowCount === 0) return result.err(ERROR.NOT_FOUND);
+  if (!res.data.rowCount) return result.err(ERROR.NOT_FOUND);
 
   return result.suc(undefined);
 };
@@ -238,7 +241,7 @@ const del = async (
   const res = await run("delete", promise, ON_RESTRICT);
   if (!res.ok) return res;
 
-  return result.suc({ row_count: res.data.rowCount });
+  return result.suc({ row_count: res.data.rowCount ?? 0 });
 };
 
 const delete_one = async (

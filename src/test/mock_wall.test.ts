@@ -1,6 +1,6 @@
 import { DATABASE_URL, LOG_LEVEL } from "$app/env/private";
 import { PUBLIC_BASE_URL } from "$app/env/public";
-import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
+import { MembershipQuery } from "#lib/server/services/auth/membership.query.js";
 import { describe, expect, it } from "vite-plus/test";
 import { set_env } from "./env.mock.js";
 import { install_mock, mocks } from "./helpers.js";
@@ -27,25 +27,25 @@ describe("the env mock", () => {
 
 describe("install_mock", () => {
   it("installs an implementation on a mocked function", async () => {
-    install_mock(OrganizationRepo, {
-      get_membership: async () => ({ ok: true, data: undefined }),
+    install_mock(MembershipQuery, {
+      for_user: async () => ({ ok: true, data: undefined }),
     });
 
     await expect(
-      OrganizationRepo.get_membership({ org_id: "o", user_id: "u" }),
+      MembershipQuery.for_user({ org_id: "o", user_id: "u" }, { id: true }),
     ).resolves.toEqual({ ok: true, data: undefined });
   });
 
   it("refuses a name the real module does not have", () => {
-    expect(() => install_mock(OrganizationRepo, { renamed: () => 1 })).toThrow(
+    expect(() => install_mock(MembershipQuery, { renamed: () => 1 })).toThrow(
       /no such member/,
     );
   });
 
   it("is undone by the reset before each test", async () => {
-    expect(mocks(OrganizationRepo).get_membership).not.toHaveBeenCalled();
+    expect(mocks(MembershipQuery).for_user).not.toHaveBeenCalled();
     await expect(
-      OrganizationRepo.get_membership({ org_id: "o", user_id: "u" }),
+      MembershipQuery.for_user({ org_id: "o", user_id: "u" }, { id: true }),
     ).resolves.toBeUndefined();
   });
 });

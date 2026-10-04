@@ -78,10 +78,22 @@ resource "neon_database" "env" {
   owner_name = neon_role.env[each.key].name
 }
 
-# The connection string for each tier's own branch.
+# The connection strings for each tier's own branch: direct, and through
+# Neon's pgbouncer (`<endpoint id>-pooler.<region>…`, transaction mode).
+#
+# The app connects through the pooler: every warm serverless instance holds a
+# pool of its own, and only pgbouncer keeps their sum under Postgres's
+# connection limit. Migrations connect direct — they hold a session advisory
+# lock, which transaction pooling cannot keep on one backend. See
+# `DATABASE_URL_UNPOOLED` in `app_env.tf`.
 locals {
   neon_urls = {
     for k in local.neon_branches :
     k => "postgresql://${neon_role.env[k].name}:${neon_role.env[k].password}@${neon_endpoint.env[k].host}/${neon_database.env[k].name}?sslmode=require"
+  }
+
+  neon_pooler_urls = {
+    for k in local.neon_branches :
+    k => "postgresql://${neon_role.env[k].name}:${neon_role.env[k].password}@${replace(neon_endpoint.env[k].host, neon_endpoint.env[k].id, "${neon_endpoint.env[k].id}-pooler")}/${neon_database.env[k].name}?sslmode=require"
   }
 }

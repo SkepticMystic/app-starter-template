@@ -13,13 +13,16 @@ import { reset_recorder } from "./sql.mock.js";
 
 /**
  * A real drizzle over `pg-proxy`, so every statement is compiled by the same
- * Postgres dialect `neon-http` uses and recorded in `./sql.mock`'s `recorder`
- * rather than sent. Here and nowhere else: a repo is evaluated once per worker,
- * so a recorder mocked per test file would only be the one whichever file
- * loaded that repo first.
+ * Postgres dialect `node-postgres` uses and recorded in `./sql.mock`'s
+ * `recorder` rather than sent. Here and nowhere else: a repo is evaluated once
+ * per worker, so a recorder mocked per test file would only be the one
+ * whichever file loaded that repo first.
  *
- * `execute` answers `{ rows }`, as neon-http's does, rather than pg-proxy's bare
- * array. There is no `transaction`: neon-http has none either.
+ * `execute` answers `{ rows }`, as node-postgres does, rather than pg-proxy's
+ * bare array. pg-proxy refuses `transaction`, so it is stood in for here: it
+ * records `begin`, then `commit` or `rollback`, around a callback handed this
+ * same db as its `tx` — what a test asserts is the statements and where the
+ * boundary fell.
  */
 vi.mock("#lib/server/db/drizzle.db.js", async () => {
   const { memo } = await import("./automock.js");
@@ -42,15 +45,30 @@ vi.mock("#lib/server/db/drizzle.db.js", async () => {
 
     const dialect = new PgDialect();
 
-    const db = Object.assign(Object.create(proxy) as typeof proxy, {
-      execute: async (query: SQLWrapper) => {
-        const { sql, params } = dialect.sqlToQuery(query.getSQL());
+    const db: typeof proxy = Object.assign(
+      Object.create(proxy) as typeof proxy,
+      {
+        execute: async (query: SQLWrapper) => {
+          const { sql, params } = dialect.sqlToQuery(query.getSQL());
 
-        return { rows: send(sql, params) };
+          return { rows: send(sql, params) };
+        },
+        transaction: async <T>(run: (tx: typeof proxy) => Promise<T>) => {
+          send("begin", []);
+          try {
+            const out = await run(db);
+            send("commit", []);
+
+            return out;
+          } catch (error) {
+            send("rollback", []);
+            throw error;
+          }
+        },
       },
-    });
+    );
 
-    return { db };
+    return { db, pool: { end: async () => undefined } };
   });
 });
 

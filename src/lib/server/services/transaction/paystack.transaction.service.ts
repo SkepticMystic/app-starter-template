@@ -1,7 +1,8 @@
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { ERROR } from "#lib/const/error.const.js";
 import type { PaystackTransaction } from "#lib/server/db/models/subscription.model.js";
-import { PaystackTransactionRepo } from "#lib/server/db/repos/paystack_transaction.repo.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { generate_transaction_pdf } from "#lib/utils/pdf/transaction.pdf.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -19,7 +20,11 @@ const get_by_id = async (
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const res = await PaystackTransactionRepo.get_by_id(transaction_id);
+    const res = await Repo.query(
+      db.query.paystackTransaction.findFirst({
+        where: { id: transaction_id },
+      }),
+    );
     if (!res.ok) {
       return res;
     } else if (!res.data) {

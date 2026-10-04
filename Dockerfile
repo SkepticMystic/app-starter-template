@@ -68,7 +68,7 @@ COPY src/ ./src/
 
 # SvelteKit's postbuild `analyse` step imports every server module to collect
 # route metadata, so module-scope client construction runs during the build:
-# `neon(DATABASE_URL)`, `new Resend(...)`, `pino({ level })` and friends all
+# `new Resend(...)`, `new URL(PUBLIC_BASE_URL)`, `pino({ level })` and friends all
 # throw on an undefined value. They need SOMETHING present, not the real thing.
 #
 # .env.example is placeholders only, so this satisfies the analyse step without

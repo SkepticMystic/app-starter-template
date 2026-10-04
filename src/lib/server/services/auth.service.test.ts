@@ -1,7 +1,14 @@
 import { getRequestEvent } from "$app/server";
 import { auth } from "#lib/auth.js";
-import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { MembershipQuery } from "#lib/server/services/auth/membership.query.js";
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vite-plus/test";
 import { makeSession, with_request } from "../../../test/helpers.js";
 import { authorize_event, get_session, read_session } from "./auth.service.js";
 
@@ -11,7 +18,13 @@ const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 // `authorize_event` reads whatever `get_session` last stashed in locals.
 const with_session = with_request;
 
-const get_membership = vi.mocked(OrganizationRepo.get_membership);
+/**
+ * Narrowed to the projection `read_session` asks for: `vi.mocked` erases the
+ * generic `columns` to its constraint, which would demand a whole member row.
+ */
+const get_membership = vi.mocked(MembershipQuery.for_user) as unknown as Mock<
+  () => Promise<App.Result<{ id: string; role: string } | undefined>>
+>;
 const get_ba_session = vi.mocked(auth.api.getSession);
 
 /** What Better-Auth hands back: a fresh object per call, as `read_session` mutates it. */
@@ -29,7 +42,7 @@ const event_for = (method: string) => {
 beforeEach(() => {
   get_membership.mockResolvedValue({
     ok: true,
-    data: { member_id: MEMBER_ID, role: "owner" },
+    data: { id: MEMBER_ID, role: "owner" },
   });
 });
 
@@ -118,7 +131,7 @@ describe("read_session — membership read fresh", () => {
     signed_in(() => makeSession({ orgId: ORG_ID, memberRole: "member" }));
     get_membership.mockResolvedValue({
       ok: true,
-      data: { member_id: MEMBER_ID, role: "admin" },
+      data: { id: MEMBER_ID, role: "admin" },
     });
 
     const res = await read_session();
@@ -171,7 +184,7 @@ describe("read_session — membership read fresh", () => {
     signed_in(() => makeSession({ orgId: ORG_ID, memberRole: "owner" }));
     get_membership.mockResolvedValue({
       ok: true,
-      data: { member_id: MEMBER_ID, role: "member" },
+      data: { id: MEMBER_ID, role: "member" },
     });
 
     const res = await get_session({

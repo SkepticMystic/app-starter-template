@@ -1,13 +1,13 @@
 import { getRequestEvent } from "$app/server";
 import { Log } from "#lib/utils/logger.util.js";
-import { waitUntil } from "@vercel/functions";
+import { attachDatabasePool, waitUntil } from "@vercel/functions";
 
 const log = Log.child({ service: "adapter" });
 
 /**
  * The platform seam. Everything this app reads from — or asks of — the host
- * platform is resolved here: client IP, coarse geo, and scheduling work that
- * outlives the response. Moving between Vercel and a plain Node server should
+ * platform is resolved here: client IP, coarse geo, scheduling work that
+ * outlives the response, and the database pool's lifecycle. Moving between Vercel and a plain Node server should
  * be a change to this file and nothing else.
  */
 
@@ -161,6 +161,16 @@ const wait_until = (promise: Promise<unknown>): void => {
   waitUntil(promise);
 };
 
+/**
+ * Lets Vercel's Fluid compute close the pool's idle connections before it
+ * suspends an instance, rather than leaking them to Postgres until the server
+ * times them out. A no-op off Vercel (it checks `VERCEL_URL`), where the pool
+ * lives as long as the process and `sveltekit:shutdown` ends it.
+ */
+const attach_db_pool = (pool: Parameters<typeof attachDatabasePool>[0]) => {
+  attachDatabasePool(pool);
+};
+
 export const AdapterService = {
   CLIENT_IP_HEADER,
   pin_client_ip,
@@ -168,4 +178,5 @@ export const AdapterService = {
   get_geo,
   get_user_agent,
   wait_until,
+  attach_db_pool,
 };

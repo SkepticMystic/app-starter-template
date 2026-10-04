@@ -6,8 +6,8 @@
  *
  * The CLI (`auth check schema`) diffs the drizzle schema object, never the
  * database, but it has to _load_ `auth.ts`, and that evaluates its import
- * graph: `new URL(PUBLIC_BASE_URL)`, the Resend and Upstash clients and
- * `neon(DATABASE_URL)` all run at module scope. Its `$app/env/*` stub is a bare
+ * graph: `new URL(PUBLIC_BASE_URL)`, the Resend and Upstash clients and the
+ * database pool are all built at module scope. Its `$app/env/*` stub is a bare
  * `process.env`, so `src/env.ts` never runs — no defaults, no placeholders —
  * and a missing value surfaces only as "Could not load the Better Auth
  * configuration." (exit 2), the cause swallowed.

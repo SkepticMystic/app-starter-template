@@ -1,6 +1,5 @@
 import { getRequestEvent } from "$app/server";
 import { auth } from "#lib/auth.js";
-import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
 import {
   check_guard,
   define_guard,
@@ -11,7 +10,15 @@ import {
   USER,
 } from "#lib/server/remote/guarded.js";
 import { RateLimiter } from "#lib/server/services/rate_limit/rate_limit.service.js";
-import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { MembershipQuery } from "#lib/server/services/auth/membership.query.js";
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vite-plus/test";
 import { z } from "zod";
 import { makeSession } from "../../../test/helpers.js";
 
@@ -26,7 +33,13 @@ const ORG_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 
 const get_ba_session = vi.mocked(auth.api.getSession);
-const get_membership = vi.mocked(OrganizationRepo.get_membership);
+/**
+ * Narrowed to the projection `read_session` asks for: `vi.mocked` erases the
+ * generic `columns` to its constraint, which would demand a whole member row.
+ */
+const get_membership = vi.mocked(MembershipQuery.for_user) as unknown as Mock<
+  () => Promise<App.Result<{ id: string; role: string } | undefined>>
+>;
 
 /**
  * Better-Auth's answer, and the membership `read_session` re-reads behind it:
@@ -34,11 +47,11 @@ const get_membership = vi.mocked(OrganizationRepo.get_membership);
  */
 const signed_in = (
   session: App.Session | null,
-  membership?: { member_id: string; role: string } | null,
+  membership?: { id: string; role: string } | null,
 ) => {
   const claimed = session?.session.member_id
     ? {
-        member_id: session.session.member_id,
+        id: session.session.member_id,
         role: session.session.member_role ?? "owner",
       }
     : undefined;
@@ -249,7 +262,7 @@ describe("check_guard — membership read fresh", () => {
   it("grants what a role promoted since sign-in allows", async () => {
     signed_in(
       makeSession({ orgId: ORG_ID, memberId: MEMBER_ID, memberRole: "member" }),
-      { member_id: MEMBER_ID, role: "admin" },
+      { id: MEMBER_ID, role: "admin" },
     );
 
     const res = await check_guard({
@@ -263,7 +276,7 @@ describe("check_guard — membership read fresh", () => {
   it("refuses what a role demoted since sign-in no longer allows", async () => {
     signed_in(
       makeSession({ orgId: ORG_ID, memberId: MEMBER_ID, memberRole: "owner" }),
-      { member_id: MEMBER_ID, role: "member" },
+      { id: MEMBER_ID, role: "member" },
     );
 
     const res = await check_guard({

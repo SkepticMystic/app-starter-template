@@ -7,7 +7,6 @@ import {
   type Image,
   type ImageSchema,
 } from "#lib/server/db/models/image.model.js";
-import { ImageRepo } from "#lib/server/db/repos/image.repo.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -129,17 +128,22 @@ const upload = async (
       });
     }
 
-    const image = await ImageRepo.create({
-      ...upload_res.data,
-      resource_id: input.resource_id,
-      resource_kind: input.resource_kind,
+    const image = await Repo.insert_one(
+      db
+        .insert(ImageTable)
+        .values({
+          ...upload_res.data,
+          resource_id: input.resource_id,
+          resource_kind: input.resource_kind,
 
-      user_id: session.session.userId,
-      org_id: session.session.org_id,
-      member_id: session.session.member_id,
+          user_id: session.session.userId,
+          org_id: session.session.org_id,
+          member_id: session.session.member_id,
 
-      thumbhash: thumbhash.ok ? thumbhash.data : null,
-    });
+          thumbhash: thumbhash.ok ? thumbhash.data : null,
+        })
+        .returning(),
+    );
     if (!image.ok) discard();
 
     return image;

@@ -4,8 +4,12 @@ import lint from "./oxlint.config";
 
 const SONDA = process.env.SONDA;
 
-/** The `sql` project's `include` and the `server` project's `exclude`, so they cannot drift. */
-const SQL_TESTS = ["**/db/repos/**/*.test.ts"];
+/**
+ * Tests that compile real SQL — the `Repo` wrapper's and each `*.query.ts`'s.
+ * The `sql` project's `include` and the `server` project's `exclude`, so they
+ * cannot drift.
+ */
+const SQL_TESTS = ["**/db/repos/**/*.test.ts", "**/*.query.test.ts"];
 
 /**
  * The Umami origin, when the build sets one — read from the real environment

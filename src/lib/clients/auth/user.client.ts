@@ -2,6 +2,8 @@ import { goto } from "$app/navigation";
 import { Toast } from "#lib/utils/toast.util.js";
 import { resolve } from "$app/paths";
 import { BetterAuthClient } from "#lib/auth-client.js";
+import { export_account_data_remote } from "#lib/remote/auth/user.remote.js";
+import { APP } from "#lib/const/app.const.js";
 import { App } from "#lib/utils/app.js";
 import { Client } from "../index.client.js";
 
@@ -27,6 +29,29 @@ export const UserClient = {
       destructive: true,
       action_label: "Delete account",
     },
+  ),
+
+  /** Saved as a file in the browser; the server never writes one. */
+  export_data: Client.wrap(
+    async () => {
+      const res = await export_account_data_remote();
+      if (!res.ok) return res;
+
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${APP.ID}-account-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+
+      return res;
+    },
+    { suc_msg: "Your data is downloading" },
   ),
 
   signout: async () => {

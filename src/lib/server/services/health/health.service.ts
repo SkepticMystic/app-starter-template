@@ -17,9 +17,10 @@ const TIMEOUT_MS = 2_000;
 type Check = { ok: boolean; ms: number; error?: string };
 
 /**
- * A losing ping is not cancelled; it settles in the background. Both drivers
- * are HTTP (neon-http, Upstash REST), so that holds no pooled connection — just
- * one in-flight fetch per probe.
+ * A losing ping is not cancelled; it settles in the background. A hung
+ * database ping holds one pool connection until it settles or the server
+ * drops it, which the pool's `connectionTimeoutMillis` bounds when the hang
+ * is in connecting. Upstash is REST, so its ping holds only a fetch.
  */
 const timed = async (
   name: string,

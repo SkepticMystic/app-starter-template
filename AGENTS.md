@@ -80,8 +80,8 @@ Four things about this suite are not guessable from reading a test file:
 
   **So a test file does not call `vi.mock`.** It imports the module normally
   and configures the shared instance — `vi.mocked(Repo.exists)
-.mockResolvedValue(…)`, `mocks(OrganizationRepo).get_membership…` or
-  `install_mock(OrganizationRepo, fake)` for a behaviour-rich fake, both from
+.mockResolvedValue(…)`, `mocks(MembershipQuery).for_user…` or
+  `install_mock(MembershipQuery, fake)` for a behaviour-rich fake, both from
   `src/test/helpers.ts`. `install_mock` throws on a name that is not one of the
   real module's functions, since anything it defined would outlive the file on
   the shared instance. Where the subject under test is _itself_ on the wall,
@@ -97,13 +97,13 @@ Four things about this suite are not guessable from reading a test file:
   `.mockResolvedValue()` seed would come back `undefined`. Install what a test
   needs in its own `beforeEach`, which runs after this one.
 
-- **Two projects, `server` and `sql`.** A repo test compiles real SQL, so it
+- **Two projects, `server` and `sql`.** A SQL test compiles real SQL, so it
   needs `drizzle.db` to be a genuine drizzle and `index.repo` to be the real
   wrapper — the exact opposite of what every other file needs. One module
-  cannot hold two values in one registry, so `src/lib/server/db/repos/**/*.test.ts`
-  runs as its own project with `src/test/setup.sql.ts`: drizzle over
-  `pg-proxy`, which compiles the same Postgres dialect `neon-http` sends, and
-  records each statement instead. A repo test reads `recorder.calls` and queues
+  cannot hold two values in one registry, so `index.repo.test.ts` and every
+  `*.query.test.ts` run as their own project with `src/test/setup.sql.ts`: drizzle over
+  `pg-proxy`, which compiles the same Postgres dialect `node-postgres` sends, and
+  records each statement instead. A SQL test reads `recorder.calls` and queues
   answers on `recorder.rows` (`src/test/sql.mock.ts`) — positional rows
   (`[["id", "role"]]`) for a builder or relational query. `SQL_TESTS` in
   `vite.config.ts` is both the `server` project's `exclude` and the `sql`
@@ -136,8 +136,10 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
   build)
 - `pnpm db:migrate:run` - the same migrations via the runtime driver, with no
   drizzle-kit and so no devDependencies. This is the one to run as a one-shot
-  step before rolling out containers — never from a container entrypoint, since
-  replicas would race and neon-http has no transactions to lock with
+  step before rolling out containers, not from a container entrypoint. It
+  applies pending migrations in one transaction under an advisory lock, so a
+  failure rolls back and two runs queue — which needs a direct connection, not
+  Neon's transaction-mode `-pooler` host
 - `pnpm db:studio` - Open Drizzle Studio
 - `pnpm db:push:explain` - dry run: print the DDL `db:push` would apply
 - `pnpm _db skills` - regenerate the vendored drizzle agent skills. They are
@@ -179,7 +181,18 @@ Database commands use a custom script wrapper (`scripts/drizzle/kit.script.ts`) 
 
 ### Database Architecture
 
-- **Drizzle ORM** with PostgreSQL (Neon)
+- **Drizzle ORM** with PostgreSQL (Neon, or any Postgres), over
+  `node-postgres`: `drizzle.db.ts` exports a `pg` Pool and `db`, so
+  `db.transaction` is a real interactive transaction. The pool is small per
+  instance (`max: 5`), handed to `AdapterService.attach_db_pool` so Vercel
+  closes idle connections before suspending, and ended on
+  `sveltekit:shutdown`. In production and preview `DATABASE_URL` is Neon's
+  `-pooler` (pgbouncer, transaction mode) endpoint, so the instances' pools
+  share one connection budget; nothing may rely on session state (`SET`,
+  session advisory locks, `LISTEN`) outside a transaction. Migrations connect
+  direct: `DATABASE_URL_UNPOOLED` when set (`infra/app_env.tf`, the app never
+  reads it), and `drizzle.config.ts` and the migrate script strip `-pooler`
+  from `DATABASE_URL` otherwise
 - Schema files use the `*.model.ts` naming convention and live in
   `src/lib/server/db/models/`:
   - `auth.model.ts` - User, Session, Account, Organization, Member, Invitation,
@@ -702,6 +715,20 @@ everything it imports run after `set_env`.
 - Wrap every statement in a `Repo.*` helper so failures become `App.Result`
   rather than throwing; use `Repo.contains()` for any LIKE/ILIKE search term,
   which escapes the wildcards
+- **No per-table repos.** A query is written inline where it is used — the
+  service, `load` or remote function — with `columns:` / `select({…})` naming
+  what that use reads. Tests drive it through the mocked `Repo.*`
+- **Extract a query only on evidence**: two or more real callers, or an
+  invariant it must keep. It is named for the question, not the table
+  (`MembershipQuery.for_user`, not `OrganizationRepo.get_by_id`), lives in a
+  `*.query.ts` beside the feature, and gets a `*.query.test.ts` in the `sql`
+  project. Back to inline when it is down to one caller
+- **An extracted query takes its caller's `columns`** (`{ id: true, role:
+true }`) and answers exactly that row: `Columns`, `NonEmpty`, `Projected`
+  and `Every` from `src/lib/server/db/projection.ts`, with `membership.query.ts`
+  as the pattern. `{}` is refused, since drizzle reads it as every column.
+  Mocking one, `vi.mocked` erases the generic to a whole row, so narrow the
+  mock's type to the projection the code under test asks for
 - Never use BetterAuth's nanoid generation; custom UUID generation is configured
 
 ### Error Handling

@@ -2,13 +2,18 @@ import { getRequestEvent } from "$app/server";
 import { ServiceUtil } from "#lib/server/services/service.util.js";
 import { auth, is_ba_error_code } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
-import { type OrganizationSchema } from "#lib/server/db/models/auth.model.js";
-import { APIKeyRepo } from "#lib/server/db/repos/apikey.repo.js";
-import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
+import { db } from "#lib/server/db/drizzle.db.js";
+import {
+  APIKeyTable,
+  OrganizationTable,
+  type OrganizationSchema,
+} from "#lib/server/db/models/auth.model.js";
+import { Repo } from "#lib/server/db/repos/index.repo.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
 import { APIError } from "better-auth";
+import { operators } from "drizzle-orm";
 import { generateRandomString } from "better-auth/crypto";
 import type { Organization } from "better-auth/plugins";
 import type { z } from "zod";
@@ -86,7 +91,13 @@ const revoke_access = async (org_id: string, user_ids: string[]) => {
     ),
   );
 
-  const keys = await APIKeyRepo.delete_by_reference({ org_id });
+  // `referenceId` has no foreign key, so nothing else removes them. Safe
+  // beneath the plugin: `verifyApiKey` claims usage by id and refuses a key
+  // whose row is gone, so a copy cached in Redis dies on its next use. That
+  // holds only while `deferUpdates` is off in `src/lib/auth.ts`.
+  const keys = await Repo.delete(
+    db.delete(APIKeyTable).where(operators.eq(APIKeyTable.referenceId, org_id)),
+  );
 
   if (!keys.ok) {
     l.error({ error: keys.error }, "revoke_access.keys_not_deleted");
@@ -106,8 +117,19 @@ const revoke_access = async (org_id: string, user_ids: string[]) => {
 };
 
 /** Read first: `member` cascades with the row. */
-const members_before_delete = async (org_id: string) =>
-  OrganizationRepo.list_member_user_ids({ id: org_id });
+const members_before_delete = async (
+  org_id: string,
+): Promise<App.Result<string[]>> => {
+  const res = await Repo.query(
+    db.query.member.findMany({
+      columns: { userId: true },
+      where: { organizationId: org_id },
+    }),
+  );
+  if (!res.ok) return res;
+
+  return result.suc(res.data.map((m) => m.userId));
+};
 
 const owner_delete = async (org_id: string) => {
   const l = log.child({ method: "owner_delete" });
@@ -147,7 +169,11 @@ const admin_delete = async (org_id: string) => {
   const members = await members_before_delete(org_id);
   if (!members.ok) return members;
 
-  const deleted = await OrganizationRepo.delete_by_id({ id: org_id });
+  const deleted = await Repo.delete_one(
+    db
+      .delete(OrganizationTable)
+      .where(operators.eq(OrganizationTable.id, org_id)),
+  );
   if (!deleted.ok) return deleted;
 
   await revoke_access(org_id, members.data);

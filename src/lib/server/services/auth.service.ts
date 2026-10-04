@@ -1,7 +1,7 @@
 import { getRequestEvent } from "$app/server";
 import { auth } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
-import { OrganizationRepo } from "#lib/server/db/repos/organization.repo.js";
+import { MembershipQuery } from "#lib/server/services/auth/membership.query.js";
 import { Authz } from "#lib/utils/auth/authz.util.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
@@ -86,10 +86,10 @@ const load_session = async (
   const org_id = session.session.org_id;
   if (!org_id) return result.suc(session);
 
-  const membership = await OrganizationRepo.get_membership({
-    org_id,
-    user_id: session.user.id,
-  });
+  const membership = await MembershipQuery.for_user(
+    { org_id, user_id: session.user.id },
+    { id: true, role: true },
+  );
   if (!membership.ok) return membership;
 
   const m = membership.data;
@@ -103,7 +103,7 @@ const load_session = async (
 
   Object.assign(session.session, {
     org_id: m ? org_id : null,
-    member_id: m?.member_id ?? null,
+    member_id: m?.id ?? null,
     member_role: m?.role ?? null,
   });
 

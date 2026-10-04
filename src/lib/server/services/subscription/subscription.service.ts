@@ -4,13 +4,16 @@ import { checkout_url } from "#lib/server/sdk/payment/paystack/paystack.payment.
 import { auth } from "#lib/auth.js";
 import { ERROR } from "#lib/const/error.const.js";
 import { db } from "#lib/server/db/drizzle.db.js";
-import type { Subscription } from "#lib/server/db/models/subscription.model.js";
+import {
+  SubscriptionTable,
+  type Subscription,
+} from "#lib/server/db/models/subscription.model.js";
 import { Repo } from "#lib/server/db/repos/index.repo.js";
-import { SubscriptionRepo } from "#lib/server/db/repos/subscription.repo.js";
 import { App } from "#lib/utils/app.js";
 import { Log } from "#lib/utils/logger.util.js";
 import { result } from "#lib/utils/result.util.js";
 import { captureException } from "@sentry/sveltekit";
+import { operators } from "drizzle-orm";
 import { RuntimeService } from "../runtime/runtime.service.js";
 
 const log = Log.child({ service: "SubscriptionService" });
@@ -21,7 +24,11 @@ const get_by_id = async (subscription_id: string, session: App.Session) => {
       return result.err(ERROR.FORBIDDEN);
     }
 
-    const res = await SubscriptionRepo.get_by_id(subscription_id);
+    const res = await Repo.query(
+      db.query.paystackSubscription.findFirst({
+        where: { id: subscription_id },
+      }),
+    );
     if (!res.ok) {
       return res;
     } else if (!res.data) {
@@ -66,10 +73,12 @@ const get_active = async (session: {
       const { id } = res.data;
 
       RuntimeService.defer(async () =>
-        SubscriptionRepo.update_by_id(id, {
-          status: "canceled",
-          cancelAtPeriodEnd: false,
-        }),
+        Repo.update_void(
+          db
+            .update(SubscriptionTable)
+            .set({ status: "canceled", cancelAtPeriodEnd: false })
+            .where(operators.eq(SubscriptionTable.id, id)),
+        ),
       );
 
       return result.suc(undefined);

@@ -73,6 +73,15 @@ const drain_on_shutdown = async (reason: unknown) => {
 
   const result = await RuntimeService.drain();
 
+  // After the drain, which may still be writing. Idle sockets would otherwise
+  // be cut mid-protocol at exit, and show up server-side as aborted clients.
+  const pool_ended = await import("#lib/server/db/drizzle.db.js")
+    .then(({ pool }) => pool.end())
+    .then(
+      () => true,
+      () => false,
+    );
+
   // Batched logs and metrics do not hold the process open; without this a
   // stopping process's last seconds never reach Sentry. Resolves `false` on
   // its deadline.
@@ -83,7 +92,7 @@ const drain_on_shutdown = async (reason: unknown) => {
 
   // `console`, not `Log`: pino's transport may already be tearing down.
   console.info(
-    `[shutdown] reason=${String(reason)} deferred=${result.initial} lost=${result.lost} ms=${result.ms} sentry_flushed=${sentry_flushed}`,
+    `[shutdown] reason=${String(reason)} deferred=${result.initial} lost=${result.lost} ms=${result.ms} pool_ended=${pool_ended} sentry_flushed=${sentry_flushed}`,
   );
 };
 
