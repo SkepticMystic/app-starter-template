@@ -11,7 +11,7 @@
 # The tag must satisfy `engines.node` in package.json — .npmrc sets
 # engine-strict=true, so a lower version fails at install rather than at
 # runtime. `.nvmrc` is the other place the major is written.
-ARG NODE_VERSION=26-slim
+ARG NODE_VERSION=24-slim
 
 
 # --- base ---------------------------------------------------------------------
@@ -30,9 +30,10 @@ ENV CI=true
 ENV VP_GIT_HOOKS=0
 
 # corepack reads `packageManager`, so that stays the only place the pnpm version
-# is written. Node stopped bundling corepack at 25, so `node:26-slim` has npm
-# but no `corepack` binary: it is installed through npm rather than replaced by
-# `npm install -g pnpm@<version>`, which would write the version down twice.
+# is written. Node stops bundling corepack at 25, so it is installed through
+# npm rather than relied on, which keeps a major bump a one-line change; not
+# replaced by `npm install -g pnpm@<version>`, which would write the version
+# down twice. 24 because it is the newest major Vercel's build image runs.
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN npm install -g corepack && corepack enable pnpm
 
